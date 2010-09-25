@@ -231,7 +231,7 @@
 #  check host myserver with address 192.168.1.1
 #    if failed icmp type echo count 3 with timeout 3 seconds then alert
 #    if failed port 3306 protocol mysql with timeout 15 seconds then alert
-#    if failed url http://user:password@www.foo.bar:8080/?querystring
+#    if failed url http://user:password@192.168.1.1:8080/?querystring
 #       and content == 'action="j_security_check"'
 #       then alert
 #
@@ -243,6 +243,6 @@
 ## It is possible to include additional configuration parts from other files or
 ## directories.
 #
-#  include /etc/monit.d/*
-#
-#
+
+include /etc/monit/conf.d/*
+
