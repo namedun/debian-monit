@@ -7,7 +7,7 @@ Standards-Version: 3.8.4.0
 
 Package: monit
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: A utility for monitoring and managing daemons or similar programs
  monit is a utility for monitoring and managing daemons or similar
  programs running on a Unix system. It will start specified programs
