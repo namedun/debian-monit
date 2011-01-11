@@ -1,7 +1,7 @@
 Source: monit
 Section: admin
 Priority: optional
-Maintainer: Stefan Alfredsson <alfs@debian.org>
+Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
 Build-Depends: debhelper (>> 3.0.0), byacc, flex, cdbs (>= 0.2.4), libssl-dev, automake1.9, dpatch, libpam-dev
 Standards-Version: 3.8.4.0
 
