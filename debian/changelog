@@ -1,3 +1,12 @@
+monit (1:5.2.3-1) unstable; urgency=low
+
+  * New maintainer
+  * change patch system: dpatch -> quilt
+  * Switch to dpkg-source 3.0 (quilt) format
+  * New upstream release (5.2.3)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 11 Jan 2011 20:30:18 +0300
+
 monit (1:5.2.1-1) unstable; urgency=low
 
   * New upstream release
