@@ -4,8 +4,14 @@ monit (1:5.2.3-1) unstable; urgency=low
   * change patch system: dpatch -> quilt
   * Switch to dpkg-source 3.0 (quilt) format
   * New upstream release (5.2.3)
+  * Include ${misc:Depends} in depends section of debian/control
+  * Bump up Standards-Version (to 3.9.1)
+  * Add lintian override for permissions of etc/monit/monitrc
+  * Add debian/README.source
+  * Bump up debhelper compatibility version (to 5)
+  * Declare versioned dependency on debhelper
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 11 Jan 2011 20:30:18 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 11 Jan 2011 21:30:15 +0300
 
 monit (1:5.2.1-1) unstable; urgency=low
 
