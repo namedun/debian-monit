@@ -1,10 +1,37 @@
-                     CHANGES version 5.2.1
+                     CHANGES version 5.2.3
                                 
            This file summarizes changes made since 5.0
                                 
        Bug fixes may refer to an auto-generated id in our
           bug-tracking system, which can be found here
           https://savannah.nongnu.org/bugs/?group=monit
+
+
+Version 5.2.3
+
+BUGFIXES:
+
+* Mysql protocol test supports mysql 5.5.x and newer now.
+
+Version 5.2.2
+
+BUGFIXES:
+
+* Fix crash on MacOSX
+
+* ICMP echo test (ping):
+     - bug #31128: do not log error if different response type is received
+     - bug #31129: do not require root to use ping test. Privilege to create
+       raw socket is still required, but on some platforms such as Solaris it
+       can be granted to non-root users too. If the user has no permission to
+       perform ping, monit will skip the icmp test and log message (in debug
+       mode only).
+
+* rsync protocol test:
+     - wait for full server response and verify exit was received
+     - bug #31249: send full version to rsync server. Thanks to John Hall
+       for report
+
 
 
 Version 5.2.1
@@ -17,6 +44,7 @@ BUGFIXES:
   the process of fixing this bug the new feature that allowed slash in
   service names has been reverted and instead will be added in a later
   release.
+
 
 
 Version 5.2

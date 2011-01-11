@@ -648,7 +648,9 @@ int udp_write(int socket, void *b, int len, int timeout) {
  * @param hostname The host to open a socket at
  * @param timeout If response will not come within timeout seconds abort
  * @param count How many pings to send
- * @return response time on succes, -1 on error
+ * @return response time on succes, -1 on error, -2 when monit has no
+ * permissions for raw socket (normally requires root or net_icmpaccess
+ * privilege on Solaris)
  */
 double icmp_echo(const char *hostname, int timeout, int count) {
   struct sockaddr_in sout;
@@ -660,10 +662,9 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   int len_in = sizeof(struct ip) + sizeof(struct icmp);
   struct icmp *icmpin = NULL;
   struct icmp *icmpout = NULL;
-  uint16_t id_out;
+  uint16_t id_in, id_out, seq_in;
   int r, i, s, n = 0;
-  struct timeval t_out;
-  struct timeval t_in;
+  struct timeval t_in, t_out;
   char buf[STRLEN];
   double response = -1.;
 #if ! defined NETBSD && ! defined AIX
@@ -677,12 +678,17 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET;
   if (getaddrinfo(hostname, NULL, &hints, &result) != 0) {
-    LogError("ICMP echo -- getaddrinfo failed: %s\n", STRERROR);
+    LogError("ICMP echo for %s -- getaddrinfo failed: %s\n", hostname, STRERROR);
     return response;
   }
 
   if ((s = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0) {
-    LogError("ICMP echo -- socket failed: %s\n", STRERROR);
+    if (errno == EACCES || errno == EPERM) {
+      DEBUG("ICMP echo for %s -- cannot create socket: %s\n", hostname, STRERROR);
+      response = -2.;
+    } else {
+      LogError("ICMP echo for %s -- canot create socket: %s\n", hostname, STRERROR);
+    }
     goto error2;
   }
 
@@ -697,12 +703,12 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   }
 #endif
   if (setsockopt(s, sol_ip, IP_TTL, (char *)&ttl, sizeof(ttl)) < 0) {
-    LogError("ICMP echo -- setsockopt failed: %s\n", STRERROR);
+    LogError("ICMP echo for %s -- setsockopt failed: %s\n", hostname, STRERROR);
     goto error1;
   }
 #endif
 
-  id_out = (getpid() + time(NULL)) & 0xFFFF;
+  id_out = getpid() & 0xFFFF;
   icmpout = (struct icmp *)buf;
   for (i = 0; i < count; i++) {
     int j;
@@ -710,8 +716,8 @@ double icmp_echo(const char *hostname, int timeout, int count) {
 
     icmpout->icmp_code  = 0;
     icmpout->icmp_type  = ICMP_ECHO;
-    icmpout->icmp_id    = id_out;
-    icmpout->icmp_seq   = i;
+    icmpout->icmp_id    = htons(id_out);
+    icmpout->icmp_seq   = htons(i);
     icmpout->icmp_cksum = 0;
 
     /* Add originate timestamp to data section */
@@ -734,7 +740,7 @@ double icmp_echo(const char *hostname, int timeout, int count) {
       n = sendto(s, (char *)icmpout, len_out, 0, (struct sockaddr *)&sout, sizeof(struct sockaddr));
     } while(n == -1 && errno == EINTR);
     if (n < 0) {
-      LogError("ICMP echo request %d/%d failed -- %s\n", i + 1, count, STRERROR);
+      LogError("ICMP echo request for %s %d/%d failed -- %s\n", hostname, i + 1, count, STRERROR);
       continue;
     }
   
@@ -745,29 +751,31 @@ double icmp_echo(const char *hostname, int timeout, int count) {
         n = recvfrom(s, buf, STRLEN, 0, (struct sockaddr *)&sout, &size);
       } while(n == -1 && errno == EINTR);
       if (n < 0) {
-        LogError("ICMP echo response %d/%d failed -- %s\n", i + 1, count, STRERROR);
+        LogError("ICMP echo response for %s %d/%d failed -- %s\n", hostname, i + 1, count, STRERROR);
         continue;
       } else if (n < len_in) {
-        LogError("ICMP echo response %d/%d failed -- received %d bytes, expected at least %d bytes\n", i + 1, count, n, len_in);
+        LogError("ICMP echo response for %s %d/%d failed -- received %d bytes, expected at least %d bytes\n", hostname, i + 1, count, n, len_in);
         continue;
       }
 
       iphdrin = (struct ip *)buf;
       icmpin  = (struct icmp *)(buf + iphdrin->ip_hl * 4);
+      id_in   = ntohs(icmpin->icmp_id);
+      seq_in  = ntohs(icmpin->icmp_seq);
       if (icmpin->icmp_type == ICMP_ECHOREPLY) {
-        if (icmpin->icmp_id == id_out && icmpin->icmp_seq < (uint16_t)count) {
+        if (id_in == id_out && seq_in < (uint16_t)count) {
           /* Get the response time */
           gettimeofday(&t_in, NULL);
           memcpy(&t_out, icmpin->icmp_data, sizeof(struct timeval));
           response = (double)(t_in.tv_sec - t_out.tv_sec) + (double)(t_in.tv_usec - t_out.tv_usec) / 1000000;
-          DEBUG("ICMP echo response %d/%d succeeded -- received id=%d sequence=%d response_time=%fs\n", i + 1, count, icmpin->icmp_id, icmpin->icmp_seq, response);
+          DEBUG("ICMP echo response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%fs\n", hostname, i + 1, count, id_in, seq_in, response);
           break; // Wait for one response only
         } else
-          LogError("ICMP echo response %d/%d error -- received id=%d (expected id=%d), received sequence=%d (expected sequence 0-%d)\n", i + 1, count, icmpin->icmp_id, id_out, icmpin->icmp_seq, count - 1);
+          LogError("ICMP echo response for %s %d/%d error -- received id=%d (expected id=%d), received sequence=%d (expected sequence=%d)\n", hostname, i + 1, count, id_in, id_out, seq_in, i);
       } else
-        LogError("ICMP echo response %d/%d failed -- invalid ICMP response type: %x (%s)\n", i + 1, count, icmpin->icmp_type, icmpin->icmp_type < 19 ? icmpnames[icmpin->icmp_type] : "unknown");
+        DEBUG("ICMP echo response for %s %d/%d -- expected ECHOREPLY, received response type: %x (%s), source id=%d (mine id=%d) sequence=%d (mine sequence=%d)\n", hostname, i + 1, count, icmpin->icmp_type, icmpin->icmp_type < 19 ? icmpnames[icmpin->icmp_type] : "unknown", id_in, id_out, seq_in, i);
     } else
-      LogError("ICMP echo response %d/%d timed out -- no response within %d seconds\n", i + 1, count, timeout);
+      LogError("ICMP echo response for %s %d/%d timed out -- no response within %d seconds\n", hostname, i + 1, count, timeout);
   }
 
   error1:
