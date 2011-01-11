@@ -1,14 +1,10 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## config_file_relocation.dpatch by  <alfs@kossan>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Description: Patched original source for new location of
+ monitrc (in /etc/monit/monitrc).
+Author: Fredrik Steen <stone@debian.org>
 
-@DPATCH@
-diff -urNad monit-4.10.1/file.c /tmp/dpep.zWsLpf/monit-4.10.1/file.c
---- monit-4.10.1/file.c	Sun Aug 12 20:02:48 2007
-+++ /tmp/dpep.zWsLpf/monit-4.10.1/file.c	Tue Jan 29 21:43:29 2008
-@@ -158,6 +158,11 @@
+--- a/file.c
++++ b/file.c
+@@ -184,6 +184,11 @@
      return (rcfile);
    }
    memset(rcfile, 0, STRLEN);
@@ -20,7 +16,7 @@ diff -urNad monit-4.10.1/file.c /tmp/dpep.zWsLpf/monit-4.10.1/file.c
    snprintf(rcfile, STRLEN, "/etc/%s", MONITRC);
    if(File_exist(rcfile)) {
      return (rcfile);
-@@ -178,8 +183,8 @@
+@@ -204,8 +209,8 @@
      return (rcfile);
    }
    LogError("%s: Cannot find the control file at "

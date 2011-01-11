@@ -1,13 +1,9 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## monit.1-debian-path.dpatch by  <alfs@kossan>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Description: Changed /etc/monitrc references to
+ /etc/monit/monitrc (Closes:#244646).
+Author: Fredrik Steen <stone@debian.org>
 
-@DPATCH@
-diff -urNad monit-5.2.1~/monit.1 monit-5.2.1/monit.1
---- monit-5.2.1~/monit.1	2010-09-26 11:42:33.000000000 +0200
-+++ monit-5.2.1/monit.1	2010-09-26 11:44:41.000000000 +0200
+--- a/monit.1
++++ b/monit.1
 @@ -313,7 +313,7 @@
  .IX Header "HOW TO MONITOR"
  Monit is configured and controlled via a control file called
