@@ -1,1 +1,1 @@
-monit: non-standard-file-perm etc/monit/monitrc
+monit: non-standard-file-perm etc/monit/monitrc 0600 != 0644
