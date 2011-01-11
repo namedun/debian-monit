@@ -2,7 +2,7 @@ Source: monit
 Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
-Build-Depends: debhelper (>> 3.0.0), byacc, flex, cdbs (>= 0.2.4), libssl-dev, automake1.9, quilt, libpam-dev
+Build-Depends: debhelper (>= 5), byacc, flex, cdbs (>= 0.2.4), libssl-dev, automake1.9, quilt, libpam-dev
 Standards-Version: 3.9.1
 
 Package: monit
