@@ -1,6 +1,6 @@
 monit (1:5.2.3-1) unstable; urgency=low
 
-  * New maintainer
+  * New maintainer (Closes: #593941)
   * change patch system: dpatch -> quilt
   * Switch to dpkg-source 3.0 (quilt) format
   * New upstream release (5.2.3)
