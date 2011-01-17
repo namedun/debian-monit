@@ -1,6 +1,6 @@
 Description: Changed /etc/monitrc references to
  /etc/monit/monitrc (Closes:#244646).
-Author: Fredrik Steen <stone@debian.org>
+Author: Stefan Alfredsson <alfs@debian.org>
 
 --- a/monit.1
 +++ b/monit.1
