@@ -28,7 +28,7 @@ fi
 ARGS="-c $CONFIG -s /var/lib/monit/monit.state"
 
 monit_not_configured () {
-    printf "%b\n" "monit won't be started/stopped\n\tunless it it's configured"
+    printf "%b\n" "monit won't be started/stopped\n\tunless it's configured"
     if [ "$1" != "stop" ]
         then
         printf "%b\n" "\tplease configure monit and then edit /etc/default/monit"
