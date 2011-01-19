@@ -1,3 +1,4 @@
 01_config_file_relocation.patch
 02_monit.1_debian_path.patch
 03_monitrc.patch
+04_LOGMASK.patch
