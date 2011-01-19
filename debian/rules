@@ -15,7 +15,7 @@ DEB_CONFIGURE_EXTRA_FLAGS := --bindir=/usr/sbin --without-accurate-mem-calcs
 #DEB_INSTALL_EXAMPLES_monit := debian/example.monitrc 
 
 # update-rc.d init script args
-DEB_DH_INSTALLINIT_ARGS := -- start 99 2 3 4 5 . stop 10 0 1 6 .
+DEB_DH_INSTALLINIT_ARGS := -- start 99 2 3 4 5 . stop 01 0 1 6 .
 
 DEB_INSTALL_CHANGELOGS_ALL := CHANGES.txt
 
