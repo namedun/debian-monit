@@ -1,3 +1,16 @@
+monit (1:5.2.3-2) UNRELEASED; urgency=low
+
+  * Fix monit_not_configured () message text (see Ubuntu bug #666268)
+  * Add Vcs-* fields to debian/control
+  * Fix initscript dependencies to start after and stop before other
+    services (Closes: #606731, thanks to Joey Parrish <joey.parrish@gmail.com>)
+  * Add patch 04_LOGMASK.patch: set strict file mode creation mask for
+    logfile
+  * Allow monit to start by default, provide monimal monitrc file
+    (Closes: #583132, thanks to Thomas Clavier <tom@tcweb.org>)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 20 Jan 2011 12:24:37 +0300
+
 monit (1:5.2.3-1) unstable; urgency=low
 
   * New maintainer (Closes: #593941)
