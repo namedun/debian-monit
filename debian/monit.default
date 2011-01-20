@@ -13,3 +13,6 @@ startup=1
 # To change the intervals which monit should run,
 # edit the configuration file /etc/monit/monitrc
 # It can no longer be configured here.
+
+# Options to pass to monit
+#MONIT_OPTS=
