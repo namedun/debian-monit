@@ -8,8 +8,14 @@ monit (1:5.2.3-2) UNRELEASED; urgency=low
     logfile
   * Allow monit to start by default, provide monimal monitrc file
     (Closes: #583132, thanks to Thomas Clavier <tom@tcweb.org>)
+  * Use logging to file, instead of syslog by default, add logrotate
+    script
+  * Handle MONIT_OPTS configuration variable in initscript to pass
+    command line arguments at startup, eg. -d 180 (Closes: #589895)
+  * Cleanup /etc/default/monit file
+  * Rewrote initscript using lsb-helpers, add depends on lsb-base
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 20 Jan 2011 12:24:37 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 20 Jan 2011 17:06:16 +0300
 
 monit (1:5.2.3-1) unstable; urgency=low
 
