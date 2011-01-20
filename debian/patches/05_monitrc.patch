@@ -5,7 +5,7 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 
 --- a/monitrc
 +++ b/monitrc
-@@ -16,23 +16,23 @@
+@@ -16,23 +16,24 @@
  ##
  ## Start Monit in the background (run as a daemon):
  #
@@ -22,7 +22,8 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  ## a standalone log file instead, specify the full path to the log file
  #
 -# set logfile syslog facility log_daemon                       
-+set logfile syslog facility log_daemon
++# set logfile syslog facility log_daemon
++set logfile /var/log/monit.log
  #
  #
  ### Set the location of the Monit id file which stores the unique id for the
@@ -34,7 +35,7 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  #
  ### Set the location of the Monit state file which saves monitoring states
  ### on each cycle. By default the file is placed in $HOME/.monit.state. If
-@@ -40,16 +40,13 @@
+@@ -40,16 +41,13 @@
  ### the monitoring state across reboots. If it is on temporary filesystem, the
  ### state will be lost on reboot which may be convenient in some situations.
  #
@@ -53,7 +54,7 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  #
  ## By default Monit will drop alert events if no mail servers are available. 
  ## If you want to keep the alerts for later delivery retry, you can use the 
-@@ -58,10 +55,7 @@
+@@ -58,10 +56,7 @@
  ## size using the SLOTS option (if omitted, the queue is limited by space 
  ## available in the back end filesystem).
  #
@@ -65,7 +66,7 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
  ## see http://mmonit.com/). By default Monit registers credentials with 
-@@ -104,9 +98,9 @@
+@@ -104,9 +99,9 @@
  ## service defined in this file has errors. Alerts may be restricted on 
  ## events by using a filter as in the second example below. 
  #
