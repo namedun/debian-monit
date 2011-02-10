@@ -1,21 +1,28 @@
 monit (1:5.2.3-2) UNRELEASED; urgency=low
 
+  [ Sergey B Kirpichev ]
   * Fix monit_not_configured () message text (see Ubuntu bug #666268)
   * Add Vcs-* fields to debian/control
   * Fix initscript dependencies to start after and stop before other
     services (Closes: #606731, thanks to Joey Parrish <joey.parrish@gmail.com>)
   * Add patch 04_LOGMASK.patch: set strict file mode creation mask for
     logfile
-  * Allow monit to start by default, provide monimal monitrc file
+  * Allow monit to start by default, provide minimal monitrc file
     (Closes: #583132, thanks to Thomas Clavier <tom@tcweb.org>)
   * Use logging to file, instead of syslog by default, add logrotate
     script
   * Handle MONIT_OPTS configuration variable in initscript to pass
     command line arguments at startup, eg. -d 180 (Closes: #589895)
-  * Cleanup /etc/default/monit file
+  * Cleanup /etc/default/monit file (Closes: #612767)
   * Rewrote initscript using lsb-helpers, add depends on lsb-base
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 20 Jan 2011 17:06:16 +0300
+  [ Jeremiah C. Foster ]
+  * Minor typo correction for debian/copyright
+
+  [ Sergey B Kirpichev ]
+  * Create TODO.Debian file, add item
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 10 Feb 2011 17:17:10 +0300
 
 monit (1:5.2.3-1) unstable; urgency=low
 
