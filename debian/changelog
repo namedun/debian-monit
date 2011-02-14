@@ -1,4 +1,4 @@
-monit (1:5.2.3-2) UNRELEASED; urgency=low
+monit (1:5.2.3-2) unstable; urgency=low
 
   [ Sergey B Kirpichev ]
   * Fix monit_not_configured () message text (see Ubuntu bug #666268)
@@ -21,8 +21,11 @@ monit (1:5.2.3-2) UNRELEASED; urgency=low
 
   [ Sergey B Kirpichev ]
   * Create TODO.Debian file, add item
+  * Fix some spelling errors (added patch 06)
+  * Merge monitrc patches
+  * Drop patch/unpatch logic from debian/rules
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 10 Feb 2011 17:17:10 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 14 Feb 2011 16:59:02 +0300
 
 monit (1:5.2.3-1) unstable; urgency=low
 
