@@ -79,3 +79,13 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  #
  #
  ## Monit has an embedded web server which can be used to view status of 
+@@ -243,6 +238,6 @@
+ ## It is possible to include additional configuration parts from other files or
+ ## directories.
+ #
+-#  include /etc/monit.d/*
+-#
+-#
++
++include /etc/monit/conf.d/*
++
