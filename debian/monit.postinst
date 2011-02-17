@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+case "$1" in
+  configure)
+	# Setup logfile permissions:
+	touch /var/log/monit.log
+	chmod 640 /var/log/monit.log
+	chown root:adm /var/log/monit.log
+    ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 0
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0
