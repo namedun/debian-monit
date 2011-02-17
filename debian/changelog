@@ -1,3 +1,17 @@
+monit (1:5.2.3-3) UNRELEASED; urgency=low
+
+  * Add microsecond resolution to Message-id header to preserve the
+    uniqueness (Closes: #613770)
+  * Create & rotate /var/log/monit.log with root:adm owner and group
+    (Closes: #613764)
+  * Adopt DEP5 (Machine-readable debian/copyright format)
+  * Suggest MTA (exim4, postfix, etc)
+  * Cleanup patch 05_monitrc.patch: disable "set alert root@localhost"
+    and "set mailserver localhost"
+  * Cleanup logrotate script
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 17 Feb 2011 21:21:45 +0300
+
 monit (1:5.2.3-2) unstable; urgency=low
 
   [ Sergey B Kirpichev ]
