@@ -20,9 +20,11 @@ DEB_INSTALL_CHANGELOGS_ALL := CHANGES.txt
 
 # Matching files will not have their perms changed
 DEB_FIXPERMS_EXCLUDE := monitrc
+DEB_DH_FIXPERMS_ARGS += -X var/lib/monit/events
 
 binary-post-install/monit::
 	install -o root -g root -m0600 monitrc debian/monit/etc/monit
+	chmod 0700 debian/monit/var/lib/monit/events
 
 clean::
 	rm -f debian/monit/etc/monit/monitrc
