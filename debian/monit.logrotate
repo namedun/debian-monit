@@ -3,7 +3,6 @@
         weekly
         missingok
         notifempty
-        create 640 root adm
         compress
         delaycompress
         sharedscripts
