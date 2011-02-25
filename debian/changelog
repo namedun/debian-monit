@@ -1,7 +1,5 @@
-monit (1:5.2.3-3) UNRELEASED; urgency=low
+monit (1:5.2.4-1) UNRELEASED; urgency=low
 
-  * Add microsecond resolution to Message-id header to preserve the
-    uniqueness (Closes: #613770)
   * Create & rotate /var/log/monit.log with root:adm owner and group
     (Closes: #613764)
   * Adopt DEP5 (Machine-readable debian/copyright format)
@@ -9,8 +7,11 @@ monit (1:5.2.3-3) UNRELEASED; urgency=low
   * Cleanup patch 05_monitrc.patch: disable "set alert root@localhost"
     and "set mailserver localhost"
   * Cleanup logrotate script
+  * Add eventqueue basedir
+  * New upstream release (5.2.4).  Closes: #613770.
+  * Unfuzz 02_monit.1_debian_path.patch
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 17 Feb 2011 21:21:45 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 25 Feb 2011 17:10:01 +0300
 
 monit (1:5.2.3-2) unstable; urgency=low
 
