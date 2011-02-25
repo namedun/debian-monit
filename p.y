@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -1583,7 +1583,7 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                       yyerror2("cannot read usage of filesystem %s", current->path);
                     filesystemset.resource = RESOURCE_ID_SPACE;
                     filesystemset.operator = $<number>3;
-                    filesystemset.limit_absolute = (int)((float)$<real>4 / (float)current->inf->f_bsize * (float)$<number>5);
+                    filesystemset.limit_absolute = (int)((float)$<real>4 / (float)current->inf->priv.filesystem.f_bsize * (float)$<number>5);
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
@@ -1997,13 +1997,14 @@ static void createservice(int type, char *name, char *value, int (*check)(Servic
 
   check_name(name);
 
-  if (current)
+  if (current) {
     addservice(current);
-  else
+    memset(current, 0, sizeof(*current));
+  } else {
     NEW(current);
+  }
 
-  /* Reset the current object */
-  memset(current, 0, sizeof(*current));
+  current->type = type;
 
   NEW(current->inf);
   Util_resetInfo(current);
@@ -2012,7 +2013,6 @@ static void createservice(int type, char *name, char *value, int (*check)(Servic
   current->monitor = MONITOR_INIT;
   current->mode    = MODE_ACTIVE;
   current->name    = name;
-  current->type    = type;
   current->check   = check;
   current->path    = value;
 
@@ -2032,7 +2032,6 @@ static void createservice(int type, char *name, char *value, int (*check)(Servic
   addeventaction(&(current)->action_ACTION,       ACTION_ALERT, ACTION_IGNORE);
   
   gettimeofday(&current->collected, NULL);
-
 }
 
 
@@ -2135,7 +2134,6 @@ static void addmail(char *mailto, Mail_T f, Mail_T *l, unsigned int events, unsi
  */
 static void addport(Port_T port) {
   Port_T p;
-  char address[STRLEN];
   
   ASSERT(port);
 
@@ -2167,14 +2165,6 @@ static void addport(Port_T port) {
   } else
     p->request_hashtype = 0;
 
-  if (port->family == AF_INET)
-    snprintf(address, STRLEN, "INET[%s:%d]", port->hostname, port->port);
-  else if (port->family == AF_UNIX)
-    snprintf(address, STRLEN, "UNIX[%s]", port->pathname);
-  else
-    address[0] = 0;
-  p->address = xstrdup(address);
-  
   if (port->SSL.use_ssl == TRUE) {
     if (!have_ssl()) {
       yyerror("ssl check cannot be activated. SSL is not supported");

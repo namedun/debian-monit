@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "November 20. 2010" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "February 21. 2011" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -603,9 +603,7 @@ for example by:
 Monit will then not monitor the service. This allows for having
 services configured in monitrc and start it with Monit only if it
 should run. This feature can be used to build a simple failsafe
-cluster. To see how, read more about how to setup a cluster with
-Monit using the \fIheartbeat\fR system in the examples sections
-below.
+cluster.
 .PP
 A service's monitoring state is persistent across Monit restart.
 This means that you probably would like to make certain that
@@ -3012,11 +3010,13 @@ running process, Monit will call the entry's start method if
 defined.
 <regex> is alternative process specification using pattern matching
 to process name (command line) from process table instead of pidfile.
-The pattern to match can be obtained using 'ps' utility. The first
-match is used so this form of check is useful for unique pattern
-matching \- the pidfile should be used where possible as it defines
-expected pid exactly (pattern matching won't be useful for Apache
-in most cases for example).
+The first match is used so this form of check is useful for unique
+pattern matching \- the pidfile should be used where possible as it
+defines expected pid exactly (pattern matching won't be useful for
+Apache in most cases for example).
+The pattern can be obtained using \fImonit procmatch \*(L".*\*(R"\fR \s-1CLI\s0 command
+which lists all processes visible to Monit or using the \fIps\fR utility.
+The \*(L"procmatch\*(R" \s-1CLI\s0 command can be used to test your pattern as well.
 If Monit runs in passive mode or the start methods is not defined,
 Monit will just send alerts on errors.
 .IP "2. \s-1CHECK\s0 \s-1FILE\s0 <unique name> \s-1PATH\s0 <path>" 4
@@ -3065,7 +3065,7 @@ ip-address string on a dotted decimal format. Such as,
 tildeslash.com or \*(L"64.87.72.95\*(R".
 .IP "7. \s-1CHECK\s0 \s-1SYSTEM\s0 <unique name>" 4
 .IX Item "7. CHECK SYSTEM <unique name>"
-The system name is usualy hostname, but any descriptive name can be
+The system name is usually hostname, but any descriptive name can be
 used. This test allows to check general system resources such as
 \&\s-1CPU\s0 usage (percent of time spent in user, system and wait), total
 memory usage or load average.
@@ -3385,7 +3385,7 @@ accepting connections at the port numbers. The method Monit use
 for a process restart is to first execute the stop-program, wait
 up to 30s for the process to stop and then execute the start-program
 and wait up to 30s for it to start. The length of start or stop
-timeout can be overriden using the 'timeout' option. If Monit was
+timeout can be overridden using the 'timeout' option. If Monit was
 unable to stop or start the service a failed alert message will
 be sent if you have requested alert messages to be sent.
 .PP
@@ -3913,7 +3913,7 @@ Christian Hopp <chopp@iei.tu\-clausthal.de>,
 Rory Toma <rory@digeo.com>
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2010 by Tildeslash Ltd. All Rights Reserved. This
+Copyright (C) 2011 by Tildeslash Ltd. All Rights Reserved. This
 product is distributed in the hope that it will be useful, but
 \&\s-1WITHOUT\s0 any warranty; without even the implied warranty of
 \&\s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 for a particular purpose.

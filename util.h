@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -493,6 +493,16 @@ char *Util_getEventratio(Action_T action, char *buf, int bufsize);
  * @return the socket type description
  */
 char *Util_portTypeDescription(Port_T p);
+
+
+/**
+ * Print full port description <INET|UNIX>\[<host>:<port>[request]\][via TCP|TCPSSL|UDP]
+ * @param p A port structure
+ * @param buf Buffer
+ * @param bufsize Buffer size
+ * @return the buffer
+ */
+char *Util_portDescription(Port_T p, char *buf, int bufsize);
 
 
 /**

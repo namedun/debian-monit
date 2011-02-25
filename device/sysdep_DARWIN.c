@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -46,15 +46,19 @@
 #include <errno.h>
 #endif
 
-#if defined HAVE_STRING_H
+#ifdef HAVE_STRING_H
 #include <string.h>
 #endif
 
-#if defined HAVE_SYS_PARAM_H
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 
-#if defined HAVE_SYS_MOUNT_H
+#ifdef HAVE_SYS_UCRED_H
+#include <sys/ucred.h>
+#endif
+
+#ifdef HAVE_SYS_MOUNT_H
 #include <sys/mount.h>
 #endif
 
@@ -71,21 +75,28 @@
  * @return         NULL in the case of failure otherwise mountpoint
  */
 char *device_mountpoint_sysdep(Info_T inf, char *blockdev) {
-
-  struct statfs usage;
+  int countfs;
 
   ASSERT(inf);
   ASSERT(blockdev);
 
-  if(statfs(blockdev, &usage) != 0) {
-    LogError("%s: Error getting mountpoint for filesystem '%s' -- %s\n",
-        prog, blockdev, STRERROR);
-    return NULL;
+  if ((countfs = getfsstat(NULL, 0, MNT_NOWAIT)) != -1) {
+    struct statfs *statfs = xcalloc(countfs, sizeof(struct statfs));
+    if ((countfs = getfsstat(statfs, countfs * sizeof(struct statfs), MNT_NOWAIT)) != -1) {
+      int i;
+      for (i = 0; i < countfs; i++) {
+        struct statfs *sfs = statfs + i;
+        if (IS(sfs->f_mntfromname, blockdev)) {
+          inf->priv.filesystem.mntpath = xstrdup(sfs->f_mntonname);
+          FREE(statfs);
+          return inf->priv.filesystem.mntpath;
+        }
+      }
+    }
+    FREE(statfs);
   }
-
-  inf->mntpath[sizeof(inf->mntpath) - 1] = 0;
-  return strncpy(inf->mntpath, usage.f_mntonname, sizeof(inf->mntpath) - 1);
-
+  LogError("%s: Error getting mountpoint for filesystem '%s' -- %s\n", prog, blockdev, STRERROR);
+  return NULL;
 }
 
 
@@ -97,26 +108,21 @@ char *device_mountpoint_sysdep(Info_T inf, char *blockdev) {
  * @return    TRUE if informations were succesfully read otherwise FALSE
  */
 int filesystem_usage_sysdep(Info_T inf) {
-
   struct statfs usage;
 
   ASSERT(inf);
 
-  if(statfs(inf->mntpath, &usage) != 0) {
-    LogError("%s: Error getting usage statistics for filesystem '%s' -- %s\n",
-        prog, inf->mntpath, STRERROR);
+  if (statfs(inf->priv.filesystem.mntpath, &usage) != 0) {
+    LogError("%s: Error getting usage statistics for filesystem '%s' -- %s\n", prog, inf->priv.filesystem.mntpath, STRERROR);
     return FALSE;
   }
-
-  inf->f_bsize=           usage.f_bsize;
-  inf->f_blocks=          usage.f_blocks;
-  inf->f_blocksfree=      usage.f_bavail;
-  inf->f_blocksfreetotal= usage.f_bfree;
-  inf->f_files=           usage.f_files;
-  inf->f_filesfree=       usage.f_ffree;
-  inf->flags=             usage.f_flags;
-
+  inf->priv.filesystem.f_bsize =           usage.f_bsize;
+  inf->priv.filesystem.f_blocks =          usage.f_blocks;
+  inf->priv.filesystem.f_blocksfree =      usage.f_bavail;
+  inf->priv.filesystem.f_blocksfreetotal = usage.f_bfree;
+  inf->priv.filesystem.f_files =           usage.f_files;
+  inf->priv.filesystem.f_filesfree =       usage.f_ffree;
+  inf->priv.filesystem.flags =             usage.f_flags;
   return TRUE;
-
 }
 

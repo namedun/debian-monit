@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -174,6 +174,7 @@ int sendmail(Mail_T mail) {
   }
   
   for(i = 0, m= mail; m; m= m->next, i++) { 
+    srandom(time(NULL) + getpid() + i);
     do_send(&S, "MAIL FROM: <%s>\r\n", m->from);
     do_status(&S);
     do_send(&S, "RCPT TO: <%s>\r\n", m->to);
@@ -190,7 +191,7 @@ int sendmail(Mail_T mail) {
     do_send(&S, "Mime-Version: 1.0\r\n");
     do_send(&S, "Content-Type: text/plain; charset=\"iso-8859-1\"\r\n");
     do_send(&S, "Content-Transfer-Encoding: 8bit\r\n");
-    do_send(&S, "Message-id: <%ld.%d@%s>\r\n", time(NULL), i, S.localhost);
+    do_send(&S, "Message-id: <%ld.%lu@%s>\r\n", time(NULL), random(), S.localhost);
     do_send(&S, "\r\n");
     do_send(&S, "%s\r\n", m->message);
     do_send(&S, ".\r\n");
