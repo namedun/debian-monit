@@ -22,7 +22,7 @@ Author: Stefan Alfredsson <alfs@debian.org>
  .Ve
  .PP
  After you have modified init's configuration file, you can run
-@@ -1785,7 +1785,7 @@
+@@ -1783,7 +1783,7 @@
  Example:
  .PP
  .Vb 2
