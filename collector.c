@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -99,7 +99,7 @@ int handle_mmonit(Event_T E) {
     }
   }
 
-  D = status_xml(E, LEVEL_FULL, 2);
+  D = status_xml(E, E ? LEVEL_SUMMARY : LEVEL_FULL, 2);
 
   if(!data_send(socket, C, D)) {
     LogError("M/Monit: communication failed\n");

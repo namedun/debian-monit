@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -1374,7 +1374,7 @@ int Util_isProcessRunning(Service_T s) {
         }
       }
     } else {
-        DEBUG("Process informations not available -- skipping service %s process existence check for this cycle\n", s->name);
+        DEBUG("Process information not available -- skipping service %s process existence check for this cycle\n", s->name);
         /* Return value is NOOP - it is based on existing errors bitmap so we don't generate false recovery/failures */
         return ! (s->error & Event_Nonexist);
     }
@@ -2049,14 +2049,18 @@ process_partial_block:
  */
 void Util_resetInfo(Service_T s) {
   memset(s->inf, 0, sizeof *(s->inf));
-  s->inf->_pid=        -1;
-  s->inf->_ppid=       -1;
-  s->inf->_flags=      -1;
-  s->inf->pid=         -1;
-  s->inf->ppid=        -1;
-  s->inf->flags=       -1;
-  s->inf->st_ino_prev=  0;
-  s->inf->readpos=      0;
+  switch (s->type) {
+    case TYPE_PROCESS:
+      s->inf->priv.process._pid  = -1;
+      s->inf->priv.process._ppid = -1;
+      s->inf->priv.process.pid   = -1;
+      s->inf->priv.process.ppid  = -1;
+      break;
+    case TYPE_FILESYSTEM:
+      s->inf->priv.filesystem._flags = -1;
+      s->inf->priv.filesystem.flags  = -1;
+      break;
+  }
 }
 
 
@@ -2230,6 +2234,17 @@ char *Util_portTypeDescription(Port_T p) {
     default:
       return "UNKNOWN";
   }
+}
+
+
+char *Util_portDescription(Port_T p, char *buf, int bufsize) {
+  if (p->family == AF_INET)
+    snprintf(buf, STRLEN, "INET[%s:%d%s]%s%s", p->hostname, p->port, p->request ? p->request : "", p->family == AF_INET ? " via " : "", p->family == AF_INET ? Util_portTypeDescription(p) : "");
+  else if (p->family == AF_UNIX)
+    snprintf(buf, STRLEN, "UNIX[%s]", p->pathname);
+  else
+    *buf = 0;
+  return buf;
 }
 
 

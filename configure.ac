@@ -10,7 +10,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.2.3], [monit-general@nongnu.org])
+AC_INIT([monit], [5.2.4], [monit-general@nongnu.org])
 
 # Package info
 AC_REVISION([$Revision: 1.194 $])
@@ -198,6 +198,7 @@ AC_CHECK_HEADERS([ \
         sys/mount.h \
         sys/proc.h \
         sys/swap.h \
+	sys/ucred.h \
         sys/user.h \
         ],
         [],
@@ -317,9 +318,6 @@ AC_CHECK_FUNCS(getaddrinfo)
 AC_CHECK_FUNCS(syslog)
 AC_CHECK_FUNCS(vsyslog)
 AC_CHECK_FUNCS(backtrace)
-
-# Check if we do need external GNU replacements
-AC_FUNC_GETLOADAVG
 
 jm_FUNC_GNU_STRFTIME
 

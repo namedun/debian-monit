@@ -3,16 +3,6 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* Define to 1 if using `getloadavg.c'. */
-#undef C_GETLOADAVG
-
-/* Define to 1 for DGUX with <sys/dg_sys_info.h>. */
-#undef DGUX
-
-/* Define to 1 if the `getloadavg' function needs to be run setuid or setgid.
-   */
-#undef GETLOADAVG_PRIVILEGED
-
 /* Define to 1 if you have the <alloca.h> header file. */
 #undef HAVE_ALLOCA_H
 
@@ -61,9 +51,6 @@
 /* Define to 1 if you have the `getaddrinfo' function. */
 #undef HAVE_GETADDRINFO
 
-/* Define to 1 if you have the `getloadavg' function. */
-#undef HAVE_GETLOADAVG
-
 /* Define to 1 if you have the <getopt.h> header file. */
 #undef HAVE_GETOPT_H
 
@@ -85,14 +72,8 @@
 /* Define to 1 if you have the `crypt' library (-lcrypt). */
 #undef HAVE_LIBCRYPT
 
-/* Define to 1 if you have the `dgc' library (-ldgc). */
-#undef HAVE_LIBDGC
-
 /* Define to 1 if you have the `inet' library (-linet). */
 #undef HAVE_LIBINET
-
-/* Define to 1 if you have the `kstat' library (-lkstat). */
-#undef HAVE_LIBKSTAT
 
 /* Define to 1 if you have the `nsl' library (-lnsl). */
 #undef HAVE_LIBNSL
@@ -170,9 +151,6 @@
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
 
-/* Define to 1 if you have the <nlist.h> header file. */
-#undef HAVE_NLIST_H
-
 /* Define to 1 if you have openssl. */
 #undef HAVE_OPENSSL
 
@@ -190,9 +168,6 @@
 
 /* Define to 1 if you have the <procinfo.h> header file. */
 #undef HAVE_PROCINFO_H
-
-/* Define to 1 if you have the `pstat_getdynamic' function. */
-#undef HAVE_PSTAT_GETDYNAMIC
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
@@ -254,9 +229,6 @@
 
 /* Define to 1 if you have the <stropts.h> header file. */
 #undef HAVE_STROPTS_H
-
-/* Define to 1 if `n_un.n_name' is a member of `struct nlist'. */
-#undef HAVE_STRUCT_NLIST_N_UN_N_NAME
 
 /* Define to 1 if `tm_gmtoff' is a member of `struct tm'. */
 #undef HAVE_STRUCT_TM_TM_GMTOFF
@@ -354,6 +326,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
+/* Define to 1 if you have the <sys/ucred.h> header file. */
+#undef HAVE_SYS_UCRED_H
+
 /* Define to 1 if you have the <sys/un.h> header file. */
 #undef HAVE_SYS_UN_H
 
@@ -424,10 +399,6 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
-/* Define to 1 if your `struct nlist' has an `n_un' member. Obsolete, depend
-   on `HAVE_STRUCT_NLIST_N_UN_N_NAME */
-#undef NLIST_NAME_UNION
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -458,21 +429,11 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* Define to 1 on System V Release 4. */
-#undef SVR4
-
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
-
-/* Define to 1 for Encore UMAX. */
-#undef UMAX
-
-/* Define to 1 for Encore UMAX 4.3 that has <inq_status/cpustats.h> instead of
-   <sys/cpustats.h>. */
-#undef UMAX4_3
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

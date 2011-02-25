@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -41,10 +41,10 @@
 int update_process_data(Service_T s, ProcessTree_T *, int treesize, pid_t pid);
 int init_process_info(void);
 int update_system_load(ProcessTree_T *, int);
-    
 int  findprocess(int, ProcessTree_T *, int);
 int  initprocesstree(ProcessTree_T **, int*, ProcessTree_T **, int*);
 void delprocesstree(ProcessTree_T **, int);
+void process_testmatch(char *);
 
 #endif
 

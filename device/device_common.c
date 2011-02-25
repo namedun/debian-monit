@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -88,7 +88,6 @@
  * @return        NULL in the case of failure otherwise filesystem path
  */
 char *device_path(Info_T inf, char *object) {
-
   struct stat buf;
 
   ASSERT(inf);
@@ -100,21 +99,15 @@ char *device_path(Info_T inf, char *object) {
   }
 
   if(S_ISREG(buf.st_mode) || S_ISDIR(buf.st_mode)) {
-
-    inf->mntpath[sizeof(inf->mntpath) - 1] = 0;
-    return strncpy(inf->mntpath, object, sizeof(inf->mntpath) - 1);
-
-  } else if(S_ISBLK(buf.st_mode)) {
-
+    inf->priv.filesystem.mntpath = xstrdup(object);
+    return inf->priv.filesystem.mntpath;
+  } else if(S_ISBLK(buf.st_mode) || S_ISCHR(buf.st_mode)) {
     return device_mountpoint_sysdep(inf, object);
-
   }
 
-  LogError("%s: Not file, directory or block special device: '%s'",
-    prog, object);
+  LogError("%s: Not file, directory or block special device: '%s'", prog, object);
 
   return NULL;
-
 }
 
 
@@ -128,18 +121,16 @@ char *device_path(Info_T inf, char *object) {
  * @return        TRUE if informations were succesfully read otherwise FALSE
  */
 int filesystem_usage(Info_T inf, char *object) {
+  int rv;
 
   ASSERT(inf);
   ASSERT(object);
 
-  if(!device_path(inf, object)) {
+  if(!device_path(inf, object))
     return FALSE;
-  }
-
-  /* save the previous filesystem flags */
-  inf->_flags= inf->flags;
-
-  return filesystem_usage_sysdep(inf);
-
+  inf->priv.filesystem._flags = inf->priv.filesystem.flags;
+  rv = filesystem_usage_sysdep(inf);
+  FREE(inf->priv.filesystem.mntpath);
+  return rv;
 }
 

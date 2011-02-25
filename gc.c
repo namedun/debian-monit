@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -402,7 +402,6 @@ static void _gcppl(Port_T *p) {
   if((*p)->url_request)
     _gc_request(&(*p)->url_request);
 
-  FREE((*p)->address);
   FREE((*p)->request);
   FREE((*p)->hostname);
   FREE((*p)->pathname);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 3.
@@ -113,40 +113,40 @@ int update_process_data(Service_T s, ProcessTree_T *pt, int treesize, pid_t pid)
   ASSERT(systeminfo.mem_kbyte_max > 0);
 
   /* save the previous pid and set actual one */
-  s->inf->_pid = s->inf->pid;
-  s->inf->pid  = pid;
+  s->inf->priv.process._pid = s->inf->priv.process.pid;
+  s->inf->priv.process.pid  = pid;
 
   if ((leaf = findprocess(pid, pt, treesize)) != -1) {
  
     /* save the previous ppid and set actual one */
-    s->inf->_ppid             = s->inf->ppid;
-    s->inf->ppid              = pt[leaf].ppid;
-    s->inf->uptime            = time(NULL) - pt[leaf].starttime;
-    s->inf->children          = pt[leaf].children_sum;
-    s->inf->mem_kbyte         = pt[leaf].mem_kbyte;
-    s->inf->status_flag       = pt[leaf].status_flag;
-    s->inf->total_mem_kbyte   = pt[leaf].mem_kbyte_sum;
-    s->inf->cpu_percent       = pt[leaf].cpu_percent;
-    s->inf->total_cpu_percent = pt[leaf].cpu_percent_sum;
+    s->inf->priv.process._ppid             = s->inf->priv.process.ppid;
+    s->inf->priv.process.ppid              = pt[leaf].ppid;
+    s->inf->priv.process.uptime            = time(NULL) - pt[leaf].starttime;
+    s->inf->priv.process.children          = pt[leaf].children_sum;
+    s->inf->priv.process.mem_kbyte         = pt[leaf].mem_kbyte;
+    s->inf->priv.process.status_flag       = pt[leaf].status_flag;
+    s->inf->priv.process.total_mem_kbyte   = pt[leaf].mem_kbyte_sum;
+    s->inf->priv.process.cpu_percent       = pt[leaf].cpu_percent;
+    s->inf->priv.process.total_cpu_percent = pt[leaf].cpu_percent_sum;
 
     if (systeminfo.mem_kbyte_max == 0) {
-      s->inf->total_mem_percent = 0;
-      s->inf->mem_percent       = 0;
+      s->inf->priv.process.total_mem_percent = 0;
+      s->inf->priv.process.mem_percent       = 0;
     } else {
-      s->inf->total_mem_percent = (int)((double)pt[leaf].mem_kbyte_sum * 1000.0 / systeminfo.mem_kbyte_max);
-      s->inf->mem_percent       = (int)((double)pt[leaf].mem_kbyte * 1000.0 / systeminfo.mem_kbyte_max);
+      s->inf->priv.process.total_mem_percent = (int)((double)pt[leaf].mem_kbyte_sum * 1000.0 / systeminfo.mem_kbyte_max);
+      s->inf->priv.process.mem_percent       = (int)((double)pt[leaf].mem_kbyte * 1000.0 / systeminfo.mem_kbyte_max);
     }
 
   } else {
-    s->inf->ppid              = 0;
-    s->inf->uptime            = 0;
-    s->inf->children          = 0;
-    s->inf->total_mem_kbyte   = 0;
-    s->inf->total_mem_percent = 0;
-    s->inf->mem_kbyte         = 0;
-    s->inf->mem_percent       = 0;
-    s->inf->cpu_percent       = 0;
-    s->inf->total_cpu_percent = 0;
+    s->inf->priv.process.ppid              = 0;
+    s->inf->priv.process.uptime            = 0;
+    s->inf->priv.process.children          = 0;
+    s->inf->priv.process.total_mem_kbyte   = 0;
+    s->inf->priv.process.total_mem_percent = 0;
+    s->inf->priv.process.mem_kbyte         = 0;
+    s->inf->priv.process.mem_percent       = 0;
+    s->inf->priv.process.cpu_percent       = 0;
+    s->inf->priv.process.total_cpu_percent = 0;
   }
   
   return TRUE;
@@ -339,4 +339,54 @@ void delprocesstree(ProcessTree_T ** reference, int size) {
 
   return;
 }
+
+
+void process_testmatch(char *pattern) {
+#ifdef HAVE_REGEX_H
+  regex_t *regex_comp;
+  int reg_return;
+#endif
+  int ptreesize    = 0;
+  int oldptreesize = 0;
+  ProcessTree_T *ptree = NULL;
+  ProcessTree_T *oldptree = NULL;
+
+#ifdef HAVE_REGEX_H
+  NEW(regex_comp);
+  if ((reg_return = regcomp(regex_comp, pattern, REG_NOSUB|REG_EXTENDED))) {
+    char errbuf[STRLEN];
+    regerror(reg_return, regex_comp, errbuf, STRLEN);
+    regfree(regex_comp);
+    FREE(regex_comp);
+    printf("Regex %s parsing error: %s\n", pattern, errbuf);
+    exit(1);
+  }
+#endif
+  initprocesstree(&ptree, &ptreesize, &oldptree, &oldptreesize);
+  if (Run.doprocess) {
+    int i, count = 0;
+    printf("List of processes matching pattern \"%s\":\n", pattern);
+    printf("------------------------------------------\n");
+    for (i = 0; i < ptreesize; i++) {
+      int match = FALSE;
+      if (ptree[i].cmdline && ! strstr(ptree[i].cmdline, "procmatch")) {
+#ifdef HAVE_REGEX_H
+        match = regexec(regex_comp, ptree[i].cmdline, 0, NULL, 0) ? FALSE : TRUE;
+#else
+        match = strstr(ptree[i].cmdline, pattern) ? TRUE : FALSE;
+#endif
+        if (match) {
+          printf("\t%s\n", ptree[i].cmdline);
+          count++;
+        }
+      }
+    }
+    printf("------------------------------------------\n");
+    printf("Total matches: %d\n", count);
+    if (count > 1)
+      printf("WARNING: multiple processes matched the pattern. The check is FIRST-MATCH based, please refine the pattern\n");
+  }
+  delprocesstree(&ptree, ptreesize);
+}
+
 
