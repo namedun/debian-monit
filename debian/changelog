@@ -1,3 +1,13 @@
+monit (1:5.2.4-2) UNRELEASED; urgency=low
+
+  * Drop Build-Depends on quilt (not needed due to package format)
+  * Do set -e in postinst script explicitly (not in sha-bang) to make
+    lintian happy
+  * Cleanup description (thanks to lintian: description-synopsis-starts-
+    with-an-article)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 04 Mar 2011 16:18:08 +0300
+
 monit (1:5.2.4-1) unstable; urgency=low
 
   * Create & rotate /var/log/monit.log with root:adm owner and group
