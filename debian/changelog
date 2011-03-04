@@ -1,4 +1,4 @@
-monit (1:5.2.4-1) UNRELEASED; urgency=low
+monit (1:5.2.4-1) unstable; urgency=low
 
   * Create & rotate /var/log/monit.log with root:adm owner and group
     (Closes: #613764)
@@ -10,8 +10,9 @@ monit (1:5.2.4-1) UNRELEASED; urgency=low
   * Add eventqueue basedir
   * New upstream release (5.2.4).  Closes: #613770.
   * Unfuzz 02_monit.1_debian_path.patch
+  * Added "DM-Upload-Allowed: yes" control field
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 25 Feb 2011 17:10:01 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 04 Mar 2011 14:21:01 +0300
 
 monit (1:5.2.3-2) unstable; urgency=low
 
