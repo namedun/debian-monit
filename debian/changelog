@@ -1,4 +1,4 @@
-monit (1:5.2.4-2) UNRELEASED; urgency=low
+monit (1:5.2.4-2) unstable; urgency=low
 
   * Drop Build-Depends on quilt (not needed due to package format)
   * Do set -e in postinst script explicitly (not in sha-bang) to make
