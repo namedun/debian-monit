@@ -2,6 +2,10 @@ Description: Patched original source for new location of
  monitrc (in /etc/monit/monitrc).
 Author: Fredrik Steen <stone@debian.org>
 
+---
+ file.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
 --- a/file.c
 +++ b/file.c
 @@ -184,6 +184,11 @@

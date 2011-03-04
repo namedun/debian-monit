@@ -3,6 +3,10 @@ Description: setup default minimal monitrc file to allow
 Bug-Debian: http://bugs.debian.org/583132
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
 
+---
+ monitrc |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
 --- a/monitrc
 +++ b/monitrc
 @@ -16,9 +16,9 @@
