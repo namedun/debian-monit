@@ -1,3 +1,13 @@
+monit (1:5.2.4-3) UNRELEASED; urgency=low
+
+  * Refresh patches with --diffstat
+  * Upstream fix for SMTP protocol (original test issues both EHLO and
+    HELO, regardless of server reply).  Closes: #614984.
+  * Use @include common-* stanzas for monit PAM configuration (Thanks to
+    Paulo Ricardo Bruck)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 16 Mar 2011 23:55:26 +0300
+
 monit (1:5.2.4-2) unstable; urgency=low
 
   * Drop Build-Depends on quilt (not needed due to package format)
