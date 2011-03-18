@@ -4,10 +4,10 @@ set -e
 
 case "$1" in
   configure)
-	# Setup logfile permissions:
-	touch /var/log/monit.log
-	chmod 640 /var/log/monit.log
-	chown root:adm /var/log/monit.log
+    # Setup logfile permissions:
+    touch /var/log/monit.log
+    chmod 640 /var/log/monit.log
+    chown root:adm /var/log/monit.log
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
