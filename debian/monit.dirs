@@ -1,5 +1,3 @@
 etc/default
-etc/monit
 etc/monit/conf.d
-var/lib/monit
 var/lib/monit/events
