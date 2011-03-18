@@ -1,30 +1,14 @@
 #!/usr/bin/make -f
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/autotools.mk
 
-# This variable adds several arguments to the ./configure invocation,
-# in *addition* to what autotools.mk does normally.  So the end command
-# will look something like:
-# ./configure --prefix=/usr/ --sysconfdir=/etc ... --options-below...
-DEB_AUTO_UPDATE_AUTOMAKE := 1.9
-DEB_AUTO_UPDATE_AUTOCONF := pre
-DEB_CONFIGURE_EXTRA_FLAGS := --bindir=/usr/sbin --without-accurate-mem-calcs
+%:
+	dh $@
 
-# Install examples
-#DEB_INSTALL_EXAMPLES_monit := debian/example.monitrc 
+override_dh_auto_install:
+	dh_auto_install
+	cp monitrc debian/monit/etc/monit/monitrc
 
-# update-rc.d init script args
-DEB_DH_INSTALLINIT_ARGS := -- start 99 2 3 4 5 . stop 01 0 1 6 .
-
-DEB_INSTALL_CHANGELOGS_ALL := CHANGES.txt
-
-# Matching files will not have their perms changed
-DEB_FIXPERMS_EXCLUDE := monitrc
-DEB_DH_FIXPERMS_ARGS += -X var/lib/monit/events
-
-binary-post-install/monit::
-	install -o root -g root -m0600 monitrc debian/monit/etc/monit
+override_dh_fixperms:
+	dh_fixperms
+	chmod 600 debian/monit/etc/monit/monitrc
 	chmod 0700 debian/monit/var/lib/monit/events
 
-clean::
-	rm -f debian/monit/etc/monit/monitrc
