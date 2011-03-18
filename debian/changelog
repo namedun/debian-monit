@@ -1,3 +1,9 @@
+monit (1:5.2.4-4) UNRELEASED; urgency=low
+
+  * Use tiny debian/rules, bump up debhelper compat level
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 18 Mar 2011 03:56:14 +0300
+
 monit (1:5.2.4-3) unstable; urgency=low
 
   * Refresh patches with --diffstat
