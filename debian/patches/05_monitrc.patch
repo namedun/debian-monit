@@ -4,24 +4,20 @@ Bug-Debian: http://bugs.debian.org/583132
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
 
 ---
- monitrc |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ monitrc |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 --- a/monitrc
 +++ b/monitrc
-@@ -16,9 +16,9 @@
+@@ -16,7 +16,7 @@
  ##
  ## Start Monit in the background (run as a daemon):
  #
 -# set daemon  120           # check services at 2-minute intervals
--#     with start delay 240  # optional: delay the first check by 4-minutes (by 
--#                           # default Monit check immediately after Monit start)
 +  set daemon  120           # check services at 2-minute intervals
-+      with start delay 240  # optional: delay the first check by 4-minutes (by
-+                            # default Monit check immediately after Monit start)
+ #     with start delay 240  # optional: delay the first check by 4-minutes (by 
+ #                           # default Monit check immediately after Monit start)
  #
- #
- ## Set syslog logging with the 'daemon' facility. If the FACILITY option is
 @@ -26,13 +26,14 @@
  ## a standalone log file instead, specify the full path to the log file
  #
