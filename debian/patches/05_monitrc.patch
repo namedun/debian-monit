@@ -2,6 +2,7 @@ Description: setup default minimal monitrc file to allow
  monit daemon start after install.
 Bug-Debian: http://bugs.debian.org/583132
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
+Forwarded: not-needed
 
 ---
  monitrc |   15 ++++++++-------

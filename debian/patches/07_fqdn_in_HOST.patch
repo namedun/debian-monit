@@ -1,6 +1,7 @@
 Description: Set default $HOST to FQDN hostname
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Bug-Debian: http://bugs.debian.org/613768
+Forwarded: https://savannah.nongnu.org/bugs/index.php?32868
 
 ---
  p.y    |    2 +-

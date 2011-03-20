@@ -1,6 +1,7 @@
 Description: Patched original source for new location of
  monitrc (in /etc/monit/monitrc).
 Author: Fredrik Steen <stone@debian.org>
+Forwarded: not-needed
 
 ---
  file.c |    9 +++++++--
