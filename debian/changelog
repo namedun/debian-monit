@@ -6,8 +6,13 @@ monit (1:5.2.4-4) UNRELEASED; urgency=low
   * Cleanup debian/monit.dirs
   * Remove /var/log/monit.log in postrm script
   * Add references to BTS in TODO.Debian
+  * Override dh_auto_configure - added argument --bindir=/usr/sbin
+  * Don't set initail delay for monit startup
+  * Quote dh_installinit params
+  * Set default $HOST to FQDN hostname (Closes: #613768)
+  * Add monit alias to /etc/aliases
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 18 Mar 2011 22:02:17 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 21 Mar 2011 00:29:22 +0300
 
 monit (1:5.2.4-3) unstable; urgency=low
 
