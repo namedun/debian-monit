@@ -1,4 +1,4 @@
-monit (1:5.2.4-4) UNRELEASED; urgency=low
+monit (1:5.2.4-4) unstable; urgency=low
 
   * Use tiny debian/rules, bump up debhelper compat level
   * Removed CHANGES.txt from monit.docs (this is a changelog already)
@@ -11,8 +11,9 @@ monit (1:5.2.4-4) UNRELEASED; urgency=low
   * Quote dh_installinit params
   * Set default $HOST to FQDN hostname (Closes: #613768)
   * Add monit alias to /etc/aliases
+  * Add Forwarded: headers in debian/patches/
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 21 Mar 2011 00:29:22 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 21 Mar 2011 15:50:39 +0300
 
 monit (1:5.2.4-3) unstable; urgency=low
 
