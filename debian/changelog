@@ -1,3 +1,9 @@
+monit (1:5.2.4-4~bpo50+1) lenny-backports; urgency=low
+
+  * Rebuild for lenny-backports.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 21 Mar 2011 16:22:38 +0300
+
 monit (1:5.2.4-4) unstable; urgency=low
 
   * Use tiny debian/rules, bump up debhelper compat level
