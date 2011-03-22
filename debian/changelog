@@ -1,3 +1,9 @@
+monit (1:5.2.4-5) UNRELEASED; urgency=low
+
+  * Fix symbolic links in filesystem check (Closes: #617259)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 22 Mar 2011 14:22:56 +0300
+
 monit (1:5.2.4-4) unstable; urgency=low
 
   * Use tiny debian/rules, bump up debhelper compat level
