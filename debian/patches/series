@@ -3,3 +3,4 @@
 05_monitrc.patch
 06_smtp_ehlo_fix.patch
 07_fqdn_in_HOST.patch
+08_symlink_dev.patch
