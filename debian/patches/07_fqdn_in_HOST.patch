@@ -5,9 +5,9 @@ Forwarded: https://savannah.nongnu.org/bugs/index.php?32868
 
 ---
  p.y    |    2 +-
- util.c |   25 +++++++++++++++++++++++++
+ util.c |   32 ++++++++++++++++++++++++++++++++
  util.h |    7 +++++++
- 3 files changed, 33 insertions(+), 1 deletion(-)
+ 3 files changed, 40 insertions(+), 1 deletion(-)
 
 --- a/p.y
 +++ b/p.y
@@ -33,12 +33,12 @@ Forwarded: https://savannah.nongnu.org/bugs/index.php?32868
  #ifdef HAVE_NETINET_IN_H
  #include <netinet/in.h>
  #endif
-@@ -2274,6 +2278,27 @@
+@@ -2274,6 +2278,34 @@
  }
  
  
 +int Util_getfqdnhostname(char* buf, unsigned len) {
-+  struct addrinfo hints, *info, *p;
++  struct addrinfo hints, *info = NULL;
 +  char hostname[STRLEN];
 +
 +  if (gethostname(hostname, sizeof(hostname)) < 0)
@@ -49,10 +49,17 @@ Forwarded: https://savannah.nongnu.org/bugs/index.php?32868
 +  hints.ai_socktype = SOCK_STREAM;
 +  hints.ai_flags = AI_CANONNAME;
 +
-+  if (getaddrinfo(hostname, NULL, &hints, &info) != 0)
++  if (getaddrinfo(hostname, NULL, &hints, &info) != 0) {
++    if (info)
++      freeaddrinfo(info);
++
 +    return -2;
++  }
 +
 +  strncpy(buf, info->ai_canonname, len);
++
++  if (info)
++    freeaddrinfo(info);
 +
 +  return 0;
 +}
