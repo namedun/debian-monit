@@ -110,7 +110,6 @@ int check_sip(Socket_T s) {
   const char *myip;
   char *rport= "";
   char *proto;
-  int seed;
 
   ASSERT(s);
 
@@ -126,13 +125,11 @@ int check_sip(Socket_T s) {
     {
       transport="UDP";
       rport=";rport";
-      seed=1;
       break;
     }
     case SOCK_STREAM:
     {
       transport="TCP";
-      seed=2;
       break;
     }
     default:
@@ -143,9 +140,6 @@ int check_sip(Socket_T s) {
   }
 
   myip= socket_get_local_host(s);
-
-  /* initialization of random param */
-  srand(time(NULL)+getpid()+seed);
 
   if(socket_print(s,
     "OPTIONS %s:%s SIP/2.0\r\n"
@@ -164,15 +158,15 @@ int check_sip(Socket_T s) {
     transport,        // via transport udp|tcp
     myip,             // who its from
     port,             // our port
-    rand(),           // branch
+    random(),         // branch
     rport,            // rport option
     P->maxforward,    // maximum forwards
     proto,            // protocol
     request,          // to
     proto,            // protocol
     myip,             // from host
-    rand(),           // tag
-    rand(),           // call id
+    random(),         // tag
+    random(),         // call id
     proto,            // protocol
     myip,             // contact host
     port,             // contact port
