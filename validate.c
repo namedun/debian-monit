@@ -135,14 +135,6 @@ static void check_process_resources(Service_T, Resource_T);
 static int  do_scheduled_action(Service_T);
 
 
-/* --------------------------------------------------------------- Globals */
-
-
-int            ptreesize    = 0;    
-int            oldptreesize = 0; 
-ProcessTree_T *ptree        = NULL;     
-ProcessTree_T *oldptree     = NULL;  
-
 /* ---------------------------------------------------------------- Public */
 
 
@@ -185,9 +177,6 @@ int validate() {
     gettimeofday(&s->collected, NULL);
   }
 
-  if (Run.doprocess)
-    delprocesstree(&oldptree, oldptreesize);
-
   reset_depend();
 
   return errors;
@@ -207,7 +196,7 @@ int check_process(Service_T s) {
   ASSERT(s);
 
   /* Test for running process */
-  if (!(pid = Util_isProcessRunning(s))) {
+  if (!(pid = Util_isProcessRunning(s, FALSE))) {
     Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "process is not running");
     return FALSE;
   } else
@@ -248,25 +237,24 @@ int check_filesystem(Service_T s) {
 
   p = s->path;
 
-  /* We need to resolve symbolic link so if it points to device,
-   * we'll be able to find it in mnttab */
+  /* We need to resolve symbolic link so if it points to device, we'll be able to find it in mnttab */
   if (lstat(s->path, &stat_buf) != 0) {
     Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem doesn't exist");
     return FALSE;
   }
   if (S_ISLNK(stat_buf.st_mode)) {
     if (! realpath(s->path, path_buf)) {
-      Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "symbolic filesystem link error -- %s", STRERROR);
+      Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem symbolic link error -- %s", STRERROR);
       return FALSE;
     }
     p = path_buf;
-    Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "symbolic filesystem link %s -> %s", s->path, p);
+    Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "filesystem symbolic link %s -> %s", s->path, p);
     if (stat(p, &stat_buf) != 0) {
       Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem doesn't exist");
       return FALSE;
     }
   }
-  Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "filesystem exist");
+  Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "filesystem exists");
 
   s->inf->st_mode = stat_buf.st_mode;
   s->inf->st_uid  = stat_buf.st_uid;
