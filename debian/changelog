@@ -1,4 +1,4 @@
-monit (1:5.2.5-2) UNRELEASED; urgency=low
+monit (1:5.2.5-2) unstable; urgency=low
 
   * Fix FTBFS (undefined reference to `SSLv2_client_method') after ssv2
     removal (Closes: #621047).
