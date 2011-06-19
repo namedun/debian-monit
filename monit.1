@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "February 21. 2011" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "March 28. 2011" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -281,6 +281,12 @@ action and exit without transforming itself to a daemon.
    Check all services listed in the control file. This 
    action is also the default behavior when Monit runs 
    in daemon mode.
+.PP
+\&\fBprocmatch regex\fR
+   Allows for easy testing of pattern for process match
+   check. The command takes regular expression as an
+   argument and displays all running processes matching
+   the pattern.
 .SH "WHAT TO MONITOR"
 .IX Header "WHAT TO MONITOR"
 You may use Monit to monitor daemon processes or similar programs
@@ -951,7 +957,6 @@ expanded into the text with these values:
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 \& ALERT    | "alert"
 \& EXEC     | "exec"
-\& MONITOR  | "monitor"
 \& RESTART  | "restart"
 \& START    | "start"
 \& STOP     | "stop"
@@ -1258,9 +1263,6 @@ the superuser, then all programs executed by Monit will be
 started with superuser privileges unless the uid and gid
 extension was used.
 .IP "\(bu" 4
-\&\fB\s-1MONITOR\s0\fR will enable monitoring of the service \fIand\fR send
-an alert.
-.IP "\(bu" 4
 \&\fB\s-1UNMONITOR\s0\fR will disable monitoring of the service \fIand\fR send
 an alert. The service will not be checked by Monit anymore nor
 restarted again later.  To reactivate monitoring of the service
@@ -1277,7 +1279,7 @@ The default action can be overrided with following statement:
 .IX Item "IF [DOES] NOT EXIST [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 Example:
 .PP
@@ -1352,7 +1354,7 @@ specify a \fIunit\fR. This could be \*(L"%\*(R" or if applicable \*(L"B\*(R" (By
 \&\*(L"kB\*(R" (1024 Byte), \*(L"\s-1MB\s0\*(R" (1024 KiloByte) or \*(L"\s-1GB\s0\*(R" (1024 MegaByte).
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 To calculate the cycles, a counter is raised whenever the
 expression above is true and it is lowered whenever it is false
@@ -1404,7 +1406,7 @@ You can, for example, use the \s-1GNU\s0 utility \fI\fImd5sum\fI\|(1)\fR or
 use this string in the expect-statement.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The checksum statement in variable form may be used to check a
 file for changes and if changed, do a specified action. For
@@ -1453,7 +1455,7 @@ specified, default is \s-1EQUAL\s0).
 possible to use \*(L"\s-1SECONDS\s0\*(R", \*(L"\s-1MINUTES\s0\*(R", \*(L"\s-1HOURS\s0\*(R", or \*(L"\s-1DAYS\s0\*(R").
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The variable timestamp statement is useful for checking a file
 for changes and then execute an action. This version was written
@@ -1547,7 +1549,7 @@ specified, default is \s-1EQUAL\s0).
 specified, \*(L"byte\*(R" unit is assumed by default.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The variable size test form is useful for checking a file for
 changes and send an alert or execute an action. Monit will
@@ -1632,7 +1634,7 @@ See also \fIregex\fR\|(7).
 regular expression on every line. See also \fIregex\fR\|(7).
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 You can use the \fI\s-1NOT\s0\fR statement to invert a match.
 .PP
@@ -1688,7 +1690,7 @@ The syntax for the fsflags statement is:
 .IX Item "IF CHANGED FSFLAGS [[<X>] <Y> CYCLES] THEN action"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 Example:
 .PP
@@ -1728,7 +1730,7 @@ alternatives \*(L"byte\*(R", \*(L"kilobyte\*(R", \*(L"megabyte\*(R", \*(L"gigaby
 \&\*(L"percent\*(R".
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .SS "\s-1INODE\s0 \s-1TESTING\s0"
 .IX Subsection "INODE TESTING"
 If supported by the file-system, you can use Monit to test for
@@ -1755,7 +1757,7 @@ count of inodes. You can use the \*(L"%\*(R" character or the longer
 alternative \*(L"percent\*(R" as a unit.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .SS "\s-1PERMISSION\s0 \s-1TESTING\s0"
 .IX Subsection "PERMISSION TESTING"
 Monit can monitor the permission of file objects. This test may
@@ -1772,7 +1774,7 @@ can omit the leading zeros, Monit will add the zeros to the left
 thus for example \*(L"640\*(R" is valid value and matches \*(L"0640\*(R").
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The web interface will show a permission warning if the test
 failed.
@@ -1803,7 +1805,7 @@ The syntax for the uid statement is:
 \&\fIuser\fR defines a user id either in numeric or in string form.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The web interface will show a uid warning if the test should
 fail.
@@ -1834,7 +1836,7 @@ The syntax for the gid statement is:
 \&\fIuser\fR defines a group id either in numeric or in string form.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The web interface will show a gid warning if the test should
 fail.
@@ -1863,7 +1865,7 @@ The syntax for the pid statement is:
 .IX Item "IF CHANGED PID [[<X>] <Y> CYCLES] THEN action"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 This test is useful to detect possible process restarts which has
 occurred in the timeframe between two Monit testing cycles. In
@@ -1898,7 +1900,7 @@ The syntax for the ppid statement is:
 .IX Item "IF CHANGED PPID [[<X>] <Y> CYCLES] THEN action"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 This test is useful for detecting changes of a process parent.
 .PP
@@ -2165,7 +2167,7 @@ connection failed and execute the specified action. The default
 connect timeout is 5 seconds.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 Connection testing using the \s-1URL\s0 notation
 .IX Subsection "Connection testing using the URL notation"

@@ -219,7 +219,7 @@ int control_service(const char *S, int A) {
 
     case ACTION_START:
       if (s->type == TYPE_PROCESS) {
-        if (Util_isProcessRunning(s)) {
+        if (Util_isProcessRunning(s, FALSE)) {
           DEBUG("%s: Process already running -- process %s\n", prog, S);
           Util_monitorSet(s);
           return TRUE;
@@ -329,7 +329,7 @@ static void do_start(Service_T s) {
     }
   }
   
-  if (s->start && (s->type!=TYPE_PROCESS || !Util_isProcessRunning(s))) {
+  if (s->start && (s->type!=TYPE_PROCESS || !Util_isProcessRunning(s, FALSE))) {
     LogInfo("'%s' start: %s\n", s->name, s->start->arg[0]);
     spawn(s, s->start, NULL);
     /* We only wait for a process type, other service types does not have a pid file to watch */
@@ -359,7 +359,7 @@ static int do_stop(Service_T s) {
     DEBUG("Monitoring disabled -- service %s\n", s->name);
   } 
 
-  if (s->stop && (s->type!=TYPE_PROCESS || Util_isProcessRunning(s))) {
+  if (s->stop && (s->type!=TYPE_PROCESS || Util_isProcessRunning(s, FALSE))) {
     LogInfo("'%s' stop: %s\n", s->name, s->stop->arg[0]);
     spawn(s, s->stop, NULL);
     if (s->type == TYPE_PROCESS) {
@@ -459,22 +459,21 @@ static void do_depend(Service_T s, int action) {
  * @param service A Service to wait for
  */
 static void wait_start(Service_T s) {
-  time_t timeout = time(NULL) + s->start->timeout;
+  int            isrunning = FALSE;
+  time_t         timeout = time(NULL) + s->start->timeout;
   
   ASSERT(s);
 
   while ((time(NULL) < timeout) && !Run.stopped) {
-    if (Util_isProcessRunning(s))
+    if ((isrunning = Util_isProcessRunning(s, TRUE)))
       break;
     sleep(1);
   }
   
-  if (!Util_isProcessRunning(s))
+  if (! isrunning)
     Event_post(s, Event_Exec, STATE_FAILED, s->action_EXEC, "failed to start");
   else
     Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "started");
-
-  return;
 }
 
 
@@ -488,17 +487,18 @@ static void wait_start(Service_T s) {
  * @return TRUE if the service was stopped otherwise FALSE
  */
 static int wait_stop(Service_T s) {
-  time_t timeout = time(NULL) + s->stop->timeout;
+  int            isrunning = TRUE;
+  time_t         timeout = time(NULL) + s->stop->timeout;
   
   ASSERT(s);
 
   while ((time(NULL) < timeout) && !Run.stopped) {
-    if (!Util_isProcessRunning(s))
+    if (! (isrunning = Util_isProcessRunning(s, TRUE)))
       break;
     sleep(1);
   }
 
-  if (Util_isProcessRunning(s)) {
+  if (isrunning) {
     Event_post(s, Event_Exec, STATE_FAILED, s->action_EXEC, "failed to stop");
     return FALSE;
   } else {

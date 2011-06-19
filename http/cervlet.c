@@ -376,7 +376,7 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
   }
 
   if(Run.mmonits) {
-    Mmonit_T c= Run.mmonits;
+    Mmonit_T c;
     out_print(res, "<tr><td>M/Monit server(s)</td><td>");
     for(c= Run.mmonits; c; c= c->next)
     {
@@ -394,7 +394,7 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
   }
 
   if(Run.mailservers) {
-    MailServer_T mta= Run.mailservers;
+    MailServer_T mta;
     out_print(res, "<tr><td>Mail server(s)</td><td>");
     for(mta= Run.mailservers; mta; mta= mta->next)
         out_print(res, "%s:%d%s&nbsp;",
@@ -2269,7 +2269,7 @@ static void print_status(HttpRequest req, HttpResponse res, int version)
 
   if(stringFormat && Util_startsWith(stringFormat, "xml"))
   {
-    char *D = status_xml(NULL, level, version);
+    char *D = status_xml(NULL, level, version, socket_get_local_host(req->S));
     out_print(res, "%s", D);
     FREE(D);
     set_content_type(res, "text/xml");

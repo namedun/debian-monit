@@ -250,10 +250,12 @@ pid_t Util_getPid(char *pidfile);
 
 
 /**
- * @return TRUE (i.e. the running pid id)  if
- * the process is running, otherwise FALSE
+ * Check whether the process is running
+ * @param s The service being checked
+ * @param refresh TRUE to refresh the global ptree (useful for procmatch if process was mangled by monit in the same cycle such as by restart action) or FALSE to use cached ptree
+ * @return The PID of the running running process or 0 if the process is not running.
  */
-int Util_isProcessRunning(Service_T s);
+int Util_isProcessRunning(Service_T s, int refresh);
 
 
 /**
@@ -512,6 +514,15 @@ char *Util_portDescription(Port_T p, char *buf, int bufsize);
  * @return the socket type description
  */
 void Util_stringbuffer(Buffer_T *b, const char *m, ...);
+
+
+/**
+ *  Returns the FQDN hostname or fallback to gethostname() output
+ *  @param buf the character array for hostname
+ *  @param len the length of buf
+ *  @return zero on success
+ */
+int Util_getfqdnhostname(char *buf, unsigned len);
 
 
 #endif

@@ -124,7 +124,7 @@ int sendmail(Mail_T mail) {
   ASSERT(mail);
   
   S.socket = NULL;
-  if((rv = sigsetjmp(S.error, TRUE))) {
+  if(sigsetjmp(S.error, TRUE)) {
     rv = FALSE;
     goto exit;
   } else {
@@ -135,9 +135,7 @@ int sendmail(Mail_T mail) {
   
   Util_getRFC822Date(NULL, now, STRLEN);
   
-  if(Run.mail_hostname || gethostname(S.localhost, sizeof(S.localhost)) < 0) {
-    snprintf(S.localhost, sizeof(S.localhost), "%s", Run.mail_hostname?Run.mail_hostname:LOCALHOST);
-  }
+  snprintf(S.localhost, sizeof(S.localhost), "%s", Run.mail_hostname ? Run.mail_hostname : Run.localhostname);
   
   do_status(&S);
 
@@ -174,7 +172,6 @@ int sendmail(Mail_T mail) {
   }
   
   for(i = 0, m= mail; m; m= m->next, i++) { 
-    srandom(time(NULL) + getpid() + i);
     do_send(&S, "MAIL FROM: <%s>\r\n", m->from);
     do_status(&S);
     do_send(&S, "RCPT TO: <%s>\r\n", m->to);

@@ -1,8 +1,17 @@
-monit (1:5.2.4-4~bpo50+1) lenny-backports; urgency=low
+monit (1:5.2.5-2) unstable; urgency=low
 
-  * Rebuild for lenny-backports.
+  * Fix FTBFS (undefined reference to `SSLv2_client_method') after ssv2
+    removal (Closes: #621047).
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 21 Mar 2011 16:22:38 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 06 Apr 2011 15:08:19 +0400
+
+monit (1:5.2.5-1) unstable; urgency=low
+
+  * Imported Upstream version 5.2.5 (Closes: #617259)
+  * Removed patches, applied by upstream
+  * Unfuzz patches
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 06 Apr 2011 03:19:27 +0400
 
 monit (1:5.2.4-4) unstable; urgency=low
 
