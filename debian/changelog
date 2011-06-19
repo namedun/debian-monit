@@ -1,3 +1,9 @@
+monit (1:5.2.5-2~bpo60+1) lenny-backports; urgency=low
+
+  * Rebuild for lenny-backports.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 19 Jun 2011 20:54:25 +0400
+
 monit (1:5.2.5-2) unstable; urgency=low
 
   * Fix FTBFS (undefined reference to `SSLv2_client_method') after ssv2
