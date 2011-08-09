@@ -1,3 +1,9 @@
+monit (1:5.2.5-2~bpo60+2) squeeze-backports; urgency=low
+
+  * Rebuild for squeeze-backports.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 09 Aug 2011 17:58:29 +0400
+
 monit (1:5.2.5-2) unstable; urgency=low
 
   * Fix FTBFS (undefined reference to `SSLv2_client_method') after ssv2
