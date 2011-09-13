@@ -9,16 +9,16 @@ Forwarded: not-needed
 
 --- a/monit.1
 +++ b/monit.1
-@@ -319,7 +319,7 @@
- .IX Header "HOW TO MONITOR"
+@@ -369,7 +369,7 @@
+ .IX Header "THE MONIT CONTROL FILE"
  Monit is configured and controlled via a control file called
- \&\fBmonitrc\fR. The default location for this file is ~/.monitrc. If
+ \&\fImonitrc\fR. The default location for this file is ~/.monitrc. If
 -this file does not exist, Monit will try /etc/monitrc, then
 +this file does not exist, Monit will try /etc/monit/monitrc, then
- \&\f(CW@sysconfdir\fR@/monitrc and finally ./monitrc.
- .PP
- A Monit control file consists of a series of service entries and
-@@ -475,7 +475,7 @@
+ \&\f(CW@sysconfdir\fR@/monitrc and finally ./monitrc. The value of
+ \&\f(CW@sysconfdir\fR@ is given at configure time as ./configure
+ \&\-\-sysconfdir. For instance, using  \fI./configure \-\-sysconfdir
+@@ -469,7 +469,7 @@
  .PP
  .Vb 2
  \&  # Run Monit in standard run\-levels
@@ -27,7 +27,7 @@ Forwarded: not-needed
  .Ve
  .PP
  After you have modified init's configuration file, you can run
-@@ -1785,7 +1785,7 @@
+@@ -1786,7 +1786,7 @@
  Example:
  .PP
  .Vb 2
@@ -36,7 +36,7 @@ Forwarded: not-needed
  \&       if failed permission 0555 then unmonitor
  .Ve
  .PP
-@@ -3801,9 +3801,9 @@
+@@ -3950,9 +3950,9 @@
  \&\fI~/.monitrc\fR  
     Default run control file
  .PP
