@@ -1,8 +1,18 @@
-monit (1:5.2.5-2~bpo60+2) squeeze-backports; urgency=low
+monit (1:5.3-1) unstable; urgency=low
 
-  * Rebuild for squeeze-backports.
+  * Bump up Standards-Version (to 3.9.2)
+  * Add minsize clause for logrotate script
+  * Imported Upstream version 5.3
+  * Fix patches for 5.3 version and drop
+    06_Fix_FTBFS_after_ssv2_removal.patch
+  * Exclude obsoleted docs (README.SSL, etc) and include doc/PLATFORMS
+  * Drop obsoleted automake1.9 deps
+  * Drop deps for byacc & flex (unneeded for monit 5.3)
+  * Set --with-ssl-lib-dir as a workarround
+  * Fix lintian warning: obsoleted field Format-Specification in
+    debian/copyright
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 09 Aug 2011 17:58:29 +0400
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 15 Sep 2011 03:03:30 +0400
 
 monit (1:5.2.5-2) unstable; urgency=low
 
