@@ -1,3 +1,12 @@
+monit (1:5.3-2) unstable; urgency=low
+
+  * Set --sysconfdir to /etc/monit and drop patches for relocation of
+    default /etc/monitrc path to /etc/monit/monitrc
+  * Properly use $(DEB_HOST_MULTIARCH) for --with-ssl-lib-dir (fix for
+    FTBFS in a couple of arch's)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 28 Sep 2011 20:57:23 +0400
+
 monit (1:5.3-1) unstable; urgency=low
 
   * Bump up Standards-Version (to 3.9.2)
