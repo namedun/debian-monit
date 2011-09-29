@@ -1,0 +1,210 @@
+Description: Fix build on kFreeBSD target.
+Bug-Debian: http://bugs.debian.org/643019
+Origin: upstream
+Forwarded: not-needed
+
+---
+ configure.ac                 |   24 +++++++++++++++---------
+ libmonit/configure.ac        |   23 ++++++++++++++---------
+ src/process/sysdep_FREEBSD.c |   20 --------------------
+ 3 files changed, 29 insertions(+), 38 deletions(-)
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -419,7 +419,8 @@
+ # ------------------------------------------------------------------------
+ 
+ # Backward compatibility until we get ride of arch settings
+-if test `uname` = "SunOS" 
++architecture=`uname`
++if test "$architecture" = "SunOS"
+ then
+    ARCH="SOLARIS"
+    CFLAGS="$CFLAGS -D _REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64"
+@@ -434,7 +435,7 @@
+             CFLAGS="$CFLAGS -mtune=v9"
+             LDFLAGS="$LDFLAGS -mtune=v9"
+    fi
+-elif test `uname` = "Linux" 
++elif test "$architecture" = "Linux"
+ then
+    ARCH="LINUX"
+    CFLAGS="$CFLAGS -D _REENTRANT"
+@@ -443,33 +444,38 @@
+    then
+    	AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
+    fi
+-elif test `uname` = "HP-UX"
++elif test "$architecture" = "HP-UX"
+ then
+    ARCH="HPUX"
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
+-elif test `uname` = "OpenBSD"
++elif test "$architecture" = "OpenBSD"
+ then
+    ARCH="OPENBSD"
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    test_kvm="true"
+-elif test `uname` = "FreeBSD"
++elif test "$architecture" = "FreeBSD"
+ then
+    ARCH="FREEBSD"
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    test_kvm="true"
+-elif test `uname` = "NetBSD"
++elif test "$architecture" = "GNU/kFreeBSD"
++then
++   ARCH="FREEBSD"
++   CFLAGS="$CFLAGS -D _REENTRANT"
++   test_kvm="true"
++elif test "$architecture" = "NetBSD"
+ then
+    ARCH="NETBSD"
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    test_kvm="true"
+-elif test `uname` = "Darwin"
++elif test "$architecture" = "Darwin"
+ then
+    ARCH="DARWIN"
+    CFLAGS="$CFLAGS -DREENTRANT -no-cpp-precomp -DNEED_SOCKLEN_T_DEFINED"
+    test_kvm="true"
+    LIBS="$LIBS -framework System -multiply_defined suppress"
+-elif test `uname` = "AIX"
++elif test "$architecture" = "AIX"
+ then
+    ARCH="AIX"
+    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
+@@ -480,7 +486,7 @@
+    LIBS="$LIBS -lperfstat"	
+    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
+ else
+-   AC_MSG_WARN([Architecture not supported: `uname`.])
++   AC_MSG_WARN([Architecture not supported: ${architecture}])
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    ARCH="UNKNOWN"
+ fi
+--- a/libmonit/configure.ac
++++ b/libmonit/configure.ac
+@@ -115,23 +115,28 @@
+ # Architecture/OS
+ # ------------------------------------------------------------------------
+ 
+-if test `uname` = "Linux"  
++architecture=`uname`
++if test "$architecture" = "Linux"
+ then
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    AC_DEFINE([LINUX], 1, [Define to 1 if the system is Linux])
+-elif test `uname` = "FreeBSD"
++elif test "$architecture" = "FreeBSD"
+ then
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    AC_DEFINE([FREEBSD], 1, [Define to 1 if the system is FreeBSD])
+-elif test `uname` = "OpenBSD"
++elif test "$architecture" = "GNU/kFreeBSD"
++then
++   CFLAGS="$CFLAGS -D _REENTRANT"
++   AC_DEFINE([FREEBSD], 1, [Define to 1 if the system is FreeBSD])
++elif test "$architecture" = "OpenBSD"
+ then
+    CFLAGS="$CFLAGS -D _REENTRANT"
+    AC_DEFINE([OPENBSD], 1, [Define to 1 if the system is OpenBSD])
+-elif test `uname` = "Darwin"
++elif test "$architecture" = "Darwin"
+ then
+    CFLAGS="$CFLAGS -DREENTRANT"
+    AC_DEFINE([DARWIN], 1, [Define to 1 if the system is OSX])
+-elif test `uname` = "SunOS"
++elif test "$architecture" = "SunOS"
+ then
+    LIBS="$LIBS -lsocket -lnsl"
+    CFLAGS="$CFLAGS -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64"
+@@ -142,20 +147,20 @@
+        LDFLAGS="$LDFLAGS -mtune=v9"
+    fi
+    AC_DEFINE([SOLARIS], 1, [Define to 1 if the system is SOLARIS])
+-elif test `uname` = "HP-UX"
++elif test "$architecture" = "HP-UX"
+ then
+    CFLAGS="$CFLAGS -D_REENTRANT"
+    AC_DEFINE([HPUX], 1, [Define to 1 if the system is HPUX])
+-elif test `uname` = "NetBSD"
++elif test "$architecture" = "NetBSD"
+ then
+    CFLAGS="$CFLAGS -D_REENTRANT"
+    AC_DEFINE([NETBSD], 1, [Define to 1 if the system is NETBSD])
+-elif test `uname` = "AIX"
++elif test "$architecture" = "AIX"
+ then
+    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
+    AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
+ else
+-   AC_MSG_ERROR([Architecture not supported: `uname`.])
++   AC_MSG_ERROR([Architecture not supported: ${architecture}])
+ fi
+ 
+ # ---------------------------------------------------------------------------
+--- a/src/process/sysdep_FREEBSD.c
++++ b/src/process/sysdep_FREEBSD.c
+@@ -168,7 +168,6 @@
+     Buffer_T   cmdline;
+ 
+     memset(&cmdline, 0, sizeof(Buffer_T));
+-#if (__FreeBSD_version > 500000)
+     pt[i].pid       = pinfo[i].ki_pid;
+     pt[i].ppid      = pinfo[i].ki_ppid;
+     pt[i].starttime = pinfo[i].ki_start.tv_sec;
+@@ -177,16 +176,6 @@
+     flags           = pinfo[i].ki_stat;
+     args            = kvm_getargv(kvm_handle, &pinfo[i], 0);
+     procname        = pinfo[i].ki_comm;
+-#else
+-    pt[i].pid       = pinfo[i].kp_proc.p_pid;
+-    pt[i].ppid      = pinfo[i].kp_eproc.e_ppid;
+-    pt[i].starttime = pinfo[i].kp_eproc.e_stats.p_start.tv_sec;
+-    pt[i].cputime   = (long)(pinfo[i].kp_proc.p_runtime / 100000);
+-    pt[i].mem_kbyte = (unsigned long)(pinfo[i].kp_eproc.e_vm.vm_rssize * pagesize_kbyte);
+-    flags           = pinfo[i].kp_proc.p_stat;
+-    args            = kvm_getargv(kvm_handle, &pinfo[i], 0);
+-    procname        = pinfo[i].kp_proc.p_comm;
+-#endif
+     if (flags == SZOMB)
+       pt[i].status_flag |= PROCESS_ZOMBIE;
+     pt[i].cpu_percent = 0;
+@@ -228,14 +217,12 @@
+   int                mib[16];
+   size_t             len;
+   struct vmtotal     vm;
+-#if (__FreeBSD_version > 500000)
+   int                n = 0;
+   int                pagesize = getpagesize();
+   size_t             miblen;
+   struct xswdev      xsw;
+   unsigned long long total = 0ULL;
+   unsigned long long used  = 0ULL;
+-#endif
+ 
+   /* Memory */
+   memset(mib, 0, sizeof(mib));
+@@ -249,7 +236,6 @@
+   si->total_mem_kbyte = (unsigned long)(vm.t_arm * pagesize_kbyte);
+ 
+   /* Swap */
+-#if (__FreeBSD_version > 500000)
+   memset(mib, 0, sizeof(mib));
+   miblen = sizeof(mib) / sizeof(mib[0]);
+   if (sysctlnametomib("vm.swap_info", mib, &miblen) == -1) {
+@@ -273,12 +259,6 @@
+   }
+   si->swap_kbyte_max   = (unsigned long)(double)total * (double)pagesize / 1024.;
+   si->total_swap_kbyte = (unsigned long)(double)used  * (double)pagesize / 1024.;
+-#else
+-  /* Not implemented - FreeBSD <= 5.x doesn't have vm.swap_info MIB and uses kvm instead. As such FreeBSD version is obsolete, no need to implement unless somebody will ask for it. */
+-  DEBUG("system statistic -- swap usage monitoring not implemented in FreeBSD <= 5.x\n");
+-  si->swap_kbyte_max = 0;
+-#endif
+-
+   return TRUE;
+ }
+ 
