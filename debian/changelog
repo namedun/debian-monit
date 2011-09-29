@@ -1,3 +1,13 @@
+monit (1:5.3-3) unstable; urgency=low
+
+  * Added deps for libkvm-dev on kFreeBSD
+  * 06_kfreebsd.patch: fix FTBFS for kFreeBSD (Closes: #643019)
+  * 07_bootstrap.patch: Add -c option for libtoolize in bootstrap
+    scripts
+  * 99_autoreconf.patch: Run ./bootstrap
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 29 Sep 2011 16:45:26 +0400
+
 monit (1:5.3-2) unstable; urgency=low
 
   * Set --sysconfdir to /etc/monit and drop patches for relocation of
