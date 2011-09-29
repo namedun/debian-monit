@@ -1,3 +1,4 @@
 05_monitrc.patch
 06_kfreebsd.patch
 07_bootstrap.patch
+99_autoreconf.patch
