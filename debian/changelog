@@ -1,9 +1,27 @@
-monit (1:5.3-1~bpo60+1) squeeze-backports; urgency=low
+monit (1:5.3-3~bpo60+1) squeeze-backports; urgency=low
 
   * Rebuild for squeeze-backports.
-  * Removed workarround --with-ssl-lib-dir for Sid
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 15 Sep 2011 03:15:35 +0400
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 20 Oct 2011 11:40:41 +0400
+
+monit (1:5.3-3) unstable; urgency=low
+
+  * Added deps for libkvm-dev on kFreeBSD
+  * 06_kfreebsd.patch: fix FTBFS for kFreeBSD (Closes: #643019)
+  * 07_bootstrap.patch: Add -c option for libtoolize in bootstrap
+    scripts
+  * 99_autoreconf.patch: Run ./bootstrap
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 29 Sep 2011 16:45:26 +0400
+
+monit (1:5.3-2) unstable; urgency=low
+
+  * Set --sysconfdir to /etc/monit and drop patches for relocation of
+    default /etc/monitrc path to /etc/monit/monitrc
+  * Properly use $(DEB_HOST_MULTIARCH) for --with-ssl-lib-dir (fix for
+    FTBFS in a couple of arch's)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 28 Sep 2011 20:57:23 +0400
 
 monit (1:5.3-1) unstable; urgency=low
 
