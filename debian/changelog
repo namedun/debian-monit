@@ -1,3 +1,9 @@
+monit (1:5.3.1-1~bpo60+1) squeeze-backports; urgency=low
+
+  * Rebuild for squeeze-backports.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 29 Oct 2011 01:42:38 +0400
+
 monit (1:5.3.1-1) unstable; urgency=low
 
   * Imported Upstream version 5.3.1
