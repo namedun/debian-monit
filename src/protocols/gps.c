@@ -51,7 +51,7 @@ int check_gps(Socket_T socket) {
 		return FALSE;
 	}
 
-	Util_chomp(buf);
+	Str_chomp(buf);
 	if(strncasecmp(buf, ok_gps_device, strlen(ok_gps_device)) != 0) {
 		if(strncasecmp(buf, ok_rtcm104v2_device, strlen(ok_rtcm104v2_device)) != 0) {
 			if(strncasecmp(buf, ok_rtcm104_device, strlen(ok_rtcm104_device)) != 0) {

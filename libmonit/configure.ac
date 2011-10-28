@@ -115,23 +115,28 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdarg.h>
 # Architecture/OS
 # ------------------------------------------------------------------------
 
-if test `uname` = "Linux"  
+architecture=`uname`
+if test "$architecture" = "Linux"  
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_DEFINE([LINUX], 1, [Define to 1 if the system is Linux])
-elif test `uname` = "FreeBSD"
+elif test "$architecture" = "FreeBSD"
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_DEFINE([FREEBSD], 1, [Define to 1 if the system is FreeBSD])
-elif test `uname` = "OpenBSD"
+elif test "$architecture" = "GNU/kFreeBSD"
+then
+   CFLAGS="$CFLAGS -D _REENTRANT"
+   AC_DEFINE([FREEBSD], 1, [Define to 1 if the system is FreeBSD])
+elif test "$architecture" = "OpenBSD"
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_DEFINE([OPENBSD], 1, [Define to 1 if the system is OpenBSD])
-elif test `uname` = "Darwin"
+elif test "$architecture" = "Darwin"
 then
    CFLAGS="$CFLAGS -DREENTRANT"
    AC_DEFINE([DARWIN], 1, [Define to 1 if the system is OSX])
-elif test `uname` = "SunOS"
+elif test "$architecture" = "SunOS"
 then
    LIBS="$LIBS -lsocket -lnsl"
    CFLAGS="$CFLAGS -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64"
@@ -142,20 +147,20 @@ then
        LDFLAGS="$LDFLAGS -mtune=v9"
    fi
    AC_DEFINE([SOLARIS], 1, [Define to 1 if the system is SOLARIS])
-elif test `uname` = "HP-UX"
+elif test "$architecture" = "HP-UX"
 then
    CFLAGS="$CFLAGS -D_REENTRANT"
    AC_DEFINE([HPUX], 1, [Define to 1 if the system is HPUX])
-elif test `uname` = "NetBSD"
+elif test "$architecture" = "NetBSD"
 then
    CFLAGS="$CFLAGS -D_REENTRANT"
    AC_DEFINE([NETBSD], 1, [Define to 1 if the system is NETBSD])
-elif test `uname` = "AIX"
+elif test "$architecture" = "AIX"
 then
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
    AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
 else
-   AC_MSG_ERROR([Architecture not supported: `uname`.])
+   AC_MSG_ERROR([Architecture not supported: ${architecture}])
 fi
 
 # ---------------------------------------------------------------------------

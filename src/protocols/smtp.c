@@ -85,7 +85,7 @@ static int expect(Socket_T socket, int expect, int log) {
                         socket_setError(socket, "SMTP: error receiving data -- %s\n", STRERROR);
                         return FALSE;
                 }
-                Util_chomp(buf);
+                Str_chomp(buf);
         } while (buf[3] == '-'); // Discard multi-line response
         if (sscanf(buf, "%d", &status) != 1) {
                 if(log) 

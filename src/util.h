@@ -35,85 +35,6 @@
 
 
 /**
- * Return only the filename with leading directory components
- * removed. This function does not modify the path string.
- * @param path A file path string
- * @return A pointer to the basename in path
- */
-char *Util_basename(char* path);
-
-
-/**
-  * Removes everything from the first line break or newline (CR|LF)
-  * @param s A string to be chomped
-  * @return The chomped string
-  */
-char *Util_chomp(char *s);
-
-
-/**
- * Remove leading and trailing space from the string
- * @param s A string
- * @return s with leading and trailing spaces removed
- */
-char *Util_trim(char *s);
-
-
-/**
- * Remove leading white space [ \t\r\n] from the string.
- * @param s A string
- * @return s with leading spaces removed
- */
-char *Util_ltrim(char *s);
-
-
-/**
- * Remove trailing white space [ \t\r\n] from the string
- * @param s A string
- * @return s with trailing spaces removed
- */
-char *Util_rtrim(char *s);
-
-
-/**
- * Remove any enclosing quotes ["'] from the string
- * @param s A string
- * @return s with any enclosed quotes removed
- */
-void Util_trimQuotes(char *s);
-
-
-/**
- * Truncate <code>s</code> at <code>n</code> and add a trailing "..." 
- * to the end of <code>s</code>. If <code>s</code> is shorter than 
- * <code>n</code> or has no space for the trail, <code>s</code> is left
- * untouched otherwise this function modifies <code>s</code>. 
- * <pre>
- * Example: 
- *  char s[]= "Hello World!";
- *  Util_trunc(s, strlen(s)); --> "Hello World!" 
- *  Util_trunc(s, 5); --> "Hello..."
- *  Util_trunc(s, 0); --> "..."
- * </pre>
- * @param s String to truncate at n
- * @param n number of bytes from where s is truncated
- * @return A pointer to s
- */
-char *Util_trunc(char *s, int n);
-
-
-/**
- * Replace all occurrences of the <code>old</code> char in the string
- * <code>s</code> with the <code>new</code> char.
- * @param s A string
- * @param old The old char
- * @param new The new char
- * @return s where all occurrence of old are replaced with new
- */
-char *Util_replace(char *s, char old, char new);
-
-
-/**
  * Replace all occurrences of the sub-string old in the string src
  * with the sub-string new. The method is case sensitive for the
  * sub-strings new and old. The string parameter src must be an
@@ -133,18 +54,6 @@ char *Util_replaceString(char **src, const char *old, const char *new);
  * @param word 	The sub-string to count in s
  */
 int Util_countWords(char *s, const char *word);
-
-
-/**
- * Return TRUE if the string <i>a</i> starts with the string
- * <i>b</i>. The test is <i>case-insensitive</i> but depends on that
- * all characters in the two strings can be translated in the current
- * locale.
- * @param a The string to search for b in
- * @param b The sub-string to test a against
- * @return TRUE if a starts with b, otherwise FALSE
- */
-int Util_startsWith(const char *a, const char *b);
 
 
 /**
@@ -352,26 +261,6 @@ char *Util_getBasicAuthHeader(char *username, char *password);
 
 
 /**
- * Creates a new String by merging a formated string and a variable
- * argument list. The caller must free the returned String.
- * @param s A format string
- * @return The new String or NULL if the string could not be created
- */
-char *Util_getString(const char *s, ...);
-
-
-/**
- * Do printf style format line parsing
- * @param s format string
- * @param ap variable argument list
- * @param len The lenght of the bytes written,
- * may be different from the returned allocated buffer size
- * @return buffer with parsed string
- */
-char *Util_formatString(const char *s, va_list ap, long *len);
-
-
-/**
  * Redirect the standard file descriptors to /dev/null and route any
  * error messages to the log file.
  */
@@ -501,15 +390,6 @@ char *Util_portTypeDescription(Port_T p);
  * @return the buffer
  */
 char *Util_portDescription(Port_T p, char *buf, int bufsize);
-
-
-/**
- * Print to string buffer
- * @param b A Buffer object
- * @param m Format string
- * @return the socket type description
- */
-void Util_stringbuffer(Buffer_T *b, const char *m, ...);
 
 
 /**

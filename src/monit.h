@@ -83,6 +83,8 @@
 // libmonit
 #include "system/Command.h"
 #include "system/Process.h"
+#include "util/Str.h"
+#include "util/StringBuffer.h"
 
 
 #define MONITRC            "monitrc"
@@ -262,13 +264,6 @@ assert(pthread_mutex_lock(_yymutex)==0);
 #define END_LOCK assert(pthread_mutex_unlock(_yymutex)==0); } while (0)
 
 
-/** ---------------------------------- Object Constructor/"Destructor" macro */
-
-
-#define NEW(p) ((p)= xcalloc(1, (long)sizeof *(p)))
-#define FREE(p) ((void)(free(p), (p)= 0))
-
-
 /** ------------------------------------------ Simple Assert Exception macro */
 
 
@@ -281,14 +276,6 @@ assert(pthread_mutex_lock(_yymutex)==0);
 
 /** Message Digest type with size for the longest digest we will compute */
 typedef char MD_T[MD_SIZE];
-
-
-/** Defines an string buffer object */
-typedef struct mybuffer {
-        char          *buf;                               /**< String buffer       */
-        size_t         bufsize;                           /**< String buffer size  */
-        size_t         bufused;                           /**< String buffer usage */
-} Buffer_T;
 
 
 /**
@@ -756,6 +743,7 @@ typedef struct myservice {
         Every_T every;              /**< Timespec for when to run check of service */
         command_t start;                    /**< The start command for the service */
         command_t stop;                      /**< The stop command for the service */
+        command_t restart;
         
         Dependant_T dependantlist;                     /**< Dependant service list */
         Mail_T      maillist;                  /**< Alert notification mailinglist */
@@ -911,7 +899,7 @@ struct myrun {
 
 /* -------------------------------------------------------- Global variables */
 
-extern char          *prog;
+extern const char    *prog;
 extern struct myrun   Run;
 extern Service_T      servicelist;
 extern Service_T      servicelist_conf;
@@ -937,6 +925,10 @@ extern char *sslnames[];
 
 #include "util.h"
 #include "file.h"
+
+// libmonit
+#include "system/Mem.h"
+
 
 /* FIXME: move remaining prototypes into seperate header-files */
 
@@ -976,20 +968,12 @@ int   exist_daemon();
 int   sendmail(Mail_T);
 int   sock_msg(int, char *, ...);
 void  init_env();
-void *xmalloc (size_t);
-void *xcalloc(size_t, size_t);
-char *xstrdup(const char *);
-char *xstrndup(const char *, size_t);
-void *xresize(void *, size_t);
 void  monit_http(int);
 int   can_http();
 char *format(const char *, va_list, long *);
 void  redirect_stdfd();
 void  fd_close();
 pid_t getpgid(pid_t);
-#if ! HAVE_MALLOC
-void *rpl_malloc (size_t __size);
-#endif
 void unset_signal_block(sigset_t *);
 void set_signal_block(sigset_t *, sigset_t *);
 int  check_process(Service_T);
@@ -1005,7 +989,7 @@ int  sha_md5_stream (FILE *, void *, void *);
 void reset_procinfo(Service_T);
 int  check_service_status(Service_T);
 void printhash(char *);  
-char *status_xml(Event_T, short, int, const char *);
+void status_xml(StringBuffer_T, Event_T, short, int, const char *);
 int  handle_mmonit(Event_T);
 int  do_wakeupcall();
 

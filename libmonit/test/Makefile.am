@@ -1,6 +1,5 @@
 AUTOMAKE_OPTIONS = foreign no-dependencies
 
-AM_CPPFLAGS	= $(CPPFLAGS) -std=c99
 LDADD = ../libmonit.la
 INCLUDES = -I../src/ -I../src/util -I../src/net -I../src/io -I../src/exceptions -I../src/thread 
 

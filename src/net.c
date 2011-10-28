@@ -132,6 +132,8 @@
 #endif
 #endif
 
+#include <arpa/inet.h>
+
 #include "monit.h"
 #include "net.h"
 #include "ssl.h"
@@ -149,11 +151,87 @@
 #define DATALEN 64
 
 
-/* -------------------------------------------------------------- Prototypes */
+/* ----------------------------------------------------------------- Private */
 
 
-static int do_connect(int, const struct sockaddr *, socklen_t, int);
-static unsigned short checksum_ip(unsigned char *, int);
+/*
+ * Do a non blocking connect, timeout if not connected within timeout seconds
+ */
+static int do_connect(int s, const struct sockaddr *addr, socklen_t addrlen, int timeout) {
+  int error = 0;
+  struct pollfd fds[1];
+
+  switch (connect(s, addr, addrlen)) {
+    case 0:
+      return 0;
+    default:
+      if (errno != EINPROGRESS)
+        return -1;
+      break;
+  }
+  fds[0].fd = s;
+  fds[0].events = POLLIN|POLLOUT;
+  if (poll(fds, 1, timeout * 1000) == 0) {
+    errno = ETIMEDOUT;
+    return -1;
+  }
+  if (fds[0].events & POLLIN || fds[0].events & POLLOUT) {
+    socklen_t len = sizeof(error);
+    if (getsockopt(s, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
+      return -1; // Solaris pending error
+  } else {
+    return -1;
+  }
+  if (error) {
+    errno = error;
+    return -1;
+  }
+  return 0;
+}
+
+
+/*
+ * Compute Internet Checksum for "count" bytes beginning at location "addr".
+ * Based on RFC1071.
+ */
+static unsigned short checksum_ip(unsigned char *_addr, int count) {
+
+  register long sum= 0;
+  unsigned short *addr= (unsigned short *)_addr;
+
+  while(count > 1) {
+    sum += *addr++;
+    count -= 2;
+  }
+
+  /* Add left-over byte, if any */
+  if(count > 0)
+    sum += *(unsigned char *)addr;
+
+  /* Fold 32-bit sum to 16 bits */
+  while(sum >> 16)
+    sum= (sum & 0xffff) + (sum >> 16);
+
+  return ~sum;
+
+}
+
+
+/*
+ * Check if data is available, if not, wait timeout milliseconds for data
+ * to be present.
+  */
+static int can_read_ms(int socket, int ms) {
+  int r = 0;
+  struct pollfd fds[1];
+
+  fds[0].fd = socket;
+  fds[0].events = POLLIN;
+  do {
+    r = poll(fds, 1, ms);
+  } while (r == -1 && errno == EINTR);
+  return (r > 0);
+}
 
 
 /* ------------------------------------------------------------------ Public */
@@ -490,15 +568,7 @@ int set_block(int socket) {
  * @return Return TRUE if the event occured, otherwise FALSE.
  */
 int can_read(int socket, int timeout) {
-  int r = 0;
-  struct pollfd fds[1];
-
-  fds[0].fd = socket;
-  fds[0].events = POLLIN;
-  do {
-    r = poll(fds, 1, timeout * 1000);
-  } while (r == -1 && errno == EINTR);
-  return (r > 0);
+        return can_read_ms(socket, timeout * 1000);
 }
 
 
@@ -654,7 +724,7 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   struct icmp *icmpin = NULL;
   struct icmp *icmpout = NULL;
   uint16_t id_in, id_out, seq_in;
-  int r, i, s, n = 0;
+  int r, i, s, n = 0, read_timeout;
   struct timeval t_in, t_out;
   char buf[STRLEN];
   double response = -1.;
@@ -702,7 +772,6 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   id_out = getpid() & 0xFFFF;
   icmpout = (struct icmp *)buf;
   for (i = 0; i < count; i++) {
-    int j;
     unsigned char *data = (unsigned char *)icmpout->icmp_data;
 
     icmpout->icmp_code  = 0;
@@ -717,7 +786,7 @@ double icmp_echo(const char *hostname, int timeout, int count) {
     data += sizeof(struct timeval);
 
     /* Initialize rest of data section to numeric sequence */
-    for (j = 0; j < DATALEN - sizeof(struct timeval); j++)
+    for (int j = 0; j < DATALEN - sizeof(struct timeval); j++)
       data[j] = j;
 
     icmpout->icmp_cksum = checksum_ip((unsigned char *)icmpout, len_out);
@@ -734,10 +803,10 @@ double icmp_echo(const char *hostname, int timeout, int count) {
       LogError("ICMP echo request for %s %d/%d failed -- %s\n", hostname, i + 1, count, STRERROR);
       continue;
     }
-  
-    if (can_read(s, timeout)) {
+    read_timeout = timeout * 1000;
+readnext:
+    if (can_read_ms(s, read_timeout)) {
       socklen_t size = sizeof(struct sockaddr_in);
-
       do {
         n = (int)recvfrom(s, buf, STRLEN, 0, (struct sockaddr *)&sout, &size);
       } while(n == -1 && errno == EINTR);
@@ -753,98 +822,33 @@ double icmp_echo(const char *hostname, int timeout, int count) {
       icmpin  = (struct icmp *)(buf + iphdrin->ip_hl * 4);
       id_in   = ntohs(icmpin->icmp_id);
       seq_in  = ntohs(icmpin->icmp_seq);
-      if (icmpin->icmp_type == ICMP_ECHOREPLY) {
-        if (id_in == id_out && seq_in < (uint16_t)count) {
-          /* Get the response time */
-          gettimeofday(&t_in, NULL);
-          memcpy(&t_out, icmpin->icmp_data, sizeof(struct timeval));
-          response = (double)(t_in.tv_sec - t_out.tv_sec) + (double)(t_in.tv_usec - t_out.tv_usec) / 1000000;
-          DEBUG("ICMP echo response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%fs\n", hostname, i + 1, count, id_in, seq_in, response);
-          break; // Wait for one response only
-        } else
-          LogError("ICMP echo response for %s %d/%d error -- received id=%d (expected id=%d), received sequence=%d (expected sequence=%d)\n", hostname, i + 1, count, id_in, id_out, seq_in, i);
-      } else
-        DEBUG("ICMP echo response for %s %d/%d -- expected ECHOREPLY, received response type: %x (%s), source id=%d (mine id=%d) sequence=%d (mine sequence=%d)\n", hostname, i + 1, count, icmpin->icmp_type, icmpin->icmp_type < 19 ? icmpnames[icmpin->icmp_type] : "unknown", id_in, id_out, seq_in, i);
+      gettimeofday(&t_in, NULL);
+
+      /* The read from connection-less raw socket via recvfrom() provides messages regardless of origin, the source IP address is set in sout, we have to check the IP and skip responses belonging to other ICMP conversations */
+      if (sout.sin_addr.s_addr != sa->sin_addr.s_addr || icmpin->icmp_type != ICMP_ECHOREPLY || id_in != id_out || seq_in >= (uint16_t)count) {
+        if ((read_timeout = timeout * 1000. - ((t_in.tv_sec - t_out.tv_sec) * 1000. + (t_in.tv_usec - t_out.tv_usec) / 1000.)) > 0)
+          goto readnext; // Try to read next packet, but don't exceed the timeout while waiting for our response so we won't loop forever if the socket is flooded with other ICMP packets
+      } else {
+        memcpy(&t_out, icmpin->icmp_data, sizeof(struct timeval));
+        response = (double)(t_in.tv_sec - t_out.tv_sec) + (double)(t_in.tv_usec - t_out.tv_usec) / 1000000;
+        DEBUG("ICMP echo response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%fs\n", hostname, i + 1, count, id_in, seq_in, response);
+        break; // Wait for one response only
+      }
     } else
       LogError("ICMP echo response for %s %d/%d timed out -- no response within %d seconds\n", hostname, i + 1, count, timeout);
   }
 
-  error1:
+error1:
   do {
     r = close(s);
   } while(r == -1 && errno == EINTR);
   if (r == -1)
     LogError("%s: Socket %d close failed -- %s\n", prog, s, STRERROR);
 
-  error2:
+error2:
   freeaddrinfo(result);
 
   return response;
 }
 
-
-/* ----------------------------------------------------------------- Private */
-
-
-/*
- * Do a non blocking connect, timeout if not connected within timeout seconds
- */
-static int do_connect(int s, const struct sockaddr *addr, socklen_t addrlen, int timeout) {
-  int error = 0;
-  struct pollfd fds[1];
-
-  switch (connect(s, addr, addrlen)) {
-    case 0:
-      return 0;
-    default:
-      if (errno != EINPROGRESS)
-        return -1;
-      break;
-  }
-  fds[0].fd = s;
-  fds[0].events = POLLIN|POLLOUT;
-  if (poll(fds, 1, timeout * 1000) == 0) {
-    errno = ETIMEDOUT;
-    return -1;
-  }
-  if (fds[0].events & POLLIN || fds[0].events & POLLOUT) {
-    socklen_t len = sizeof(error);
-    if (getsockopt(s, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
-      return -1; // Solaris pending error
-  } else {
-    return -1;
-  }
-  if (error) {
-    errno = error;
-    return -1;
-  }
-  return 0;
-}
-
-
-/*
- * Compute Internet Checksum for "count" bytes beginning at location "addr".
- * Based on RFC1071.
- */
-static unsigned short checksum_ip(unsigned char *_addr, int count) {
-
-  register long sum= 0;
-  unsigned short *addr= (unsigned short *)_addr;
-
-  while(count > 1) {
-    sum += *addr++;
-    count -= 2;
-  }
-
-  /* Add left-over byte, if any */
-  if(count > 0)
-    sum += *(unsigned char *)addr;
-
-  /* Fold 32-bit sum to 16 bits */
-  while(sum >> 16)
-    sum= (sum & 0xffff) + (sum >> 16);
-
-  return ~sum;
-
-}
 

@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.3], [monit-general@nongnu.org])
+AC_INIT([monit], [5.3.1], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -89,7 +89,7 @@ AC_CHECK_LIB([socket], [socket])
 AC_CHECK_LIB([inet],   [socket])
 AC_CHECK_LIB([nsl],    [inet_addr])
 AC_CHECK_LIB([resolv], [inet_aton])
-AC_CHECK_LIB([crypt],  [crypt])
+AC_CHECK_LIB([c], [crypt], [:], [AC_CHECK_LIB([crypt], [crypt])])
 
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX thread library is required])])
 
@@ -134,7 +134,6 @@ AC_CHECK_HEADERS([ \
         sys/socket.h \
 	netinet/in.h \
         netinet/in_systm.h \
-        libnet/libnet-types.h \
         pam/pam_appl.h \
         security/pam_appl.h \
 	poll.h \
@@ -327,7 +326,6 @@ AC_CHECK_MEMBERS([struct tm.tm_gmtoff])
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
-AC_FUNC_MALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(statfs)
@@ -419,7 +417,8 @@ fi
 # ------------------------------------------------------------------------
 
 # Backward compatibility until we get ride of arch settings
-if test `uname` = "SunOS" 
+architecture=`uname`
+if test "$architecture" = "SunOS" 
 then
    ARCH="SOLARIS"
    CFLAGS="$CFLAGS -D _REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64"
@@ -428,13 +427,25 @@ then
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
    if test `uname -m` = "i86pc"
    then
+      if test "x$GCC" = "xyes"
+      then
             CFLAGS="$CFLAGS -mtune=opteron"
             LDFLAGS="$LDFLAGS -mtune=opteron"
+      else
+            CFLAGS="$CFLAGS -xarch=sse2"
+            LDFLAGS="$LDFLAGS -xarch=sse2"
+      fi
    else
+      if test "x$GCC" = "xyes"
+      then
             CFLAGS="$CFLAGS -mtune=v9"
             LDFLAGS="$LDFLAGS -mtune=v9"
+      else
+            CFLAGS="$CFLAGS -xarch=sparc"
+            LDFLAGS="$LDFLAGS -xarch=sparc"
+      fi
    fi
-elif test `uname` = "Linux" 
+elif test "$architecture" = "Linux" 
 then
    ARCH="LINUX"
    CFLAGS="$CFLAGS -D _REENTRANT"
@@ -443,33 +454,38 @@ then
    then
    	AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
    fi
-elif test `uname` = "HP-UX"
+elif test "$architecture" = "HP-UX"
 then
    ARCH="HPUX"
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
-elif test `uname` = "OpenBSD"
+elif test "$architecture" = "OpenBSD"
 then
    ARCH="OPENBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
-elif test `uname` = "FreeBSD"
+elif test "$architecture" = "FreeBSD"
 then
    ARCH="FREEBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
-elif test `uname` = "NetBSD"
+elif test "$architecture" = "GNU/kFreeBSD"
+then
+   ARCH="FREEBSD"
+   CFLAGS="$CFLAGS -D _REENTRANT"
+   test_kvm="true"
+elif test "$architecture" = "NetBSD"
 then
    ARCH="NETBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
-elif test `uname` = "Darwin"
+elif test "$architecture" = "Darwin"
 then
    ARCH="DARWIN"
    CFLAGS="$CFLAGS -DREENTRANT -no-cpp-precomp -DNEED_SOCKLEN_T_DEFINED"
    test_kvm="true"
    LIBS="$LIBS -framework System -multiply_defined suppress"
-elif test `uname` = "AIX"
+elif test "$architecture" = "AIX"
 then
    ARCH="AIX"
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
@@ -480,7 +496,7 @@ then
    LIBS="$LIBS -lperfstat"	
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 else
-   AC_MSG_WARN([Architecture not supported: `uname`.])
+   AC_MSG_WARN([Architecture not supported: ${architecture}])
    CFLAGS="$CFLAGS -D _REENTRANT"
    ARCH="UNKNOWN"
 fi
@@ -692,7 +708,7 @@ then
             [
                 if test -z "$sslincldir"; then	
                     dnl Search default locations of SSL includes
-                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /opt/csw /usr/sfw; do
+                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw /opt/csw; do
                         for dir in "$maindir/include"\
                                    "$maindir/include/openssl"\ 
                                    "$maindir/include/ssl"\
@@ -730,8 +746,8 @@ then
                                    /usr/pkg \
                                    /var \
                                    /opt \
-                                   /opt/csw \
-                                   /usr/sfw; do
+                                   /usr/sfw \
+                                   /opt/csw; do
                         for dir in $maindir \
                                    $maindir/openssl \
                                    $maindir/ssl \
@@ -746,7 +762,9 @@ then
                                    $maindir/lib64 \
                                    $maindir/lib64/openssl \
                                    $maindir/lib64/ssl \
-                                   $maindir/ssl/lib64; do
+                                   $maindir/ssl/lib64 \
+                                   $maindir/lib/${build} \
+                                   $maindir/lib/${build_alias}; do
                             checkssllibdirdynamic $dir && break 2
                         done
                     done
@@ -790,6 +808,12 @@ fi
 # Outputs
 # ------------------------------------------------------------------------
 
+AH_BOTTOM([
+/* Mask out GCC __attribute__ extension for non-gcc compilers. */
+#ifndef __GNUC__
+#define __attribute__(x)
+#endif
+])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

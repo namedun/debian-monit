@@ -48,7 +48,6 @@ monit_SOURCES	= src/y.tab.c \
 		  src/status.c \
 		  src/util.c \
 		  src/validate.c \
-		  src/xmalloc.c \
 		  src/xml.c \
 		  src/http/base64.c \
 		  src/http/cervlet.c \

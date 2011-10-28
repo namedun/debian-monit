@@ -90,7 +90,7 @@
  * @see AssertException.h, MemoryException.h
  * @hideinitializer
  */
-#define RESIZE(p, n) ((p)= Mem_resize((p), (n), __func__, __FILE__, __LINE__))
+#define RESIZE(p, n) ((p) = Mem_resize((p), (n), __func__, __FILE__, __LINE__))
 
 
 /**

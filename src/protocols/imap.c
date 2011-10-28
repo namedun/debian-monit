@@ -62,7 +62,7 @@ int check_imap(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "IMAP error: %s\n", buf);
@@ -79,7 +79,7 @@ int check_imap(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   if(strncasecmp(buf, bye, strlen(bye)) != 0) {
     socket_setError(socket, "IMAP error: %s\n", buf);

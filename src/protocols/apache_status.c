@@ -149,9 +149,9 @@ static int check_apache_stat(Socket_T socket) {
 
 
   while(NULL != socket_readln(socket, line, READ_SIZE)) {
-    if(Util_startsWith(line, "Scoreboard")) {   
+    if(Str_startsWith(line, "Scoreboard")) {   
       if(1 != sscanf(line, "%*s%*[: ]%1024s", search_string)) {
-       Util_chomp(line);
+       Str_chomp(line);
        socket_setError(socket, "APACHE-STATUS error: parsing Apache status response '%s'\n",
          line);
        return FALSE;

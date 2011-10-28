@@ -57,7 +57,7 @@ static int expect(Socket_T socket, int expect, int log) {
                 return FALSE;
         }
         
-        Util_chomp(buf);
+        Str_chomp(buf);
         
         sscanf(buf, "%d%*s", &status);
         if(status != expect) {

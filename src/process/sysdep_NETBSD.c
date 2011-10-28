@@ -65,6 +65,7 @@
 #include "process.h"
 #include "process_sysdep.h"
 
+
 /**
  *  System dependent resource gathering code for NetBSD.
  *
@@ -135,7 +136,6 @@ int init_process_info_sysdep(void) {
  * @return treesize>0 if succeeded otherwise =0.
  */
 int initprocesstree_sysdep(ProcessTree_T ** reference) {
-  int                        i;
   int                        treesize;
   size_t                     size = sizeof(maxslp);
   char                       buf[_POSIX2_LINE_MAX];
@@ -156,7 +156,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
   }
   
   size *= 2; // Add reserve for new processes which were created between calls of sysctl
-  pinfo = xcalloc(1, size);
+  pinfo = CALLOC(1, size);
   mib_proc2[5] = (int)(size / sizeof(struct kinfo_proc2));
   if (sysctl(mib_proc2, 6, pinfo, &size, NULL, 0) == -1) {
     FREE(pinfo);
@@ -166,18 +166,14 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
   
   treesize = (int)(size / sizeof(struct kinfo_proc2));
     
-  pt = xcalloc(sizeof(ProcessTree_T), treesize);
+  pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   if (! (kvm_handle = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, buf))) {
     LogError("system statistic error -- kvm_openfiles failed: %s", buf);
     return FALSE;
   }
 
-  for (i = 0; i < treesize; i++) {
-    int        j;
-    char     **args;
-    Buffer_T   cmdline;
-
+  for (int i = 0; i < treesize; i++) {
     pt[i].pid         = pinfo[i].p_pid;
     pt[i].ppid        = pinfo[i].p_ppid;
     pt[i].starttime   = pinfo[i].p_ustart_sec;
@@ -187,14 +183,16 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     if (pinfo[i].p_stat == SZOMB)
       pt[i].status_flag |= PROCESS_ZOMBIE;
     pt[i].time = get_float_time();
-    memset(&cmdline, 0, sizeof(Buffer_T));
+    char **args;
     if ((args = kvm_getargv2(kvm_handle, &pinfo[i], 0))) {
-      for (j = 0; args[j]; j++)
-        Util_stringbuffer(&cmdline, args[j + 1] ? "%s " : "%s", args[j]);
-      pt[i].cmdline = cmdline.buf;
+      StringBuffer_T cmdline = StringBuffer_create(64);
+      for (int j = 0; args[j]; j++)
+        StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
+      pt[i].cmdline = Str_trim(Str_dup(StringBuffer_toString(cmdline)));
+      StringBuffer_free(&cmdline);
     }
     if (! pt[i].cmdline || ! *pt[i].cmdline)
-      pt[i].cmdline = xstrdup(pinfo[i].p_comm);
+      pt[i].cmdline = Str_dup(pinfo[i].p_comm);
   }
   FREE(pinfo);
   kvm_close(kvm_handle);

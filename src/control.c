@@ -128,7 +128,7 @@ int control_service_daemon(const char *S, const char *action) {
                 LogError("%s: error receiving data -- %s\n", prog, STRERROR);
                 goto err1;
         }
-        Util_chomp(buf);
+        Str_chomp(buf);
         if (! sscanf(buf, "%*s %d", &status)) {
                 LogError("%s: cannot parse status in response: %s\n", prog, buf);
                 goto err1;
@@ -140,7 +140,7 @@ int control_service_daemon(const char *S, const char *action) {
                 while (socket_readln(s, buf, STRLEN)) {
                         if (! strncmp(buf, "\r\n", sizeof(buf)))
                                 break;
-                        if (Util_startsWith(buf, "Content-Length") && ! sscanf(buf, "%*s%*[: ]%d", &content_length))
+                        if (Str_startsWith(buf, "Content-Length") && ! sscanf(buf, "%*s%*[: ]%d", &content_length))
                                 goto err1;
                 }
                 if (content_length > 0 && content_length < 1024 && socket_readln(s, buf, STRLEN)) {
@@ -149,7 +149,7 @@ int control_service_daemon(const char *S, const char *action) {
                         if (strlen(p) <= strlen(token))
                                 goto err2;
                         p += strlen(token);
-                        message = xcalloc(sizeof(unsigned char), content_length + 1);
+                        message = CALLOC(1, content_length + 1);
                         snprintf(message, content_length + 1, "%s", p);
                         p = strstr(message, "<p>");
                         if (p)

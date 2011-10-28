@@ -31,7 +31,6 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 
 #include "Str.h"
@@ -408,7 +407,7 @@ void Command_setEnv(Command_T C, const char *name, const char *value) {
 }
 
 
-void Command_setEnvString(T C, const char *env, ...) {
+void Command_vSetEnv(T C, const char *env, ...) {
         assert(C);
         if (STR_DEF(env)) {
                 va_list ap;
@@ -439,8 +438,8 @@ const char *Command_getEnv(Command_T C, const char *name) {
         char *e = findEnv(C, name);
         if (e) {
                 char *v = strchr(e, '=');
-                        if (v)
-                                return ++v;   
+                if (v)
+                        return ++v;   
         }
         return NULL;
 }
@@ -453,9 +452,9 @@ List_T Command_getCommand(T C) {
 
 
 /* The Execute function. Note that we use vfork() rather than fork. Vfork has
-a special semantic in that the child process runs in the parent address space
-until exec is called in the child. The child also run first and suspend the
-parent process until exec or exit is called */
+ a special semantic in that the child process runs in the parent address space
+ until exec is called in the child. The child also run first and suspend the
+ parent process until exec or exit is called */
 Process_T Command_execute(T C) {
         assert(C);
         volatile int exec_error = 0;
@@ -500,7 +499,7 @@ Process_T Command_execute(T C) {
                 signal(SIGABRT, SIG_DFL);
                 signal(SIGTERM, SIG_DFL);
                 signal(SIGPIPE, SIG_DFL);
-                signal(SIGCHLD, SIG_DFL);
+                signal(SIGCHLD, SIG_DFL); 
                 signal(SIGHUP, SIG_IGN);  // Ensure future opens won't allocate controlling TTYs
                 // Execute the program
                 execve(P->args[0], P->args, P->env);

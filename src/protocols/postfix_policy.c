@@ -95,7 +95,7 @@ int check_postfix_policy(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
 
   if( (strlen(buf) <= 7) || strncasecmp(buf, "action=", 7) ) {
     socket_setError(socket, "POSTFIX-POLICY error: %s\n",

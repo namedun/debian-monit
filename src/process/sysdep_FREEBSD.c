@@ -73,6 +73,7 @@
 #include "process.h"
 #include "process_sysdep.h"
 
+
 /**
  *  System dependent resource gathering code for FreeBSD.
  *
@@ -141,7 +142,6 @@ int init_process_info_sysdep(void) {
  * @return treesize>0 if succeeded otherwise =0.
  */
 int initprocesstree_sysdep(ProcessTree_T **reference) {
-  int                i;
   int                treesize;
   static kvm_t      *kvm_handle;
   ProcessTree_T     *pt;
@@ -159,46 +159,30 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
     return FALSE;
   }
 
-  pt = xcalloc(sizeof(ProcessTree_T), treesize);
+  pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
-  for (i = 0; i < treesize; i++) {
-    int        j, flags;
-    char      *procname = NULL;
-    char     **args;
-    Buffer_T   cmdline;
-
-    memset(&cmdline, 0, sizeof(Buffer_T));
-#if (__FreeBSD_version > 500000)
+  for (int i = 0; i < treesize; i++) {
+    StringBuffer_T cmdline = StringBuffer_create(64);
     pt[i].pid       = pinfo[i].ki_pid;
     pt[i].ppid      = pinfo[i].ki_ppid;
     pt[i].starttime = pinfo[i].ki_start.tv_sec;
     pt[i].cputime   = (long)(pinfo[i].ki_runtime / 100000);
     pt[i].mem_kbyte = (unsigned long)(pinfo[i].ki_rssize * pagesize_kbyte);
-    flags           = pinfo[i].ki_stat;
-    args            = kvm_getargv(kvm_handle, &pinfo[i], 0);
-    procname        = pinfo[i].ki_comm;
-#else
-    pt[i].pid       = pinfo[i].kp_proc.p_pid;
-    pt[i].ppid      = pinfo[i].kp_eproc.e_ppid;
-    pt[i].starttime = pinfo[i].kp_eproc.e_stats.p_start.tv_sec;
-    pt[i].cputime   = (long)(pinfo[i].kp_proc.p_runtime / 100000);
-    pt[i].mem_kbyte = (unsigned long)(pinfo[i].kp_eproc.e_vm.vm_rssize * pagesize_kbyte);
-    flags           = pinfo[i].kp_proc.p_stat;
-    args            = kvm_getargv(kvm_handle, &pinfo[i], 0);
-    procname        = pinfo[i].kp_proc.p_comm;
-#endif
+    int flags       = pinfo[i].ki_stat;
+    char * procname = pinfo[i].ki_comm;
     if (flags == SZOMB)
       pt[i].status_flag |= PROCESS_ZOMBIE;
     pt[i].cpu_percent = 0;
     pt[i].time = get_float_time();
-
-    if (args) {
-      for (j = 0; args[j]; j++)
-        Util_stringbuffer(&cmdline, args[j + 1] ? "%s " : "%s", args[j]);
-      pt[i].cmdline = cmdline.buf;
+    char **args;
+    if ((args = kvm_getargv(kvm_handle, &pinfo[i], 0))) {
+      for (int j = 0; args[j]; j++)
+        StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
+      pt[i].cmdline = Str_trim(Str_dup(StringBuffer_toString(cmdline)));
     }
+    StringBuffer_free(&cmdline);
     if (! pt[i].cmdline || ! *pt[i].cmdline)
-      pt[i].cmdline = xstrdup(procname);
+      pt[i].cmdline = Str_dup(procname);
   }
 
   *reference = pt;
@@ -228,14 +212,12 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
   int                mib[16];
   size_t             len;
   struct vmtotal     vm;
-#if (__FreeBSD_version > 500000)
   int                n = 0;
   int                pagesize = getpagesize();
   size_t             miblen;
   struct xswdev      xsw;
   unsigned long long total = 0ULL;
   unsigned long long used  = 0ULL;
-#endif
 
   /* Memory */
   memset(mib, 0, sizeof(mib));
@@ -249,7 +231,6 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
   si->total_mem_kbyte = (unsigned long)(vm.t_arm * pagesize_kbyte);
 
   /* Swap */
-#if (__FreeBSD_version > 500000)
   memset(mib, 0, sizeof(mib));
   miblen = sizeof(mib) / sizeof(mib[0]);
   if (sysctlnametomib("vm.swap_info", mib, &miblen) == -1) {
@@ -273,12 +254,6 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
   }
   si->swap_kbyte_max   = (unsigned long)(double)total * (double)pagesize / 1024.;
   si->total_swap_kbyte = (unsigned long)(double)used  * (double)pagesize / 1024.;
-#else
-  /* Not implemented - FreeBSD <= 5.x doesn't have vm.swap_info MIB and uses kvm instead. As such FreeBSD version is obsolete, no need to implement unless somebody will ask for it. */
-  DEBUG("system statistic -- swap usage monitoring not implemented in FreeBSD <= 5.x\n");
-  si->swap_kbyte_max = 0;
-#endif
-
   return TRUE;
 }
 

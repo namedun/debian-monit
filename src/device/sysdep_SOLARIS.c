@@ -82,7 +82,7 @@ char *device_mountpoint_sysdep(Info_T inf, char *blockdev) {
     char real_mnt_special[PATH_MAX+1];
     if (realpath(mnt.mnt_special, real_mnt_special) && IS(real_mnt_special, blockdev)) {
         fclose(mntfd);
-        inf->priv.filesystem.mntpath = xstrdup(mnt.mnt_mountp);
+        inf->priv.filesystem.mntpath = Str_dup(mnt.mnt_mountp);
         return inf->priv.filesystem.mntpath;
     }
   }

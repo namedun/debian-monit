@@ -296,10 +296,7 @@ int check_file(Service_T s) {
                 return FALSE;
         } else {
                 s->inf->st_mode = stat_buf.st_mode;
-                if (s->inf->priv.file.st_ino == 0) {
-                        s->inf->priv.file.st_ino_prev = stat_buf.st_ino;
-                        s->inf->priv.file.readpos     = stat_buf.st_size;
-                } else
+                if (s->inf->priv.file.st_ino)
                         s->inf->priv.file.st_ino_prev = s->inf->priv.file.st_ino;
                 s->inf->priv.file.st_ino  = stat_buf.st_ino;
                 s->inf->st_uid            = stat_buf.st_uid;
@@ -478,7 +475,7 @@ int check_program(Service_T s) {
                 s->program->exitStatus = Process_exitStatus(P); // Save exit status for web-view display 
                 // Evaluate program's exit status against our status check
                 if (Util_evalQExpression(s->program->operator, s->program->exitStatus, s->program->return_value)) {
-                        int n; char buf[STRLEN + 1] = "no output";
+                        int n; char buf[STRLEN + 1] = "no output to stderr";
                         if ((n = InputStream_readBytes(Process_getErrorStream(P), buf, STRLEN)) > 0) buf[n] = 0;
                         Event_post(s, Event_Status, STATE_FAILED, s->program->action, "status failed (%d) for %s. Error: %s..", s->program->exitStatus, s->path, buf);
                 } else {
@@ -636,8 +633,10 @@ error:
         if (socket)
                 socket_free(&socket);
         if (!rv) {
-                if (retry_count-- > 1)
+                if (retry_count-- > 1) {
+                        DEBUG("'%s' %s (attempt %d/%d)\n", s->name, report, p->retry - retry_count, p->retry);
                         goto retry;
+                }
                 p->response = -1;
                 p->is_available = FALSE;
                 Event_post(s, Event_Connection, STATE_FAILED, p->action, report);

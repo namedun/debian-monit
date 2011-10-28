@@ -4,8 +4,7 @@
 # automake        >= 1.10
 # libtool         >= 1.4
 #!/bin/bash
-libtoolize -f 2>/dev/null || glibtoolize -f
-if aclocal -I config && autoheader && automake --foreign --add-missing --copy && autoconf 
+if (glibtoolize -f -c 2>/dev/null || libtoolize -f -c) && aclocal -I config && autoheader && automake --foreign --add-missing --copy && autoconf 
 then
         echo "Success bootstrapping libmonit"
 else

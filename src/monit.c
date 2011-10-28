@@ -79,6 +79,7 @@
 
 // libmonit
 #include "Bootstrap.h"
+#include "io/File.h"
 
 
 /**
@@ -114,7 +115,7 @@ static void waitforchildren(void); /* Wait for any child process not running */
 /* ------------------------------------------------------------------ Global */
 
 
-char   *prog;                                  /**< The Name of this Program */
+const char *prog;                              /**< The Name of this Program */
 struct myrun Run;                      /**< Struct holding runtime constants */
 Service_T servicelist;                /**< The service list (created in p.y) */
 Service_T servicelist_conf;   /**< The service list in conf file (c. in p.y) */
@@ -156,7 +157,7 @@ int main(int argc, char **argv) {
         Bootstrap_setAbortHandler(vLogAbortHandler);  // Abort Monit on exceptions thrown by libmonit
         Bootstrap_setErrorHandler(vLogError);
         setlocale(LC_ALL, "C");
-        prog = Util_basename(argv[0]);
+        prog = File_basename(argv[0]);
         init_env();
         handle_options(argc, argv);
         do_init();
@@ -355,9 +356,9 @@ static void do_reinit() {
         if (Run.dohttpd)
                 monit_http(STOP_HTTP);
         
-        /* Save the current state (no changes are possible now
-         since the http thread is stopped) */
+        /* Save the current state (no changes are possible now since the http thread is stopped) */
         State_save();
+        State_close();
         
         /* Run the garbage collector */
         gc();
@@ -389,6 +390,8 @@ static void do_reinit() {
         }
         
         /* Update service data from the state repository */
+        if (! State_open())
+                exit(1);
         State_update();
         
         /* Start http interface */
@@ -544,8 +547,9 @@ static void do_default() {
                         exit(1);
                 }
                 
-                if (State_shouldUpdate())
-                        State_update();
+                if (! State_open())
+                        exit(1);
+                State_update();
                 
                 atexit(file_finalize);
                 
@@ -611,7 +615,7 @@ static void handle_options(int argc, char **argv) {
                 switch(opt) {
                                 
                         case 'c':
-                                Run.controlfile = xstrdup(optarg);
+                                Run.controlfile = Str_dup(optarg);
                                 break;
                                 
                         case 'd':
@@ -624,22 +628,22 @@ static void handle_options(int argc, char **argv) {
                                 break;
                                 
                         case 'g':
-                                Run.mygroup = xstrdup(optarg);
+                                Run.mygroup = Str_dup(optarg);
                                 break;
                                 
                         case 'l':
-                                Run.logfile = xstrdup(optarg);
+                                Run.logfile = Str_dup(optarg);
                                 if (IS(Run.logfile, "syslog"))
                                         Run.use_syslog = TRUE;
                                 Run.dolog = TRUE;
                                 break;
                                 
                         case 'p':
-                                Run.pidfile = xstrdup(optarg);
+                                Run.pidfile = Str_dup(optarg);
                                 break;
                                 
                         case 's':
-                                Run.statefile = xstrdup(optarg);
+                                Run.statefile = Str_dup(optarg);
                                 break;
                                 
                         case 'I':
@@ -761,10 +765,8 @@ static void *heartbeat(void *args) {
         LOCK(heartbeatMutex)
         {
                 while (! Run.stopped && ! Run.doreload) {
-                        if (handle_mmonit(NULL) == HANDLER_SUCCEEDED)
-                                wait.tv_sec = time(NULL) + Run.polltime;
-                        else
-                                wait.tv_sec = time(NULL) + 1;
+                        handle_mmonit(NULL);
+                        wait.tv_sec = time(NULL) + Run.polltime;
                         wait.tv_nsec = 0;
                         pthread_cond_timedwait(&heartbeatCond, &heartbeatMutex, &wait);
                 }

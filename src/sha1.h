@@ -29,14 +29,14 @@
 #define SHA1_DIGEST_SIZE 20
 
 typedef struct {
-    u_int32_t state[5];
-    u_int32_t count[2];
-    u_int8_t  buffer[64];
+    unsigned int state[5];
+    unsigned int count[2];
+    unsigned char buffer[64];
 } sha1_context_t;
 
 void sha1_init(sha1_context_t *context);
-void sha1_append(sha1_context_t *context, const u_int8_t *data, const size_t len);
-void sha1_finish(sha1_context_t *context, u_int8_t digest[SHA1_DIGEST_SIZE]);
+void sha1_append(sha1_context_t *context, const unsigned char *data, const size_t len);
+void sha1_finish(sha1_context_t *context, unsigned char digest[SHA1_DIGEST_SIZE]);
 
 
 #endif

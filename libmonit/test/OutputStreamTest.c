@@ -57,6 +57,10 @@ int main(void) {
                 assert(0 == OutputStream_getBytesWritten(out));
                 OutputStream_flush(out);
                 assert(bytes == OutputStream_getBytesWritten(out));
+                // Test writing lower bytes
+                OutputStream_clear(out);
+                char b[] = {0,0,0,0};
+                assert(OutputStream_write(out, b, 4) == 4);
                 OutputStream_free(&out);
         }
         printf("=> Test2: OK\n\n");

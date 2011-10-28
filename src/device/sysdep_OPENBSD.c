@@ -69,13 +69,13 @@ char *device_mountpoint_sysdep(Info_T inf, char *blockdev) {
   ASSERT(blockdev);
 
   if ((countfs = getfsstat(NULL, 0, MNT_NOWAIT)) != -1) {
-    struct statfs *statfs = xcalloc(countfs, sizeof(struct statfs));
+    struct statfs *statfs = CALLOC(countfs, sizeof(struct statfs));
     if ((countfs = getfsstat(statfs, countfs * sizeof(struct statfs), MNT_NOWAIT)) != -1) {
       int i;
       for (i = 0; i < countfs; i++) {
         struct statfs *sfs = statfs + i;
         if (IS(sfs->f_mntfromname, blockdev)) {
-          inf->priv.filesystem.mntpath = xstrdup(sfs->f_mntonname);
+          inf->priv.filesystem.mntpath = Str_dup(sfs->f_mntonname);
           FREE(statfs);
           return inf->priv.filesystem.mntpath;
         }

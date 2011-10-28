@@ -93,11 +93,17 @@ there. http://lists.nongnu.org/mailman/listinfo/monit-general
 Acknowledgments
 ---------------
 
+Thanks to the Free Software Foundation (FSF) for hosting the mailing list.
+
+The design of libmonit was inspired by principles put forth by David R. 
+Hanson <drh@drhanson.net> in his excellent book "C Interfaces and 
+Implementations". You can learn more about this book here 
+http://www.cs.princeton.edu/software/cii/
+
+
+Contact information
+-------------------
+
 Monit is a product of Tildeslash Ltd. a company registered in Norway and in
-United Kingdom. 
-
-Thanks to the Free Software Foundation (FSF) for hosting the mailing lists
-and many thanks to Google for providing the subversion repository.
-
-For further information about this Software, please visit
-http://mmonit.com/monit/
+United Kingdom. For further information about this Software, please visit 
+http://mmonit.com/contact/
