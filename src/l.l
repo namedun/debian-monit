@@ -105,6 +105,7 @@ cpusyst     cpu[ ]*(usage)*[ ]*\([ ]*(sy|sys|system)?[ ]*\)
 cpuwait     cpu[ ]*(usage)*[ ]*\([ ]*(wa|wait)?[ ]*\)
 startarg    start{ws}?(program)?{ws}?([=]{ws})?["]
 stoparg     stop{ws}?(program)?{ws}?([=]{ws})?["]
+restartarg  restart{ws}?(program)?{ws}?([=]{ws})?["]
 execarg     exec(ute)?{ws}?["]
 percent     ("percent"|"%")
 byte        ("byte"|"b")
@@ -142,6 +143,7 @@ does              {/* EMPTY */}
 
 {startarg}        { BEGIN(ARGUMENT_COND); return START; }
 {stoparg}         { BEGIN(ARGUMENT_COND); return STOP; }
+{restartarg}      { BEGIN(ARGUMENT_COND); return RESTART; }
 {execarg}         { BEGIN(ARGUMENT_COND); return EXEC; }
 
 if                { return IF; }
@@ -391,11 +393,11 @@ group[ \t]+       {
 
 [a-zA-Z0-9]+"://" {
 		    yylval.url= 
-		      create_URL(xstrndup(yytext, strlen(yytext)-3));
+		      create_URL(Str_ndup(yytext, strlen(yytext)-3));
                     BEGIN(URL_COND);
                   }
 [0-9]{2}":"[0-9]{2}":"[0-9]{2} {
-                    yylval.string= xstrdup(yytext);
+                    yylval.string= Str_dup(yytext);
                     save_arg(); return TIMESPEC;
                   }
 
@@ -414,7 +416,7 @@ group[ \t]+       {
                   }
 
 [a-zA-Z0-9]{str}  {
-                    yylval.string= xstrdup(yytext);
+                    yylval.string= Str_dup(yytext);
                     save_arg(); return STRING;
                   }
 
@@ -441,47 +443,47 @@ group[ \t]+       {
                   }
 
 {str}[@]{str}     {
-                    yylval.string= xstrdup(yytext);
+                    yylval.string= Str_dup(yytext);
                     save_arg(); return MAILADDR;
                   }
 
 [/]{str}          {
-                     yylval.string= xstrdup(yytext);
+                     yylval.string= Str_dup(yytext);
                      save_arg(); return PATH;
                   }
 
 "/"               {
-                     yylval.string= xstrdup(yytext);
+                     yylval.string= Str_dup(yytext);
                      save_arg(); return PATH;
                   }
 
 "from:"[ \t]*{str}[@]{str} {
                       char *p= yytext+strlen("from:");
-                      yylval.string = Util_trim(xstrdup(p));
+                      yylval.string = Str_trim(Str_dup(p));
                       save_arg(); return MAILFROM;
                   }
 
 "reply-to:"[ \t]*{str}[@]{str} {
                       char *p= yytext+strlen("reply-to:");
-                      yylval.string = Util_trim(xstrdup(p));
+                      yylval.string = Str_trim(Str_dup(p));
                       save_arg(); return MAILREPLYTO;
                   }
 
 "subject:"[^}\n]* {
                       char *p= yytext+strlen("subject:");
-                      yylval.string = Util_trim(xstrdup(p));
+                      yylval.string = Str_trim(Str_dup(p));
                       save_arg(); return MAILSUBJECT;
                   }
 
 "message:"[^}]*   {
                       char *p= yytext+strlen("message:");
                       steplinenobycr(yytext);
-                      yylval.string = Util_trim(xstrdup(p));
+                      yylval.string = Str_trim(Str_dup(p));
                       save_arg(); return MAILBODY;
                   }
 
 {hostname}        {
-                      yylval.string = xstrdup(yytext);
+                      yylval.string = Str_dup(yytext);
                       save_arg(); return STRING;
                   }
 
@@ -498,7 +500,7 @@ group[ \t]+       {
                   }
 
   {str}           {
-                    yylval.string= xstrdup(yytext);
+                    yylval.string= Str_dup(yytext);
                     BEGIN(INITIAL);
                     save_arg(); return SERVICENAME;
                   }
@@ -530,7 +532,7 @@ group[ \t]+       {
                   }
 
   {str}           {
-                    yylval.string= xstrdup(yytext);
+                    yylval.string= Str_dup(yytext);
                     save_arg(); return SERVICENAME;
                   }
 
@@ -565,7 +567,7 @@ group[ \t]+       {
                   }
 
   [^ \t\n\"]+     {
-                      yylval.string= xstrdup(yytext);
+                      yylval.string= Str_dup(yytext);
                       save_arg(); return STRING;
                   }
 
@@ -578,8 +580,8 @@ group[ \t]+       {
 		      if(!yylval.url->hostname)
 			yyerror("missing hostname in URL");
 		      if(!yylval.url->path)
-			yylval.url->path= xstrdup("/");
-                      yylval.url->url= Util_getString("%s://%s:%d%s%s%s",
+			yylval.url->path= Str_dup("/");
+                      yylval.url->url= Str_cat("%s://%s:%d%s%s%s",
                         yylval.url->protocol,
                         /* possible credentials are hidden */
                         yylval.url->hostname,
@@ -591,16 +593,16 @@ group[ \t]+       {
                   }
 
   [^:@ ]+/[:][^@: ]+[@] {
-	              yylval.url->user= xstrdup(yytext);
+	              yylval.url->user= Str_dup(yytext);
                   }
 
   [:][^@ ]+[@]    {
 	              yytext++;
-	              yylval.url->password= xstrndup(yytext, strlen(yytext)-1);
+	              yylval.url->password= Str_ndup(yytext, strlen(yytext)-1);
                   }
 
   [^/?:#\r\n ]+   {
-	              yylval.url->hostname= xstrdup(yytext);
+	              yylval.url->hostname= Str_dup(yytext);
                   }
 
   [:]{number}     {
@@ -624,7 +626,7 @@ group[ \t]+       {
 <STRING_COND>{
 
   {str}           {
-                    yylval.string= xstrdup(yytext);
+                    yylval.string= Str_dup(yytext);
                     BEGIN(INITIAL);
                     save_arg(); return STRINGNAME;
                   }
@@ -658,7 +660,7 @@ group[ \t]+       {
                   }
         
   ['"]{ws}?[0-9,*-]+{ws}[0-9,*-]+{ws}[0-9,*-]+{ws}[0-9,*-]+{ws}[0-9,*-]+{ws}?['"] { // A minimal syntax check of the cron format string; 5 fields separated with white-space
-                    yylval.string= xstrdup(Str_unquote(yytext));
+                    yylval.string= Str_dup(Str_unquote(yytext));
                     BEGIN(INITIAL);
                     save_arg(); return TIMESPEC;
                   }
@@ -679,23 +681,23 @@ group[ \t]+       {
 <INCLUDE>[ \t]*      /* eat the whitespace */
 
 <INCLUDE>\"[^\"\r\n]+\" { /* got the include file name with double quotes */
-                     char *temp=xstrdup(yytext);
-                     Util_trimQuotes(temp);    
+                     char *temp=Str_dup(yytext);
+                     Str_unquote(temp);    
                      include_file(temp);
                      FREE(temp);
                      BEGIN(INITIAL);
                    }
 
 <INCLUDE>\'[^\'\r\n]+\' { /* got the include file name with single quotes*/
-                     char *temp=xstrdup(yytext);
-                     Util_trimQuotes(temp);    
+                     char *temp=Str_dup(yytext);
+                     Str_unquote(temp);    
                      include_file(temp);
                      FREE(temp);
                      BEGIN(INITIAL);
                    }
 
 <INCLUDE>[^ \t\r\n]+ { /* got the include file name without quotes*/
-                     char *temp=xstrdup(yytext);
+                     char *temp=Str_dup(yytext);
                      include_file(temp);
                      FREE(temp);
                      BEGIN(INITIAL);
@@ -733,9 +735,9 @@ static void steplinenobycr(char *string) {
 
 static char *handle_quoted_string(char *string) {
 
-  char *buf= xstrdup(string);
+  char *buf= Str_dup(string);
 
-  Util_trimQuotes(buf);
+  Str_unquote(buf);
   Util_handleEscapes(buf);
 
   return buf;
@@ -807,7 +809,7 @@ static void push_buffer_state(YY_BUFFER_STATE buffer, char *filename) {
   buffer_stack_ptr++;
 
   lineno = 1;
-  currentfile = xstrdup(filename);
+  currentfile = Str_dup(filename);
       
   yy_switch_to_buffer(buffer);
 
@@ -845,7 +847,7 @@ static void save_arg(void) {
   arglineno=lineno;
   argcurrentfile=currentfile;
   FREE(argyytext);
-  argyytext=xstrdup(yytext);
+  argyytext=Str_dup(yytext);
   
 }
 

@@ -211,7 +211,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
 
   treesize = globbuf.gl_pathc;
 
-  pt = xcalloc(sizeof(ProcessTree_T), treesize);
+  pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   /* Insert data from /proc directory */
   for (i = 0; i < treesize; i++) {
@@ -282,7 +282,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     for (j = 0; j < (bytes - 1); j++)
       if (buf[j] == 0)
         buf[j] = ' ';
-    pt[i].cmdline = *buf ? xstrdup(buf) : xstrdup(procname);
+    pt[i].cmdline = *buf ? Str_dup(buf) : Str_dup(procname);
   }
   
   *reference = pt;

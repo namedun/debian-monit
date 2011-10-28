@@ -212,7 +212,7 @@ mode_t File_mod(const char *file);
  * a file creation mode. When a file or directory is created, the permission
  * bits specified are <i>anded</i> with the complement of the umask value to
  * determine the actual bits that will be set. For instance, when a file is 
- * created with FileOutputStream_new() the permission for the new file is set 
+ * created with File_open() the permission for the new file is set 
  * according to
  * <pre>
  * 0666 & ~File_umask(). If File_umask() is 022 then; 0666 & ~022 = 0644

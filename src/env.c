@@ -198,11 +198,11 @@ static void set_environment(void) {
     LogError("%s: You don't exist. Go away.\n", prog);
     exit(1);
   }
-  Run.Env.home= xstrdup(pw->pw_dir);
-  Run.Env.user= xstrdup(pw->pw_name);
+  Run.Env.home= Str_dup(pw->pw_dir);
+  Run.Env.user= Str_dup(pw->pw_name);
   
   /* Get CWD */
-  Run.Env.cwd= xcalloc(sizeof(char), MAXPATHLEN+1);
+  Run.Env.cwd= CALLOC(sizeof(char), MAXPATHLEN+1);
   if ( ! (getcwd(Run.Env.cwd, MAXPATHLEN)) ) {
     LogError("%s: Cannot read current directory -- %s\n", prog, STRERROR);
     exit(1);

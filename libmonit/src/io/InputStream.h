@@ -32,9 +32,6 @@
  * An <b>InputStream</b> can be used for reading text or binary
  * data (8 bits) from a descriptor. 
  *
- * An Inputstream object can be obtained by calling
- * Socket_getInputStream() or URL_getInputStream().
- *
  * The method InputStream_isClosed() can be used to test the
  * underlying descriptor for an error, a read timeout or for EOF.
  * 

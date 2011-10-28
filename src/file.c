@@ -92,20 +92,20 @@ void file_init() {
     } else {
       snprintf(pidfile, STRLEN, "%s/.%s", Run.Env.home, MYPIDFILE);
     }
-    Run.pidfile= xstrdup(pidfile);
+    Run.pidfile= Str_dup(pidfile);
   }
 
   /* Set the location of monit's id file */
   if(Run.idfile == NULL) {
     snprintf(buf, STRLEN, "%s/.%s", Run.Env.home, MYIDFILE);
-    Run.idfile= xstrdup(buf);
+    Run.idfile= Str_dup(buf);
   }
   Util_monitId(Run.idfile);
 
   /* Set the location of monit's state file */
   if(Run.statefile == NULL) {
     snprintf(buf, STRLEN, "%s/.%s", Run.Env.home, MYSTATEFILE);
-    Run.statefile= xstrdup(buf);
+    Run.statefile= Str_dup(buf);
   }
   
 }
@@ -168,7 +168,7 @@ time_t file_getTimestamp(char *object, mode_t type) {
  */
 char *file_findControlFile() {
 
-  char *rcfile= xcalloc(sizeof(char), STRLEN + 1);
+  char *rcfile= CALLOC(sizeof(char), STRLEN + 1);
   
   snprintf(rcfile, STRLEN, "%s/.%s", Run.Env.home, MONITRC);
   if(file_exist(rcfile)) {
@@ -482,7 +482,7 @@ void *file_readQueue(FILE *file, size_t *size) {
 
   /* read data if any (allow 1MB at maximum to prevent enormous memory allocation) */
   if(*size > 0 && *size < 1048576) {
-    data = xcalloc(1, *size);
+    data = CALLOC(1, *size);
     if((rv = fread(data, 1, *size, file)) != *size) {
       FREE(data);
       if (feof(file) || ferror(file))

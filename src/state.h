@@ -28,15 +28,31 @@
 
 
 /**
- *  Manage service information persistently. Service data is saved to
- *  a state file when monit runs in daemon mode for each poll
- *  cycle. Monit use this file to recover from a crash or to maintain
- *  service data persistently during a reload. The location of the
- *  state file may be set from the command line or set in the monitrc
- *  file, if not set, the default is ~/.monit.state.
+ * Management of the persistent service properties.
+ *
+ * If Monit runs in daemon mode, it saves the persistent properties of every
+ * service to the state file at the end of every poll cycle. When Monit is
+ * restarted or reloaded, it restores the state of the services from this file.
+ *
+ * The location of the state file defaults to ~/.monit.state and can be
+ * overriden on the command line or using the "set statefile" statement in the
+ * configuration file.
  *
  *  @file
  */
+
+
+/**
+ * Open the state file
+ * @return TRUE if succeeded, otherwise FALSE
+ */
+int State_open();
+
+
+/**
+ * Close the state file
+ */
+void State_close();
 
 
 /**
@@ -46,18 +62,8 @@ void State_save();
 
 
 /**
- * Check if we should update current services with persistent state
- * information. The logic is as follows: Iff a state file is present
- * *and* older than the running monit daemon's lock file we have had a
- * crash and should update data from the state file.
- * @return TRUE if the state should be updated otherwise FALSE
- */
-int State_shouldUpdate();
-
-
-/**
  * Update the current service list with data from the state file. We
- * do *only* change services found in *both* the monitrc file and in
+ * do change only services found in *both* the monitrc file and in
  * the state file. The algorithm:
  *
  * Assume the control file was changed and a new service (B) was added
@@ -73,9 +79,6 @@ int State_shouldUpdate();
  * service A was removed from monitrc; when reading the state file,
  * service A is not found in the current service list (the list is
  * always generated from monitrc) and therefore A is simply discarded.
- *
- * Finally, after the monit service state is updated this function
- * writes the new state file.
  */
 void State_update();
 

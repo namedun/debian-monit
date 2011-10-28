@@ -54,7 +54,7 @@ struct T {
 /* ---------------------------------------------------------------- Private */
 
 
-static inline void doAppend(T S, const char *s, va_list ap) {
+static inline void append(T S, const char *s, va_list ap) {
         va_list ap_copy;
         while (true) {
                 va_copy(ap_copy, ap);
@@ -108,7 +108,7 @@ T StringBuffer_append(T S, const char *s, ...) {
         if (s && *s) {
                 va_list ap;
                 va_start(ap, s);
-                doAppend(S, s, ap);
+                append(S, s, ap);
                 va_end(ap);
         }
         return S;
@@ -120,7 +120,7 @@ T StringBuffer_vappend(T S, const char *s, va_list ap) {
         if (s && *s) {
                 va_list ap_copy;
                 va_copy(ap_copy, ap);
-                doAppend(S, s, ap_copy);
+                append(S, s, ap_copy);
                 va_end(ap_copy);
         }
         return S;
@@ -173,7 +173,7 @@ int StringBuffer_replace(T S, const char *a, const char *b) {
                                         do
                                                 if (! a[++j]) {
                                                         memmove(S->buffer + i + bl, S->buffer + i + j, (S->used - (i + j)));
-                                                        memmove(S->buffer + i, b, bl); 
+                                                        memcpy(S->buffer + i, b, bl); 
                                                         S->used += diff;
                                                         i += bl - 1;
                                                         m--;

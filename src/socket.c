@@ -184,9 +184,9 @@ Socket_T socket_create(void *port) {
                 S->connection_type= TYPE_LOCAL;
                 
                 if(p->family==AF_UNIX) {
-                        S->host= xstrdup(LOCALHOST);
+                        S->host= Str_dup(LOCALHOST);
                 } else {
-                        S->host= xstrdup(p->hostname);
+                        S->host= Str_dup(p->hostname);
                 }
                 
                 if(p->SSL.use_ssl && !socket_switch2ssl(S, p->SSL)) {
@@ -224,7 +224,7 @@ Socket_T socket_create_t(const char *host, int port, int type, Ssl_T ssl,
                 S->port= port;
                 S->type= proto;
                 S->timeout= timeout;
-                S->host= xstrdup(host);
+                S->host= Str_dup(host);
                 S->connection_type= TYPE_LOCAL;
                 
                 if(ssl.use_ssl && !socket_switch2ssl(S, ssl)) {
@@ -252,7 +252,7 @@ Socket_T socket_create_a(int socket, const char *remote_host,
         S->socket= socket;
         S->type= SOCK_STREAM;
         S->timeout= NET_TIMEOUT;
-        S->host= xstrdup(remote_host);
+        S->host= Str_dup(remote_host);
         S->connection_type= TYPE_ACCEPT;
         
         if(sslserver) {
@@ -437,9 +437,7 @@ int socket_switch2ssl(Socket_T S, Ssl_T ssl)  {
 
 
 int socket_print(Socket_T S, const char *m, ...) {
-        
         int n;
-        long l;
         va_list ap;
         char *buf= NULL;
         
@@ -447,10 +445,10 @@ int socket_print(Socket_T S, const char *m, ...) {
         ASSERT(m);
         
         va_start(ap, m);
-        buf= Util_formatString(m, ap, &l);
+        buf= Str_vcat(m, ap);
         va_end(ap);
         
-        n= socket_write(S, buf, l);
+        n= socket_write(S, buf, strlen(buf));
         FREE(buf);
         
         return n;

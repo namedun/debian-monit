@@ -63,7 +63,7 @@ int check_generic(Socket_T socket) {
   if(socket_get_Port(socket))
     g = ((Port_T)(socket_get_Port(socket)))->generic;
     
-  buf = xcalloc(sizeof(char), Run.expectbuffer + 1);
+  buf = CALLOC(sizeof(char), Run.expectbuffer + 1);
 
   while (g != NULL) {
     
@@ -71,7 +71,7 @@ int check_generic(Socket_T socket) {
       
       /* Unescape any \0x00 escaped chars in g's send string 
       to allow sending a string containing \0 bytes also */
-      char *X = xstrdup(g->send);
+      char *X = Str_dup(g->send);
       int l = Util_handle0Escapes(X);
       
       if(socket_write(socket, X, l) < 0) {
@@ -100,27 +100,27 @@ int check_generic(Socket_T socket) {
       if (regex_return != 0) {
         char e[STRLEN];
         regerror(regex_return, g->expect, e, STRLEN);
-        socket_setError(socket, "GENERIC: receiving unexpected data [%s] -- %s\n", Util_trunc(buf, STRLEN - 4), e);
+        socket_setError(socket, "GENERIC: receiving unexpected data [%s] -- %s\n", Str_trunc(buf, STRLEN - 4), e);
         FREE(buf);
         return FALSE;
       } else
-        DEBUG("GENERIC: successfully received: '%s'\n", Util_trunc(buf, STRLEN - 4)); 
+        DEBUG("GENERIC: successfully received: '%s'\n", Str_trunc(buf, STRLEN - 4)); 
       
 #else
       /* w/o regex support */
 
       if (strncmp(buf, g->expect, strlen(g->expect)) != 0) {
-        socket_setError(socket, "GENERIC: receiving unexpected data [%s]\n", Util_trunc(buf, STRLEN - 4));
+        socket_setError(socket, "GENERIC: receiving unexpected data [%s]\n", Str_trunc(buf, STRLEN - 4));
         FREE(buf);
         return FALSE;
       } else
-        DEBUG("GENERIC: successfully received: '%s'\n", Util_trunc(buf, STRLEN - 4)); 
+        DEBUG("GENERIC: successfully received: '%s'\n", Str_trunc(buf, STRLEN - 4)); 
       
 #endif
       
     } else {
       /* This should not happen */
-      socket_setError(socket, "GENERIC: unexpected strageness\n");
+      socket_setError(socket, "GENERIC: unexpected strangeness\n");
       FREE(buf);
       return FALSE;
     }

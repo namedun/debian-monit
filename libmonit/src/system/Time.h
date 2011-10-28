@@ -226,7 +226,7 @@ char *Time_gmtstring(time_t time, char result[30]);
 
 
 /**
- * Returns <code>sec</code> as a date string. The <code>format</code> 
+ * Returns <code>time</code> as a date string. The <code>format</code> 
  * parameter determines the format of the string. The format specifiers 
  * are the same as those used by <code>strftime(3)</code>. For instance to
  * specify a RFC822 time string on the format "Wed, 05 Feb 2003 01:16:44
@@ -262,38 +262,38 @@ char *Time_uptime(time_t sec, char result[24]);
  * format string, otherwise 0. The cron string consists of 5 fields separated
  * with white-space. All fields are required:
  *
- <table>
- <tr>
- <th>Field name</th>
- <th>Allowed values</th>
- <th>Allowed special characters</th>
- </tr>
- <tr>
- <td>Minutes</td>
- <td>0-59</td>
- <td>* , -</td>
- </tr>
- <tr>
- <td>Hours</td>
- <td>0-23</td>
- <td>* , -</td>
- </tr>
- <tr>
- <td>Day of month</td>
- <td>1-31</td>
- <td>* , -</td>
- </tr>
- <tr>
- <td>Month</td>
- <td>1-12 (1=jan, 12=dec)</td>
- <td>* , -</td>
- </tr>
- <tr>
- <td>Day of week</td>
- <td>0-6 (0=sunday, 6=saturday)</td>
- <td>* , -</td>
- </tr>
- </table>
+ * <table>
+ * <tr>
+ * <th>Name</th>
+ * <th>Allowed values</th>
+ * <th>Special characters</th>
+ * </tr>
+ * <tr>
+ * <td>Minutes</td>
+ * <td>0-59</td>
+ * <td>* , -</td>
+ * </tr>
+ * <tr>
+ * <td>Hours</td>
+ * <td>0-23</td>
+ * <td>* , -</td>
+ * </tr>
+ * <tr>
+ * <td>Day of month</td>
+ * <td>1-31</td>
+ * <td>* , -</td>
+ * </tr>
+ * <tr>
+ * <td>Month</td>
+ * <td>1-12 (1=jan, 12=dec)</td>
+ * <td>* , -</td>
+ * </tr>
+ * <tr>
+ * <td>Day of week</td>
+ * <td>0-6 (0=sunday, 6=saturday)</td>
+ * <td>* , -</td>
+ * </tr>
+ * </table>
  * <h3>Special characters</h3>
  * <ul>
  * <li>* The asterisk indicates that the expression will match 
@@ -308,7 +308,6 @@ char *Time_uptime(time_t sec, char result[24]);
  * 17,18 in the day field indicate the 17th and 18th day of the month. 
  * A sequence can also include ranges. For example, using
  * 1-5,0 in the weekday field indicate monday to friday and sunday.
- 
  * </ul>
  * <h3>Example</h3>
  * <ul>

@@ -83,13 +83,11 @@ typedef struct response {
   int status;
   Socket_T S;
   const char *protocol;
-  size_t bufsize;
-  size_t bufused;
   int is_committed;
   HttpHeader headers;
   ssl_connection *ssl;
   const char *status_msg; 
-  unsigned char *outputbuffer;
+  StringBuffer_T outputbuffer;
 } *HttpResponse;
 
 
@@ -112,7 +110,6 @@ char *get_headers(HttpResponse res);
 void set_status(HttpResponse res, int status);
 const char *get_status_string(int status_code);
 void add_Impl(void(*doGet)(HttpRequest, HttpResponse), void(*doPost)(HttpRequest, HttpResponse));
-void out_print(HttpResponse res,  const char *, ...);
 void set_content_type(HttpResponse res, const char *mime);
 const char *get_header(HttpRequest req, const char *header_name);
 void send_error(HttpResponse, int status, const char *message);

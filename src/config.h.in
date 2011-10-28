@@ -78,9 +78,6 @@
 /* Define to 1 if you have the `inet' library (-linet). */
 #undef HAVE_LIBINET
 
-/* Define to 1 if you have the <libnet/libnet-types.h> header file. */
-#undef HAVE_LIBNET_LIBNET_TYPES_H
-
 /* Define to 1 if you have the `nsl' library (-lnsl). */
 #undef HAVE_LIBNSL
 
@@ -122,10 +119,6 @@
 
 /* Define to 1 if you have the <mach/mach_host.h> header file. */
 #undef HAVE_MACH_MACH_HOST_H
-
-/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
-   to 0 otherwise. */
-#undef HAVE_MALLOC
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -475,9 +468,6 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
-/* Define to rpl_malloc if the replacement function should be used. */
-#undef malloc
-
 /* Define to `int' if <sys/types.h> does not define. */
 #undef mode_t
 
@@ -489,3 +479,10 @@
 
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork
+
+
+/* Mask out GCC __attribute__ extension for non-gcc compilers. */
+#ifndef __GNUC__
+#define __attribute__(x)
+#endif
+

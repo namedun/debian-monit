@@ -83,7 +83,7 @@ char *device_mountpoint_sysdep(Info_T inf, char *blockdev) {
     /* Try to compare the the filesystem as is, if failed, try to use the symbolic link target */
     if (IS(blockdev, mnt->mnt_fsname) || (realpath(mnt->mnt_fsname, realpathbuf) && ! strcasecmp(blockdev, realpathbuf))) {
       endmntent(mntfd);
-      inf->priv.filesystem.mntpath = xstrdup(mnt->mnt_dir);
+      inf->priv.filesystem.mntpath = Str_dup(mnt->mnt_dir);
       return inf->priv.filesystem.mntpath;
     }
   }

@@ -172,7 +172,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
   treesize = globbuf.gl_pathc;
 
   /* Allocate the tree */
-  pt = xcalloc(sizeof(ProcessTree_T), treesize);
+  pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   /* Insert data from /proc directory */
   for (i = 0; i < treesize; i++) {
@@ -203,9 +203,9 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     
     pt[i].mem_kbyte = psinfo->pr_rssize;
 
-    pt[i].cmdline  = xstrdup(psinfo->pr_psargs);
+    pt[i].cmdline  = Str_dup(psinfo->pr_psargs);
     if (! pt[i].cmdline || ! *pt[i].cmdline)
-      pt[i].cmdline = xstrdup(psinfo->pr_fname);
+      pt[i].cmdline = Str_dup(psinfo->pr_fname);
 
     if (! read_proc_file(buf, sizeof(buf), "status", pt[i].pid, NULL)) {
       pt[i].cputime     = 0;
@@ -275,8 +275,8 @@ again:
     si->swap_kbyte_max = 0;
     return TRUE;
   }
-  s = (swaptbl_t *)xmalloc(num * sizeof(swapent_t) + sizeof(struct swaptable));
-  strtab = (char *)xmalloc((num + 1) * MAXSTRSIZE);
+  s = (swaptbl_t *)ALLOC(num * sizeof(swapent_t) + sizeof(struct swaptable));
+  strtab = (char *)ALLOC((num + 1) * MAXSTRSIZE);
   for (i = 0; i < (num + 1); i++)
     s->swt_ent[i].ste_path = strtab + (i * MAXSTRSIZE);
   s->swt_n = num + 1;
@@ -340,8 +340,8 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
     goto error;
   }
 
-  cpu_ks   = (kstat_t **)xmalloc(ncpus * sizeof(kstat_t *));
-  cpu_stat = (cpu_stat_t *)xmalloc(ncpus * sizeof(cpu_stat_t));
+  cpu_ks   = (kstat_t **)ALLOC(ncpus * sizeof(kstat_t *));
+  cpu_stat = (cpu_stat_t *)ALLOC(ncpus * sizeof(cpu_stat_t));
 
   for (kstat = kctl->kc_chain; kstat; kstat = kstat->ks_next) {
     if (strncmp(kstat->ks_name, "cpu_stat", 8) == 0) {

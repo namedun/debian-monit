@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <string.h>
 #include <stdarg.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -38,7 +37,6 @@ static void onExec(Process_T P) {
                 printf("\t%s", buf);
                 OutputStream_print(out, "Elessar Telcontar\n");
                 assert(OutputStream_flush(out) > 0);
-                Time_usleep(500);
                 char *line = InputStream_readLine(in, buf, STRLEN);
                 assert(line);
                 printf("\t%s", line);
@@ -148,21 +146,21 @@ int main(void) {
                 // Check default PATH
                 assert(Str_isEqual(Command_getEnv(c, "PATH"), "/bin:/usr/bin:/usr/local/bin:/opt/csw/bin:/usr/sfw/bin"));
                 // Set and get env string
-                Command_setEnvString(c, "PATH=/usr/bin;SHELL=/bin/bash");
+                Command_vSetEnv(c, "PATH=/usr/bin;SHELL=/bin/bash");
                 assert(Str_isEqual(Command_getEnv(c, "PATH"), "/usr/bin"));
                 assert(Str_isEqual(Command_getEnv(c, "SHELL"), "/bin/bash"));
                 // With space in string
-                Command_setEnvString(c, "LANG = C");
+                Command_vSetEnv(c, "LANG = C");
                 assert(Str_isEqual(Command_getEnv(c, "LANG"), "C"));
-                Command_setEnvString(c, "PATH = /usr/bin ; SHELL = /bin/bash");
+                Command_vSetEnv(c, "PATH = /usr/bin ; SHELL = /bin/bash");
                 assert(Str_isEqual(Command_getEnv(c, "PATH"), "/usr/bin"));
                 assert(Str_isEqual(Command_getEnv(c, "SHELL"), "/bin/bash"));
                 // Invalid String
-                Command_setEnvString(c, "HELLO:WORLD");
+                Command_vSetEnv(c, "HELLO:WORLD");
                 assert(! Command_getEnv(c, "HELLO"));
                 assert(! Command_getEnv(c, "HELLO:WORDL"));
                 // Varargs
-                Command_setEnvString(c, "PATH=%s; TERM=%s;", "/bin", "vterm");
+                Command_vSetEnv(c, "PATH=%s; TERM=%s;", "/bin", "vterm");
                 assert(Str_isEqual(Command_getEnv(c, "PATH"), "/bin"));
                 assert(Str_isEqual(Command_getEnv(c, "TERM"), "vterm"));
                 Command_free(&c);

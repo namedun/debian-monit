@@ -95,9 +95,9 @@
 
 
 #define HEAD(path, name, refresh) \
-   out_print(res, HEAD_HTML, Run.localhostname, refresh, path, name);
+   StringBuffer_append(res->outputbuffer, HEAD_HTML, Run.localhostname, refresh, path, name);
 
-#define FOOT  out_print(res, FOOT_HTML);
+#define FOOT  StringBuffer_append(res->outputbuffer, FOOT_HTML);
 
 
 /* Public prototypes */

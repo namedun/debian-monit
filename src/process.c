@@ -252,7 +252,7 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
        * We create virtual process entry for missing parent so we can have full tree-like structure with root. */
       int j = (*size_r)++;
 
-      pt = *pt_r = xresize(*pt_r, *size_r * sizeof(ProcessTree_T));
+      pt = RESIZE(*pt_r, *size_r * sizeof(ProcessTree_T));
       memset(&pt[j], 0, sizeof(ProcessTree_T));
       pt[j].ppid = pt[j].pid  = pt[i].ppid;
       pt[i].parent = j;
@@ -314,16 +314,15 @@ int findprocess(int pid, ProcessTree_T *pt, int size) {
 void delprocesstree(ProcessTree_T **reference, int *size) {
   int i;
   ProcessTree_T *pt = *reference;
-
-  if (pt == NULL || size <= 0)
-      return;
-  for (i = 0; i < *size; i++) {
-    FREE(pt[i].cmdline);
-    FREE(pt[i].children);
+  if (pt) {
+    for (i = 0; i < *size; i++) {
+      FREE(pt[i].cmdline);
+      FREE(pt[i].children);
+    }
+    FREE(pt);
+    *reference = NULL;
+    *size = 0;
   }
-  FREE(pt);
-  *reference = NULL;
-  *size = 0;
   return;
 }
 

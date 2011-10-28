@@ -10843,31 +10843,38 @@ fi
 # Architecture/OS
 # ------------------------------------------------------------------------
 
-if test `uname` = "Linux"
+architecture=`uname`
+if test "$architecture" = "Linux"
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
 
 $as_echo "#define LINUX 1" >>confdefs.h
 
-elif test `uname` = "FreeBSD"
+elif test "$architecture" = "FreeBSD"
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
 
 $as_echo "#define FREEBSD 1" >>confdefs.h
 
-elif test `uname` = "OpenBSD"
+elif test "$architecture" = "GNU/kFreeBSD"
+then
+   CFLAGS="$CFLAGS -D _REENTRANT"
+
+$as_echo "#define FREEBSD 1" >>confdefs.h
+
+elif test "$architecture" = "OpenBSD"
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
 
 $as_echo "#define OPENBSD 1" >>confdefs.h
 
-elif test `uname` = "Darwin"
+elif test "$architecture" = "Darwin"
 then
    CFLAGS="$CFLAGS -DREENTRANT"
 
 $as_echo "#define DARWIN 1" >>confdefs.h
 
-elif test `uname` = "SunOS"
+elif test "$architecture" = "SunOS"
 then
    LIBS="$LIBS -lsocket -lnsl"
    CFLAGS="$CFLAGS -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64"
@@ -10880,26 +10887,26 @@ then
 
 $as_echo "#define SOLARIS 1" >>confdefs.h
 
-elif test `uname` = "HP-UX"
+elif test "$architecture" = "HP-UX"
 then
    CFLAGS="$CFLAGS -D_REENTRANT"
 
 $as_echo "#define HPUX 1" >>confdefs.h
 
-elif test `uname` = "NetBSD"
+elif test "$architecture" = "NetBSD"
 then
    CFLAGS="$CFLAGS -D_REENTRANT"
 
 $as_echo "#define NETBSD 1" >>confdefs.h
 
-elif test `uname` = "AIX"
+elif test "$architecture" = "AIX"
 then
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
 
 $as_echo "#define AIX 1" >>confdefs.h
 
 else
-   as_fn_error "Architecture not supported: \`uname\`." "$LINENO" 5
+   as_fn_error "Architecture not supported: ${architecture}" "$LINENO" 5
 fi
 
 # ---------------------------------------------------------------------------

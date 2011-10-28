@@ -66,6 +66,7 @@
 #include "process.h"
 #include "process_sysdep.h"
 
+
 /**
  *  System dependent resource gathering code for MacOS X.
  *
@@ -158,14 +159,14 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
     LogError("system statistic error -- sysctl failed: %s\n", STRERROR);
     return FALSE;
   }
-  pinfo = (struct kinfo_proc *)xcalloc(1, pinfo_size);
+  pinfo = CALLOC(1, pinfo_size);
   if (sysctl(mib, 4, pinfo, &pinfo_size, NULL, 0)) {
     FREE(pinfo);
     LogError("system statistic error -- sysctl failed: %s\n", STRERROR);
     return FALSE;
   }
   treesize = pinfo_size / sizeof(struct kinfo_proc);
-  pt = xcalloc(sizeof(ProcessTree_T), treesize);
+  pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   mib[0] = CTL_KERN;
   mib[1] = KERN_ARGMAX;
@@ -176,7 +177,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
     LogError("system statistic error -- sysctl failed: %s\n", STRERROR);
     return FALSE;
   }
-  args = (char *)xcalloc(1, args_size + 1);
+  args = CALLOC(1, args_size + 1);
   size = args_size; // save for per-process sysctl loop
 
   for (i = 0; i < treesize; i++) {
@@ -202,24 +203,22 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
        */
       int  argc = *args;
       char *p = args + sizeof(int); // arguments beginning
-      Buffer_T  cmdline;
-
-      memset(&cmdline, 0, sizeof(Buffer_T));
-
+      StringBuffer_T cmdline = StringBuffer_create(64);
       p += strlen(p); // skip exename
       while (argc && p < args + args_size) {
         if (*p == 0) { // skip terminating 0 and variable length 0 padding
           p++;
           continue;
         }
-        Util_stringbuffer(&cmdline, argc-- ? "%s " : "%s", p);
+        StringBuffer_append(cmdline, argc-- ? "%s " : "%s", p);
         p += strlen(p);
       }
-      if (cmdline.buf)
-        pt[i].cmdline = Util_trim(cmdline.buf);
+      if (StringBuffer_length(cmdline))
+        pt[i].cmdline = Str_trim(Str_dup(StringBuffer_toString(cmdline)));
+      StringBuffer_free(&cmdline);
     }
     if (! pt[i].cmdline || ! *pt[i].cmdline)
-      pt[i].cmdline = xstrdup(pinfo[i].kp_proc.p_comm);
+      pt[i].cmdline = Str_dup(pinfo[i].kp_proc.p_comm);
 
     if (pinfo[i].kp_proc.p_stat == SZOMB)
       pt[i].status_flag |= PROCESS_ZOMBIE;

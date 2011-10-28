@@ -53,7 +53,7 @@ int check_ssh(Socket_T socket) {
     return FALSE;
   }
   
-  if(! Util_startsWith(buf, "SSH-")) {
+  if(! Str_startsWith(buf, "SSH-")) {
     socket_setError(socket, "SSH: protocol error %s\n", buf);
     return FALSE;
   }

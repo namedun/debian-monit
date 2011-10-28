@@ -52,29 +52,6 @@
  */
 
 
-/* ----------------------------------------------------------- Definitions */
-
-
-static const uchar_t nonalnum[256]= {
-        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
-
-
 /* -------------------------------------------------------- Public Methods */
 
 
@@ -122,18 +99,19 @@ char *Str_unquote(char *s) {
                 char *t1, *t2;
                 t1 = t2 = s;
                 // Left unquote
-                while (*t1==34 || *t1==39) t1++;
+                while (*t1 == 34 || *t1 == 39 || isspace(*t1)) t1++;
                 if (t1 != s) {
-                        do
-                                *t2++ = *t1;
-                        while (*t1++);
+                        for (*t2 = *t1; *t1; t1++, t2++)
+                                *t2 = *t1;
+                        t1 = t2;
+                } else {
+                        t1 = s;
+                        while (*t1) t1++;
                 }
                 // Right unquote
-                t1 = s;
-                while (*t1) t1++;
                 do 
                         *(t1--) = 0;
-                while (t1 >= s && (*t1==34 || *t1==39));
+                while (t1 > s && (*t1 == 34 || *t1 == 39 || isspace(*t1)));
         }
         return s;
 }
@@ -172,34 +150,6 @@ char *Str_ntos(long n, char s[43]) {
         if (n < 0)
                 *--t = '-';
         return t;
-}
-
-
-char *Str_toalnum(char *s) {
-        if (STR_DEF(s)) {
-                register int x,y;
-                uchar_t *p = (uchar_t*)s;
-                for (x = 0; p[x]; x++)
-                        while (nonalnum[p[x]]) {
-                                for (y = x; p[y + 1]; y++)
-                                        p[y] = p[y + 1];
-                                p[y] = 0;
-                        }
-        }
-        return s;
-}
-
-
-int Str_isalnum(const char *s) {
-        if (STR_DEF(s)) {
-                int i;
-                uchar_t *p = (uchar_t*)s;
-                for (i = 0; p[i]; i++)
-                        if (nonalnum[p[i]])
-                                return false;
-                return true;
-        }
-        return false;
 }
 
 
@@ -242,11 +192,11 @@ double Str_parseDouble(const char *s) {
 }
 
 
-char *Str_replaceChar(char *s, char old, char new) {
+char *Str_replaceChar(char *s, char o, char n) {
         if (s) {
                 for (char *t = s; *t; t++) 
-                        if (*t == old) 
-                                *t = new;
+                        if (*t == o) 
+                                *t = n;
         }
         return s;
 }
@@ -256,7 +206,7 @@ int Str_startsWith(const char *a, const char *b) {
         if (a && b) {
                 const char *s = a;
                 while (*a && *b)
-                        if (*a++ != *b++) return false;
+                        if (toupper(*a++) != toupper(*b++)) return false;
                 return ((*a == *b) || (a != s && *b == 0));
         }
         return false;
@@ -269,7 +219,7 @@ int Str_endsWith(const char *a, const char *b) {
                 while (a[i]) i++;
                 while (b[j]) j++;
                 for(; (i && j); i--, j--)
-                        if(a[i] != b[j]) return false;
+                        if(toupper(a[i]) != toupper(b[j])) return false;
                 return (i >= j);
         }
         return false;
@@ -297,9 +247,8 @@ char *Str_sub(const char *a, const char *b) {
 
 int Str_has(const char *charset, const char *s) {
         if (charset && s) {
-                register int x, y;
-                for (x = 0; s[x]; x++) {
-                        for (y = 0; charset[y]; y++) {
+                for (int x = 0; s[x]; x++) {
+                        for (int y = 0; charset[y]; y++) {
                                 if (s[x] == charset[y])
                                         return true; 
                         }
@@ -396,28 +345,28 @@ char *Str_cat(const char *s, ...) {
 
 
 char *Str_vcat(const char *s, va_list ap) {
-        char *buf = NULL;
+        char *t = NULL;
         if (s) {
                 int n = 0;
                 va_list ap_copy;
                 int size = STRLEN;
-                buf = ALLOC(size);
+                t = ALLOC(size);
                 while (true) {
                         va_copy(ap_copy, ap);
-                        n = vsnprintf(buf, size, s, ap_copy);
+                        n = vsnprintf(t, size, s, ap_copy);
                         va_end(ap_copy);
                         if (n < size)
                                 break;
                         size = n + 1;
-                        RESIZE(buf, size);
+                        RESIZE(t, size);
                 }
         }
-        return buf;
+        return t;
 }
 
 
 char *Str_trunc(char *s, int n) {
-        assert(n>=0);
+        assert(n >= 0);
         if (s) {
                 size_t sl = strlen(s);
                 if (sl > (n + 4)) {
@@ -450,7 +399,7 @@ int Str_lim(const char *s, int limit) {
 
 int Str_match(const char *pattern, const char *subject) {
         assert(pattern);
-        if (subject && *subject) {
+        if (STR_DEF(subject)) {
                 regex_t regex = {0};
                 int error = regcomp(&regex, pattern, REG_NOSUB|REG_EXTENDED);
                 if (error) {

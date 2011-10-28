@@ -119,10 +119,6 @@
 #include <grp.h>
 #endif
 
-#ifdef HAVE_LIBNET_LIBNET_TYPES_H
-#include <libnet/libnet-types.h>
-#endif
-
 #include "monit.h"
 #include "engine.h"
 #include "md5.h"
@@ -302,7 +298,7 @@ static int PAMquery(int num_msg, const struct pam_message **msg, struct pam_resp
         if (!msg || !resp || !user )
                 return PAM_CONV_ERR;
         
-        response = xcalloc(sizeof(struct pam_response), num_msg);
+        response = CALLOC(sizeof(struct pam_response), num_msg);
         
         for (i = 0; i < num_msg; i++) {
                 response[i].resp = NULL;
@@ -311,12 +307,12 @@ static int PAMquery(int num_msg, const struct pam_message **msg, struct pam_resp
                 switch ((*(msg[i])).msg_style) {
                         case PAM_PROMPT_ECHO_ON:
                                 /* Store the login as the response. This likely never gets called, since login was on pam_start() */
-                                response[i].resp= appdata_ptr ? xstrdup(user->login) : NULL;
+                                response[i].resp= appdata_ptr ? Str_dup(user->login) : NULL;
                                 break;
                                 
                         case PAM_PROMPT_ECHO_OFF:
                                 /* Store the password as the response */
-                                response[i].resp= appdata_ptr ? xstrdup(user->passwd) : NULL;
+                                response[i].resp= appdata_ptr ? Str_dup(user->passwd) : NULL;
                                 break;
                                 
                         case PAM_TEXT_INFO:
@@ -409,107 +405,6 @@ static Auth_T PAMcheckUserGroup(const char *uname) {
 /* ------------------------------------------------------------------ Public */
 
 
-char *Util_basename(char* path) {
-        char *fname;
-        
-        ASSERT(path);
-        
-        fname= strrchr(path, '/');
-        return(fname ? ++fname : path);
-}
-
-
-char *Util_chomp(char *s) {
-        ASSERT(s);
-        
-        for (; *s; s++) {
-                if (('\r' == *s) || ('\n' == *s)) {
-                        *s= 0; break;
-                }
-        }
-        return s;
-}
-
-
-char *Util_trim(char *s) {
-        ASSERT(s);
-        
-        Util_ltrim(s);
-        Util_rtrim(s);
-        return s;
-}
-
-
-char *Util_ltrim(char *s) {
-        char *t= s;
-        
-        ASSERT(s);
-        
-        while(*t==' ' || *t=='\t' || *t=='\r' || *t=='\n') t++;
-        if(t!=s) {
-                char *r= s;
-                do {
-                        *r++= *t;
-                } while(*t++);
-        }
-        return s;
-}
-
-
-char *Util_rtrim(char *s) {
-        char *t= s;
-        
-        ASSERT(s);
-        
-        while(*s) s++;
-        while(*--s==' ' || *s=='\t' || *s=='\r' || *s=='\n') *s= 0;
-        return t;
-}
-
-
-void Util_trimQuotes(char *s) {
-        char *t= s;
-        char tmp=0;
-        
-        ASSERT(s);
-        
-        if(*t==39 || *t==34 ) {
-                tmp=*t;
-                t++;
-        } else
-                return;
-        while ( *t != tmp && *t != '\0' ) {
-                *(t-1) = *t;
-                t++;
-        }
-        *(t-1) = '\0';
-        return;
-}
-
-
-char *Util_trunc(char *s, int n) {
-        ASSERT(n>=0);
-        if (s) {
-                size_t sl = strlen(s);
-                if (sl > (n + 4)) {
-                        int e = n+3;
-                        for (; n < e; n++)
-                                s[n]= '.';
-                        s[n]= 0;
-                }
-        }
-        return s;
-}
-
-
-char *Util_replace(char *s, char old, char new) {
-        char *t= s;
-        
-        while (s&&*s) { if(*s==old) *s=new; s++; }
-        return (t);
-}
-
-
 char *Util_replaceString(char **src, const char *old, const char *new) {
         int i;
         size_t d;
@@ -532,7 +427,7 @@ char *Util_replaceString(char **src, const char *old, const char *new) {
         {
                 char *p, *q;
                 size_t l = strlen(old);
-                char *buf= xcalloc(sizeof(char), strlen(*src)+d+1);
+                char *buf= CALLOC(sizeof(char), strlen(*src)+d+1);
                 
                 q= *src;
                 *buf= 0;
@@ -563,15 +458,6 @@ int Util_countWords(char *s, const char *word) {
         
         while((p= strstr(p, word))) { i++;  p++; }
         return i;
-}
-
-
-int Util_startsWith(const char *a, const char *b) {
-        if((!a || !b) || toupper((int)*a)!=toupper((int)*b)) return FALSE;
-        while(*a && *b)
-                if(toupper((int)*a++) != toupper((int)*b++))
-                        return FALSE;
-        return TRUE;
 }
 
 
@@ -1570,7 +1456,7 @@ char *Util_getUptime(time_t delta, char *sep) {
         
         *buf = 0;
         if(delta < 0)
-                return(xstrdup(""));
+                return(Str_dup(""));
         if((rest_d = delta/day)>0) {
                 p += snprintf(p, STRLEN-(p-buf), "%ldd%s", rest_d,sep);
                 delta -= rest_d*day;
@@ -1582,7 +1468,7 @@ char *Util_getUptime(time_t delta, char *sep) {
         rest_m = delta/min;
         snprintf(p, STRLEN - (p - buf), "%ldm%s", rest_m, sep);
         
-        return xstrdup(buf);
+        return Str_dup(buf);
 }
 
 
@@ -1604,7 +1490,7 @@ char *Util_urlEncode(char *url) {
                 for (n = i = 0; url[i]; i++) 
                         if (urlunsafe[(unsigned char)(url[i])]) 
                                 n += 2;
-                p = escaped = xmalloc(i + n + 1);
+                p = escaped = ALLOC(i + n + 1);
                 for (; *url; url++, p++) {
                         if (urlunsafe[(unsigned char)(*p = *url)]) {
                                 *p++= '%';
@@ -1678,59 +1564,10 @@ char *Util_getBasicAuthHeader(char *username, char *password) {
                 LogError("Failed to base64 encode authentication header\n");
                 return NULL;
         }
-        auth= xcalloc(sizeof(char), STRLEN+1);
+        auth= CALLOC(sizeof(char), STRLEN+1);
         snprintf(auth, STRLEN, "Authorization: Basic %s\r\n", b64);
         FREE(b64);
         return auth;
-}
-
-
-char *Util_getString(const char *s, ...) {
-        long l;
-        char *v;
-        va_list ap;
-        
-        ASSERT(s);
-        
-        if(s==NULL)
-                return NULL;
-        va_start(ap, s);
-        v= Util_formatString(s, ap, &l);
-        va_end(ap);
-        
-        return v;
-}
-
-
-char *Util_formatString(const char *s, va_list ap, long *len) {
-        int n;
-#ifdef HAVE_VA_COPY
-        va_list ap_copy;
-#endif
-        int size= STRLEN;
-        char *buf= xcalloc(sizeof(char), size);
-        
-        ASSERT(s);
-        
-        while(TRUE) {
-#ifdef HAVE_VA_COPY
-                va_copy(ap_copy, ap);
-                n= vsnprintf(buf, size, s, ap_copy);
-                va_end(ap_copy);
-#else
-                n= vsnprintf(buf, size, s, ap);
-#endif
-                if(n > -1 && n < size)
-                        break;
-                if(n > -1)
-                        size= n+1;
-                else
-                        size*= 2;
-                buf= xresize(buf, size);
-        }
-        *len= n;
-        
-        return buf;
 }
 
 
@@ -1992,32 +1829,6 @@ char *Util_portDescription(Port_T p, char *buf, int bufsize) {
         else
                 *buf = 0;
         return buf;
-}
-
-
-void Util_stringbuffer(Buffer_T *b, const char *m, ...) {
-        if (m) {
-                va_list  ap;
-                char    *buf;
-                long     need = 0;
-                ssize_t  have = 0;
-                
-                va_start(ap, m);
-                buf = Util_formatString(m, ap, &need);
-                va_end(ap);
-                
-                have = (*b).bufsize - (*b).bufused;
-                if (have <= need) {
-                        (*b).bufsize += (need + STRLEN);
-                        (*b).buf = xresize((*b).buf, (*b).bufsize);
-                        if (! (*b).bufused)
-                                memset((*b).buf, 0, (*b).bufsize);
-                }
-                memcpy(&(*b).buf[(*b).bufused], buf, need);
-                (*b).bufused += need;
-                (*b).buf[(*b).bufused]= 0;
-                FREE(buf);
-        }
 }
 
 

@@ -74,6 +74,7 @@
 #include "engine.h"
 
 // libmonit
+#include "util/Str.h"
 #include "system/Time.h"
 
 
@@ -91,25 +92,35 @@
 
 /* Do not exceed 8 bits here */
 enum ExitStatus_E {
-  setgid_ERROR   = 0x1,
-  setuid_ERROR   = 0x2,
-  redirect_ERROR = 0x4,
-  fork_ERROR     = 0x8
+        setgid_ERROR   = 0x1,
+        setuid_ERROR   = 0x2,
+        redirect_ERROR = 0x4,
+        fork_ERROR     = 0x8
 };
 
-typedef struct En {
-  char env[STRLEN];
-  struct En *next;
-} *Environment_T;
+
+/* ----------------------------------------------------------------- Private */
 
 
-/* -------------------------------------------------------------- Prototypes */
-
-
-static void put_monit_environment(Environment_T e);
-static void free_monit_environment(Environment_T *e);
-static void push_monit_environment(const char *env, Environment_T *list);
-static void set_monit_environment(Service_T s, command_t C, Event_T event, Environment_T *e);
+/*
+ * Setup the environment with special MONIT_xxx variables. The program
+ * executed may use such variable for various purposes.
+ */
+static void set_monit_environment(Service_T S, command_t C, Event_T E) {
+        char date[42];
+        Time_string(Time_now(), date);
+        setenv("MONIT_DATE", Str_dup(date), 1);
+        setenv("MONIT_SERVICE", S->name, 1);
+        setenv("MONIT_HOST", Run.localhostname, 1);
+        setenv("MONIT_EVENT", E ? Event_get_description(E) : C == S->start ? "Started" : C == S->stop ? "Stopped" : "No Event", 1);
+        setenv("MONIT_DESCRIPTION", E ? Event_get_message(E) : C == S->start ? "Started" : C == S->stop ? "Stopped" : "No Event", 1);
+        if (S->type == TYPE_PROCESS) {
+                putenv(Str_cat("MONIT_PROCESS_PID=%d", Util_isProcessRunning(S, FALSE)));
+                putenv(Str_cat("MONIT_PROCESS_MEMORY=%ld", S->inf->priv.process.mem_kbyte));
+                putenv(Str_cat("MONIT_PROCESS_CHILDREN=%d", S->inf->priv.process.children));
+                putenv(Str_cat("MONIT_PROCESS_CPU_PERCENT=%d", S->inf->priv.process.cpu_percent));
+        }
+}
 
 
 /* ------------------------------------------------------------------ Public */
@@ -123,195 +134,117 @@ static void set_monit_environment(Service_T s, command_t C, Event_T event, Envir
  * @param E An optional event object. May be NULL.
  */
 void spawn(Service_T S, command_t C, Event_T E) {
-  pid_t pid;
-  sigset_t mask;
-  sigset_t save;
-  int stat_loc= 0;
-  int exit_status;
-  Environment_T environment= NULL;
-
-  ASSERT(S);
-  ASSERT(C);
-
-  if(access(C->arg[0], X_OK) != 0) {
-    LogError("Error: Could not execute %s\n", C->arg[0]);
-    return;
-  }
-
-  /*
-   * Block SIGCHLD
-   */
-  sigemptyset(&mask);
-  sigaddset(&mask, SIGCHLD);
-  pthread_sigmask(SIG_BLOCK, &mask, &save);
-
-  set_monit_environment(S, C, E, &environment);
-
-  pid= fork();
-  if(pid < 0) {
-    LogError("Cannot fork a new process\n");  
-    exit(1); 
-  }
-
-  if(pid == 0) {
-    /*
-     * Reset to the original umask so programs will inherit the
-     * same file creation mask monit was started with
-     */
-    umask(Run.umask);
-
-    /*
-     * Switch uid/gid if requested
-     */
-    if(C->has_gid) {
-        if(0 != setgid(C->gid)) {
-          stat_loc |= setgid_ERROR;
-      }
-    }
-    if(C->has_uid) {
-      if(0 != setuid(C->uid)) {
-         stat_loc |= setuid_ERROR;
-      }
-    }
-
-    put_monit_environment(environment);
-
-    if(! Run.isdaemon) {
-      int i;
-      for(i= 0; i < 3; i++)
-        if(close(i) == -1 || open("/dev/null", O_RDWR) != i)
-          stat_loc |= redirect_ERROR;
-    }
-
-    Util_closeFds();
-
-    setsid();
-
-    pid = fork();
-    if(pid < 0) {
-      stat_loc |= fork_ERROR;
-      _exit(stat_loc);
-    }
-
-    if(pid == 0) {
+        pid_t pid;
+        sigset_t mask;
+        sigset_t save;
+        int stat_loc= 0;
+        int exit_status;
+        
+        ASSERT(S);
+        ASSERT(C);
+        
+        if(access(C->arg[0], X_OK) != 0) {
+                LogError("Error: Could not execute %s\n", C->arg[0]);
+                return;
+        }
+        
         /*
-         * Reset all signals, so the spawned process is *not* created
-         * with any inherited SIG_BLOCKs
+         * Block SIGCHLD
          */
-      sigemptyset(&mask);
-      pthread_sigmask(SIG_SETMASK, &mask, NULL);
-      signal(SIGINT, SIG_DFL);
-      signal(SIGHUP, SIG_DFL);
-      signal(SIGTERM, SIG_DFL);
-      signal(SIGUSR1, SIG_DFL);
-      signal(SIGPIPE, SIG_DFL);
-      
-      (void) execv(C->arg[0], C->arg);
-      _exit(1);
-    }
-
-    /* Exit first child and return errors to parent */
-    _exit(stat_loc);
-  }
-
-  /* Wait for first child - aka second parent, to exit */
-  if(waitpid(pid, &stat_loc, 0) != pid) {
-      LogError("Waitpid error\n");
-  }
-
-  exit_status= WEXITSTATUS(stat_loc);
-  if (exit_status & setgid_ERROR)
-    LogError("Failed to change gid to '%d' for '%s'\n", C->gid, C->arg[0]);
-  if (exit_status & setuid_ERROR)
-    LogError("Failed to change uid to '%d' for '%s'\n", C->uid, C->arg[0]);
-  if (exit_status & fork_ERROR)
-    LogError("Cannot fork a new process for '%s'\n", C->arg[0]);
-  if (exit_status & redirect_ERROR)
-    LogError("Cannot redirect IO to /dev/null for '%s'\n", C->arg[0]);
-
-  free_monit_environment(&environment);
-  ASSERT(environment == NULL);
-
-  /*
-   * Restore the signal mask
-   */
-  pthread_sigmask(SIG_SETMASK, &save, NULL);
-
-  /*
-   * We do not need to wait for the second child since we forked twice,
-   * the init system-process will wait for it. So we just return
-   */
-
+        sigemptyset(&mask);
+        sigaddset(&mask, SIGCHLD);
+        pthread_sigmask(SIG_BLOCK, &mask, &save);
+        
+        pid= fork();
+        if(pid < 0) {
+                LogError("Cannot fork a new process\n");  
+                exit(1); 
+        }
+        
+        if(pid == 0) {
+                
+                /*
+                 * Reset to the original umask so programs will inherit the
+                 * same file creation mask monit was started with
+                 */
+                umask(Run.umask);
+                
+                /*
+                 * Switch uid/gid if requested
+                 */
+                if(C->has_gid) {
+                        if(0 != setgid(C->gid)) {
+                                stat_loc |= setgid_ERROR;
+                        }
+                }
+                if(C->has_uid) {
+                        if(0 != setuid(C->uid)) {
+                                stat_loc |= setuid_ERROR;
+                        }
+                }
+                
+                set_monit_environment(S, C, E);
+                
+                if(! Run.isdaemon) {
+                        for(int i = 0; i < 3; i++)
+                                if(close(i) == -1 || open("/dev/null", O_RDWR) != i)
+                                        stat_loc |= redirect_ERROR;
+                }
+                
+                Util_closeFds();
+                
+                setsid();
+                
+                pid = fork();
+                if(pid < 0) {
+                        stat_loc |= fork_ERROR;
+                        _exit(stat_loc);
+                }
+                
+                if(pid == 0) {
+                        /*
+                         * Reset all signals, so the spawned process is *not* created
+                         * with any inherited SIG_BLOCKs
+                         */
+                        sigemptyset(&mask);
+                        pthread_sigmask(SIG_SETMASK, &mask, NULL);
+                        signal(SIGINT, SIG_DFL);
+                        signal(SIGHUP, SIG_DFL);
+                        signal(SIGTERM, SIG_DFL);
+                        signal(SIGUSR1, SIG_DFL);
+                        signal(SIGPIPE, SIG_DFL);
+                        
+                        (void) execv(C->arg[0], C->arg);
+                        _exit(errno);
+                }
+                
+                /* Exit first child and return errors to parent */
+                _exit(stat_loc);
+        }
+        
+        /* Wait for first child - aka second parent, to exit */
+        if(waitpid(pid, &stat_loc, 0) != pid) {
+                LogError("Waitpid error\n");
+        }
+        
+        exit_status= WEXITSTATUS(stat_loc);
+        if (exit_status & setgid_ERROR)
+                LogError("Failed to change gid to '%d' for '%s'\n", C->gid, C->arg[0]);
+        if (exit_status & setuid_ERROR)
+                LogError("Failed to change uid to '%d' for '%s'\n", C->uid, C->arg[0]);
+        if (exit_status & fork_ERROR)
+                LogError("Cannot fork a new process for '%s'\n", C->arg[0]);
+        if (exit_status & redirect_ERROR)
+                LogError("Cannot redirect IO to /dev/null for '%s'\n", C->arg[0]);
+        
+        /*
+         * Restore the signal mask
+         */
+        pthread_sigmask(SIG_SETMASK, &save, NULL);
+        
+        /*
+         * We do not need to wait for the second child since we forked twice,
+         * the init system-process will wait for it. So we just return
+         */
+        
 } 
-
-
-/* ----------------------------------------------------------------- Private */
-
-
-/*
- * Setup the environment with special MONIT_xxx variables. The program
- * executed may use such variable for various purposes.
- */
-static void set_monit_environment(Service_T s, command_t C, Event_T event, Environment_T *e) {
-  char buf[STRLEN];
-  char date[STRLEN];
-  
-  Time_string(Time_now(), date);
-  
-  snprintf(buf, STRLEN, "MONIT_DATE=%s", date);
-  push_monit_environment(buf, e);
-
-  snprintf(buf, STRLEN, "MONIT_SERVICE=%s", s->name);
-  push_monit_environment(buf, e);
-
-  snprintf(buf, STRLEN, "MONIT_HOST=%s", Run.localhostname);
-  push_monit_environment(buf, e);
-
-  snprintf(buf, STRLEN, "MONIT_EVENT=%s", event ? Event_get_description(event) : C == s->start ? "Started" : C == s->stop ? "Stopped" : "No Event");
-  push_monit_environment(buf, e);
-  
-  snprintf(buf, STRLEN, "MONIT_DESCRIPTION=%s", event ? Event_get_message(event) : C == s->start ? "Started" : C == s->stop ? "Stopped" : "No Event");
-  push_monit_environment(buf, e);
-
-  if (s->type == TYPE_PROCESS) {
-    snprintf(buf, STRLEN, "MONIT_PROCESS_PID=%d", Util_isProcessRunning(s, FALSE));
-    push_monit_environment(buf, e);
-
-    snprintf(buf, STRLEN, "MONIT_PROCESS_MEMORY=%ld", s->inf->priv.process.mem_kbyte);
-    push_monit_environment(buf, e);
-
-    snprintf(buf, STRLEN, "MONIT_PROCESS_CHILDREN=%d", s->inf->priv.process.children);
-    push_monit_environment(buf, e);
-
-    snprintf(buf, STRLEN, "MONIT_PROCESS_CPU_PERCENT=%d", s->inf->priv.process.cpu_percent);
-    push_monit_environment(buf, e);
-  }
-
-}
-
-
-static void push_monit_environment(char const *env, Environment_T *list) {
-  Environment_T e= NULL;
-  NEW(e);
-  strncpy(e->env, env, sizeof(e->env) - 1);
-  e->env[sizeof(e->env) - 1] = 0;
-  e->next= *list;
-  *list= e;
-}
-
-
-static void put_monit_environment(Environment_T e) {
-  while(e != NULL) {
-    putenv(e->env);
-    e= e->next;
-  }
-}
-
-
-static void free_monit_environment(Environment_T *e) {
-  if(e&&*e) {
-    free_monit_environment(&(*e)->next);
-    FREE((*e));
-  }
-}
-

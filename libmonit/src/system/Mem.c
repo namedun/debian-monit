@@ -73,8 +73,9 @@ void Mem_free(void *ptr, const char *func, const char *file, int line) {
 
 
 void *Mem_resize(void *ptr, long nbytes, const char *func, const char *file, int line) {
-	assert(ptr);
 	assert(nbytes > 0);
+        if (! ptr)
+                return Mem_alloc(nbytes, func, file, line); 
 	ptr = realloc(ptr, nbytes);
 	if (ptr == NULL)
                 Exception_throw(&(MemoryException), func, file, line, System_getLastError());

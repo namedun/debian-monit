@@ -158,7 +158,7 @@ int check_mysql(Socket_T socket) {
     return TRUE;
   }
 
-  socket_setError(socket, "MYSQL: login failed (error code 0x%x%x)\n", buf[5], buf[6]);
+  socket_setError(socket, "MYSQL: login failed (error code %d)\n", buf[6] * 256 + buf[5]);
 
   return FALSE;
 }

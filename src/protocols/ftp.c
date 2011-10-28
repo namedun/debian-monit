@@ -55,7 +55,7 @@ int check_ftp(Socket_T socket) {
       socket_setError(socket, "FTP: error receiving data -- %s\n", STRERROR);
       return FALSE;
     }
-    Util_chomp(buf);
+    Str_chomp(buf);
   } while(buf[3] == '-'); // Discard multi-line response
   if (sscanf(buf, "%d", &status) != 1 || status != 220) {
     socket_setError(socket, "FTP greeting error: %s\n", buf);
@@ -71,7 +71,7 @@ int check_ftp(Socket_T socket) {
     socket_setError(socket, "FTP: error receiving data -- %s\n", STRERROR);
     return FALSE;
   }
-  Util_chomp(buf);
+  Str_chomp(buf);
   if (sscanf(buf, "%d", &status) != 1 || status != 221) {
     socket_setError(socket, "FTP quit error: %s\n", buf);
     return FALSE;

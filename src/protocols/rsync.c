@@ -59,7 +59,7 @@ int check_rsync(Socket_T socket) {
     socket_setError(socket, "RSYNC: did not see server greeting  -- %s\n", STRERROR);
     return FALSE;
   }
-  Util_chomp(buf);
+  Str_chomp(buf);
   rc = sscanf(buf, "%10s %d.%d", header, &version_major, &version_minor);
   if ((rc == EOF) || (rc != 3)) {
     socket_setError(socket, "RSYNC: server greeting parse error %s\n", buf);
@@ -88,7 +88,7 @@ int check_rsync(Socket_T socket) {
       socket_setError(socket, "RSYNC: error receiving data -- %s\n", STRERROR);
       return FALSE;
     }
-    Util_chomp(buf);
+    Str_chomp(buf);
   } while (strncasecmp(buf, rsyncd, strlen(rsyncd)));
   if (strncasecmp(buf, rsyncd_exit, strlen(rsyncd_exit)) != 0) {
     socket_setError(socket, "RSYNC: server sent unexpected response -- %s\n", buf);

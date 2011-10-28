@@ -60,7 +60,7 @@ int check_pop(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "POP error: %s\n", buf);
@@ -77,7 +77,7 @@ int check_pop(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "POP error: %s\n", buf);

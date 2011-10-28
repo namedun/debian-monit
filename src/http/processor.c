@@ -82,6 +82,9 @@
 #include "processor.h"
 #include "base64.h"
 
+// libmonit
+#include "util/Str.h"
+
 
 /**
  *  A naive quasi HTTP Processor module that can handle HTTP requests
@@ -175,51 +178,13 @@ void send_error(HttpResponse res, int code, const char *msg) {
   reset_response(res);
   set_content_type(res, "text/html");
   set_status(res, code);
-  out_print(res,
+  StringBuffer_append(res->outputbuffer,
 	   "<html><head><title>%d %s</title></head>"\
 	   "<body bgcolor=#FFFFFF><h2>%s</h2>%s<p>"\
 	   "<hr><a href='%s'><font size=-1>%s</font></a>"\
 	   "</body></html>\r\n",
 	    code, err, err, msg?msg:"", SERVER_URL, get_server(server, STRLEN));
-	DEBUG("HttpRequest error: %s %d %s\n", SERVER_PROTOCOL, code, msg ? msg : err);
-}
-
-
-/**
- * Prints a string into the given HttpResponse output buffer. The
- * actual response to the client is done in the service function,
- * which will call the private function send_response.  Cervlets
- * should use this function (i.e. out_print) for sending a response,
- * and never use the HttpResponse Socket directly to send data.
- *
- * Despite the above warning, IF the HttpResponse.socket was used
- * directly by a cervlet THEN the cervlet MUST set the is_committed
- * flag in the HttpResponse object and is responsible for sending all
- * HTTP headers and content by itself.
- * @param res HttpResponse object
- * @param m A formated string to be sent to the client
- */
-void out_print(HttpResponse res, const char *m, ...) {
-  if(m) {
-    char *buf;
-    va_list ap;
-    long need= 0;
-    ssize_t have= 0;
-
-    ASSERT(res);
-
-    va_start(ap, m);
-    buf= Util_formatString(m, ap, &need);
-    va_end(ap);
-    have= res->bufsize - res->bufused;
-    if(have <= need) {
-      res->bufsize += need + RES_STRLEN;
-      res->outputbuffer= xresize(res->outputbuffer, res->bufsize);
-    }
-    memcpy(&res->outputbuffer[res->bufused], buf, need); 
-    res->bufused+= need;
-    FREE(buf);
-  }
+  DEBUG("HttpRequest error: %s %d %s\n", SERVER_PROTOCOL, code, msg ? msg : err);
 }
 
 
@@ -240,14 +205,14 @@ void set_header(HttpResponse res, const char *name, const char *value) {
   ASSERT(name);
 
   NEW(h);
-  h->name= xstrdup(name);
-  h->value= xstrdup(value);
+  h->name= Str_dup(name);
+  h->value= Str_dup(value);
   if(res->headers) {
     HttpHeader n, p;
     for( n= p= res->headers; p; n= p, p= p->next) {
       if(!strcasecmp(p->name, name)) {
 	FREE(p->value);
-	p->value= xstrdup(value);
+	p->value= Str_dup(value);
 	destroy_entry(h);
 	return;
       }
@@ -333,7 +298,7 @@ char *get_headers(HttpResponse res) {
   for(p= res->headers; (((b-buf) + STRLEN) < RES_STRLEN) && p; p= p->next) {
     b+= snprintf(b, STRLEN,"%s: %s\r\n", p->name, p->value);
   }
-  return buf[0]?xstrdup(buf):NULL;
+  return buf[0]?Str_dup(buf):NULL;
 }
 
 
@@ -492,6 +457,7 @@ static void send_response(HttpResponse res) {
     char date[STRLEN];
     char server[STRLEN];
     char *headers= get_headers(res);
+    int length = StringBuffer_length(res->outputbuffer);
 
     res->is_committed= TRUE;
     get_date(date, STRLEN);
@@ -500,13 +466,13 @@ static void send_response(HttpResponse res) {
 		 res->status_msg);
     socket_print(S, "Date: %s\r\n", date);
     socket_print(S, "Server: %s\r\n", server);
-    socket_print(S, "Content-Length: %d\r\n", res->bufused);
+    socket_print(S, "Content-Length: %d\r\n", length);
     socket_print(S, "Connection: close\r\n");
     if(headers)
 	socket_print(S, "%s", headers);
     socket_print(S, "\r\n");
-    if(res->bufused)
-	socket_write(S, res->outputbuffer, res->bufused);
+    if(length)
+	socket_write(S, (unsigned char *)StringBuffer_toString(res->outputbuffer), length);
     FREE(headers);
   }
 }
@@ -529,7 +495,7 @@ static HttpRequest create_HttpRequest(Socket_T S) {
     internal_error(S, SC_BAD_REQUEST, "No request found");
     return NULL;
   }
-  Util_chomp(line);
+  Str_chomp(line);
   if(sscanf(line, "%1023s %1023s HTTP/%3[1.0]", method, url, protocol) != 3) {
     internal_error(S, SC_BAD_REQUEST, "Cannot parse request");
     return NULL;
@@ -541,9 +507,9 @@ static HttpRequest create_HttpRequest(Socket_T S) {
   NEW(req);
   req->S= S;
   Util_urlDecode(url);
-  req->url= xstrdup(url);
-  req->method= xstrdup(method);
-  req->protocol= xstrdup(protocol); 
+  req->url= Str_dup(url);
+  req->method= Str_dup(method);
+  req->protocol= Str_dup(protocol); 
   create_headers(req);
   if(!create_parameters(req)) {
     destroy_HttpRequest(req);
@@ -563,10 +529,8 @@ static HttpResponse create_HttpResponse(Socket_T S) {
 
   NEW(res);
   res->S= S;
-  res->bufsize= 0;
-  res->bufused= 0;
   res->status= SC_OK;
-  res->outputbuffer= NULL;
+  res->outputbuffer= StringBuffer_create(256);
   res->is_committed= FALSE;
   res->protocol= SERVER_PROTOCOL;
   res->status_msg= get_status_string(SC_OK);
@@ -592,11 +556,11 @@ static void create_headers(HttpRequest req) {
     if(NULL != (value= strchr(line, ':'))) {
       NEW(header);
       *value++= 0;
-      Util_trim(line);
-      Util_trim(value);
-      Util_chomp(value);
-      header->name= xstrdup(line);
-      header->value= xstrdup(value);
+      Str_trim(line);
+      Str_trim(value);
+      Str_chomp(value);
+      header->name= Str_dup(line);
+      header->value= Str_dup(value);
       header->next= req->headers;
       req->headers= header;
     }
@@ -639,7 +603,7 @@ static int create_parameters(HttpRequest req) {
     char *p;
     if(NULL != (p= strchr(query_string, '/'))) {
       *p++= 0;
-      req->pathinfo= xstrdup(p);
+      req->pathinfo= Str_dup(p);
     }
     req->params= parse_parameters(query_string);
   }
@@ -654,11 +618,11 @@ static int create_parameters(HttpRequest req) {
  * Clear the response output buffer and headers
  */
 static void reset_response(HttpResponse res) {
-  if(res->headers)
+  if(res->headers) {
     destroy_entry(res->headers);
-  memset(res->outputbuffer, 0, res->bufsize);
-  res->bufused= 0;
-  res->headers= NULL; /* Release Pragma */
+    res->headers= NULL; /* Release Pragma */
+  }
+  StringBuffer_clear(res->outputbuffer);
 }
 
 
@@ -695,7 +659,7 @@ static void destroy_HttpRequest(HttpRequest req) {
  */
 static void destroy_HttpResponse(HttpResponse res) {
   if(res) {
-    FREE(res->outputbuffer);
+    StringBuffer_free(&(res->outputbuffer));
     if(res->headers) 
       destroy_entry(res->headers);
     FREE(res);
@@ -752,7 +716,7 @@ static int basic_authenticate(HttpRequest req) {
   char uname[STRLEN];
   const char *credentials= get_header(req, "Authorization");
 
-  if(! (credentials && Util_startsWith(credentials, "Basic "))) {
+  if(! (credentials && Str_startsWith(credentials, "Basic "))) {
     return FALSE;
   }
   strncpy(buf, &credentials[6], sizeof(buf) - 1);
@@ -781,7 +745,7 @@ static int basic_authenticate(HttpRequest req) {
 	" accessing monit httpd\n", socket_get_remote_host(req->S), uname); 
     return FALSE;
   }
-  req->remote_user= xstrdup(uname);
+  req->remote_user= Str_dup(uname);
   return TRUE;
 }
 
@@ -865,16 +829,16 @@ static int get_next_token(char *s, int *cursor, char **r) {
   while(s[*cursor]) {
     if(s[*cursor+1]=='=') {
       *cursor+= 1;
-      *r= xstrndup(&s[i], (*cursor-i));
+      *r= Str_ndup(&s[i], (*cursor-i));
       return KEY;
     } 
     if(s[*cursor]=='=') {
       while(s[*cursor] && s[*cursor]!='&') *cursor+= 1;
       if(s[*cursor]=='&') {
-	*r= xstrndup(&s[i+1], (*cursor-i)-1);
+	*r= Str_ndup(&s[i+1], (*cursor-i)-1);
 	*cursor+= 1;
       }  else
-	*r= xstrndup(&s[i+1], (*cursor-i));
+	*r= Str_ndup(&s[i+1], (*cursor-i));
       return VALUE;
     }
     *cursor+= 1;

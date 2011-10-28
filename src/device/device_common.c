@@ -91,7 +91,7 @@ char *device_path(Info_T inf, char *object) {
   }
 
   if(S_ISREG(buf.st_mode) || S_ISDIR(buf.st_mode)) {
-    inf->priv.filesystem.mntpath = xstrdup(object);
+    inf->priv.filesystem.mntpath = Str_dup(object);
     return inf->priv.filesystem.mntpath;
   } else if(S_ISBLK(buf.st_mode) || S_ISCHR(buf.st_mode)) {
     return device_mountpoint_sysdep(inf, object);

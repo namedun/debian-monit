@@ -486,7 +486,7 @@ static int parse_network(char *s_network, struct ulong_net *net) {
   ASSERT(s_network);
   ASSERT(net);
 
-  temp= copy= xstrdup(s_network);
+  temp= copy= Str_dup(s_network);
 
   /* decide if we have xxx.xxx.xxx.xxx/yyy or
                        xxx.xxx.xxx.xxx/yyy.yyy.yyy.yyy */

@@ -338,6 +338,7 @@ optproclist     : /* EMPTY */
 
 optproc         : start
                 | stop
+                | restart
                 | exist
                 | pid
                 | ppid
@@ -358,6 +359,7 @@ optfilelist      : /* EMPTY */
 
 optfile         : start
                 | stop
+                | restart
                 | exist
                 | timestamp
                 | actionrate
@@ -380,6 +382,7 @@ optfilesyslist  : /* EMPTY */
 
 optfilesys      : start
                 | stop
+                | restart
                 | exist
                 | actionrate
                 | every
@@ -401,6 +404,7 @@ optdirlist      : /* EMPTY */
 
 optdir          : start
                 | stop
+                | restart
                 | exist
                 | timestamp
                 | actionrate
@@ -420,6 +424,7 @@ opthostlist     : opthost
 
 opthost         : start
                 | stop
+                | restart
                 | exist
                 | connection
                 | icmp
@@ -437,6 +442,7 @@ optsystemlist   : /* EMPTY */
 
 optsystem       : start
                 | stop
+                | restart
                 | actionrate
                 | alert
                 | every
@@ -451,6 +457,7 @@ optfifolist     : /* EMPTY */
 
 optfifo         : start
                 | stop
+                | restart
                 | exist
                 | timestamp
                 | actionrate
@@ -470,6 +477,7 @@ optstatuslist   : /* EMPTY */
                
 optstatus       : start
                 | stop
+                | restart
                 | actionrate
                 | exist
                 | alert
@@ -547,7 +555,7 @@ seteventqueue   : SET EVENTQUEUE BASEDIR PATH {
                     Run.eventlist_slots = $6;
                   }
                 | SET EVENTQUEUE SLOT NUMBER {
-                    Run.eventlist_dir = xstrdup(MYEVENTLISTBASE);
+                    Run.eventlist_dir = Str_dup(MYEVENTLISTBASE);
                     Run.eventlist_slots = $4;
                   }
                 ;
@@ -596,10 +604,10 @@ setmailservers  : SET MAILSERVER mailserverlist nettimeout hostname {
                 ;
 
 setmailformat   : SET MAILFORMAT '{' formatoptionlist '}' {
-                   Run.MailFormat.from    = mailset.from    ?  mailset.from    : xstrdup(ALERT_FROM);
+                   Run.MailFormat.from    = mailset.from    ?  mailset.from    : Str_dup(ALERT_FROM);
                    Run.MailFormat.replyto = mailset.replyto ?  mailset.replyto : NULL;
-                   Run.MailFormat.subject = mailset.subject ?  mailset.subject : xstrdup(ALERT_SUBJECT);
-                   Run.MailFormat.message = mailset.message ?  mailset.message : xstrdup(ALERT_MESSAGE);
+                   Run.MailFormat.subject = mailset.subject ?  mailset.subject : Str_dup(ALERT_SUBJECT);
+                   Run.MailFormat.message = mailset.message ?  mailset.message : Str_dup(ALERT_MESSAGE);
                    reset_mailset();
                  }
                 ;
@@ -617,7 +625,7 @@ mailserverlist  : mailserver
 mailserver      : STRING username password sslversion certmd5 {
                     /* Restore the current text overriden by lookahead */
                     FREE(argyytext);
-                    argyytext = xstrdup($1);
+                    argyytext = Str_dup($1);
 
                     check_hostname($1);
                     mailserverset.host = $1;
@@ -636,7 +644,7 @@ mailserver      : STRING username password sslversion certmd5 {
                 | STRING PORT NUMBER username password sslversion certmd5 {
                     /* Restore the current text overriden by lookahead */
                     FREE(argyytext);
-                    argyytext = xstrdup($1);
+                    argyytext = Str_dup($1);
 
                     check_hostname($1);
                     mailserverset.host = $1;
@@ -808,14 +816,14 @@ checkproc       : CHECKPROC SERVICENAME PIDFILE PATH {
                     createservice(TYPE_PROCESS, $<string>2, $4, check_process);
                     matchset.ignore = FALSE;
                     matchset.match_path = NULL;
-                    matchset.match_string = xstrdup($4);
+                    matchset.match_string = Str_dup($4);
                     addmatch(&matchset, ACTION_IGNORE, 0);
                   }
                 | CHECKPROC SERVICENAME MATCH PATH {
                     createservice(TYPE_PROCESS, $<string>2, $4, check_process);
                     matchset.ignore = FALSE;
                     matchset.match_path = NULL;
-                    matchset.match_string = xstrdup($4);
+                    matchset.match_string = Str_dup($4);
                     addmatch(&matchset, ACTION_IGNORE, 0);
                   }
                 ;
@@ -842,7 +850,7 @@ checkhost       : CHECKHOST SERVICENAME ADDRESS STRING {
                 ;
 
 checksystem     : CHECKSYSTEM SERVICENAME {
-                    createservice(TYPE_SYSTEM, $<string>2, xstrdup(""), check_system);
+                    createservice(TYPE_SYSTEM, $<string>2, Str_dup(""), check_system);
                     hassystem = TRUE;
                   }
                 ;
@@ -871,6 +879,15 @@ stop            : STOP argumentlist exectimeout {
                   }
                 | STOP argumentlist useroptionlist exectimeout {
                     addcommand(STOP, $<number>4);
+                  }
+                ;
+
+
+restart         : RESTART argumentlist exectimeout {
+                    addcommand(RESTART, $<number>3);
+                  }
+                | RESTART argumentlist useroptionlist exectimeout {
+                    addcommand(RESTART, $<number>4);
                   }
                 ;
 
@@ -943,9 +960,9 @@ icmp            : IF FAILED ICMP icmptype icmpcount nettimeout rate1
 
 host            : /* EMPTY */ {
                     if (current->type == TYPE_HOST)
-                      portset.hostname = xstrdup(current->path);
+                      portset.hostname = Str_dup(current->path);
                     else
-                      portset.hostname = xstrdup(LOCALHOST);
+                      portset.hostname = Str_dup(LOCALHOST);
                   }
                 | HOST STRING { check_hostname($2); portset.hostname = $2; }
 		;
@@ -1747,15 +1764,13 @@ reminder        : /* EMPTY */           { mailset.reminder = 0; }
  * This routine is automatically called by the lexer!
  */
 void yyerror(const char *s, ...) {
-  
-  long len;
   va_list ap;
   char *msg = NULL;
 
   ASSERT(s);
   
   va_start(ap,s);
-  msg = Util_formatString(s, ap, &len);
+  msg = Str_vcat(s, ap);
   va_end(ap);
   
   LogError("%s:%i: Error: %s '%s'\n", currentfile, lineno, msg, yytext);
@@ -1769,15 +1784,13 @@ void yyerror(const char *s, ...) {
  * Syntactical warning routine
  */
 void yywarning(const char *s, ...) {
-  
-  long len;
   va_list ap;
   char *msg = NULL;
 
   ASSERT(s);
   
   va_start(ap,s);
-  msg = Util_formatString(s, ap, &len);
+  msg = Str_vcat(s, ap);
   va_end(ap);
   
   LogWarning("%s:%i: Warning: %s '%s'\n", currentfile, lineno, msg, yytext);
@@ -1790,15 +1803,13 @@ void yywarning(const char *s, ...) {
  * Argument error routine
  */
 void yyerror2(const char *s, ...) {
-  
-  long len;
   va_list ap;
   char *msg = NULL;
 
   ASSERT(s);
   
   va_start(ap,s);
-  msg = Util_formatString(s, ap, &len);
+  msg = Str_vcat(s, ap);
   va_end(ap);
   
   LogError("%s:%i: Error: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
@@ -1812,15 +1823,13 @@ void yyerror2(const char *s, ...) {
  * Argument warning routine
  */
 void yywarning2(const char *s, ...) {
-  
-  long len;
   va_list ap;
   char *msg = NULL;
 
   ASSERT(s);
   
   va_start(ap,s);
-  msg = Util_formatString(s, ap, &len);
+  msg = Str_vcat(s, ap);
   va_end(ap);
   
   LogWarning("%s:%i: Warning: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
@@ -1852,7 +1861,7 @@ int parse(char *controlfile) {
     return FALSE;
   }
 
-  currentfile = xstrdup(controlfile);
+  currentfile = Str_dup(controlfile);
 
   /* 
    * Creation of the global service list is synchronized  
@@ -1863,13 +1872,13 @@ int parse(char *controlfile) {
     fclose(yyin);
     /* Add the default general system service if not specified explicitly */
     if (!hassystem) {
-      char *name = Util_getString("system_%s", Run.localhostname);
+      char *name = Str_cat("system_%s", Run.localhostname);
       if (Util_existService(name) || (current && IS(name, current->name))) {
         LogError("'check system' not defined in control file, failed to add automatic configuration (service name %s is used already) -- please add 'check system <name>' manually\n", name, name);
         FREE(name);
         cfg_errflag++;
       } else {
-        createservice(TYPE_SYSTEM, name, xstrdup(""), check_system);
+        createservice(TYPE_SYSTEM, name, Str_dup(""), check_system);
       }
     }
     /* If defined - add the last service to the service list */
@@ -1940,7 +1949,7 @@ static void preparse() {
   Run.MailFormat.replyto  = NULL;
   Run.MailFormat.subject  = NULL;
   Run.MailFormat.message  = NULL;
-  Run.localhostname       = xstrdup(localhost);
+  Run.localhostname       = Str_dup(localhost);
   depend_list             = NULL;
   Run.handler_init        = TRUE;
 #ifdef OPENSSL_FIPS  
@@ -2117,13 +2126,13 @@ static void addservicegroup(char *name) {
 
   if (! g) {
     NEW(g);
-    g->name = xstrdup(name);
+    g->name = Str_dup(name);
     g->next = servicegrouplist;
     servicegrouplist = g;
   }
 
   NEW(m);
-  m->name = xstrdup(current->name);
+  m->name = Str_dup(current->name);
   m->next = g->members;
   g->members = m;
 }
@@ -2429,7 +2438,7 @@ static void addmatch(Match_T ms, int actionnumber, int linenumber) {
 #endif
 
   m->match_string = ms->match_string;
-  m->match_path   = ms->match_path ? xstrdup(ms->match_path) : NULL;
+  m->match_path   = ms->match_path ? Str_dup(ms->match_path) : NULL;
   m->action       = ms->action;
   m->not          = ms->not;
   m->ignore       = ms->ignore;
@@ -2493,7 +2502,7 @@ static void addmatchpath(Match_T ms, int actionnumber) {
     if (buf[len-1] == '\n')
       buf[len-1] = 0;
 
-    ms->match_string = xstrdup(buf);
+    ms->match_string = Str_dup(buf);
 
     /* The addeventaction() called from addmatch() will reset the
      * command1 to NULL, but we need to duplicate the command for
@@ -2692,7 +2701,7 @@ static void addgeneric(Port_T port, char *send, char *expect) {
   }
   
   if (send != NULL) {
-    g->send = xstrdup(send);
+    g->send = Str_dup(send);
     g->expect = NULL;
   } else if (expect != NULL) {
 #ifdef HAVE_REGEX_H
@@ -2706,7 +2715,7 @@ static void addgeneric(Port_T port, char *send, char *expect) {
       yyerror2("regex parsing error:%s", errbuf);
     }
 #else
-    g->expect = xstrdup(expect);
+    g->expect = Str_dup(expect);
 #endif
     g->send = NULL;
   } 
@@ -2720,8 +2729,9 @@ static void addgeneric(Port_T port, char *send, char *expect) {
 static void addcommand(int what, unsigned timeout) {
 
   switch(what) {
-  case START: current->start = command; break;
-  case STOP:  current->stop = command; break;
+          case START:   current->start = command; break;
+          case STOP:    current->stop = command; break;
+          case RESTART: current->restart = command; break;
   }
 
   command->timeout = timeout;
@@ -2766,12 +2776,12 @@ static void prepare_urlrequest(URL_T U) {
   if (urlrequest == NULL)
     NEW(urlrequest);
   urlrequest->url = U;
-  portset.hostname = xstrdup(U->hostname);
+  portset.hostname = Str_dup(U->hostname);
   check_hostname(portset.hostname);
   portset.port = U->port;
   portset.url_request = urlrequest;
   portset.type = SOCK_STREAM;
-  portset.request = Util_getString("%s%s%s", U->path, U->query ? "?" : "", U->query ? U->query : "");
+  portset.request = Str_cat("%s%s%s", U->path, U->query ? "?" : "", U->query ? U->query : "");
   /* Only the HTTP protocol is supported for URLs.
      See also the lexer if this is to be changed in
      the future */
@@ -2804,7 +2814,7 @@ static void  seturlrequest(int operator, char *regex) {
     }
   }
 #else
-  urlrequest->regex = xstrdup(regex);
+  urlrequest->regex = Str_dup(regex);
 #endif
 
 }
@@ -3031,7 +3041,7 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
     if ( NULL == (colonindex = strchr(buf, ':')))
       continue;
 
-    ht_passwd = xstrdup(colonindex+1);
+    ht_passwd = Str_dup(colonindex+1);
     *colonindex = '\0';
 
     /* In case we have a file in /etc/passwd or /etc/shadow style we
@@ -3041,7 +3051,7 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
     if ( (NULL != (colonindex = strchr(ht_passwd, ':'))) && ( dtype != DIGEST_CLEARTEXT) )
       *colonindex = '\0';
 
-    ht_username = xstrdup(buf);
+    ht_username = Str_dup(buf);
 
     if (username == NULL) {
       if (addcredentials(ht_username, ht_passwd, dtype, FALSE))
@@ -3155,7 +3165,7 @@ static void setsyslog(char *facility) {
 
   if (!Run.logfile || ihp.logfile) {
     ihp.logfile = TRUE;
-    setlogfile(xstrdup("syslog"));
+    setlogfile(Str_dup("syslog"));
     Run.use_syslog = TRUE;
     Run.dolog = TRUE;
   }
@@ -3517,7 +3527,7 @@ static command_t copycommand(command_t source) {
   copy->gid = source->gid;
   copy->timeout = source->timeout;
   for (i = 0; i < copy->length; i++)
-     copy->arg[i] = xstrdup(source->arg[i]);
+     copy->arg[i] = Str_dup(source->arg[i]);
   copy->arg[copy->length] = NULL;
 
   return copy;

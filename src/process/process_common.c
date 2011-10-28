@@ -81,40 +81,40 @@
  * @return TRUE if succeeded otherwise FALSE.
  */
 int read_proc_file(char *buf, int buf_size, char *name, int pid, int *bytes_read) {
-  int fd;
-  char filename[STRLEN];
-  int bytes;
-  int rv = FALSE;
-
-  ASSERT(buf);
-  ASSERT(name);
-
-  if (pid < 0)
-    snprintf(filename, STRLEN, "/proc/%s", name);
-  else
-    snprintf(filename, STRLEN, "/proc/%d/%s", pid, name);
-    
-  if ((fd = open(filename, O_RDONLY)) < 0) {
-    DEBUG("%s: Cannot open proc file %s -- %s\n", prog, filename, STRERROR);
-    return rv;
-  }
-
-  if ((bytes = (int)read(fd, buf, buf_size-1)) < 0) {
-    DEBUG("%s: Cannot read proc file %s -- %s\n", prog, filename, STRERROR);
-    goto error;
-  }
-  if (bytes_read)
-    *bytes_read = bytes;
-       
-  /* In case it is a string we have to 0 terminate it our self */
-  buf[bytes]='\0';
-  rv = TRUE;
-
+        int fd;
+        char filename[STRLEN];
+        int bytes;
+        int rv = FALSE;
+        
+        ASSERT(buf);
+        ASSERT(name);
+        
+        if (pid < 0)
+                snprintf(filename, STRLEN, "/proc/%s", name);
+        else
+                snprintf(filename, STRLEN, "/proc/%d/%s", pid, name);
+        
+        if ((fd = open(filename, O_RDONLY)) < 0) {
+                DEBUG("%s: Cannot open proc file %s -- %s\n", prog, filename, STRERROR);
+                return rv;
+        }
+        
+        if ((bytes = (int)read(fd, buf, buf_size-1)) < 0) {
+                DEBUG("%s: Cannot read proc file %s -- %s\n", prog, filename, STRERROR);
+                goto error;
+        }
+        if (bytes_read)
+                *bytes_read = bytes;
+        
+        /* In case it is a string we have to 0 terminate it our self */
+        buf[bytes]='\0';
+        rv = TRUE;
+        
 error:
-  if (close(fd) < 0)
-    LogError("%s: Socket close failed -- %s\n", prog, STRERROR);
-
-  return rv;
+        if (close(fd) < 0)
+                LogError("%s: Socket close failed -- %s\n", prog, STRERROR);
+        
+        return rv;
 }
 
 /**
@@ -122,10 +122,10 @@ error:
  * @return time in seconds
  */
 double get_float_time(void) {    
-  struct timeval t;
-
-  gettimeofday(&t, NULL);
-  return (double) t.tv_sec * 10 + (double) t.tv_usec / 100000.0;
+        struct timeval t;
+        
+        gettimeofday(&t, NULL);
+        return (double) t.tv_sec * 10 + (double) t.tv_usec / 100000.0;
 }
 
 
@@ -137,17 +137,16 @@ double get_float_time(void) {
  * @return TRUE if succeeded otherwise FALSE.
  */
 int connectchild(ProcessTree_T *pt, int parent, int child) {
-
-  ASSERT(pt);
-
-  if (pt[parent].pid == pt[child].pid)
-    return FALSE;
-
-  pt[parent].children = xresize(pt[parent].children, sizeof(ProcessTree_T *) * (pt[parent].children_num + 1));
-  pt[parent].children[pt[parent].children_num] = child;
-  pt[parent].children_num++;
-
-  return TRUE;
+        
+        ASSERT(pt);
+        
+        if (pt[parent].pid == pt[child].pid)
+                return FALSE;
+        RESIZE(pt[parent].children, sizeof(ProcessTree_T *) * (pt[parent].children_num + 1));
+        pt[parent].children[pt[parent].children_num] = child;
+        pt[parent].children_num++;
+        
+        return TRUE;
 }
 
 
@@ -158,28 +157,28 @@ int connectchild(ProcessTree_T *pt, int parent, int child) {
  * @return TRUE if succeeded otherwise FALSE.
  */
 void fillprocesstree(ProcessTree_T *pt, int index) {
-  int            i;
-  ProcessTree_T *parent_pt;
-
-  ASSERT(pt);
-
-  if (pt[index].visited == 1)
-    return;
-
-  pt[index].visited         = 1;
-  pt[index].children_sum    = pt[index].children_num;
-  pt[index].mem_kbyte_sum   = pt[index].mem_kbyte;
-  pt[index].cpu_percent_sum = pt[index].cpu_percent;
-
-  for (i = 0; i < pt[index].children_num; i++)
-    fillprocesstree(pt, pt[index].children[i]);
-
-  if (pt[index].parent != -1 && pt[index].parent != index) {
-    parent_pt                   = &pt[pt[index].parent];
-    parent_pt->children_sum    += pt[index].children_sum;
-    parent_pt->mem_kbyte_sum   += pt[index].mem_kbyte_sum;
-    parent_pt->cpu_percent_sum += pt[index].cpu_percent_sum;
-    parent_pt->cpu_percent_sum  = (pt[index].cpu_percent_sum > 1000) ? 1000 : parent_pt->cpu_percent_sum;
-  } 
+        int            i;
+        ProcessTree_T *parent_pt;
+        
+        ASSERT(pt);
+        
+        if (pt[index].visited == 1)
+                return;
+        
+        pt[index].visited         = 1;
+        pt[index].children_sum    = pt[index].children_num;
+        pt[index].mem_kbyte_sum   = pt[index].mem_kbyte;
+        pt[index].cpu_percent_sum = pt[index].cpu_percent;
+        
+        for (i = 0; i < pt[index].children_num; i++)
+                fillprocesstree(pt, pt[index].children[i]);
+        
+        if (pt[index].parent != -1 && pt[index].parent != index) {
+                parent_pt                   = &pt[pt[index].parent];
+                parent_pt->children_sum    += pt[index].children_sum;
+                parent_pt->mem_kbyte_sum   += pt[index].mem_kbyte_sum;
+                parent_pt->cpu_percent_sum += pt[index].cpu_percent_sum;
+                parent_pt->cpu_percent_sum  = (pt[index].cpu_percent_sum > 1000) ? 1000 : parent_pt->cpu_percent_sum;
+        } 
 }
 

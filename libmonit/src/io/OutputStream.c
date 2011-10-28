@@ -96,8 +96,7 @@ static int flush(T S) {
 
 
 /* Write a single byte. The byte is written as an int in the range 0 to 255.
- Returns the byte written, or -1 if the end of the stream has been reached or if a
- write error occurred */
+ Returns the byte written, or -1 if a write error occurred */
 static inline int write_byte(T S, uchar_t byte) {
         if (S->length == S->limit) {
                 if (flush(S) <= 0)
@@ -187,7 +186,7 @@ static void cvt_s(T S, int code, va_list_box *box, unsigned char flags[], int wi
 		pad(width - len, ' ');
         for (int i = 0; i < len; i++)
                 write_byte(S, *str++);
-	if ( flags['-'])
+	if (flags['-'])
 		pad(width - len, ' ');
 }
 
@@ -287,7 +286,7 @@ static void cvt_c(T S, int code, va_list_box *box, unsigned char flags[], int wi
 	if (!flags['-'])
 		pad(width - 1, ' ');
 	write_byte(S, va_arg(box->ap, int));
-	if ( flags['-'])
+	if (flags['-'])
 		pad(width - 1, ' ');
 }
 
@@ -310,7 +309,7 @@ static void cvt_f(T S, int code, va_list_box *box, unsigned char flags[], int wi
 }
 
 
-char *Fmt_flags = "-+ 0";
+static char *Fmt_flags = "-+ 0";
 static fmt_t cvt[256] = {
         /*   0-  7 */     0,     0,     0,     0,     0,     0,     0,     0,
         /*   8- 15 */     0,     0,     0,     0,     0,     0,     0,     0,
@@ -470,7 +469,7 @@ int OutputStream_write(T S, const void *b, int size) {
         assert(b);
         S->sessionWritten = 0;
         uchar_t *t = (uchar_t*)b;
-        while ((size-- > 0) && (write_byte(S, *t++) > 0));
+        while ((size-- > 0) && (write_byte(S, *t++) != -1));
         return S->isclosed ? -1 : S->sessionWritten;
 }
 
