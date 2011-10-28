@@ -207,13 +207,11 @@ exit:
 
 
 void do_send(SendMail_T *S, const char *s, ...) {
-  
-  long len;
   va_list ap;
   char *msg= NULL;
   
   va_start(ap,s);
-  msg= Util_formatString(s, ap, &len);
+  msg= Str_vcat(s, ap);
   va_end(ap);
   
   if (socket_write(S->socket, msg, strlen(msg)) <= 0) {
@@ -239,7 +237,7 @@ static void do_status(SendMail_T *S) {
     siglongjmp(S->error, TRUE);
   }
   
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   sscanf(buf, "%d", &status);
   

@@ -39,10 +39,6 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_LIBNET_LIBNET_TYPES_H
-#include <libnet/libnet-types.h>
-#endif
-
 #include "sha1.h"
 
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
@@ -64,11 +60,11 @@
 
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
-static void sha1_transform(u_int32_t state[5], const u_int8_t buffer[64]) {
-        u_int32_t a, b, c, d, e;
+static void sha1_transform(unsigned int state[5], const unsigned char buffer[64]) {
+        unsigned int a, b, c, d, e;
         typedef union {
-                u_int8_t c[64];
-                u_int32_t l[16];
+                unsigned char c[64];
+                unsigned int l[16];
         } CHAR64LONG16;
         CHAR64LONG16* block;
 
@@ -128,7 +124,7 @@ void sha1_init(sha1_context_t *context) {
 
 
 /* Run your data through this. */
-void sha1_append(sha1_context_t *context, const u_int8_t * data, const size_t len) {
+void sha1_append(sha1_context_t *context, const unsigned char * data, const size_t len) {
         size_t i, j;
 
         j = (context->count[0] >> 3) & 63;
@@ -149,18 +145,18 @@ void sha1_append(sha1_context_t *context, const u_int8_t * data, const size_t le
 
 
 /* Add padding and return the message digest. */
-void sha1_finish(sha1_context_t *context, u_int8_t digest[SHA1_DIGEST_SIZE]) {
-        u_int32_t i;
-        u_int8_t  finalcount[8];
+void sha1_finish(sha1_context_t *context, unsigned char digest[SHA1_DIGEST_SIZE]) {
+        unsigned int i;
+        unsigned char  finalcount[8];
 
         for (i = 0; i < 8; i++)
                 finalcount[i] = (unsigned char)((context->count[(i >= 4 ? 0 : 1)] >> ((3-(i & 3)) * 8) ) & 255);  /* Endian independent */
-        sha1_append(context, (u_int8_t *)"\200", 1);
+        sha1_append(context, (unsigned char *)"\200", 1);
         while ((context->count[0] & 504) != 448)
-                sha1_append(context, (u_int8_t *)"\0", 1);
+                sha1_append(context, (unsigned char *)"\0", 1);
         sha1_append(context, finalcount, 8);  /* Should cause a sha1_transform() */
         for (i = 0; i < SHA1_DIGEST_SIZE; i++)
-                digest[i] = (u_int8_t)((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
+                digest[i] = (unsigned char)((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
 
         /* Wipe variables */
         i = 0;

@@ -767,7 +767,7 @@ parse:
 
 void Time_usleep(long u) {
 #ifdef NETBSD
-        // The usleep is broken on NetBSD (at least on version 5.1)
+        // usleep is broken on NetBSD (at least in version 5.1)
         struct timespec t = {u / 1000000, (u % 1000000) * 1000};
         nanosleep(&t, NULL);
 #else

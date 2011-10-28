@@ -56,7 +56,7 @@ int check_nntp(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   sscanf(buf, "%d %*s", &status);
   if(status != 200) {
@@ -74,7 +74,7 @@ int check_nntp(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
 
   sscanf(buf, "%d %*s", &status);
   if(status != 205) {

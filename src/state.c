@@ -24,49 +24,72 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
 
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
+#ifdef HAVE_STDIO_H
+#include <stdio.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
+#ifdef HAVE_ERRNO_H
+#include <errno.h>
+#endif
+
+
+
 #include "monit.h"
 #include "state.h"
 
+// libmonit
+#include "exceptions/IOException.h"
+
 
 /**
- *  Manage service information persistently. Service data is saved to
- *  a state file when monit runs in daemon mode for each poll
- *  cycle. Monit use this file to maintain service data persistently
- *  during reload or restart. The location of the state file may be
- * set from the command line or set in the monitrc file, if not set,
- * the default is ~/.monit.state.
+ * The list of persistent properties:
+ *
+ *    1.) service name + service type
+ *        Monit configuration may change, so the state restore needs to ignore
+ *        the removed services or services which type doesn't match (the
+ *        service name was reused for different check). The current service
+ *        runtime is thus paired with the saved service state by name and type.
+ *
+ *    2.) monitoring state
+ *        Keep the monitoring enabled or disabled on Monit restart. Useful for
+ *        example when Monit is running in active/passive cluster, so the
+ *        service monitoring mode doesn't reset when Monit needs to be reloaded
+ *        and the service won't enter unwanted passive/passive or active/active
+ *        state on multiple hosts. Another example is service which timed out
+ *        due to excessive errors or the monitoring was intentionally disabled
+ *        by admin for maintenance - do not re-enable monitoring on Monit reload.
+ *
+ *    3.) service restart counters
+ *
+ *    4.) inode number and read position for the file check
+ *        Allows to skip the content match test for the content which was checked
+ *        already to suppress duplicate events.
+ *
+ * The data are stored in binary form in the statefile using the following format:
+ *    <MAGIC><VERSION>{<SERVICE_STATE>}+
+ *
+ * When the persistent field needs to be added, update the State_Version along
+ * with State_update() and State_save(). The version allows to recognize the
+ * service state structure and file format.
+ *
+ * The backward compatibility of monitoring state restore is very important if
+ * Monit runs in cluster => keep previous formats compatibility.
  *
  * @file
  */
@@ -75,196 +98,173 @@
 /* ------------------------------------------------------------- Definitions */
 
 
-/**
- * Fields from the Service_T object type, which we are interested in
- * when handling the state.
- */
-typedef struct mystate {
-  char               name[STRLEN];
-  int                mode;
-  int                nstart;
-  int                ncycle;
-  int                monitor;
-  unsigned long long error;
-} State_T;
+/* Extended format version */
+typedef enum {
+        StateVersion0 = 0,
+        StateVersion1
+} State_Version;
 
 
-/* -------------------------------------------------------------- Prototypes */
+/* Format version 0 (Monit <= 5.3) */
+typedef struct mystate0 {
+        char               name[STRLEN];
+        int                mode;                // obsolete since Monit 5.1
+        int                nstart;
+        int                ncycle;
+        int                monitor;
+        unsigned long long error;               // obsolete since Monit 5.0
+} State0_T;
 
 
-static void close_state(FILE *);
-static FILE *open_state(const char *mode);
-static void clone_state(Service_T, State_T *);
-static void update_service_state(Service_T, State_T *);
+/* Extended format version 1 */
+typedef struct mystate1 {
+        char               name[STRLEN];
+        int                type;
+        int                monitor;
+        int                nstart;
+        int                ncycle;
+        union {
+                struct {
+                        unsigned long long st_ino;
+                        unsigned long long readpos;
+                } file;
+        } priv;
+} State1_T;
 
 
-/* ------------------------------------------------------------------ Public */
-
-
-/**
- * Save service state information to the state file
- */
-void State_save() {
-
-  int l= 0;
-  Service_T s;
-  State_T state;
-  FILE *S= NULL;
-  
-  if(! (S= open_state("w")))
-      return;
-
-  l= Util_getNumberOfServices();
-  
-  if(fwrite(&l, 1, sizeof (int), S) != sizeof(int)) {
-    LogError("%s: Unable to save monit state information to '%s'\n",
-	prog, Run.statefile);
-    goto error;
-  }
-  
-  for(s= servicelist; s; s= s->next) {
-    clone_state(s, &state);
-    if(fwrite(&state, 1, sizeof(State_T), S) != sizeof(State_T)) {
-      LogError("%s: An error occured when saving monit state information "
-	  "for the service %s\n", prog, s->name);
-      goto error;
-    }
-  }
-  
-  error:
-  close_state(S);
-}
-
-
-/**
- * Check if we should update current services with persistent state
- * information. The logic is as follows: Iff a state file is present
- * *and* older than the running monit daemon's lock file we have had a
- * crash and should update data from the state file.
- * @return TRUE if the state should be updated otherwise FALSE
- */
-int State_shouldUpdate() {
-  
-  if(file_exist(Run.statefile) && file_exist(Run.pidfile)) {
-    return (file_getTimestamp(Run.pidfile, S_IFREG) >
-	    file_getTimestamp(Run.statefile, S_IFREG));
-  }
-  
-  return FALSE;
-  
-}
-
-
-/**
- * Update the current service list with data from the state file. We
- * do *only* change services found in *both* the monitrc file and in
- * the state file. The algorithm:
- *
- * Assume the control file was changed and a new service (B) was added
- * so the monitrc file now contains the services: A B and C. The
- * running monit daemon only knows the services A and C. Upon restart
- * after a crash the monit daemon first read the monitrc file and
- * creates the service list structure with A B and C. We then read the
- * state file and update the service A and C since they are found in
- * the state file, B is not found in this file and therefore not
- * changed.
- *
- * The same strategy is used if a service was removed, e.g. if the
- * service A was removed from monitrc; when reading the state file,
- * service A is not found in the current service list (the list is
- * always generated from monitrc) and therefore A is simply discarded.
- *
- * Finally, after the monit service state is updated this function
- * writes the new state file.
- */
-void State_update() {
-
-  int i;
-  int l= 0;
-  State_T s;
-  FILE *S= NULL;
-  Service_T service;
-  int has_error= FALSE;
-  
-  if(! (S= open_state("r")))
-      return;
-  
-  errno= 0;
-  if(fread(&l, 1, sizeof (int), S) != sizeof(int)) {
-    LogError("%s: Unable to read monit state information from '%s'\n",
-	prog, Run.statefile);
-    has_error= TRUE;
-    goto error;
-  }
-
-  if(l > 0) {
-    for(i=0; i<l; i++) {
-      if(fread(&s, 1, sizeof(State_T), S) != sizeof(State_T)) {
-	LogError("%s: An error occured when updating monit state information\n",
-	    prog);
-	has_error= TRUE;
-	goto error;
-      }
-      if((service= Util_getService(s.name))) {
-	update_service_state(service, &s);
-      }
-    }
-  }
-
-  error:
-  close_state(S);
-
-  if(!has_error)
-      State_save();
-
-}
+static int file = -1;
 
 
 /* ----------------------------------------------------------------- Private */
 
 
-static FILE *open_state(const char *mode) {
-
-  FILE *S= NULL;
-  
-  ASSERT(Run.statefile);
-
-  umask(MYPIDMASK);
-  
-  if((S= fopen(Run.statefile, mode)) == NULL) {
-    LogError("%s: Cannot open the monit state file '%s' -- %s\n",
-	prog, Run.statefile, STRERROR);
-    
-    return NULL;
-    
-  }
-
-  return S;
-  
+static void update_v0(int services) {
+        for (int i = 0; i < services; i++) {
+                State0_T state;
+                if (read(file, &state, sizeof(state)) != sizeof(state))
+                        THROW(IOException, "Unable to read service state");
+                Service_T service;
+                if ((service = Util_getService(state.name))) {
+                        service->nstart = state.nstart;
+                        service->ncycle = state.ncycle;
+                        if (state.monitor == MONITOR_NOT)
+                                service->monitor = state.monitor;
+                        else if (service->monitor == MONITOR_NOT)
+                                service->monitor = MONITOR_INIT;
+                }
+        }
 }
 
 
-static void close_state(FILE *S) {
-  if(fclose(S) != 0)
-    LogCritical("%s: Cannot close the monit state file '%s' -- %s\n", prog, Run.statefile, STRERROR);
+static void update_v1() {
+        State1_T state;
+        while (read(file, &state, sizeof(state)) == sizeof(state)) {
+                Service_T service;
+                if ((service = Util_getService(state.name)) && service->type == state.type) {
+                        service->nstart = state.nstart;
+                        service->ncycle = state.ncycle;
+                        if (state.monitor == MONITOR_NOT)
+                                service->monitor = state.monitor;
+                        else if (service->monitor == MONITOR_NOT)
+                                service->monitor = MONITOR_INIT;
+                        if (service->type == TYPE_FILE) {
+                                service->inf->priv.file.st_ino = state.priv.file.st_ino;
+                                service->inf->priv.file.readpos = state.priv.file.readpos;
+                        }
+                }
+        }
 }
 
 
-static void clone_state(Service_T service, State_T *state) {
-  memset(state, 0, sizeof(State_T));
-  
-  strncpy(state->name, service->name, sizeof(state->name) - 1);
-  state->name[sizeof(state->name) - 1] = 0;
-  state->nstart= service->nstart;
-  state->ncycle= service->ncycle;
-  state->monitor= service->monitor & ~MONITOR_WAITING;
+/* ------------------------------------------------------------------ Public */
+
+
+int State_open() {
+        State_close();
+        if ((file = open(Run.statefile, O_RDWR | O_CREAT, 0600)) == -1) {
+                LogError("Cannot open for write -- %s\n", STRERROR);
+                return FALSE;
+        }
+        atexit(State_close);
+        return TRUE;
 }
 
 
-static void update_service_state(Service_T service, State_T *state) {
-  service->nstart= state->nstart;
-  service->ncycle= state->ncycle;
-  /* Keep services in initializing state unless the monitoring should be disabled */
-  if (state->monitor == MONITOR_NOT)
-        service->monitor= state->monitor;
+void State_close() {
+        if (file != -1) {
+                if (close(file) == -1)
+                        LogError("State file '%s': close error -- %s\n", Run.statefile, STRERROR);
+                else
+                        file = -1;
+        }
 }
+
+
+void State_save() {
+        TRY
+        {
+                if (ftruncate(file, 0L) == -1)
+                        THROW(IOException, "Unable to truncate");
+                if (lseek(file, 0L, SEEK_SET) == -1)
+                        THROW(IOException, "Unable to seek");
+                int magic = 0;
+                if (write(file, &magic, sizeof(magic)) != sizeof(magic))
+                        THROW(IOException, "Unable to write magic");
+                // Save always using the latest format version
+                int version = StateVersion1;
+                if (write(file, &version, sizeof(version)) != sizeof(version))
+                        THROW(IOException, "Unable to write format version");
+                for (Service_T service = servicelist; service; service = service->next) {
+                        State1_T state;
+                        memset(&state, 0, sizeof(state));
+                        snprintf(state.name, sizeof(state.name), "%s", service->name);
+                        state.type = service->type;
+                        state.monitor = service->monitor & ~MONITOR_WAITING;
+                        state.nstart = service->nstart;
+                        state.ncycle = service->ncycle;
+                        if (service->type == TYPE_FILE) {
+                                state.priv.file.st_ino = service->inf->priv.file.st_ino;
+                                state.priv.file.readpos = service->inf->priv.file.readpos;
+                        }
+                        if (write(file, &state, sizeof(state)) != sizeof(state))
+                                THROW(IOException, "Unable to write service state");
+                }
+        }
+        ELSE
+        {
+                LogError("State file '%s': %s\n", Run.statefile, Exception_frame.message);
+        }
+        END_TRY;
+}
+
+
+void State_update() {
+        TRY
+        {
+                if (lseek(file, 0L, SEEK_SET) == -1)
+                        THROW(IOException, "Unable to seek");
+                int magic;
+                if (read(file, &magic, sizeof(magic)) != sizeof(magic))
+                        THROW(IOException, "Unable to read magic");
+                if (magic > 0) {
+                        // The statefile format of Monit <= 5.3, the magic is number of services, followed by State0_T structures
+                        update_v0(magic);
+                } else {
+                        // The extended statefile format (Monit >= 5.4)
+                        int version;
+                        if (read(file, &version, sizeof(version)) != sizeof(version))
+                                THROW(IOException, "Unable to read version");
+                        // Currently the extended format has only one version, additional versions can be added here
+                        if (version == StateVersion1)
+                                update_v1();
+                        else
+                                LogWarning("State file '%s': incompatible version %d\n", Run.statefile, version);
+                }
+        }
+        ELSE
+        {
+                LogError("State file '%s': %s\n", Run.statefile, Exception_frame.message);
+        }
+        END_TRY;
+}
+

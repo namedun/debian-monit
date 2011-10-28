@@ -193,7 +193,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     return FALSE;
   }
 
-  procs = xcalloc(sizeof(struct procentry64), treesize);
+  procs = CALLOC(sizeof(struct procentry64), treesize);
 
   firstproc = 0;
   if ((treesize = getprocs64(procs, sizeof(struct procentry64), NULL, 0, &firstproc, treesize)) < 0) {
@@ -202,7 +202,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     return FALSE;
   }
 
-  pt = xcalloc(sizeof(ProcessTree_T), treesize);
+  pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   for (i = 0; i < treesize; i++) {
     int fd;
@@ -236,7 +236,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     }
     if (close(fd) < 0)
       LogError("%s: Socket close failed -- %s\n", prog, STRERROR);
-    pt[i].cmdline = (ps.pr_psargs && *ps.pr_psargs) ? xstrdup(ps.pr_psargs) : xstrdup(procs[i].pi_comm);
+    pt[i].cmdline = (ps.pr_psargs && *ps.pr_psargs) ? Str_dup(ps.pr_psargs) : Str_dup(procs[i].pi_comm);
   }
 
   FREE(procs);

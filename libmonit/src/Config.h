@@ -88,17 +88,19 @@
 /* ------------------------------------------------------ Type definitions */
 
 
+#if !defined(SOLARIS) && !defined(AIX)
 /**
  * The internal 8-bit char type
  */
 typedef unsigned char uchar_t;
+
 
 /**
  * The internal 32 bits integer type
  */
 typedef  unsigned int uint32_t;
 
-#if !defined(SOLARIS) && !defined(AIX)
+
 /**
  * The internal boolean integer type
  */

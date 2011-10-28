@@ -39,11 +39,6 @@
 #include "monit.h"
 #include "base64.h"
 
-/* Private prototypes */
-static int is_base64(char c);
-static char encode(unsigned char u);
-static unsigned char decode(char c);
-
 
 /**
  *  Implementation of base64 encoding/decoding. 
@@ -52,9 +47,58 @@ static unsigned char decode(char c);
  */
 
 
+/* ----------------------------------------------------------------- Private */
+
+
+/**
+ * Base64 encode one byte
+ */
+static char encode(unsigned char u) {
+        
+        if(u < 26)  return 'A'+u;
+        if(u < 52)  return 'a'+(u-26);
+        if(u < 62)  return '0'+(u-52);
+        if(u == 62) return '+';
+        
+        return '/';
+        
+}
+
+
+/**
+ * Decode a base64 character
+ */
+static unsigned char decode(char c) {
+        
+        if(c >= 'A' && c <= 'Z') return(c - 'A');
+        if(c >= 'a' && c <= 'z') return(c - 'a' + 26);
+        if(c >= '0' && c <= '9') return(c - '0' + 52);
+        if(c == '+')             return 62;
+        
+        return 63;
+        
+}
+
+
+/**
+ * Return TRUE if 'c' is a valid base64 character, otherwise FALSE
+ */
+static int is_base64(char c) {
+        
+        if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+           (c >= '0' && c <= '9') || (c == '+')             ||
+           (c == '/')             || (c == '=')) {
+                
+                return TRUE;
+                
+        }
+        
+        return FALSE;
+        
+}
+
 
 /* ------------------------------------------------------------------ Public */
-
 
 
 /**
@@ -75,7 +119,7 @@ char *encode_base64(size_t size, unsigned char *src) {
   if(!size)
     size= strlen((char *)src);
     
-  out= xcalloc(sizeof(char), size*4/3+4);
+  out= CALLOC(sizeof(char), size*4/3+4);
 
   p= out;
     
@@ -133,7 +177,7 @@ size_t decode_base64(unsigned char *dest, const char *src) {
   
     unsigned char *p= dest;
     size_t k, l = strlen(src)+1;
-    unsigned char *buf= xcalloc(sizeof(unsigned char), l);
+    unsigned char *buf= CALLOC(1, l);
 
     
     /* Ignore non base64 chars as per the POSIX standard */
@@ -202,56 +246,3 @@ size_t decode_base64(unsigned char *dest, const char *src) {
   return FALSE;
   
 }
-
-
-/* ----------------------------------------------------------------- Private */
-
-
-/**
- * Base64 encode one byte
- */
-static char encode(unsigned char u) {
-
-  if(u < 26)  return 'A'+u;
-  if(u < 52)  return 'a'+(u-26);
-  if(u < 62)  return '0'+(u-52);
-  if(u == 62) return '+';
-  
-  return '/';
-
-}
-
-
-/**
- * Decode a base64 character
- */
-static unsigned char decode(char c) {
-  
-  if(c >= 'A' && c <= 'Z') return(c - 'A');
-  if(c >= 'a' && c <= 'z') return(c - 'a' + 26);
-  if(c >= '0' && c <= '9') return(c - '0' + 52);
-  if(c == '+')             return 62;
-  
-  return 63;
-  
-}
-
-
-/**
- * Return TRUE if 'c' is a valid base64 character, otherwise FALSE
- */
-static int is_base64(char c) {
-
-  if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-     (c >= '0' && c <= '9') || (c == '+')             ||
-     (c == '/')             || (c == '=')) {
-    
-    return TRUE;
-    
-  }
-  
-  return FALSE;
-
-}
-
-

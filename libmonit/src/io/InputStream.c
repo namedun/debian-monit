@@ -181,7 +181,7 @@ int InputStream_readBytes(T S, void *b, int size) {
         assert(S);
         assert(b);
         uchar_t *p = (uchar_t*)b;
-        for (int c = 0; (size-- > 0) && ((c = read_byte(S)) >= 0);)
+        for (int c = 0; (size-- > 0) && ((c = read_byte(S)) != -1);)
                 *p++ = c;
         return  S->isclosed ? -1 : (int)(p - (uchar_t*)b);
 }

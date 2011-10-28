@@ -32,9 +32,6 @@
  * An <b>OutputStream</b> can be used for writing text or binary
  * data (8 bits) to a descriptor. 
  *
- * An OutputStream object can be obtained by calling
- * Socket_getOutputStream()
- *
  * The method OutputStream_isClosed() can be used to test the
  * underlying descriptor for an error, a write timeout or for EOF.
  * 

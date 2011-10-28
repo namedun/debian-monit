@@ -1,7 +1,5 @@
 /*
-* Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
-* Copyright (C) 2009 Pierrick Grasland <pierrick.grasland@nexcom.fr>
-* Copyright (C) 2009 Bret McDanel, <trixter AT 0xdecafbad.com>
+ * Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,7 +84,9 @@
  *  The status code must be between 200 and 300
  *  Return TRUE if the status code is OK, otherwise FALSE
  * 
- *  In this current version, redirection is not supported. 
+ *  In this current version, redirection is not supported. This code is 
+ * a rewrite of a patch we recieved from Pierrick Grasland and Bret McDanel
+ * to check the SIP protocol.
  *
  *  @file
  */
@@ -175,7 +175,7 @@ int check_sip(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
 
   DEBUG("Response from SIP server: %s\n", buf);
 

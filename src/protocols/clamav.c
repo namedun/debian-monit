@@ -65,7 +65,7 @@ int check_clamav(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
   
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "CLAMAV error: %s\n", buf);

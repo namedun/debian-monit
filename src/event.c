@@ -140,18 +140,16 @@ void Event_post(Service_T service, long id, short state, EventAction_T action, c
     NEW(e);
     e->id = id;
     gettimeofday(&e->collected, NULL);
-    e->source = xstrdup(service->name);
+    e->source = Str_dup(service->name);
     e->mode = service->mode;
     e->type = service->type;
     e->state = STATE_INIT;
     e->state_map = 1;
     e->action = action;
     if (s) {
-      long l;
       va_list ap;
-
       va_start(ap, s);
-      e->message = Util_formatString(s, ap, &l);
+      e->message = Str_vcat(s, ap);
       va_end(ap);
     }
     service->eventlist = e;
@@ -170,12 +168,10 @@ void Event_post(Service_T service, long id, short state, EventAction_T action, c
 
         /* Update the message */
         if (s) {
-          long l;
           va_list ap;
-
           FREE(e->message);
           va_start(ap, s);
-          e->message = Util_formatString(s, ap, &l);
+          e->message = Str_vcat(s, ap);
           va_end(ap);
         }
 	break;
@@ -197,18 +193,16 @@ void Event_post(Service_T service, long id, short state, EventAction_T action, c
       NEW(e);
       e->id = id;
       gettimeofday(&e->collected, NULL);
-      e->source = xstrdup(service->name);
+      e->source = Str_dup(service->name);
       e->mode = service->mode;
       e->type = service->type;
       e->state = STATE_INIT;
       e->state_map = 1;
       e->action = action;
       if (s) {
-        long l;
         va_list ap;
-
         va_start(ap, s);
-        e->message = Util_formatString(s, ap, &l);
+        e->message = Str_vcat(s, ap);
         va_end(ap);
       }
       e->next = service->eventlist;

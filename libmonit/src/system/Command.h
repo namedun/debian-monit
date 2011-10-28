@@ -65,9 +65,9 @@ extern const char *Command_Path;
  * list of arguments <em style="color:red">must</em> be terminated by a
  * NULL pointer. Example:
  * <pre>
- * Command_setCommand("/bin/ls", NULL)
- * Command_setCommand("/bin/ls", "-lrt", NULL)
- * Command_setCommand("/bin/sh", "-c", "ps -aef|egrep mmonit", NULL)
+ * Command_new("/bin/ls", NULL)
+ * Command_new("/bin/ls", "-lrt", NULL)
+ * Command_new("/bin/sh", "-c", "ps -aef|egrep mmonit", NULL)
  * </pre>
  * @param path A string containing the path to the program to execute
  * @param arg0 The first argument in a sequence of arguments. The last value
@@ -172,7 +172,7 @@ void Command_setEnv(T C, const char *name, const char *value);
  * with ';'. Example: <code>PATH=/usr/bin; SHELL=/bin/bash;</code>
  * @see Command_setEnv()
  */
-void Command_setEnvString(T C, const char *env, ...);
+void Command_vSetEnv(T C, const char *env, ...);
 
 
 /**

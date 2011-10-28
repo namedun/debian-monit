@@ -89,7 +89,7 @@ int check_dwp(Socket_T socket) {
     return FALSE;
   }
 
-  Util_chomp(buf);
+  Str_chomp(buf);
 
   n= sscanf(buf, "%255s %d", proto, &status);
   if(n!=2 || (status >= 400)) {

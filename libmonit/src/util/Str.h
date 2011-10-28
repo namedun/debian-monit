@@ -89,9 +89,9 @@ char *Str_rtrim(char *s);
 
 
 /**
- * Remove any enclosing quotes ["'] from the string
+ * Remove any enclosing quotes ["'] and white-space from the string
  * @param s A string
- * @return s with any enclosed quotes removed
+ * @return s with any enclosed quotes and white-space removed
  */
 char *Str_unquote(char *s);
 
@@ -113,32 +113,14 @@ char *Str_toUpper(char *s);
 
 
 /**
- * Converts a number to a string. The given <code>str</code> buffer
- * is returned with the string representation of <code>l</code>.
+ * Converts a number to a string. The given <code>s</code> buffer
+ * is returned with the string representation of <code>n</code>.
  * @param n The number (long) to convert to a string
  * @param s A buffer to write the string representation of <code>n</code>
  * into. The buffer must be of size 43 bytes or more
- * @return A pointer to <code>str</code>
+ * @return A pointer to <code>s</code>
  */
 char *Str_ntos(long n, char s[43]);
-
-
-/**
- * Converts <code>s</code> to only consists of alfa-num chars.
- * Example: "Ab_cD4#2E-F&G?" -> "AbcD42EFG"
- * @param s A string
- * @return s converted to alfa-num chars
- */
-char *Str_toalnum(char *s);
-
-
-/**
- * Returns true if <code>s</code> only consists of alfa-num chars,
- * otherwise false
- * @param s A string
- * @return true if <code>s</code> consists of only alfa-num chars
- */
-int Str_isalnum(const char *s);
 
 
 /**
@@ -175,19 +157,20 @@ double Str_parseDouble(const char *s);
  * Replace all occurrences of the <code>old</code> char in
  * <code>s</code> with the <code>new</code> char.
  * @param s A string
- * @param old The old char
- * @param new The new char
+ * @param o The old char
+ * @param n The new char
  * @return s where all occurrence of old are replaced with new
  */
-char *Str_replaceChar(char *s, char old, char new);
+char *Str_replaceChar(char *s, char o, char n);
 
 
 /**
- * Returns true if <i>a</i> starts with <i>b</i>. 
- * The test is <i>case-sensitive</i> and compares the 
- * two strings byte by byte. <code>b</code> is assumed to be the
- * substring of <code>a</code>. This means that if <code>a</code>
- * is shorter than <code>b</code>, this method returns false
+ * Returns true if <i>a</i> starts with <i>b</i>. The test is 
+ * <i>case-insensitive</i> but depends on that all characters
+ * in the two strings can be translated in the current locale. 
+ * <code>b</code> is assumed to be the substring of <code>a</code>.
+ * This means that if <code>a</code> is shorter than <code>b</code>, 
+ * this method returns false
  * @param a The string to search for b in
  * @param b The sub-string to test a against
  * @return true if a starts with b, otherwise false
@@ -197,7 +180,8 @@ int Str_startsWith(const char *a, const char *b);
 
 /**
  * Returns true if <i>a</i> ends with <i>b</i>. The test is 
- * <i>case-sensitive</i> and compares the two strings byte by byte
+ * <i>case-insensitive</i> but depends on that all characters
+ * in the two strings can be translated in the current locale.
  * @param a The string to search for b in
  * @param b The sub-string to test a against
  * @return true if a ends with b, otherwise false

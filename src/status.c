@@ -103,7 +103,7 @@ int status(char *level) {
   while(socket_readln(sock, buf, LINE)) {
     if(*buf == '\n' || *buf == '\r')
       break;
-    if(Util_startsWith(buf, "HTTP/1.0 200"))
+    if(Str_startsWith(buf, "HTTP/1.0 200"))
       status= TRUE;
   }
 

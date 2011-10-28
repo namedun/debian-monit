@@ -55,6 +55,7 @@
 
 // libmonit
 #include "system/Time.h"
+#include "util/Str.h"
 
 
 /**
@@ -219,31 +220,31 @@ static void substitute(Mail_T *m, Event_T e) {
 static void copy_mail(Mail_T n, Mail_T o) {
   ASSERT(n && o);
   
-  n->to= xstrdup(o->to);
+  n->to= Str_dup(o->to);
   n->from=
       o->from?
-      xstrdup(o->from):
+      Str_dup(o->from):
       Run.MailFormat.from?
-      xstrdup(Run.MailFormat.from):
-      xstrdup(ALERT_FROM);
+      Str_dup(Run.MailFormat.from):
+      Str_dup(ALERT_FROM);
   n->replyto = 
       o->replyto?
-      xstrdup(o->replyto):
+      Str_dup(o->replyto):
       Run.MailFormat.replyto?
-      xstrdup(Run.MailFormat.replyto):
+      Str_dup(Run.MailFormat.replyto):
       NULL;
   n->subject=
       o->subject?
-      xstrdup(o->subject):
+      Str_dup(o->subject):
       Run.MailFormat.subject?
-      xstrdup(Run.MailFormat.subject):
-      xstrdup(ALERT_SUBJECT);
+      Str_dup(Run.MailFormat.subject):
+      Str_dup(ALERT_SUBJECT);
   n->message=
       o->message?
-      xstrdup(o->message):
+      Str_dup(o->message):
       Run.MailFormat.message?
-      xstrdup(Run.MailFormat.message):
-      xstrdup(ALERT_MESSAGE);
+      Str_dup(Run.MailFormat.message):
+      Str_dup(ALERT_MESSAGE);
 }
 
 

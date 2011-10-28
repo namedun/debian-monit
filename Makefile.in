@@ -66,9 +66,9 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/sha1.$(OBJEXT) src/signal.$(OBJEXT) src/socket.$(OBJEXT) \
 	src/spawn.$(OBJEXT) src/ssl.$(OBJEXT) src/state.$(OBJEXT) \
 	src/status.$(OBJEXT) src/util.$(OBJEXT) src/validate.$(OBJEXT) \
-	src/xmalloc.$(OBJEXT) src/xml.$(OBJEXT) \
-	src/http/base64.$(OBJEXT) src/http/cervlet.$(OBJEXT) \
-	src/http/engine.$(OBJEXT) src/http/processor.$(OBJEXT) \
+	src/xml.$(OBJEXT) src/http/base64.$(OBJEXT) \
+	src/http/cervlet.$(OBJEXT) src/http/engine.$(OBJEXT) \
+	src/http/processor.$(OBJEXT) \
 	src/protocols/apache_status.$(OBJEXT) \
 	src/protocols/clamav.$(OBJEXT) src/protocols/default.$(OBJEXT) \
 	src/protocols/dns.$(OBJEXT) src/protocols/dwp.$(OBJEXT) \
@@ -338,7 +338,6 @@ monit_SOURCES = src/y.tab.c \
 		  src/status.c \
 		  src/util.c \
 		  src/validate.c \
-		  src/xmalloc.c \
 		  src/xml.c \
 		  src/http/base64.c \
 		  src/http/cervlet.c \
@@ -512,7 +511,6 @@ src/state.$(OBJEXT): src/$(am__dirstamp)
 src/status.$(OBJEXT): src/$(am__dirstamp)
 src/util.$(OBJEXT): src/$(am__dirstamp)
 src/validate.$(OBJEXT): src/$(am__dirstamp)
-src/xmalloc.$(OBJEXT): src/$(am__dirstamp)
 src/xml.$(OBJEXT): src/$(am__dirstamp)
 src/http/$(am__dirstamp):
 	@$(MKDIR_P) src/http
@@ -630,7 +628,6 @@ mostlyclean-compile:
 	-rm -f src/status.$(OBJEXT)
 	-rm -f src/util.$(OBJEXT)
 	-rm -f src/validate.$(OBJEXT)
-	-rm -f src/xmalloc.$(OBJEXT)
 	-rm -f src/xml.$(OBJEXT)
 	-rm -f src/y.tab.$(OBJEXT)
 

@@ -118,9 +118,6 @@ int check_memcache(Socket_T socket) {
       socket_setError(socket, "MEMCACHELEN: Unknow response code %u -- error occured\n", status);
       return FALSE;
   }
-
-  return FALSE;
-    
 }
 
  

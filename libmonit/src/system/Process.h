@@ -40,8 +40,9 @@
  * Process_getInputStream(), and Process_getErrorStream(). Your program can 
  * then use these streams to feed input to and get output from the sub-process.
  * 
- * The sub-process continues executing until either Process_free() is called
- * or it is terminated with wither Process_terminate() or Process_kill().
+ * The sub-process continues executing until it stops or until either 
+ * Process_free() is called or it is terminated with either Process_terminate()
+ * or Process_kill().
  *
  * <h4>Environment</h4>
  * The Process does <em>not</em> inherit the environment from the calling 
