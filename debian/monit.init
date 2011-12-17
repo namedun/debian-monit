@@ -20,7 +20,7 @@ set -e
 
 . /lib/lsb/init-functions
 
-DAEMON=/usr/sbin/monit
+DAEMON=/usr/bin/monit
 CONFIG="/etc/monit/monitrc"
 DELAY="/etc/monit/monit_delay"
 NAME=monit
