@@ -1,4 +1,4 @@
 README
 doc/PLATFORMS
 debian/README.Debian
-contrib
+contrib/monit.upstart
