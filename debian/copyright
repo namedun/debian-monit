@@ -38,7 +38,9 @@ License: GPL-3+
  /usr/share/common-licenses/GPL-3.
 
 Files: debian/*
-Copyright: 2010-2011, Sergey B Kirpichev <skirpichev@gmail.com>
+Copyright: 2002-2004, Fredrik Steen <stone@debian.org>
+           2005-2010, Stefan Alfredsson <alfs@debian.org>
+           2011, Sergey B Kirpichev <skirpichev@gmail.com>
 License: GPL-3+
  On Debian GNU/Linux systems, the complete text of the GNU General
  Public License (GPL) version 3 can be found at
