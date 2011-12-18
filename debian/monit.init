@@ -1,4 +1,5 @@
 #!/bin/sh
+
 ### BEGIN INIT INFO
 # Provides:          monit
 # Required-Start:    $remote_fs
@@ -14,12 +15,6 @@
 #                    and repair and can execute meaningful causal actions
 #                    in error situations.
 ### END INIT INFO
-
-# Authors: Fredrik Steen <stone@debian.org>
-#          Stefan Alfredsson <alfs@debian.org>
-#          Sergey B Kirpichev <skirpichev@gmail.com>
-#
-# initscript for monit service monitor
 
 set -e
 
@@ -68,7 +63,6 @@ fi
 MONIT_OPTS="-c $CONFIG $MONIT_OPTS"
 
 monit_not_configured () {
-  printf "monit won't be started/stopped\n\tunless it's configured\n"
   if [ "$1" != "stop" ]
   then
     printf "\tplease configure $NAME and then edit /etc/default/$NAME\n"
@@ -130,7 +124,7 @@ case "$1" in
     if start-stop-daemon --start --quiet --oknodo \
                          --pidfile $PID --exec $DAEMON \
                          -- $MONIT_OPTS > /dev/null 2>&1
-	then
+    then
       log_end_msg 0
     else
       log_end_msg 1
@@ -152,7 +146,7 @@ case "$1" in
     if start-stop-daemon --stop --signal 1 --quiet \
                                 --oknodo --pidfile $PID \
                                 --exec $DAEMON -- $MONIT_OPTS
-	then
+    then
       log_end_msg 0
     else
       log_end_msg 1
