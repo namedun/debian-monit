@@ -1,0 +1,29 @@
+Description: Fix binary path in monit.upstart example.
+Author: Sergey B Kirpichev <skirpichev@gmail.com>
+Forwarded: not-needed
+
+---
+ contrib/monit.upstart |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/contrib/monit.upstart
++++ b/contrib/monit.upstart
+@@ -12,7 +12,7 @@
+ #   initctl reload-configuration
+ #
+ # You can manually start and stop monit like this:
+-# 
++#
+ # start monit
+ # stop monit
+ #
+@@ -29,7 +29,7 @@
+ expect daemon
+ respawn
+ 
+-exec /usr/local/bin/monit -c /etc/monitrc
++exec /usr/bin/monit -c /etc/monit/monitrc
+ 
+-pre-stop exec /usr/local/bin/monit -c /etc/monitrc quit
++pre-stop exec /usr/bin/monit -c /etc/monit/monitrc quit
+ 

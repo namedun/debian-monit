@@ -1,8 +1,24 @@
-monit (1:5.3.1-1~bpo60+1) squeeze-backports; urgency=low
+monit (1:5.3.1-2) unstable; urgency=low
 
-  * Rebuild for squeeze-backports.
+  * Install monit binary to /usr/bin instead of /usr/sbin
+  * Don't install contrib/packages/* in docs
+  * Added LSB Description to init-script
+  * Removed override_dh_auto_install
+  * Install upstart conf in doc/package/examples
+  * Apply 07_spelling.patch
+  * Added override for lintian spelling-error-in-binary usr/bin/monit
+  * Droped --with-ssl-lib-dir switch from ./configure arguments
+  * Added missing legacy debian/* copyrights
+  * Apply 08_hide_low_priority_info_from_stderr.patch: Hide from stderr
+    output from LogInfo and LogDebug.
+  * Removed the state and id files on purge
+  * Cleanup for init script
+  * Introduce NEWS.Debian file, document binary path transition
+  * Removed deprecated stuff about /etc/monit/monit_delay from
+    README.Debian
+  * Fixed upstream license information in debian/copyright
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 29 Oct 2011 01:42:38 +0400
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 20 Dec 2011 00:50:07 +0400
 
 monit (1:5.3.1-1) unstable; urgency=low
 
