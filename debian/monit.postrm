@@ -8,6 +8,8 @@ case "$1" in
   purge)
     # Remove logfile:
     rm -f /var/log/monit.log
+    # Remove the state and id files (default location):
+    rm -f /var/lib/monit/state /var/lib/monit/id
 
     # Remove monit from /etc/aliases:
     if [ -f /etc/aliases ] || [ -L /etc/aliases ]
