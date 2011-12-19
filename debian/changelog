@@ -1,18 +1,24 @@
-monit (1:5.3.1-2) UNRELEASED; urgency=low
+monit (1:5.3.1-2) unstable; urgency=low
 
   * Install monit binary to /usr/bin instead of /usr/sbin
   * Don't install contrib/packages/* in docs
-  * Add LSB Description to init-script
+  * Added LSB Description to init-script
   * Removed override_dh_auto_install
   * Install upstart conf in doc/package/examples
   * Apply 07_spelling.patch
-  * Add override for lintian spelling-error-in-binary usr/bin/monit
-    dependant dependent
-  * Drop --with-ssl-lib-dir switch from ./configure arguments
-  * Add missing legacy debian/* copyrights
-  * Cleanup init script
+  * Added override for lintian spelling-error-in-binary usr/bin/monit
+  * Droped --with-ssl-lib-dir switch from ./configure arguments
+  * Added missing legacy debian/* copyrights
+  * Apply 08_hide_low_priority_info_from_stderr.patch: Hide from stderr
+    output from LogInfo and LogDebug.
+  * Removed the state and id files on purge
+  * Cleanup for init script
+  * Introduce NEWS.Debian file, document binary path transition
+  * Removed deprecated stuff about /etc/monit/monit_delay from
+    README.Debian
+  * Fixed upstream license information in debian/copyright
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 19 Dec 2011 12:53:26 +0400
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 20 Dec 2011 00:50:07 +0400
 
 monit (1:5.3.1-1) unstable; urgency=low
 
