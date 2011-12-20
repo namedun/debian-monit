@@ -1678,17 +1678,48 @@ int Util_checkCredentials(char *uname, char *outside) {
 
 
 void Util_resetInfo(Service_T s) {
-        memset(s->inf, 0, sizeof *(s->inf));
+        s->inf->st_mode = 0;
+        s->inf->st_uid = 0;
+        s->inf->st_gid = 0;
+        s->inf->timestamp = 0;
         switch (s->type) {
-                case TYPE_PROCESS:
-                        s->inf->priv.process._pid  = -1;
-                        s->inf->priv.process._ppid = -1;
-                        s->inf->priv.process.pid   = -1;
-                        s->inf->priv.process.ppid  = -1;
-                        break;
                 case TYPE_FILESYSTEM:
+                        s->inf->priv.filesystem.f_bsize = 0L;
+                        s->inf->priv.filesystem.f_blocks = 0L;
+                        s->inf->priv.filesystem.f_blocksfree = 0L;
+                        s->inf->priv.filesystem.f_blocksfreetotal = 0L;
+                        s->inf->priv.filesystem.f_files = 0L;
+                        s->inf->priv.filesystem.f_filesfree = 0L;
+                        FREE(s->inf->priv.filesystem.mntpath);
+                        s->inf->priv.filesystem.inode_percent = 0;
+                        s->inf->priv.filesystem.inode_total = 0L;
+                        s->inf->priv.filesystem.space_percent = 0;
+                        s->inf->priv.filesystem.space_total = 0L;
                         s->inf->priv.filesystem._flags = -1;
-                        s->inf->priv.filesystem.flags  = -1;
+                        s->inf->priv.filesystem.flags = -1;
+                        break;
+                case TYPE_FILE:
+                        // persistent: st_ino, readpos
+                        s->inf->priv.file.st_size  = 0;
+                        s->inf->priv.file.st_ino_prev = 0;
+                        *s->inf->priv.file.cs_sum = 0;
+                        break;
+                case TYPE_PROCESS:
+                        s->inf->priv.process._pid = -1;
+                        s->inf->priv.process._ppid = -1;
+                        s->inf->priv.process.pid = -1;
+                        s->inf->priv.process.ppid = -1;
+                        s->inf->priv.process.status_flag = 0;
+                        s->inf->priv.process.children = 0;
+                        s->inf->priv.process.mem_kbyte = 0L;
+                        s->inf->priv.process.total_mem_kbyte = 0L;
+                        s->inf->priv.process.mem_percent = 0;
+                        s->inf->priv.process.total_mem_percent = 0;
+                        s->inf->priv.process.cpu_percent = 0;
+                        s->inf->priv.process.total_cpu_percent = 0;
+                        s->inf->priv.process.uptime = 0;
+                        break;
+                default:
                         break;
         }
 }
@@ -1847,7 +1878,7 @@ int Util_getfqdnhostname(char *buf, unsigned len) {
         hints.ai_socktype = SOCK_STREAM;
         hints.ai_flags = AI_CANONNAME;
         if ((status = getaddrinfo(hostname, NULL, &hints, &info))) {
-                LogError("%s: Cannot translate '%s' to FQDN name -- %s\n", prog, hostname, gai_strerror(status));
+                LogError("%s: Cannot translate '%s' to FQDN name -- %s\n", prog, hostname, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
                 snprintf(buf, len, "%s", hostname); // fallback to gethostname()
         } else
                 snprintf(buf, len, "%s", info->ai_canonname);

@@ -22,7 +22,7 @@
 
 static void onExec(Process_T P) {
         assert(P);
-        char buf[STRLEN + 1];
+        char buf[STRLEN];
         // Child process info
         printf("\tSubprocess ((pid=%d) created with cwd (%s)\n", Process_getPid(P), Process_getDir(P));
         InputStream_T in = Process_getInputStream(P);

@@ -147,7 +147,7 @@ int update_process_data(Service_T s, ProcessTree_T *pt, int treesize, pid_t pid)
  * Updates the system wide statistic
  * @return TRUE if successful, otherwise FALSE
  */
-int update_system_load(ProcessTree_T *pt, int treesize) {
+int update_system_load() {
 
   if (Run.doprocess) {
 
@@ -280,7 +280,6 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
   }
 
   fillprocesstree(pt, root);
-  update_system_load(*pt_r, *size_r);
 
   return *size_r;
 }

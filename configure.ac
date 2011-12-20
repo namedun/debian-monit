@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.3.1], [monit-general@nongnu.org])
+AC_INIT([monit], [5.3.2], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -121,7 +121,7 @@ AC_CHECK_HEADERS([ \
 	kvm.h \
 	paths.h \
 	kstat.h \
-	libperfstat.h \
+	sys/protosw.h \
 	limits.h \
 	loadavg.h \
 	locale.h \
@@ -183,6 +183,17 @@ AC_CHECK_HEADERS([ \
         uvm/uvm_extern.h \
         vm/vm.h \
 	])
+
+AC_CHECK_HEADERS([ \
+	libperfstat.h \
+        ],
+        [],
+        [],
+        [
+         #ifdef HAVE_SYS_PROTOSW_H
+         #include <sys/protosw.h>
+         #endif
+        ])
 
 AC_CHECK_HEADERS([ \
 	netinet/ip.h \
@@ -708,7 +719,7 @@ then
             [
                 if test -z "$sslincldir"; then	
                     dnl Search default locations of SSL includes
-                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw /opt/csw; do
+                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw /opt/csw /opt/freeware; do
                         for dir in "$maindir/include"\
                                    "$maindir/include/openssl"\ 
                                    "$maindir/include/ssl"\
@@ -747,7 +758,8 @@ then
                                    /var \
                                    /opt \
                                    /usr/sfw \
-                                   /opt/csw; do
+                                   /opt/csw \
+                                   /opt/freeware; do
                         for dir in $maindir \
                                    $maindir/openssl \
                                    $maindir/ssl \

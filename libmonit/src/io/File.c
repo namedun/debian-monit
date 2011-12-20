@@ -109,6 +109,11 @@ int File_close(int fd) {
 }
 
 
+int File_rewind(int fd) {
+        return (lseek(fd, 0, SEEK_SET) >=0);
+}
+
+
 time_t File_mtime(const char *file) {
         if (file) {
                 struct stat buf;

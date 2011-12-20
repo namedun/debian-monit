@@ -283,6 +283,9 @@
 /* Define to 1 if you have the <sys/proc.h> header file. */
 #undef HAVE_SYS_PROC_H
 
+/* Define to 1 if you have the <sys/protosw.h> header file. */
+#undef HAVE_SYS_PROTOSW_H
+
 /* Define to 1 if you have the <sys/pstat.h> header file. */
 #undef HAVE_SYS_PSTAT_H
 

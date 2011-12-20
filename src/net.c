@@ -440,9 +440,7 @@ int create_unix_socket(const char *pathname, int timeout) {
  * @return The socket ready for accept, or -1 if an error occured.
  */
 int create_server_socket(int port, int backlog, const char *bindAddr) {
-  int s;
-  int status;
-  int flag = 1;
+  int s, status, flag = 1;
   struct sockaddr_in myaddr;
 
   if((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -460,7 +458,7 @@ int create_server_socket(int port, int backlog, const char *bindAddr) {
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
     if((status = getaddrinfo(bindAddr, NULL, &hints, &result)) != 0) {
-      LogError("%s: Cannot translate '%s' to IP address -- %s\n", prog, bindAddr, gai_strerror(status));
+      LogError("%s: Cannot translate '%s' to IP address -- %s\n", prog, bindAddr, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
       goto error;
     }
     sa = (struct sockaddr_in *)result->ai_addr;
@@ -724,7 +722,7 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   struct icmp *icmpin = NULL;
   struct icmp *icmpout = NULL;
   uint16_t id_in, id_out, seq_in;
-  int r, i, s, n = 0, read_timeout;
+  int r, i, s, n = 0, status, read_timeout;
   struct timeval t_in, t_out;
   char buf[STRLEN];
   double response = -1.;
@@ -738,8 +736,8 @@ double icmp_echo(const char *hostname, int timeout, int count) {
 
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET;
-  if (getaddrinfo(hostname, NULL, &hints, &result) != 0) {
-    LogError("ICMP echo for %s -- getaddrinfo failed: %s\n", hostname, STRERROR);
+  if ((status = getaddrinfo(hostname, NULL, &hints, &result)) != 0) {
+    LogError("ICMP echo for %s -- getaddrinfo failed: %s\n", hostname, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
     return response;
   }
 

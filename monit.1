@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "October 25. 2011" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "December 20. 2011" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -771,6 +771,7 @@ instead of:
 \&                      permission
 \&                      pid
 \&                      ppid
+\&                      resource
 \&                      size
 \&                      status
 \&                      timeout
@@ -1151,10 +1152,10 @@ Example for stopping the service:
 .Ve
 .SH "SERVICE TESTS"
 .IX Header "SERVICE TESTS"
-Monit provides several tests you can use in a service entry to
-test a service. There are two classes of tests: variable and
-constant tests. That is, the condition we test is either constant
-e.g. a number or it can vary.
+Monit provides several tests you can use in a 'check service'
+entry to test a service. There are two classes of tests:
+variable and constant tests. That is, the condition we test
+is either constant e.g. a number or it can vary.
 .PP
 A constant test has this general format:
 .IP "\s-1IF\s0 <\s-1TEST\s0> [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0 [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0]" 4
@@ -1515,9 +1516,9 @@ third-party applications, until the vendor fix a problem:
 .Ve
 .SS "\s-1FILE\s0 \s-1SIZE\s0 \s-1TESTING\s0"
 .IX Subsection "FILE SIZE TESTING"
-The size statement may only be used in a file service entry. If
-specified in the control file, Monit will compute a size for a
-file.
+The size statement may only be used in a check file service
+entry. If specified in the control file, Monit will compute
+a size for a file.
 .PP
 The size test in constant form is used to verify various size
 conditions. Syntax (keywords are in capital):
@@ -1694,9 +1695,9 @@ Example:
 .Ve
 .SS "\s-1SPACE\s0 \s-1TESTING\s0"
 .IX Subsection "SPACE TESTING"
-Monit can test file systems for space usage. This test may only
-be used within a filesystem service entry in the Monit control
-file.
+Monit can test file systems for space usage. This test may
+only be used within a check filesystem service entry in the
+Monit control file.
 .PP
 Monit will check a filesystem's total space usage. If you only
 want to check available space for non-superuser, you must set the
@@ -1726,9 +1727,9 @@ alternatives \*(L"byte\*(R", \*(L"kilobyte\*(R", \*(L"megabyte\*(R", \*(L"gigaby
 \&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .SS "\s-1INODE\s0 \s-1TESTING\s0"
 .IX Subsection "INODE TESTING"
-If supported by the file-system, you can use Monit to test for
-inodes usage. This test may only be used within a filesystem
-service entry in the Monit control file.
+If supported by the file-system, you can use Monit to test
+for inodes usage. This test may only be used within a check
+filesystem service entry in the Monit control file.
 .PP
 If the filesystem becomes unavailable, Monit will call the
 service's registered start method, if it is defined and if Monit
@@ -1787,9 +1788,10 @@ monitoring the file and propagate an unmonitor action upward in
 a depend tree.
 .SS "\s-1UID\s0 \s-1TESTING\s0"
 .IX Subsection "UID TESTING"
-Monit can monitor the owner user id (uid) of a file object. This
-test may only be used within a file, fifo, directory or
-filesystem service entry in the Monit control file.
+Monit can monitor the owner user id (uid) of a file object.
+This test may only be used within a check \- file, fifo,
+directory or filesystem service entry in the Monit control
+file.
 .PP
 The syntax for the uid statement is:
 .IP "\s-1IF\s0 \s-1FAILED\s0 \s-1UID\s0 user [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
@@ -1905,9 +1907,10 @@ Example:
 .Ve
 .SS "\s-1CONNECTION\s0 \s-1TESTING\s0"
 .IX Subsection "CONNECTION TESTING"
-Monit is able to perform connection testing via networked ports
-or via Unix sockets. A connection test may only be used within a
-process or within a host service entry in the Monit control file.
+Monit is able to perform connection testing via networked
+ports or via Unix sockets. A connection test may only be
+used within a check process or within a check host service
+entry in the Monit control file.
 .PP
 If a service listens on one or more sockets, Monit can connect to
 the port (using either tcp or udp) and verify that the service
@@ -2552,7 +2555,7 @@ you may specify an alternative secret, default is \*(L"testing123\*(R".
 .SS "\s-1PROGRAM\s0 \s-1STATUS\s0 \s-1TESTING\s0"
 .IX Subsection "PROGRAM STATUS TESTING"
 You can check the exit status of a program or a script. This test
-may only be used within a program service entry in the Monit
+may only be used within a check program service entry in the Monit
 control file.
 .PP
 An example:

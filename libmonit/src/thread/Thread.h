@@ -25,6 +25,13 @@
 
 #ifndef THREAD_INCLUDED
 #define THREAD_INCLUDED
+#include <stdio.h>
+#include <errno.h>
+#include <assert.h>
+#include <string.h>
+#include <pthread.h>
+#include "system/System.h"
+
 
 /**
  * General purpose <b>Thread</b> abstractions. This interface  defines object
@@ -35,16 +42,10 @@
  */
 
 
-/* -------------------------------------------- Thread interface for POSIX */
-#include <stdio.h>
-#include <errno.h>
-#include <assert.h>
-#include <string.h>
-#include <pthread.h>
 /** @cond hidden */
 #define wrapper(F) do { \
         int status= F; if (! (status == 0 || status==ETIMEDOUT)) \
-        Exception_throw(&AssertException, __func__, __FILE__, __LINE__, "%s -- %s", #F, strerror(status)); \
+        THROW(AssertException, "%s -- %s", #F, System_getError(status)); \
 } while (0)
 /** @endcond */
 /** @name Abstract Data Types */
