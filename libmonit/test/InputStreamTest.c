@@ -11,6 +11,7 @@
 #include "InputStream.h"
 #include "File.h"
 #include "Str.h"
+#include "system/System.h"
 
 /**
  * InputStream.c unit tests. 
@@ -97,18 +98,41 @@ int main(void) {
         }
         printf("=> Test4: OK\n\n");
 
-        printf("=> Test5: wrong descriptor - expecting read fail\n");
+        printf("=> Test5: read a large file\n");
+        {
+                if ((fd = File_open("/usr/share/dict/words", "r")) >= 0) {
+                        int n = 0;
+                        char array[2][STRLEN + 1];
+                        in = InputStream_new(fd);
+                        for (int i = 0; ((n = InputStream_readBytes(in, array[i], STRLEN)) > 0); i = i ? 0 : 1)
+                                assert(strncmp(array[0], array[1], STRLEN/2) != 0); // ensure that InputStream buffer is filled anew
+                        File_rewind(fd);
+                        // Test read data larger than InputStream's internal buffer
+                        int filesize = (int)File_size("/usr/share/dict/words");
+                        char *bigarray = CALLOC(1, filesize + 1);
+                        n = InputStream_readBytes(in, bigarray, filesize);
+                        assert(n == filesize);
+                        File_close(fd);
+                        InputStream_free(&in);
+                        FREE(bigarray);
+                } else 
+                        ERROR("\t/usr/share/dict/words not available -- skipping test\n");
+        }
+        printf("=> Test5: OK\n\n");
+        
+        printf("=> Test6: wrong descriptor - expecting read fail\n");
         {
                 in = InputStream_new(999);
                 TRY
-                        assert(InputStream_read(in) != -1);
-                        assert(false); // Should not come here
+                assert(InputStream_read(in) != -1);
+                assert(false); // Should not come here
                 CATCH(AssertException)
-                        // Passed
+                // Passed
                 END_TRY;
                 InputStream_free(&in);
         }
-        printf("=> Test5: OK\n\n");
+        printf("=> Test6: OK\n\n");
+
 
         printf("============> InputStream Tests: OK\n\n");
 

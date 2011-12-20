@@ -664,6 +664,7 @@ instead of:
                       permission
                       pid
                       ppid
+                      resource
                       size
                       status
                       timeout
@@ -1025,10 +1026,10 @@ Example for stopping the service:
 
 =head1 SERVICE TESTS
 
-Monit provides several tests you can use in a service entry to
-test a service. There are two classes of tests: variable and
-constant tests. That is, the condition we test is either constant
-e.g. a number or it can vary.
+Monit provides several tests you can use in a 'check service'
+entry to test a service. There are two classes of tests:
+variable and constant tests. That is, the condition we test
+is either constant e.g. a number or it can vary.
 
 A constant test has this general format:
 
@@ -1439,9 +1440,9 @@ third-party applications, until the vendor fix a problem:
 
 =head2 FILE SIZE TESTING
 
-The size statement may only be used in a file service entry. If
-specified in the control file, Monit will compute a size for a
-file.
+The size statement may only be used in a check file service
+entry. If specified in the control file, Monit will compute
+a size for a file.
 
 The size test in constant form is used to verify various size
 conditions. Syntax (keywords are in capital):
@@ -1634,9 +1635,9 @@ Example:
 
 =head2 SPACE TESTING
 
-Monit can test file systems for space usage. This test may only
-be used within a filesystem service entry in the Monit control
-file.
+Monit can test file systems for space usage. This test may
+only be used within a check filesystem service entry in the
+Monit control file.
 
 Monit will check a filesystem's total space usage. If you only
 want to check available space for non-superuser, you must set the
@@ -1673,9 +1674,9 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 
 =head2 INODE TESTING
 
-If supported by the file-system, you can use Monit to test for
-inodes usage. This test may only be used within a filesystem
-service entry in the Monit control file.
+If supported by the file-system, you can use Monit to test
+for inodes usage. This test may only be used within a check
+filesystem service entry in the Monit control file.
 
 If the filesystem becomes unavailable, Monit will call the
 service's registered start method, if it is defined and if Monit
@@ -1749,9 +1750,10 @@ a depend tree.
 
 =head2 UID TESTING
 
-Monit can monitor the owner user id (uid) of a file object. This
-test may only be used within a file, fifo, directory or
-filesystem service entry in the Monit control file.
+Monit can monitor the owner user id (uid) of a file object.
+This test may only be used within a check - file, fifo,
+directory or filesystem service entry in the Monit control
+file.
 
 The syntax for the uid statement is:
 
@@ -1891,9 +1893,10 @@ Example:
 
 =head2 CONNECTION TESTING
 
-Monit is able to perform connection testing via networked ports
-or via Unix sockets. A connection test may only be used within a
-process or within a host service entry in the Monit control file.
+Monit is able to perform connection testing via networked
+ports or via Unix sockets. A connection test may only be
+used within a check process or within a check host service
+entry in the Monit control file.
 
 If a service listens on one or more sockets, Monit can connect to
 the port (using either tcp or udp) and verify that the service
@@ -2500,7 +2503,7 @@ RADIUS example:
 =head2 PROGRAM STATUS TESTING
 
 You can check the exit status of a program or a script. This test
-may only be used within a program service entry in the Monit
+may only be used within a check program service entry in the Monit
 control file.
 
 An example:

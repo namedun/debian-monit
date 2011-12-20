@@ -18,7 +18,7 @@ POD2MANFLAGS	= @POD2MANFLAGS@
 AM_CPPFLAGS	= $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\""
 AM_LDFLAGS	= $(LDFLAGS) $(EXTLDFLAGS) -L./lib/
 INCLUDES	= -I./src -I./src/device -I./src/http -I./src/process -I./src/protocols 
-INCLUDES	+= -I./libmonit/src -I./libmonit/src/io
+INCLUDES	+= -I./libmonit/src
 
 bin_PROGRAMS	= monit
 monit_SOURCES	= src/y.tab.c \
@@ -106,6 +106,7 @@ dist-hook::
 	-rm -rf `find $(distdir) -name ".DS_Store"`
 	-rm -rf `find $(distdir) -name ".libs"`
 	-rm -rf `find $(distdir) -name ".svn"`
+	-rm -rf `find $(distdir) -name ".dirstamp"`
 	-rm -rf $(distdir)/libmonit/libmonit.xcodeproj
 	-rm -rf $(distdir)/libmonit/config.log
 	-rm -rf $(distdir)/libmonit/config.status

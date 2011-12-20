@@ -76,7 +76,7 @@
   
   /* Prototypes */
   extern void yyerror(const char*,...);
-	extern void  yywarning(const char *,...);
+  extern void yywarning(const char *,...);
   static void steplinenobycr(char *);
   static void save_arg(void);
   static void include_file(char *);
@@ -734,60 +734,35 @@ static void steplinenobycr(char *string) {
 
 
 static char *handle_quoted_string(char *string) {
-
   char *buf= Str_dup(string);
-
   Str_unquote(buf);
   Util_handleEscapes(buf);
-
   return buf;
-
 }
 
 
 static void include_file(char *pattern) {
-   
   glob_t globbuf;
   int i;
 
-  if ( glob(pattern,  GLOB_MARK, NULL, &globbuf) != 0 ) {
-
-    yywarning("include files not found");
-    
-    return;
-
-  } 
+  if (glob(pattern,  GLOB_MARK, NULL, &globbuf) != 0)
+    return; // no include files found
 
   for (i = 0; i < globbuf.gl_pathc; i++) {
-  
     FILE *yyin;
     size_t filename_length = strlen(globbuf.gl_pathv[i]);
 
-    /* check whenever we have caught a directory
-     * or file backup copy */
-
-    if ((filename_length == 0) ||
-        (globbuf.gl_pathv[i][filename_length-1] == '~' ) ||
-        (globbuf.gl_pathv[i][filename_length-1] == '/' )) {
-
+    /* check whenever we have caught a directory or file backup copy */
+    if ((filename_length == 0) || (globbuf.gl_pathv[i][filename_length-1] == '~' ) || (globbuf.gl_pathv[i][filename_length-1] == '/' ))
       continue;
-
-    }
 
     yyin = fopen( globbuf.gl_pathv[i], "r" );
     
-    if ( ! yyin ) {
-      
+    if (! yyin)
       yyerror( "failed to include file" );
-      
-    } else {
-
+    else
       push_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE ), globbuf.gl_pathv[i]);
-
-    }
-
   }
-
   globfree(&globbuf);
 }
 

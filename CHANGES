@@ -1,10 +1,33 @@
-                     CHANGES version 5.3.1
+                     CHANGES version 5.3.2
                                 
            This file summarizes changes made since 5.0
                                 
        Bug fixes may refer to an auto-generated id in our
           bug-tracking system, which can be found here
           https://savannah.nongnu.org/bugs/?group=monit
+
+
+Version 5.3.2
+
+BUGFIXES:
+
+* Fix bug #34801: The file content match test did reset of the
+  read position in the case that the unmonitor or stop action
+  was done. When the file monitoring was enabled again, the
+  content match test was applied to the content which was
+  tested already.
+
+* Log error details in the case that the name resolving failed.
+
+* Fix the system cpu usage statistics when pattern based process
+  check is used and the service is restarted. Thanks to Wayne
+  Lawrence for report.
+
+* AIX 6.1 compile fix. Thanks to Benedikt Wegmann for patch.
+
+* Debian Bug#652715: "include files not found" warning. Do not
+  display the warning if the include directory is empty.
+
 
 
 Version 5.3.1

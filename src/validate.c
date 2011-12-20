@@ -142,6 +142,7 @@ int validate() {
         Run.handler_flag = HANDLER_SUCCEEDED;
         Event_queue_process();
         
+        update_system_load();
         initprocesstree(&ptree, &ptreesize, &oldptree, &oldptreesize);
         gettimeofday(&systeminfo.collected, NULL);
         

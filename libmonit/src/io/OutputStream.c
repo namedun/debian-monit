@@ -113,28 +113,28 @@ static inline int write_byte(T S, uchar_t byte) {
 
 #define pad(n,c) do { int nn = (n); while (nn-- > 0) write_byte(S, (c)); } while (0)
 static void putd(T S, const char *str, int len, unsigned char flags[], int width, int precision) {
-	int sign;
-	assert(str);
-	assert(len >= 0);
-	assert(flags);
-	if (width == INT_MIN)
-		width = 0;
-	if (width < 0) {
-		flags['-'] = 1;
-		width = -width;
-	}
-	if (precision >= 0)
-		flags['0'] = 0;
-	if (len > 0 && (*str == '-' || *str == '+')) {
-		sign = *str++;
-		len--;
-	} else if (flags['+'])
-		sign = '+';
-	else if (flags[' '])
-		sign = ' ';
-	else
-		sign = 0;
-	{ int n;
+        int sign;
+        assert(str);
+        assert(len >= 0);
+        assert(flags);
+        if (width == INT_MIN)
+                width = 0;
+        if (width < 0) {
+                flags['-'] = 1;
+                width = -width;
+        }
+        if (precision >= 0)
+                flags['0'] = 0;
+        if (len > 0 && (*str == '-' || *str == '+')) {
+                sign = *str++;
+                len--;
+        } else if (flags['+'])
+                sign = '+';
+        else if (flags[' '])
+                sign = ' ';
+        else
+                sign = 0;
+        { int n;
                 if (precision < 0)
                         precision = 1;
                 if (len < precision)
@@ -167,145 +167,145 @@ static void putd(T S, const char *str, int len, unsigned char flags[], int width
 
 
 static void cvt_s(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	uchar_t *str = va_arg(box->ap, uchar_t *);
+        uchar_t *str = va_arg(box->ap, uchar_t *);
         assert(str);
         int len = (int)strlen((char*)str);
-	assert(len >= 0);
-	assert(flags);
-	if (width == INT_MIN)
-		width = 0;
-	if (width < 0) {
-		flags['-'] = 1;
-		width = -width;
-	}
-	if (precision >= 0)
-		flags['0'] = 0;
-	if (precision >= 0 && precision < len)
-		len = precision;
-	if (!flags['-'])
-		pad(width - len, ' ');
+        assert(len >= 0);
+        assert(flags);
+        if (width == INT_MIN)
+                width = 0;
+        if (width < 0) {
+                flags['-'] = 1;
+                width = -width;
+        }
+        if (precision >= 0)
+                flags['0'] = 0;
+        if (precision >= 0 && precision < len)
+                len = precision;
+        if (!flags['-'])
+                pad(width - len, ' ');
         for (int i = 0; i < len; i++)
                 write_byte(S, *str++);
-	if (flags['-'])
-		pad(width - len, ' ');
+        if (flags['-'])
+                pad(width - len, ' ');
 }
 
 
 static void cvt_d(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	int val = va_arg(box->ap, int);
-	unsigned int m;
-	char buf[43];
-	char *p = buf + sizeof buf;
-	if (val == INT_MIN)
-		m = INT_MAX + 1UL;
-	else if (val < 0)
-		m = -val;
-	else
-		m = val;
-	do
-		*--p = m%10 + '0';
-	while ((m /= 10) > 0);
-	if (val < 0)
-		*--p = '-';
-	putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
+        int val = va_arg(box->ap, int);
+        unsigned int m;
+        char buf[43];
+        char *p = buf + sizeof buf;
+        if (val == INT_MIN)
+                m = INT_MAX + 1UL;
+        else if (val < 0)
+                m = -val;
+        else
+                m = val;
+        do
+                *--p = m%10 + '0';
+        while ((m /= 10) > 0);
+        if (val < 0)
+                *--p = '-';
+        putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
 }
 
 
 static void cvt_l(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	long val = va_arg(box->ap, long);
-	unsigned long m;
-	char buf[43];
-	char *p = buf + sizeof buf;
-	if (val == LONG_MIN)
-		m = LONG_MAX + 1UL;
-	else if (val < 0)
-		m = -val;
-	else
-		m = val;
-	do
-		*--p = m%10 + '0';
-	while ((m /= 10) > 0);
-	if (val < 0)
-		*--p = '-';
-	putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
+        long val = va_arg(box->ap, long);
+        unsigned long m;
+        char buf[43];
+        char *p = buf + sizeof buf;
+        if (val == LONG_MIN)
+                m = LONG_MAX + 1UL;
+        else if (val < 0)
+                m = -val;
+        else
+                m = val;
+        do
+                *--p = m%10 + '0';
+        while ((m /= 10) > 0);
+        if (val < 0)
+                *--p = '-';
+        putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
 }
 
 
 static void cvt_u(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	unsigned long m = va_arg(box->ap, unsigned long);
-	char buf[43];
-	char *p = buf + sizeof buf;
-	do
-		*--p = m%10 + '0';
-	while ((m /= 10) > 0);
-	putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
+        unsigned long m = va_arg(box->ap, unsigned long);
+        char buf[43];
+        char *p = buf + sizeof buf;
+        do
+                *--p = m%10 + '0';
+        while ((m /= 10) > 0);
+        putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
 }
 
 
 static void cvt_o(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	unsigned long m = va_arg(box->ap, unsigned long);
-	char buf[43];
-	char *p = buf + sizeof buf;
-	do
-		*--p = (m&0x7) + '0';
-	while ((m>>= 3) != 0);
-	putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
+        unsigned long m = va_arg(box->ap, unsigned long);
+        char buf[43];
+        char *p = buf + sizeof buf;
+        do
+                *--p = (m&0x7) + '0';
+        while ((m>>= 3) != 0);
+        putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
 }
 
 
 static void cvt_x(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	unsigned long m = va_arg(box->ap, unsigned long);
-	char buf[43];
-	char *p = buf + sizeof buf;
-	do
-		*--p = "0123456789abcdef"[m&0xf];
-	while ((m>>= 4) != 0);
-	putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
+        unsigned long m = va_arg(box->ap, unsigned long);
+        char buf[43];
+        char *p = buf + sizeof buf;
+        do
+                *--p = "0123456789abcdef"[m&0xf];
+        while ((m>>= 4) != 0);
+        putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
 }
 
 
 static void cvt_p(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	unsigned long m = (unsigned long)va_arg(box->ap, void*);
-	char buf[43];
-	char *p = buf + sizeof buf;
-	precision = INT_MIN;
-	do
-		*--p = "0123456789abcdef"[m&0xf];
-	while ((m>>= 4) != 0);
-	putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
+        unsigned long m = (unsigned long)va_arg(box->ap, void*);
+        char buf[43];
+        char *p = buf + sizeof buf;
+        precision = INT_MIN;
+        do
+                *--p = "0123456789abcdef"[m&0xf];
+        while ((m>>= 4) != 0);
+        putd(S, p, (int)((buf + sizeof buf) - p), flags, width, precision);
 }
 
 
 static void cvt_c(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	if (width == INT_MIN)
-		width = 0;
-	if (width < 0) {
-		flags['-'] = 1;
-		width = -width;
-	}
-	if (!flags['-'])
-		pad(width - 1, ' ');
-	write_byte(S, va_arg(box->ap, int));
-	if (flags['-'])
-		pad(width - 1, ' ');
+        if (width == INT_MIN)
+                width = 0;
+        if (width < 0) {
+                flags['-'] = 1;
+                width = -width;
+        }
+        if (!flags['-'])
+                pad(width - 1, ' ');
+        write_byte(S, va_arg(box->ap, int));
+        if (flags['-'])
+                pad(width - 1, ' ');
 }
 
 
 static void cvt_f(T S, int code, va_list_box *box, unsigned char flags[], int width, int precision) {
-	char buf[DBL_MAX_10_EXP+1+1+99+1];
-	if (precision < 0)
-		precision = 6;
-	if (code == 'g' && precision == 0)
-		precision = 1;
-	{
-		char fmt[] = "%.dd?";
-		assert(precision <= 99);
-		fmt[4] = code;
-		fmt[3] = precision%10 + '0';
-		fmt[2] = (precision/10)%10 + '0';
-		sprintf(buf, fmt, va_arg(box->ap, double));
-	}
-	putd(S, buf, (int)strlen(buf), flags, width, precision);
+        char buf[DBL_MAX_10_EXP+1+1+99+1];
+        if (precision < 0)
+                precision = 6;
+        if (code == 'g' && precision == 0)
+                precision = 1;
+        {
+                char fmt[] = "%.dd?";
+                assert(precision <= 99);
+                fmt[4] = code;
+                fmt[3] = precision%10 + '0';
+                fmt[2] = (precision/10)%10 + '0';
+                sprintf(buf, fmt, va_arg(box->ap, double));
+        }
+        putd(S, buf, (int)strlen(buf), flags, width, precision);
 }
 
 
@@ -412,8 +412,8 @@ int OutputStream_vprint(T S, const char *fmt, va_list ap) {
         va_copy(box.ap, ap);
         S->sessionWritten = 0;
         while (*fmt) {
-		if (*fmt != '%' || *++fmt == '%')
-			write_byte(S, *fmt++);
+                if (*fmt != '%' || *++fmt == '%')
+                        write_byte(S, *fmt++);
                 else {
                         uchar_t c, flags[256] = {0};
                         int width = INT_MIN, precision = INT_MIN;
@@ -456,7 +456,7 @@ int OutputStream_vprint(T S, const char *fmt, va_list ap) {
                                         c = 'l';
                         }
                         assert(cvt[c]);
-                        (*cvt[c])(S, c, &box, flags, width, precision);
+                        cvt[c](S, c, &box, flags, width, precision);
                 }
         }
         va_end(box.ap);

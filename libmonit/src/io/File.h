@@ -104,6 +104,15 @@ int File_close(int fd);
 
 
 /**
+ * Move the <code>read</code> position in the file to the beginning
+ * of input.
+ * @param fd An open file descriptor
+ * @return true if success otherwise false and errno is set accordingly
+ */
+int File_rewind(int fd);
+
+
+/**
  * Returns the last modified time stamp for the given <code>file</code>. 
  * A file's mtime is changed by a file write operation
  * @param file An absolute file path
