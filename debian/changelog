@@ -1,3 +1,12 @@
+monit (1:5.3.2-2) UNRELEASED; urgency=low
+
+  * Drop TODO.Debian
+  * Fix bashism in monit.init (Closes: #654449)
+  * Removed example.monitrc
+  * Cleanup of dirs file
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 05 Jan 2012 16:04:39 +0400
+
 monit (1:5.3.2-1) unstable; urgency=low
 
   * Imported Upstream version 5.3.2 (Closes: #652715)
