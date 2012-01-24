@@ -1,4 +1,4 @@
-monit (1:5.3.2-2) UNRELEASED; urgency=low
+monit (1:5.3.2-2) unstable; urgency=low
 
   * Drop TODO.Debian
   * Fix bashism in monit.init (Closes: #654449)
