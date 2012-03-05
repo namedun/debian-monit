@@ -1,4 +1,4 @@
-Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=174
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Monit
 Upstream-Contact: http://mmonit.com/monit/
 Source: http://mmonit.com/monit/download/
@@ -687,7 +687,7 @@ License: AGPL-3+ with OpenSSL exception
 Files: debian/*
 Copyright: 2002-2004, Fredrik Steen <stone@debian.org>
            2005-2010, Stefan Alfredsson <alfs@debian.org>
-           2011, Sergey B Kirpichev <skirpichev@gmail.com>
+           2011-2012, Sergey B Kirpichev <skirpichev@gmail.com>
 License: GPL-3+
  On Debian GNU/Linux systems, the complete text of the GNU General
  Public License (GPL) version 3 can be found at
