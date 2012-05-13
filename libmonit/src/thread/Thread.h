@@ -37,14 +37,14 @@
  * General purpose <b>Thread</b> abstractions. This interface  defines object
  * types and methods for handling threads, synchronization and semaphores. 
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
 
 /** @cond hidden */
 #define wrapper(F) do { \
-        int status= F; if (! (status == 0 || status==ETIMEDOUT)) \
+        int status= (F); if (! (status == 0 || status==ETIMEDOUT)) \
         THROW(AssertException, "%s -- %s", #F, System_getError(status)); \
 } while (0)
 /** @endcond */

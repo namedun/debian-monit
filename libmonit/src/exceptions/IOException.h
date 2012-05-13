@@ -33,7 +33,7 @@
  * is the general class of exceptions produced by failed I/O operations. 
  * @see Exception.h
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 extern Exception_T IOException;

@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 #include "StringBuffer.h"
 
@@ -35,7 +36,7 @@
 /**
  * Implementation of the StringBuffer interface. 
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -189,12 +190,30 @@ int StringBuffer_replace(T S, const char *a, const char *b) {
 }
 
 
-void StringBuffer_delete(T S, int index) {
+T StringBuffer_trim(T S) {
+        assert(S);
+        // Right trim
+        while (S->used && isspace(S->buffer[S->used - 1])) 
+                S->buffer[--S->used] = 0;
+        // Left trim
+        if (isspace(*S->buffer)) {
+                int i;
+                for (i = 0; isspace(S->buffer[i]); i++) ;
+                memmove(S->buffer, S->buffer + i, S->used - i);
+                S->used -= i;
+                S->buffer[S->used] = 0;
+        }
+        return S;
+}
+
+
+T StringBuffer_delete(T S, int index) {
         assert(S);
         if (index < 0 || index > S->used)
                 THROW(AssertException, "Index out of bounds");
         S->used = index;
         S->buffer[S->used] = 0;
+        return S;
 }
 
 
@@ -248,10 +267,11 @@ int StringBuffer_length(T S) {
 }
 
 
-void StringBuffer_clear(T S) {
+T StringBuffer_clear(T S) {
         assert(S);
         S->used = 0;
         *S->buffer = 0;
+        return S;
 }
 
 

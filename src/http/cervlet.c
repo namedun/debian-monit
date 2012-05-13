@@ -124,6 +124,7 @@ static void print_service_rules_gid(HttpResponse, Service_T);
 static void print_service_rules_timestamp(HttpResponse, Service_T);
 static void print_service_rules_filesystem(HttpResponse, Service_T);
 static void print_service_rules_size(HttpResponse, Service_T);
+static void print_service_rules_uptime(HttpResponse, Service_T);
 static void print_service_rules_match(HttpResponse, Service_T);
 static void print_service_rules_checksum(HttpResponse, Service_T);
 static void print_service_rules_process(HttpResponse, Service_T);
@@ -288,7 +289,7 @@ static void do_about(HttpRequest req, HttpResponse res) {
                   "monit " VERSION "</a></center></h1>");
         StringBuffer_append(res->outputbuffer,
                   "<ul>"
-                  "<li style='padding-bottom:10px;'>Copyright &copy; 2000-2011 <a "
+                  "<li style='padding-bottom:10px;'>Copyright &copy; 2001-2012 <a "
                   "href='http://tildeslash.com/'>Tildeslash Ltd"
                   "</a>. All Rights Reserved.</li></ul>");
         StringBuffer_append(res->outputbuffer, "<hr size='1'>");
@@ -782,6 +783,7 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
         print_service_rules_timestamp(res, s);
         print_service_rules_filesystem(res, s);
         print_service_rules_size(res, s);
+        print_service_rules_uptime(res, s);
         print_service_rules_match(res, s);
         print_service_rules_checksum(res, s);
         print_service_rules_process(res, s);
@@ -1408,6 +1410,8 @@ static void print_alerts(HttpResponse res, Mail_T s) {
                                 StringBuffer_append(res->outputbuffer, "Timestamp ");
                         if(IS_EVENT_SET(r->events, Event_Uid))
                                 StringBuffer_append(res->outputbuffer, "Uid ");
+                        if(IS_EVENT_SET(r->events, Event_Uptime))
+                                StringBuffer_append(res->outputbuffer, "Uptime ");
                 }
                 
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
@@ -1637,14 +1641,37 @@ static void print_service_rules_size(HttpResponse res, Service_T s) {
         }
 }
 
-static void print_service_rules_match(HttpResponse res, Service_T s) {
-        if(s->matchlist && s->type != TYPE_PROCESS) {
+static void print_service_rules_uptime(HttpResponse res, Service_T s) {
+        if(s->uptimelist) {
                 char buf[STRLEN];
-                Match_T       ml;
+                Uptime_T      ul;
                 EventAction_T a;
-                for(ml= s->matchlist; ml; ml= ml->next) {
-                        a= ml->action;
-                        StringBuffer_append(res->outputbuffer, "<tr><td>Associated regex</td><td>If If %smatch \"%s\" %s ", ml->not ? "not " : "", ml->match_string, Util_getEventratio(a->failed, buf, sizeof(buf)));
+
+                for(ul= s->uptimelist; ul; ul= ul->next) {
+                        a= ul->action;
+                        StringBuffer_append(res->outputbuffer, "<tr><td>Associated uptime</td><td>");
+                        StringBuffer_append(res->outputbuffer, "If %s %llu second(s) %s ", operatornames[ul->operator], ul->uptime, Util_getEventratio(a->failed, buf, sizeof(buf)));
+                        StringBuffer_append(res->outputbuffer, "then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
+                        StringBuffer_append(res->outputbuffer, "else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
+                        StringBuffer_append(res->outputbuffer, "then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
+                        StringBuffer_append(res->outputbuffer, "</td></tr>");
+                }
+        }
+}
+
+static void print_service_rules_match(HttpResponse res, Service_T s) {
+        if (s->type != TYPE_PROCESS) {
+                char buf[STRLEN];
+                Match_T ml;
+                EventAction_T a;
+                for (ml = s->matchignorelist; ml; ml = ml->next) {
+                        a = ml->action;
+                        StringBuffer_append(res->outputbuffer, "<tr><td>Associated ignore pattern</td><td>If %smatch \"%s\" %s ", ml->not ? "not " : "", ml->match_string, Util_getEventratio(a->failed, buf, sizeof(buf)));
+                        StringBuffer_append(res->outputbuffer, "then %s</td></tr>", Util_describeAction(a->failed, buf, sizeof(buf)));
+                }
+                for (ml = s->matchlist; ml; ml = ml->next) {
+                        a = ml->action;
+                        StringBuffer_append(res->outputbuffer, "<tr><td>Associated pattern</td><td>If %smatch \"%s\" %s ", ml->not ? "not " : "", ml->match_string, Util_getEventratio(a->failed, buf, sizeof(buf)));
                         StringBuffer_append(res->outputbuffer, "then %s</td></tr>", Util_describeAction(a->failed, buf, sizeof(buf)));
                 }
         }

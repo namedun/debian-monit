@@ -51,7 +51,7 @@
  * variables as needed <em>before</em> calling Command_execute()
  *
  * @see Command.h
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

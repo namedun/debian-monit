@@ -41,7 +41,7 @@
 /**
  * Implementation of the Time interface
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

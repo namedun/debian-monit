@@ -52,6 +52,7 @@ typedef enum {
         Event_PPid       = 0x80000,
         Event_Heartbeat  = 0x100000,
         Event_Status     = 0x200000,
+        Event_Uptime     = 0x400000,
         Event_All        = 0x7FFFFFFF
 } Event_Type;
 

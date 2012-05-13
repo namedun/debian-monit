@@ -30,7 +30,7 @@
 /**
  * A collection of class methods for operating on a dir
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

@@ -55,8 +55,7 @@ typedef struct Socket_T *Socket_T;
  * @param timeout The timeout value in seconds
  * @return The connected Socket or NULL if an error occurred
  */
-Socket_T socket_new(const char *host, int port, int type, int use_ssl,
-                    int timeout);
+Socket_T socket_new(const char *host, int port, int type, int use_ssl, int timeout);
 
 
 /**
@@ -78,8 +77,7 @@ Socket_T socket_create(void *port);
  * @param timeout The timeout value in seconds
  * @return The connected Socket or NULL if an error occurred
  */
-Socket_T socket_create_t(const char *host, int port, int type, Ssl_T ssl,
-			 int timeout);
+Socket_T socket_create_t(const char *host, int port, int type, Ssl_T ssl, int timeout);
 
 
 /**
@@ -95,8 +93,7 @@ Socket_T socket_create_t(const char *host, int port, int type, Ssl_T ssl,
  * @param sslserver A ssl server connection context, may be NULL
  * @return A Socket or NULL if an error occurred
  */
-Socket_T socket_create_a(int socket, const char *remote_host,
-			 int port, void *sslserver);
+Socket_T socket_create_a(int socket, const char *remote_host, int port, void *sslserver);
 
 
 /**

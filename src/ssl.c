@@ -116,7 +116,6 @@ static int update_ssl_cert_data(ssl_connection *);
 static ssl_server_connection *new_ssl_server_connection(char *, char *);
 static int start_ssl();
 
-static int              allow_self_certification = FALSE;
 static int              ssl_initialized          = FALSE;
 static pthread_mutex_t  ssl_mutex                = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t *ssl_mutex_table;
@@ -582,14 +581,6 @@ void stop_ssl() {
 
 
 /**
- * Configures the ssl engine
- */
-void config_ssl(int conf_allow_self_cert) {
-        allow_self_certification = conf_allow_self_cert;
-}
-
-
-/**
  * Generate a new ssl connection
  * @return ssl connection container
  */
@@ -648,12 +639,10 @@ ssl_connection *new_ssl_connection(char *clientpemfile, int sslversion) {
                         break;
                         
                 case SSL_VERSION_TLS:
+                        /* fall through */
+                default:
                         ssl->method = TLSv1_client_method();
                         break;
-                        
-                default:
-                        LogError("%s: Unknown SSL version!\n", prog);
-                        goto sslerror;
                         
         }
         
@@ -795,7 +784,7 @@ static int check_preverify(X509_STORE_CTX *ctx) {
                 return FALSE;
         } 
         
-        if (allow_self_certification && (ctx->error == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT)) {
+        if (Run.allowselfcert && (ctx->error == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT)) {
                 /* Let's accept self signed certs for the moment! */
                 LogInfo("%s: SSL connection accepted with self signed certificate!\n", prog);
                 ctx->error = 0;

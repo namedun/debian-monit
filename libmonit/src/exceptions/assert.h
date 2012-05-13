@@ -37,7 +37,7 @@
  * required and may <b>not</b> be removed at compile time.</small>
  * @see AssertException.h 
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

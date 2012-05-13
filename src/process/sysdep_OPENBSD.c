@@ -189,7 +189,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
       StringBuffer_T cmdline = StringBuffer_create(64);;
       for (int j = 0; args[j]; j++)
         StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
-      pt[i].cmdline = Str_trim(Str_dup(StringBuffer_toString(cmdline)));
+      pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
       StringBuffer_free(&cmdline);
     }
     if (! pt[i].cmdline || ! *pt[i].cmdline)

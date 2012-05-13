@@ -158,7 +158,7 @@ int main(void) {
                 // Invalid String
                 Command_vSetEnv(c, "HELLO:WORLD");
                 assert(! Command_getEnv(c, "HELLO"));
-                assert(! Command_getEnv(c, "HELLO:WORDL"));
+                assert(! Command_getEnv(c, "HELLO:WORLD"));
                 // Varargs
                 Command_vSetEnv(c, "PATH=%s; TERM=%s;", "/bin", "vterm");
                 assert(Str_isEqual(Command_getEnv(c, "PATH"), "/bin"));

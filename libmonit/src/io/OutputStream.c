@@ -44,7 +44,7 @@
  * Implementation of the OutputStream interface. The printf implementation is
  * based on "Fmt" from David Hanson's excellent CII library.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

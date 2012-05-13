@@ -32,7 +32,7 @@
 /**
  * Implementation of the Thread.h interface
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -40,7 +40,6 @@
 /* ----------------------------------------------------------- Definitions */
 
 
-static int myDetachStateAttributeStatus = false;
 static pthread_attr_t myDetachStateAttribute;
 static pthread_once_t once_control = PTHREAD_ONCE_INIT;
 
@@ -50,15 +49,14 @@ static pthread_once_t once_control = PTHREAD_ONCE_INIT;
 
 /* Setup common thread attribute */
 static void init_once(void) { 
-        myDetachStateAttributeStatus = pthread_attr_init(&myDetachStateAttribute);
-        if (myDetachStateAttributeStatus != 0)
-                THROW(AssertException, "pthread_attr_init -- %s", System_getError(myDetachStateAttributeStatus));
-        myDetachStateAttributeStatus = pthread_attr_setdetachstate(&myDetachStateAttribute, PTHREAD_CREATE_DETACHED);
-        if (myDetachStateAttributeStatus != 0) {
+        int status = pthread_attr_init(&myDetachStateAttribute);
+        if (status != 0)
+                THROW(AssertException, "pthread_attr_init -- %s", System_getError(status));
+        status = pthread_attr_setdetachstate(&myDetachStateAttribute, PTHREAD_CREATE_DETACHED);
+        if (status != 0) {
                 pthread_attr_destroy(&myDetachStateAttribute);
-                THROW(AssertException, "pthread_attr_setdetachstate -- %s", System_getError(myDetachStateAttributeStatus));
+                THROW(AssertException, "pthread_attr_setdetachstate -- %s", System_getError(status));
         }
-        myDetachStateAttributeStatus = true;
 }
 
 
@@ -79,7 +77,6 @@ void Thread_fini(void) { pthread_attr_destroy(&myDetachStateAttribute); }
 void Thread_createDetached(Thread_T *thread, void *(*threadFunc)(void *threadArgs), void *threadArgs) {
         assert(thread);
         assert(threadFunc);
-        assert(myDetachStateAttributeStatus);
         int status = pthread_create(thread, &myDetachStateAttribute, threadFunc, threadArgs);
         if (status != 0)
                 THROW(AssertException, "pthread_create -- %s", System_getError(status));

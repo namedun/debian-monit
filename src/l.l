@@ -262,6 +262,7 @@ space             { return SPACE; }
 perm(ission)?     { return PERMISSION; }
 exec(ute)?        { return EXEC; }
 size              { return SIZE; }
+uptime            { return UPTIME; }
 basedir           { return BASEDIR; }
 slot(s)?          { return SLOT; }
 eventqueue        { return EVENTQUEUE; }

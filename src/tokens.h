@@ -210,33 +210,34 @@
      NOT = 426,
      IGNORE = 427,
      ACTION = 428,
-     EXEC = 429,
-     UNMONITOR = 430,
-     ICMP = 431,
-     ICMPECHO = 432,
-     NONEXIST = 433,
-     EXIST = 434,
-     INVALID = 435,
-     DATA = 436,
-     RECOVERED = 437,
-     PASSED = 438,
-     SUCCEEDED = 439,
-     URL = 440,
-     CONTENT = 441,
-     PID = 442,
-     PPID = 443,
-     FSFLAG = 444,
-     REGISTER = 445,
-     CREDENTIALS = 446,
-     URLOBJECT = 447,
-     TARGET = 448,
-     TIMESPEC = 449,
-     MAXFORWARD = 450,
-     FIPS = 451,
-     NOTEQUAL = 452,
-     EQUAL = 453,
-     LESS = 454,
-     GREATER = 455
+     UPTIME = 429,
+     EXEC = 430,
+     UNMONITOR = 431,
+     ICMP = 432,
+     ICMPECHO = 433,
+     NONEXIST = 434,
+     EXIST = 435,
+     INVALID = 436,
+     DATA = 437,
+     RECOVERED = 438,
+     PASSED = 439,
+     SUCCEEDED = 440,
+     URL = 441,
+     CONTENT = 442,
+     PID = 443,
+     PPID = 444,
+     FSFLAG = 445,
+     REGISTER = 446,
+     CREDENTIALS = 447,
+     URLOBJECT = 448,
+     TARGET = 449,
+     TIMESPEC = 450,
+     MAXFORWARD = 451,
+     FIPS = 452,
+     NOTEQUAL = 453,
+     EQUAL = 454,
+     LESS = 455,
+     GREATER = 456
    };
 #endif
 /* Tokens.  */
@@ -411,33 +412,34 @@
 #define NOT 426
 #define IGNORE 427
 #define ACTION 428
-#define EXEC 429
-#define UNMONITOR 430
-#define ICMP 431
-#define ICMPECHO 432
-#define NONEXIST 433
-#define EXIST 434
-#define INVALID 435
-#define DATA 436
-#define RECOVERED 437
-#define PASSED 438
-#define SUCCEEDED 439
-#define URL 440
-#define CONTENT 441
-#define PID 442
-#define PPID 443
-#define FSFLAG 444
-#define REGISTER 445
-#define CREDENTIALS 446
-#define URLOBJECT 447
-#define TARGET 448
-#define TIMESPEC 449
-#define MAXFORWARD 450
-#define FIPS 451
-#define NOTEQUAL 452
-#define EQUAL 453
-#define LESS 454
-#define GREATER 455
+#define UPTIME 429
+#define EXEC 430
+#define UNMONITOR 431
+#define ICMP 432
+#define ICMPECHO 433
+#define NONEXIST 434
+#define EXIST 435
+#define INVALID 436
+#define DATA 437
+#define RECOVERED 438
+#define PASSED 439
+#define SUCCEEDED 440
+#define URL 441
+#define CONTENT 442
+#define PID 443
+#define PPID 444
+#define FSFLAG 445
+#define REGISTER 446
+#define CREDENTIALS 447
+#define URLOBJECT 448
+#define TARGET 449
+#define TIMESPEC 450
+#define MAXFORWARD 451
+#define FIPS 452
+#define NOTEQUAL 453
+#define EQUAL 454
+#define LESS 455
+#define GREATER 456
 
 
 
@@ -447,7 +449,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 257 "src/p.y"
+#line 260 "src/p.y"
 
   URL_T url;
   float real;
@@ -457,7 +459,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 461 "src/y.tab.h"
+#line 463 "src/y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
