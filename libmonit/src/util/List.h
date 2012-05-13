@@ -44,7 +44,7 @@
  *
  * This class is reentrant but not thread-safe
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

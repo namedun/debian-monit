@@ -191,8 +191,8 @@ static void status_service(Service_T S, StringBuffer_T B, short L, int V) {
                                         "<flags>%d</flags>"
                                         "<block>"
                                         "<percent>%.1f</percent>"
-                                        "<usage>%.1f MB</usage>"
-                                        "<total>%.1f MB</total>"
+                                        "<usage>%.1f</usage>"
+                                        "<total>%.1f</total>"
                                         "</block>",
                                         S->inf->priv.filesystem.flags,
                                         S->inf->priv.filesystem.space_percent/10.,

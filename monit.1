@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "October 25. 2011" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "May 06. 2012" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -161,7 +161,7 @@ the syntax of which we describe in a later section. Command-line
 options override \fI.monitrc\fR declarations.
 .PP
 The default location for \fImonitrc\fR is \fI~/.monitrc\fR. If this
-file does not exist, Monit will try \fI/ect/monitrc\fR and a few
+file does not exist, Monit will try \fI/etc/monitrc\fR and a few
 other places. See \s-1FILES\s0 for details. You can also
 specify the control file directly by using the \fI\-c\fR command-line
 switch to monit. For instance,
@@ -334,12 +334,12 @@ You can use Monit to monitor daemon \fBprocesses\fR or similar
 programs running on localhost. Monit is particular useful for
 monitoring daemon processes, such as those started at system boot
 time from /etc/init.d/. For instance sendmail, sshd, apache and
-mysql. In difference to many monitoring systems, Monit can act if
+mysql. In contrast to many other monitoring systems, Monit can act if
 an error situation should occur, e.g.; if sendmail is not
 running, monit can start sendmail again automatically or if
-apache is using too much resources (e.g. if a DoS attack is in
+apache is using too many resources (e.g. if a DoS attack is in
 progress) Monit can stop or restart apache and send you an alert
-message. Monit can also monitor process characteristics, such as;
+message. Monit can also monitor process characteristics, such as
 how much memory or cpu cycles a process is using.
 .PP
 You can also use Monit to monitor \fBfiles\fR, \fBdirectories\fR and
@@ -760,21 +760,25 @@ instead of:
 .Vb 10
 \&   alert foo@bar on { action
 \&                      checksum
+\&                      connection
 \&                      content
 \&                      data
 \&                      exec
+\&                      fsflags
 \&                      gid
 \&                      icmp
 \&                      invalid
-\&                      fsflags
 \&                      nonexist
 \&                      permission
 \&                      pid
 \&                      ppid
+\&                      resource
 \&                      size
 \&                      status
 \&                      timeout
-\&                      timestamp }
+\&                      timestamp
+\&                      uid
+\&                      uptime }
 .Ve
 .PP
 This will send alerts for all events to foo@bar, except Monit
@@ -796,10 +800,10 @@ security@bar if a checksum, permission, uid or gid problem
 occurs. And finally, a message to manager@bar whenever any error
 event occurs.
 .PP
-Here is the list of events you can use in a mail-filter: \fIuid,
-gid, size, nonexist, data, icmp, instance, invalid, exec,
-content, status, timeout, resource, checksum, fsflags, timestamp,
-connection, permission, pid, ppid, action\fR
+Here is the list of events you can use in a mail-filter: \fIaction,
+checksum, connection, content, data, exec, fsflags, gid, icmp,
+instance, invalid, nonexist, permission, pid, ppid, resource, size, 
+status, timeout, timestamp, uid, uptime\fR
 .PP
 You can also disable the alerts locally using the \s-1NOALERT\s0
 statement. This is useful if you have lots of services monitored
@@ -918,7 +922,8 @@ expanded into the text with these values:
 \& STATUS    | "Status failed"          | "Status succeeded"            
 \& TIMEOUT   | "Timeout"                | "Timeout recovery"          
 \& TIMESTAMP | "Timestamp failed"       | "Timestamp succeeded"       
-\& UID       | "UID failed"             | "UID succeeded"
+\& UID       | "UID failed"             | "UID succeeded"             
+\& UPTIME    | "Uptime failed"          | "Uptime succeeded"
 .Ve
 .IP "\(bu" 4
 \&\fI\f(CI$SERVICE\fI\fR
@@ -1151,10 +1156,10 @@ Example for stopping the service:
 .Ve
 .SH "SERVICE TESTS"
 .IX Header "SERVICE TESTS"
-Monit provides several tests you can use in a service entry to
-test a service. There are two classes of tests: variable and
-constant tests. That is, the condition we test is either constant
-e.g. a number or it can vary.
+Monit provides several tests you can use in a 'check service'
+entry to test a service. There are two classes of tests:
+variable and constant tests. That is, the condition we test
+is either constant e.g. a number or it can vary.
 .PP
 A constant test has this general format:
 .IP "\s-1IF\s0 <\s-1TEST\s0> [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0 [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0]" 4
@@ -1515,9 +1520,9 @@ third-party applications, until the vendor fix a problem:
 .Ve
 .SS "\s-1FILE\s0 \s-1SIZE\s0 \s-1TESTING\s0"
 .IX Subsection "FILE SIZE TESTING"
-The size statement may only be used in a file service entry. If
-specified in the control file, Monit will compute a size for a
-file.
+The size statement may only be used in a check file service
+entry. If specified in the control file, Monit will compute
+a size for a file.
 .PP
 The size test in constant form is used to verify various size
 conditions. Syntax (keywords are in capital):
@@ -1694,9 +1699,9 @@ Example:
 .Ve
 .SS "\s-1SPACE\s0 \s-1TESTING\s0"
 .IX Subsection "SPACE TESTING"
-Monit can test file systems for space usage. This test may only
-be used within a filesystem service entry in the Monit control
-file.
+Monit can test file systems for space usage. This test may
+only be used within a check filesystem service entry in the
+Monit control file.
 .PP
 Monit will check a filesystem's total space usage. If you only
 want to check available space for non-superuser, you must set the
@@ -1726,9 +1731,9 @@ alternatives \*(L"byte\*(R", \*(L"kilobyte\*(R", \*(L"megabyte\*(R", \*(L"gigaby
 \&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .SS "\s-1INODE\s0 \s-1TESTING\s0"
 .IX Subsection "INODE TESTING"
-If supported by the file-system, you can use Monit to test for
-inodes usage. This test may only be used within a filesystem
-service entry in the Monit control file.
+If supported by the file-system, you can use Monit to test
+for inodes usage. This test may only be used within a check
+filesystem service entry in the Monit control file.
 .PP
 If the filesystem becomes unavailable, Monit will call the
 service's registered start method, if it is defined and if Monit
@@ -1787,9 +1792,10 @@ monitoring the file and propagate an unmonitor action upward in
 a depend tree.
 .SS "\s-1UID\s0 \s-1TESTING\s0"
 .IX Subsection "UID TESTING"
-Monit can monitor the owner user id (uid) of a file object. This
-test may only be used within a file, fifo, directory or
-filesystem service entry in the Monit control file.
+Monit can monitor the owner user id (uid) of a file object.
+This test may only be used within a check \- file, fifo,
+directory or filesystem service entry in the Monit control
+file.
 .PP
 The syntax for the uid statement is:
 .IP "\s-1IF\s0 \s-1FAILED\s0 \s-1UID\s0 user [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
@@ -1903,11 +1909,43 @@ Example:
 \& check process myproc with pidfile /var/run/myproc.pid
 \&       if changed ppid then exec "/my/script"
 .Ve
+.SS "\s-1UPTIME\s0 \s-1TESTING\s0"
+.IX Subsection "UPTIME TESTING"
+The uptime statement may only be used in a check process service
+entry. If specified in the control file, Monit will test the
+process uptime.
+.PP
+Syntax (keywords are in capital):
+.IP "\s-1IF\s0 \s-1UPTIME\s0 [[operator] value [unit]] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
+.IX Item "IF UPTIME [[operator] value [unit]] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
+.PP
+\&\fIoperator\fR is a choice of \*(L"<\*(R", \*(L">\*(R", \*(L"!=\*(R", \*(L"==\*(R" in C notation,
+\&\*(L"\s-1GT\s0\*(R", \*(L"\s-1LT\s0\*(R", \*(L"\s-1EQ\s0\*(R", \*(L"\s-1NE\s0\*(R" in shell sh notation and \*(L"\s-1GREATER\s0\*(R",
+\&\*(L"\s-1LESS\s0\*(R", \*(L"\s-1EQUAL\s0\*(R", \*(L"\s-1NOTEQUAL\s0\*(R" in human readable form (if not
+specified, default is \s-1EQUAL\s0).
+.PP
+\&\fIvalue\fR is a uptime watermark.
+.PP
+\&\fIunit\fR is either \*(L"\s-1SECOND\s0\*(R", \*(L"\s-1MINUTE\s0\*(R", \*(L"\s-1HOUR\s0\*(R" or \*(L"\s-1DAY\s0\*(R" (it is also
+possible to use \*(L"\s-1SECONDS\s0\*(R", \*(L"\s-1MINUTES\s0\*(R", \*(L"\s-1HOURS\s0\*(R", or \*(L"\s-1DAYS\s0\*(R").
+.PP
+\&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+.PP
+Example of restarting the process if the uptime exceeded 3 days:
+.PP
+.Vb 4
+\& check process myapp with pidfile /var/run/myapp.pid
+\&    start program = "/etc/init.d/myapp start"
+\&    stop program = "/etc/init.d/myapp stop"
+\&    if uptime > 3 days then restart
+.Ve
 .SS "\s-1CONNECTION\s0 \s-1TESTING\s0"
 .IX Subsection "CONNECTION TESTING"
-Monit is able to perform connection testing via networked ports
-or via Unix sockets. A connection test may only be used within a
-process or within a host service entry in the Monit control file.
+Monit is able to perform connection testing via networked
+ports or via Unix sockets. A connection test may only be
+used within a check process or within a check host service
+entry in the Monit control file.
 .PP
 If a service listens on one or more sockets, Monit can connect to
 the port (using either tcp or udp) and verify that the service
@@ -1943,14 +1981,14 @@ alert.
 \&\fBport:PORT number\fR. The port number to connect to
 .PP
 \&\fBunixsocket:UNIXSOCKET \s-1PATH\s0\fR. Specifies the path to a Unix
-socket. Servers based on Unix sockets, always runs on the local
-machine and does not use a port.
+socket. Servers based on Unix sockets always run on the local
+machine and do not use a port.
 .PP
 \&\fBtype:TYPE {TCP|UDP|TCPSSL}\fR. Optionally specify the socket type
 Monit should use when trying to connect to the port. The
 different socket types are; \s-1TCP\s0, \s-1UDP\s0 or \s-1TCPSSL\s0, where \s-1TCP\s0 is a
 regular stream based socket, \s-1UDP\s0 is a datagram socket and \s-1TCPSSL\s0
-specify that Monit should use a \s-1TCP\s0 socket with \s-1SSL\s0 when
+specifies that Monit should use a \s-1TCP\s0 socket with \s-1SSL\s0 when
 connecting to a port. The default socket type is \s-1TCP\s0. If \s-1TCPSSL\s0
 is used you may optionally specify the \s-1SSL/TLS\s0 protocol to be
 used and the md5 sum of the server's certificate. The \s-1TCPSSL\s0
@@ -2019,7 +2057,7 @@ The \s-1HTTP\s0 protocol supports in addition:
 \&\s-1CHECKSUM\s0
 .PP
 .Vb 1
-\& PROTO(COL) HTTP [REQUEST {"/path"} [with HOSTHEADER "string"] [with CHECKSUM checksum]
+\& PROTO(COL) HTTP [REQUEST {"/path"} [with CHECKSUM checksum] [with HOSTHEADER "string"]
 .Ve
 .PP
 The Host header option can be used to explicit specify the \s-1HTTP\s0
@@ -2177,7 +2215,7 @@ The full syntax for the \s-1URL\s0 statement is as follows (keywords are
 in capital and optional statements in [brackets]):
 .PP
 .Vb 5
-\&  IF FAILED URL ULR\-spec
+\&  IF FAILED URL URL\-spec
 \&     [CONTENT {==|!=} "regular\-expression"]
 \&     [TIMEOUT number SECONDS] [[<X>] <Y> CYCLES] 
 \&     THEN action
@@ -2552,7 +2590,7 @@ you may specify an alternative secret, default is \*(L"testing123\*(R".
 .SS "\s-1PROGRAM\s0 \s-1STATUS\s0 \s-1TESTING\s0"
 .IX Subsection "PROGRAM STATUS TESTING"
 You can check the exit status of a program or a script. This test
-may only be used within a program service entry in the Monit
+may only be used within a check program service entry in the Monit
 control file.
 .PP
 An example:
@@ -3454,6 +3492,9 @@ insensitive.
 \& size            Must be followed by a compare operator, a
 \&                 number, unit {B|KB|MB|GB|byte|kilobyte|
 \&                 megabyte|gigabyte} and an action.
+\& uptime          Must be followed by a compare operator, a
+\&                 number, unit {second(s)|minute(s)|hour(s)|day(s)}
+\&                 and an action.
 \& depends (on)    Must be followed by the name of a service this
 \&                 service depends on.
 .Ve
@@ -3479,7 +3520,7 @@ Here's the complete list of reserved \fBkeywords\fR used by monit:
 \&\fInonexist\fR, \fIpolicy\fR, \fIreminder\fR, \fIinstance\fR, \fIeventqueue\fR,
 \&\fIbasedir\fR, \fIslot(s)\fR, \fIsystem\fR, \fIidfile\fR, \fIgps\fR, \fIradius\fR,
 \&\fIsecret\fR, \fItarget\fR, \fImaxforward\fR, \fIhostheader\fR, \fIregister\fR,
-\&\fIcredentials\fR, \fIfips\fR, \fIstatus\fR and \fIfailed\fR
+\&\fIcredentials\fR, \fIfips\fR, \fIstatus\fR, \fIuptime\fR and \fIfailed\fR
 .PP
 And here is a complete list of \fBnoise keywords\fR ignored by
 monit:
@@ -3512,7 +3553,7 @@ check to see if the server is running and log a message if not:
 Checking process without pidfile:
 .PP
 .Vb 1
-\& check process matching "/sbin/dynamic_pager \-F /private/var/vm/swapfile"
+\& check process pager matching "/sbin/dynamic_pager \-F /private/var/vm/swapfile"
 .Ve
 .PP
 To have Monit start the server if it's not running, add a start
@@ -3937,7 +3978,7 @@ Finally an example with all statements:
 \&            subject: The gnu server may be hacked again! }
 .Ve
 .PP
-Note; only the \fBcheck statement\fR is mandatory, the other
+Note: only the \fBcheck statement\fR is mandatory, the other
 statements are optional and the order of the optional statements
 is not important.
 .SH "FILES"
@@ -3969,7 +4010,7 @@ is not important.
    systems without /var/run).
 .PP
 \&\fI~/.monit.state\fR  
-   Monit save its state to this file and utilize 
+   Monit saves its state to this file and utilizes
    information found in this file to recover from 
    a crash. This is a binary file and its content is 
    only of interest to monit. You may set the location
@@ -4049,13 +4090,12 @@ console.
 .PP
 The syntax (and parser) of the control file was inspired by Eric
 S. Raymond et al. excellent fetchmail program. Some portions of
-this man page does also receive inspiration from the same
-authors.
+this man page also receive inspiration from the same authors.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2011 by Tildeslash Ltd. All Rights Reserved. This
-product is distributed in the hope that it will be useful, but
-\&\s-1WITHOUT\s0 any warranty; without even the implied warranty of
+Copyright (C) 2001\-2012 by Tildeslash Ltd. All Rights Reserved.
+This product is distributed in the hope that it will be useful,
+but \s-1WITHOUT\s0 any warranty; without even the implied warranty of
 \&\s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 for a particular purpose.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"

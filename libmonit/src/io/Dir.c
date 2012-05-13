@@ -44,7 +44,7 @@
 /**
  * Implementation of the Dir interface
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

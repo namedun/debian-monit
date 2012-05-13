@@ -31,7 +31,7 @@
 /**
  * General purpose <b>String</b> utility <b>class methods</b>.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -120,7 +120,7 @@ char *Str_toUpper(char *s);
  * into. The buffer must be of size 43 bytes or more
  * @return A pointer to <code>s</code>
  */
-char *Str_ntos(long n, char s[43]);
+char *Str_ton(long n, char s[43]);
 
 
 /**

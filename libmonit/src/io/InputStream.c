@@ -41,7 +41,7 @@
 /**
  * Implementation of the InputStream interface. 
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -75,10 +75,12 @@ mode. */
 static inline int fill(T S) {
         if (S->isclosed)
                 return -1;
+        S->length = 0;
+        S->offset = 0; 
         errno = 0;
-        int n = (int)Net_read(S->fd, S->buffer + S->length, BUFFER_SIZE - S->length, S->timeout);
+        int n = (int)Net_read(S->fd, S->buffer, BUFFER_SIZE, S->timeout);
         if (n > 0)
-                S->length += n;
+                S->length = n;
         else if (n < 0) {
                 n = -1; 
                 S->isclosed = true; 

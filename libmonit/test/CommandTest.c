@@ -22,7 +22,7 @@
 
 static void onExec(Process_T P) {
         assert(P);
-        char buf[STRLEN + 1];
+        char buf[STRLEN];
         // Child process info
         printf("\tSubprocess ((pid=%d) created with cwd (%s)\n", Process_getPid(P), Process_getDir(P));
         InputStream_T in = Process_getInputStream(P);
@@ -158,7 +158,7 @@ int main(void) {
                 // Invalid String
                 Command_vSetEnv(c, "HELLO:WORLD");
                 assert(! Command_getEnv(c, "HELLO"));
-                assert(! Command_getEnv(c, "HELLO:WORDL"));
+                assert(! Command_getEnv(c, "HELLO:WORLD"));
                 // Varargs
                 Command_vSetEnv(c, "PATH=%s; TERM=%s;", "/bin", "vterm");
                 assert(Str_isEqual(Command_getEnv(c, "PATH"), "/bin"));

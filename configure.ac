@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.3.1], [monit-general@nongnu.org])
+AC_INIT([monit], [5.4], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -121,7 +121,7 @@ AC_CHECK_HEADERS([ \
 	kvm.h \
 	paths.h \
 	kstat.h \
-	libperfstat.h \
+	sys/protosw.h \
 	limits.h \
 	loadavg.h \
 	locale.h \
@@ -183,6 +183,17 @@ AC_CHECK_HEADERS([ \
         uvm/uvm_extern.h \
         vm/vm.h \
 	])
+
+AC_CHECK_HEADERS([ \
+	libperfstat.h \
+        ],
+        [],
+        [],
+        [
+         #ifdef HAVE_SYS_PROTOSW_H
+         #include <sys/protosw.h>
+         #endif
+        ])
 
 AC_CHECK_HEADERS([ \
 	netinet/ip.h \
@@ -335,6 +346,7 @@ AC_CHECK_FUNCS(getaddrinfo)
 AC_CHECK_FUNCS(syslog)
 AC_CHECK_FUNCS(vsyslog)
 AC_CHECK_FUNCS(backtrace)
+AC_CHECK_FUNCS(getloadavg)
 
 # Check for SOL_IP
 AC_MSG_CHECKING(for SOL_IP)
@@ -464,6 +476,7 @@ then
    ARCH="OPENBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
+   use_pam=0 # No PAM on OpenBSD (supports BSD Auth API instead of PAM)
 elif test "$architecture" = "FreeBSD"
 then
    ARCH="FREEBSD"
@@ -585,13 +598,15 @@ AC_ARG_WITH(pam,
         fi
     ],
     [
-        use_pam=1
-        AC_MSG_RESULT([enabled])
+        if test "x$use_pam" = "x" ; then
+            use_pam=1
+            AC_MSG_RESULT([enabled])
+        fi
     ]
 )
 
 if test "$use_pam" = "1"; then
-        AC_CHECK_LIB([pam],    [pam_start])
+        AC_CHECK_LIB([pam], [pam_start], [], [AC_MSG_ERROR([PAM enabled but headers or library not found, install the PAM development support or run configure --without-pam])])
 fi
 
 
@@ -708,7 +723,7 @@ then
             [
                 if test -z "$sslincldir"; then	
                     dnl Search default locations of SSL includes
-                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw /opt/csw; do
+                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw /opt/csw /opt/freeware; do
                         for dir in "$maindir/include"\
                                    "$maindir/include/openssl"\ 
                                    "$maindir/include/ssl"\
@@ -747,7 +762,8 @@ then
                                    /var \
                                    /opt \
                                    /usr/sfw \
-                                   /opt/csw; do
+                                   /opt/csw \
+                                   /opt/freeware; do
                         for dir in $maindir \
                                    $maindir/openssl \
                                    $maindir/ssl \
@@ -814,8 +830,12 @@ AH_BOTTOM([
 #define __attribute__(x)
 #endif
 ])
+
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([contrib/monit.upstart])
+AC_CONFIG_FILES([contrib/monit.service])
+
 AC_OUTPUT
 
 echo

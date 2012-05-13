@@ -34,7 +34,7 @@
  * the underlying allocator failed.
  * @see Exception.h
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 extern Exception_T MemoryException;

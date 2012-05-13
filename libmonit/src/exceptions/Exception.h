@@ -157,20 +157,17 @@
  * @see SQLException.h IOException.h AssertException.h NumberFormatException.h
  * MemoryException.h
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
 
 #define T Exception_T
 /** @cond hide */
-#include <assert.h>
-#ifndef WIN32
 #include <pthread.h>
 #define TD_T pthread_key_t
 #define TD_set(key, value) pthread_setspecific((key), (value))
 #define TD_get(key) pthread_getspecific((key))
-#endif
 typedef struct T {
         const char *name;
 } T;
@@ -189,7 +186,7 @@ enum {Exception_entered=0, Exception_thrown, Exception_handled, Exception_finali
 extern TD_T Exception_stack;
 void Exception_init(void);
 void Exception_throw(const T *e, const char *func, const char *file, int line, const char *cause, ...);
-#define pop_exception_stack assert(TD_set(Exception_stack, ((Exception_Frame*)TD_get(Exception_stack))->prev)==0)
+#define pop_exception_stack TD_set(Exception_stack, ((Exception_Frame*)TD_get(Exception_stack))->prev)
 /** @endcond */
 
 
@@ -230,7 +227,7 @@ void Exception_throw(const T *e, const char *func, const char *file, int line, c
         Exception_Frame Exception_frame; \
         Exception_frame.message[0]= 0; \
         Exception_frame.prev = TD_get(Exception_stack); \
-        assert(TD_set(Exception_stack, &Exception_frame)==0); \
+        TD_set(Exception_stack, &Exception_frame); \
         Exception_flag = setjmp(Exception_frame.env); \
         if (Exception_flag == Exception_entered) {
                 

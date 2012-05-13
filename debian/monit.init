@@ -36,7 +36,7 @@ PID="/var/run/$NAME.pid"
 # For backward compatibility, handle startup variable:
 if [ -n "$startup" ]
 then
-  if [ "$1" == "start" ]
+  if [ "$1" = "start" ]
   then
     printf "\tPlease, use START variable in /etc/default/monit\n"
     printf "\tto enable/disable $NAME startup.\n"

@@ -25,26 +25,27 @@
 
 #ifndef THREAD_INCLUDED
 #define THREAD_INCLUDED
-
-/**
- * General purpose <b>Thread</b> abstractions. This interface  defines object
- * types and methods for handling threads, synchronization and semaphores. 
- *
- * @see www.mmonit.com
- * @file
- */
-
-
-/* -------------------------------------------- Thread interface for POSIX */
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
 #include <string.h>
 #include <pthread.h>
+#include "system/System.h"
+
+
+/**
+ * General purpose <b>Thread</b> abstractions. This interface  defines object
+ * types and methods for handling threads, synchronization and semaphores. 
+ *
+ * @see http://www.mmonit.com/
+ * @file
+ */
+
+
 /** @cond hidden */
 #define wrapper(F) do { \
-        int status= F; if (! (status == 0 || status==ETIMEDOUT)) \
-        Exception_throw(&AssertException, __func__, __FILE__, __LINE__, "%s -- %s", #F, strerror(status)); \
+        int status= (F); if (! (status == 0 || status==ETIMEDOUT)) \
+        THROW(AssertException, "%s -- %s", #F, System_getError(status)); \
 } while (0)
 /** @endcond */
 /** @name Abstract Data Types */

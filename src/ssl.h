@@ -46,9 +46,10 @@
 
 /** Defines an SSL object */
 typedef struct myssl {
-  int   use_ssl;                 /**< TRUE if SSL is required for connection */
-  int   version;                  /**< The SSL version to use for connection */
-  char *certmd5;       /**< The expected md5 sum of the server's certificate */
+        int   use_ssl;                 /**< TRUE if SSL is required for connection */
+        int   version;                  /**< The SSL version to use for connection */
+        char *certmd5;       /**< The expected md5 sum of the server's certificate */
+        char *clientpemfile;                      /**< Optional client certificate */
 } Ssl_T;
 
 
@@ -56,37 +57,36 @@ typedef struct myssl {
 
 
 typedef struct my_ssl_connection {
-  int               socket;
-  int               accepted;
-  SSL              *handler;
-  SSL_CTX          *ctx;
-  X509             *cert;
-  SSL_METHOD       *method;
-  BIO              *socket_bio;
-  const char       *cipher;
-  char             *cert_subject;
-  char             *cert_issuer;
-  unsigned char    *cert_md5;
-  unsigned int      cert_md5_len;
-  char             *clientpemfile;
-
-  struct my_ssl_connection *prev;
-  struct my_ssl_connection *next;
+        int               socket;
+        int               accepted;
+        SSL              *handler;
+        SSL_CTX          *ctx;
+        X509             *cert;
+        SSL_METHOD       *method;
+        BIO              *socket_bio;
+        const char       *cipher;
+        char             *cert_subject;
+        char             *cert_issuer;
+        unsigned char    *cert_md5;
+        unsigned int      cert_md5_len;
+        char             *clientpemfile;
+        
+        struct my_ssl_connection *prev;
+        struct my_ssl_connection *next;
 } ssl_connection;
 
 
 typedef struct my_ssl_server_connection {
-  int               server_socket;
-  SSL_METHOD       *method;
-  SSL_CTX          *ctx;
-  char             *pemfile;
-  char             *clientpemfile;
-  ssl_connection   *ssl_conn_list;
+        int               server_socket;
+        SSL_METHOD       *method;
+        SSL_CTX          *ctx;
+        char             *pemfile;
+        char             *clientpemfile;
+        ssl_connection   *ssl_conn_list;
 } ssl_server_connection;
 
 
 #define                have_ssl() 1
-void                   config_ssl(int);
 void                   stop_ssl();
 int                    embed_ssl_socket(ssl_connection *, int);
 int                    embed_accepted_ssl_socket(ssl_connection *, int);
@@ -114,7 +114,6 @@ typedef void ssl_server_connection;
 
 /* dummy ssl functions */
 #define have_ssl()                      0
-#define config_ssl(x)
 #define stop_ssl()
 #define embed_ssl_socket(x, y)          0
 #define embed_accepted_ssl_socket(x, y) 0

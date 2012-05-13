@@ -147,7 +147,7 @@ int update_process_data(Service_T s, ProcessTree_T *pt, int treesize, pid_t pid)
  * Updates the system wide statistic
  * @return TRUE if successful, otherwise FALSE
  */
-int update_system_load(ProcessTree_T *pt, int treesize) {
+int update_system_load() {
 
   if (Run.doprocess) {
 
@@ -233,8 +233,8 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
       /* The cpu_percent may be set already (for example by HPUX module) */
       if (pt[i].cpu_percent  == 0 && pt[i].cputime_prev != 0 && pt[i].cputime != 0 && pt[i].cputime > pt[i].cputime_prev) {
         pt[i].cpu_percent = (int)((1000 * (double)(pt[i].cputime - pt[i].cputime_prev) / (pt[i].time - pt[i].time_prev)) / systeminfo.cpus);
-        if (pt[i].cpu_percent > 1000 / systeminfo.cpus)
-          pt[i].cpu_percent = 1000 / systeminfo.cpus;
+        if (pt[i].cpu_percent > 1000)
+          pt[i].cpu_percent = 1000;
       }
     } else {
       pt[i].cputime_prev = 0;
@@ -280,7 +280,6 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
   }
 
   fillprocesstree(pt, root);
-  update_system_load(*pt_r, *size_r);
 
   return *size_r;
 }

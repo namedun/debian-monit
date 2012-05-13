@@ -214,7 +214,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
         p += strlen(p);
       }
       if (StringBuffer_length(cmdline))
-        pt[i].cmdline = Str_trim(Str_dup(StringBuffer_toString(cmdline)));
+        pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
       StringBuffer_free(&cmdline);
     }
     if (! pt[i].cmdline || ! *pt[i].cmdline)

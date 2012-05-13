@@ -34,7 +34,7 @@
  *
  * This class is reentrant but not thread-safe
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -141,6 +141,18 @@ int StringBuffer_replace(T S, const char *a, const char *b);
 
 
 /**
+ * Remove (any) leading and trailing white space [ \\t\\r\\n]. Example
+ * <pre>
+ * StringBuffer_T b = StringBuffer_new("\t 'foo bar' \n"); 
+ * StringBuffer_trim(b) -> "'foo bar'"
+ * </pre>
+ * @param S StringBuffer object
+ * @return a reference to this StringBuffer
+ */
+T StringBuffer_trim(T S);
+
+
+/**
  * Remove all characters from the given <code>index</code> position and 
  * to the end of the StringBuffer. The index parameter must be greater 
  * than or equal to 0 and less than the length of the StringBuffer.
@@ -148,8 +160,9 @@ int StringBuffer_replace(T S, const char *a, const char *b);
  * @param index The position of the buffer to start truncating
  * @exception AssertException if the index parameter is negative 
  * or greater than or equal to the StringBuffer length.
+ * @return a reference to this StringBuffer
  */
-void StringBuffer_delete(T S, int index);
+T StringBuffer_delete(T S, int index);
 
 
 /**
@@ -207,8 +220,9 @@ int StringBuffer_length(T S);
 /**
  * Clears the contents of the string buffer and set buffer length to 0.
  * @param S StringBuffer object
+ * @return a reference to this StringBuffer
  */
-void StringBuffer_clear(T S);
+T StringBuffer_clear(T S);
 
 
 /**

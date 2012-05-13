@@ -152,7 +152,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
     return FALSE;
   }
 
-  pinfo = kvm_getprocs(kvm_handle, KERN_PROC_ALL, 0, &treesize);
+  pinfo = kvm_getprocs(kvm_handle, KERN_PROC_PROC, 0, &treesize);
   if (!pinfo || (treesize < 1)) {
     LogError("system statistic error -- cannot get process tree\n");
     kvm_close(kvm_handle);
@@ -178,7 +178,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
     if ((args = kvm_getargv(kvm_handle, &pinfo[i], 0))) {
       for (int j = 0; args[j]; j++)
         StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
-      pt[i].cmdline = Str_trim(Str_dup(StringBuffer_toString(cmdline)));
+      pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
     }
     StringBuffer_free(&cmdline);
     if (! pt[i].cmdline || ! *pt[i].cmdline)

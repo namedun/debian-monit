@@ -47,7 +47,7 @@
 /**
  * Implementation of the Str interface
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -57,8 +57,7 @@
 
 char *Str_chomp(char *s) {
         if (STR_DEF(s)) {
-                char *p = s;
-                for (; *p; p++)
+                for (char *p = s; *p; p++)
                         if (*p == '\r' || *p == '\n') {
                                 *p = 0; break;
                         }
@@ -96,22 +95,20 @@ char *Str_rtrim(char *s) {
 
 char *Str_unquote(char *s) {
         if (STR_DEF(s)) {
-                char *t1, *t2;
-                t1 = t2 = s;
+                char *t = s;
                 // Left unquote
-                while (*t1 == 34 || *t1 == 39 || isspace(*t1)) t1++;
-                if (t1 != s) {
-                        for (*t2 = *t1; *t1; t1++, t2++)
-                                *t2 = *t1;
-                        t1 = t2;
-                } else {
-                        t1 = s;
-                        while (*t1) t1++;
-                }
+                while (*t == 34 || *t == 39 || isspace(*t)) t++;
+                if (t != s) {
+                        char *u = s;
+                        for (; *t; t++, u++)
+                                *u = *t;
+                        t = u;
+                } else 
+                        while (*t) t++;
                 // Right unquote
                 do 
-                        *(t1--) = 0;
-                while (t1 > s && (*t1 == 34 || *t1 == 39 || isspace(*t1)));
+                        *(t--) = 0;
+                while (t > s && (*t == 34 || *t == 39 || isspace(*t)));
         }
         return s;
 }
@@ -133,7 +130,7 @@ char *Str_toUpper(char *s) {
 }
 
 
-char *Str_ntos(long n, char s[43]) {
+char *Str_ton(long n, char s[43]) {
         assert(s);
         s[42] = 0;
         char *t = s + 42;
@@ -203,11 +200,11 @@ char *Str_replaceChar(char *s, char o, char n) {
 
 
 int Str_startsWith(const char *a, const char *b) {
-        if (a && b) {
-                const char *s = a;
-                while (*a && *b)
-                        if (toupper(*a++) != toupper(*b++)) return false;
-                return ((*a == *b) || (a != s && *b == 0));
+	if (a && b) {
+	        do 
+	                if (*a++ != *b++) return false;
+                while (*b);
+                return true;
         }
         return false;
 }
@@ -279,15 +276,13 @@ int Str_isByteEqual(const char *a, const char *b) {
 
 
 char *Str_copy(char *dest, const char *src, int n) {
-        char *p = dest;
-        if (!(src && dest)) { 
-                if (dest) 
-                        *dest = 0; 
-                return dest; 
-        }
-        for (; (*src && n--); src++, p++)
-                *p = *src;
-        *p = 0;
+	if (src && dest && (n > 0)) { 
+        	char *t = dest;
+	        while (*src && n--)
+        		*t++ = *src++;
+        	*t = 0;
+	} else if (dest)
+	        *dest = 0;
         return dest;
 }
 

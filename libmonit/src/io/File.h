@@ -31,7 +31,7 @@
 /**
  * A set of low-level class methods for operating on a file.
  * 
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -101,6 +101,15 @@ int File_open(const char *file, const char *mode);
  * @return true on success or false if an error occurred.
  */
 int File_close(int fd);
+
+
+/**
+ * Move the <code>read</code> position in the file to the beginning
+ * of input.
+ * @param fd An open file descriptor
+ * @return true if success otherwise false and errno is set accordingly
+ */
+int File_rewind(int fd);
 
 
 /**

@@ -1,8 +1,39 @@
-monit (1:5.3.1-2~bpo60+1) squeeze-backports; urgency=low
+monit (1:5.4-1~bpo60+1) squeeze-backports; urgency=low
 
-  * Rebuild for squeeze-backports
+  * Rebuild for squeeze-backports.
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 20 Dec 2011 03:03:05 +0400
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 13 May 2012 19:56:09 +0400
+
+monit (1:5.4-1) unstable; urgency=low
+
+  * Reformat debian/copyright according to accepted DEP5 spec
+  * Bump up Standards-Version to 3.9.3 (no changes)
+  * Imported Upstream version 5.4
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 13 May 2012 19:34:12 +0400
+
+monit (1:5.3.2-2) unstable; urgency=low
+
+  * Drop TODO.Debian
+  * Fix bashism in monit.init (Closes: #654449)
+  * Removed example.monitrc
+  * Cleanup of dirs file
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 05 Jan 2012 16:04:39 +0400
+
+monit (1:5.3.2-1) unstable; urgency=low
+
+  * Imported Upstream version 5.3.2 (Closes: #652715)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 21 Dec 2011 03:20:22 +0400
+
+monit (1:5.3.1-3) unstable; urgency=low
+
+  * Revert "Drop --with-ssl-lib-dir switch from ./configure arguments"
+    - Couple arch's (hurd-i386, i386, kfreebsd-i386) still needs
+      this workarround to prevent FTBS.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 20 Dec 2011 13:14:13 +0400
 
 monit (1:5.3.1-2) unstable; urgency=low
 

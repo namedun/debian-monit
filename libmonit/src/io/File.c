@@ -43,7 +43,7 @@
 /**
  * Implementation of the File Facade for Unix systems. 
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -106,6 +106,11 @@ int File_close(int fd) {
                 r = close(fd);
         while (r == -1 && errno == EINTR);
         return (r == 0);
+}
+
+
+int File_rewind(int fd) {
+        return (lseek(fd, 0, SEEK_SET) >=0);
 }
 
 

@@ -95,6 +95,7 @@ EventTable_T Event_Table[]= {
   {Event_Timeout,    "Timeout",                 "Timeout recovery",           "Timeout changed",          "Timeout not changed"},
   {Event_Timestamp,  "Timestamp failed",        "Timestamp succeeded",        "Timestamp changed",        "Timestamp not changed"},
   {Event_Uid,        "UID failed",              "UID succeeded",              "UID changed",              "UID not changed"},
+  {Event_Uptime,     "Uptime failed",           "Uptime succeeded",           "Uptime changed",           "Uptime not changed"},
   /* Virtual events */
   {Event_Null,       "No Event",                "No Event",                   "No Event",                 "No Event"}
 };

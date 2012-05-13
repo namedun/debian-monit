@@ -39,7 +39,7 @@ the syntax of which we describe in a later section. Command-line
 options override F<.monitrc> declarations.
 
 The default location for F<monitrc> is F<~/.monitrc>. If this
-file does not exist, Monit will try I</ect/monitrc> and a few
+file does not exist, Monit will try I</etc/monitrc> and a few
 other places. See L<FILES|/"FILES"> for details. You can also
 specify the control file directly by using the I<-c> command-line
 switch to monit. For instance,
@@ -231,12 +231,12 @@ You can use Monit to monitor daemon B<processes> or similar
 programs running on localhost. Monit is particular useful for
 monitoring daemon processes, such as those started at system boot
 time from /etc/init.d/. For instance sendmail, sshd, apache and
-mysql. In difference to many monitoring systems, Monit can act if
+mysql. In contrast to many other monitoring systems, Monit can act if
 an error situation should occur, e.g.; if sendmail is not
 running, monit can start sendmail again automatically or if
-apache is using too much resources (e.g. if a DoS attack is in
+apache is using too many resources (e.g. if a DoS attack is in
 progress) Monit can stop or restart apache and send you an alert
-message. Monit can also monitor process characteristics, such as;
+message. Monit can also monitor process characteristics, such as
 how much memory or cpu cycles a process is using.
 
 You can also use Monit to monitor B<files>, B<directories> and
@@ -653,21 +653,25 @@ instead of:
 
    alert foo@bar on { action
                       checksum
+                      connection
                       content
                       data
                       exec
+                      fsflags
                       gid
                       icmp
                       invalid
-                      fsflags
                       nonexist
                       permission
                       pid
                       ppid
+                      resource
                       size
                       status
                       timeout
-                      timestamp }
+                      timestamp
+                      uid
+                      uptime }
 
 This will send alerts for all events to foo@bar, except Monit
 instance events. An instance event BTW, is an event fired
@@ -686,10 +690,10 @@ security@bar if a checksum, permission, uid or gid problem
 occurs. And finally, a message to manager@bar whenever any error
 event occurs.
 
-Here is the list of events you can use in a mail-filter: I<uid,
-gid, size, nonexist, data, icmp, instance, invalid, exec,
-content, status, timeout, resource, checksum, fsflags, timestamp,
-connection, permission, pid, ppid, action>
+Here is the list of events you can use in a mail-filter: I<action,
+checksum, connection, content, data, exec, fsflags, gid, icmp,
+instance, invalid, nonexist, permission, pid, ppid, resource, size, 
+status, timeout, timestamp, uid, uptime>
 
 You can also disable the alerts locally using the NOALERT
 statement. This is useful if you have lots of services monitored
@@ -802,6 +806,7 @@ expanded into the text with these values:
  TIMEOUT   | "Timeout"                | "Timeout recovery"          
  TIMESTAMP | "Timestamp failed"       | "Timestamp succeeded"       
  UID       | "UID failed"             | "UID succeeded"             
+ UPTIME    | "Uptime failed"          | "Uptime succeeded"             
 
 =item * I<$SERVICE>
 
@@ -1025,10 +1030,10 @@ Example for stopping the service:
 
 =head1 SERVICE TESTS
 
-Monit provides several tests you can use in a service entry to
-test a service. There are two classes of tests: variable and
-constant tests. That is, the condition we test is either constant
-e.g. a number or it can vary.
+Monit provides several tests you can use in a 'check service'
+entry to test a service. There are two classes of tests:
+variable and constant tests. That is, the condition we test
+is either constant e.g. a number or it can vary.
 
 A constant test has this general format:
 
@@ -1439,9 +1444,9 @@ third-party applications, until the vendor fix a problem:
 
 =head2 FILE SIZE TESTING
 
-The size statement may only be used in a file service entry. If
-specified in the control file, Monit will compute a size for a
-file.
+The size statement may only be used in a check file service
+entry. If specified in the control file, Monit will compute
+a size for a file.
 
 The size test in constant form is used to verify various size
 conditions. Syntax (keywords are in capital):
@@ -1634,9 +1639,9 @@ Example:
 
 =head2 SPACE TESTING
 
-Monit can test file systems for space usage. This test may only
-be used within a filesystem service entry in the Monit control
-file.
+Monit can test file systems for space usage. This test may
+only be used within a check filesystem service entry in the
+Monit control file.
 
 Monit will check a filesystem's total space usage. If you only
 want to check available space for non-superuser, you must set the
@@ -1673,9 +1678,9 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 
 =head2 INODE TESTING
 
-If supported by the file-system, you can use Monit to test for
-inodes usage. This test may only be used within a filesystem
-service entry in the Monit control file.
+If supported by the file-system, you can use Monit to test
+for inodes usage. This test may only be used within a check
+filesystem service entry in the Monit control file.
 
 If the filesystem becomes unavailable, Monit will call the
 service's registered start method, if it is defined and if Monit
@@ -1749,9 +1754,10 @@ a depend tree.
 
 =head2 UID TESTING
 
-Monit can monitor the owner user id (uid) of a file object. This
-test may only be used within a file, fifo, directory or
-filesystem service entry in the Monit control file.
+Monit can monitor the owner user id (uid) of a file object.
+This test may only be used within a check - file, fifo,
+directory or filesystem service entry in the Monit control
+file.
 
 The syntax for the uid statement is:
 
@@ -1889,11 +1895,49 @@ Example:
 
 
 
+=head2 UPTIME TESTING
+
+The uptime statement may only be used in a check process service
+entry. If specified in the control file, Monit will test the
+process uptime.
+
+Syntax (keywords are in capital):
+
+=over 4
+
+=item IF UPTIME [[operator] value [unit]] [[<X>] <Y> CYCLES] 
+      THEN action
+      [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]
+
+=back
+
+I<operator> is a choice of "<", ">", "!=", "==" in C notation,
+"GT", "LT", "EQ", "NE" in shell sh notation and "GREATER",
+"LESS", "EQUAL", "NOTEQUAL" in human readable form (if not
+specified, default is EQUAL).
+
+I<value> is a uptime watermark.
+
+I<unit> is either "SECOND", "MINUTE", "HOUR" or "DAY" (it is also
+possible to use "SECONDS", "MINUTES", "HOURS", or "DAYS").
+
+I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
+"EXEC" or "UNMONITOR".
+
+Example of restarting the process if the uptime exceeded 3 days:
+
+ check process myapp with pidfile /var/run/myapp.pid
+    start program = "/etc/init.d/myapp start"
+    stop program = "/etc/init.d/myapp stop"
+    if uptime > 3 days then restart
+
+
 =head2 CONNECTION TESTING
 
-Monit is able to perform connection testing via networked ports
-or via Unix sockets. A connection test may only be used within a
-process or within a host service entry in the Monit control file.
+Monit is able to perform connection testing via networked
+ports or via Unix sockets. A connection test may only be
+used within a check process or within a check host service
+entry in the Monit control file.
 
 If a service listens on one or more sockets, Monit can connect to
 the port (using either tcp or udp) and verify that the service
@@ -1943,14 +1987,14 @@ alert.
 B<port:PORT number>. The port number to connect to
 
 B<unixsocket:UNIXSOCKET PATH>. Specifies the path to a Unix
-socket. Servers based on Unix sockets, always runs on the local
-machine and does not use a port.
+socket. Servers based on Unix sockets always run on the local
+machine and do not use a port.
 
 B<type:TYPE {TCP|UDP|TCPSSL}>. Optionally specify the socket type
 Monit should use when trying to connect to the port. The
 different socket types are; TCP, UDP or TCPSSL, where TCP is a
 regular stream based socket, UDP is a datagram socket and TCPSSL
-specify that Monit should use a TCP socket with SSL when
+specifies that Monit should use a TCP socket with SSL when
 connecting to a port. The default socket type is TCP. If TCPSSL
 is used you may optionally specify the SSL/TLS protocol to be
 used and the md5 sum of the server's certificate. The TCPSSL
@@ -2018,7 +2062,7 @@ The HTTP protocol supports in addition:
 
 =back
 
- PROTO(COL) HTTP [REQUEST {"/path"} [with HOSTHEADER "string"] [with CHECKSUM checksum]
+ PROTO(COL) HTTP [REQUEST {"/path"} [with CHECKSUM checksum] [with HOSTHEADER "string"]
 
 The Host header option can be used to explicit specify the HTTP
 host header in the request. If not used, Monit will use the
@@ -2159,7 +2203,7 @@ content returned by the HTTP server.
 The full syntax for the URL statement is as follows (keywords are
 in capital and optional statements in [brackets]):
 
-  IF FAILED URL ULR-spec
+  IF FAILED URL URL-spec
      [CONTENT {==|!=} "regular-expression"]
      [TIMEOUT number SECONDS] [[<X>] <Y> CYCLES] 
      THEN action
@@ -2500,7 +2544,7 @@ RADIUS example:
 =head2 PROGRAM STATUS TESTING
 
 You can check the exit status of a program or a script. This test
-may only be used within a program service entry in the Monit
+may only be used within a check program service entry in the Monit
 control file.
 
 An example:
@@ -3418,6 +3462,9 @@ insensitive.
  size            Must be followed by a compare operator, a
                  number, unit {B|KB|MB|GB|byte|kilobyte|
                  megabyte|gigabyte} and an action.
+ uptime          Must be followed by a compare operator, a
+                 number, unit {second(s)|minute(s)|hour(s)|day(s)}
+                 and an action.
  depends (on)    Must be followed by the name of a service this
                  service depends on.
 
@@ -3443,7 +3490,7 @@ I<unmonitor>, I<rdate>, I<rsync>, I<data>, I<invalid>, I<exec>,
 I<nonexist>, I<policy>, I<reminder>, I<instance>, I<eventqueue>,
 I<basedir>, I<slot(s)>, I<system>, I<idfile>, I<gps>, I<radius>,
 I<secret>, I<target>, I<maxforward>, I<hostheader>, I<register>,
-I<credentials>, I<fips>, I<status> and I<failed>
+I<credentials>, I<fips>, I<status>, I<uptime> and I<failed>
 
 And here is a complete list of B<noise keywords> ignored by
 monit:
@@ -3473,7 +3520,7 @@ check to see if the server is running and log a message if not:
 
 Checking process without pidfile:
 
- check process matching "/sbin/dynamic_pager -F /private/var/vm/swapfile"
+ check process pager matching "/sbin/dynamic_pager -F /private/var/vm/swapfile"
 
 To have Monit start the server if it's not running, add a start
 statement:
@@ -3855,7 +3902,7 @@ Finally an example with all statements:
        alert rms@gnu.org with mail-format {
             subject: The gnu server may be hacked again! }
 
-Note; only the B<check statement> is mandatory, the other
+Note: only the B<check statement> is mandatory, the other
 statements are optional and the order of the optional statements
 is not important.
 
@@ -3890,7 +3937,7 @@ F</etc/monit.pid>
    systems without /var/run).
 
 F<~/.monit.state>  
-   Monit save its state to this file and utilize 
+   Monit saves its state to this file and utilizes
    information found in this file to recover from 
    a crash. This is a binary file and its content is 
    only of interest to monit. You may set the location
@@ -3997,15 +4044,14 @@ console.
 
 The syntax (and parser) of the control file was inspired by Eric
 S. Raymond et al. excellent fetchmail program. Some portions of
-this man page does also receive inspiration from the same
-authors.
+this man page also receive inspiration from the same authors.
 
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 by Tildeslash Ltd. All Rights Reserved. This
-product is distributed in the hope that it will be useful, but
-WITHOUT any warranty; without even the implied warranty of
+Copyright (C) 2001-2012 by Tildeslash Ltd. All Rights Reserved.
+This product is distributed in the hope that it will be useful,
+but WITHOUT any warranty; without even the implied warranty of
 MERCHANTABILITY or FITNESS for a particular purpose.
 
 

@@ -41,7 +41,7 @@
 /**
  * Implementation of the Time interface
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -420,7 +420,7 @@ time_t Time_parse(const char *date) {
 }
 
 
-time_t Time_now() {
+time_t Time_now(void) {
 	struct timeval t;
 	if (gettimeofday(&t, NULL) != 0)
                 THROW(AssertException, "%s", System_getLastError());
@@ -428,7 +428,7 @@ time_t Time_now() {
 }
 
 
-long long int Time_milli() {
+long long int Time_milli(void) {
 	struct timeval t;
 	if (gettimeofday(&t, NULL) != 0)
                 THROW(AssertException, "%s", System_getLastError());

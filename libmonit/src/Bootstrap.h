@@ -31,7 +31,7 @@
 /**
  * Temporary interface for bootstrapping libmonit from Monit.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

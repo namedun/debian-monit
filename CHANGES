@@ -1,10 +1,97 @@
-                     CHANGES version 5.3.1
+                     CHANGES version 5.4
                                 
            This file summarizes changes made since 5.0
                                 
        Bug fixes may refer to an auto-generated id in our
           bug-tracking system, which can be found here
           https://savannah.nongnu.org/bugs/?group=monit
+
+
+Version 5.4
+
+IMPROVEMENTS:
+
+* New process uptime test added. Allows to do some action in
+  the case that the process uptime matches the given limit.
+  For example to restart the process once per 3 days:
+    if uptime > 3 days then restart
+
+* Linux uCLibc support: use internal getloadavg implementation
+  in the case that the system libc doesn't implement it.
+
+BUGFIXES:
+
+* The monit hostname will fallback to plain machine's hostname if the
+  lookup for FQDN hostname didn't found matching entry. The problem
+  was, that based on the order in the /etc/hosts the FQDN lookup
+  returned sometimes 'localhost' instead of the FQDN hostname.
+
+* The CPU usage for multi-threaded processes on multi-core machine was
+  reported incorrectly in the case that the process used more CPU
+  resources then equivalent to one core. Thanks to Tom Pepper for patch.
+
+* The content match test now sends one event per cycle and pattern.
+  Even if there are multiple lines matching the same pattern, only
+  one event will be generated. Also the event rate is fixed now, so
+  it is possible to require match for X cycles before generating the
+  event.
+
+* The /proc/ files content match test was skipped, as the file size on
+  the procfs is 0, so monit supposed that there is no content to read.
+
+* FreeBSD: If the monitored process had children with multiple threads,
+  the total memory usage was reported incorrectly. Thanks to Phil Kulin
+  for reporting the problem.
+
+* Allow reading status and perform Monit actions when using client SSL
+  certificate. Previously, if Monit http server was setup to use ssl
+  and a client cert, status and action failed. Thanks to Markus Linnala
+  for initial patch.
+
+* When the process is starting/stopping, do the process state check more
+  effectively to not stress the low power devices with aggresive polling.
+  Thanks to Thomas Petazzoni for initial patch.
+
+* Make the process start/stop wait resistant to large time changes.
+
+* Compilation: If PAM is enabled but the PAM headers or library are not
+  found by the configure script, it will report error.
+
+* Cross-compilation: the configure checks the setjmp and vsnprintf with
+  test program which usually cannot be executed when cross-compiling
+  for other architecture. The configure script now takes the following
+  arguments which allow to specify whether the setjmp works on this
+  platform and whether the vsnprintf is C99 compliant. Thanks to
+  Thomas Petazzoni for patch.
+        ./configure \
+                libmonit_cv_setjmp_available=[yes|no] \
+                libmonit_cv_vsnprintf_c99_conformant=[yes|no]
+
+* Manual page language fixes. Thanks to Jonathan Boulle for patch.
+
+
+
+Version 5.3.2
+
+BUGFIXES:
+
+* Fix bug #34801: The file content match test did reset of the
+  read position in the case that the unmonitor or stop action
+  was done. When the file monitoring was enabled again, the
+  content match test was applied to the content which was
+  tested already.
+
+* Log error details in the case that the name resolving failed.
+
+* Fix the system cpu usage statistics when pattern based process
+  check is used and the service is restarted. Thanks to Wayne
+  Lawrence for report.
+
+* AIX 6.1 compile fix. Thanks to Benedikt Wegmann for patch.
+
+* Debian Bug#652715: "include files not found" warning. Do not
+  display the warning if the include directory is empty.
+
 
 
 Version 5.3.1

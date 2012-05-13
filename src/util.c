@@ -275,6 +275,8 @@ static void printevents(unsigned int events) {
                         printf("Timestamp ");
                 if(IS_EVENT_SET(events, Event_Uid))
                         printf("Uid ");
+                if(IS_EVENT_SET(events, Event_Uptime))
+                        printf("Uptime ");
                 
         }
         printf("\n");
@@ -769,6 +771,7 @@ void Util_printRunList() {
         printf(" %-18s = %s\n", "Control file", is_str_defined(Run.controlfile));
         printf(" %-18s = %s\n", "Log file", is_str_defined(Run.logfile));
         printf(" %-18s = %s\n", "Pid file", is_str_defined(Run.pidfile));
+        printf(" %-18s = %s\n", "Id file", is_str_defined(Run.idfile));
         printf(" %-18s = %s\n", "Debug", Run.debug?"True":"False");
         printf(" %-18s = %s\n", "Log", Run.dolog?"True":"False");
         printf(" %-18s = %s\n", "Use syslog", Run.use_syslog?"True":"False");
@@ -890,6 +893,7 @@ void Util_printService(Service_T s) {
         Timestamp_T t;
         ActionRate_T ar;
         Size_T sl;
+        Uptime_T ul;
         Match_T ml;
         Dependant_T d;
         ServiceGroup_T sg;
@@ -1111,10 +1115,28 @@ void Util_printService(Service_T s) {
                 
         }
         
+        for(ul= s->uptimelist; ul; ul= ul->next) {
+                EventAction_T a= ul->action;
+                printf(" %-20s = ", "Uptime");
+                printf("if %s %llu second(s) %s ", operatornames[ul->operator], ul->uptime, Util_getEventratio(a->failed, buf, sizeof(buf)));
+                printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
+                printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
+                printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
+                printf("\n");
+
+        }
+
         if (s->type != TYPE_PROCESS) {
-                for(ml= s->matchlist; ml; ml= ml->next) {
-                        EventAction_T a= ml->action;
-                        printf(" %-20s = ", "Regex");
+                for (ml = s->matchignorelist; ml; ml = ml->next) {
+                        EventAction_T a = ml->action;
+                        printf(" %-20s = ", "Ignore pattern");
+                        printf("if%s match \"%s\" %s ", ml->not ? " not" : "", ml->match_string, Util_getEventratio(a->failed, buf, sizeof(buf)));
+                        printf("then %s", Util_describeAction(a->failed, buf, sizeof(buf)));
+                        printf("\n");
+                }
+                for (ml = s->matchlist; ml; ml = ml->next) {
+                        EventAction_T a = ml->action;
+                        printf(" %-20s = ", "Pattern");
                         printf("if%s match \"%s\" %s ", ml->not ? " not" : "", ml->match_string, Util_getEventratio(a->failed, buf, sizeof(buf)));
                         printf("then %s", Util_describeAction(a->failed, buf, sizeof(buf)));
                         printf("\n");
@@ -1678,17 +1700,48 @@ int Util_checkCredentials(char *uname, char *outside) {
 
 
 void Util_resetInfo(Service_T s) {
-        memset(s->inf, 0, sizeof *(s->inf));
+        s->inf->st_mode = 0;
+        s->inf->st_uid = 0;
+        s->inf->st_gid = 0;
+        s->inf->timestamp = 0;
         switch (s->type) {
-                case TYPE_PROCESS:
-                        s->inf->priv.process._pid  = -1;
-                        s->inf->priv.process._ppid = -1;
-                        s->inf->priv.process.pid   = -1;
-                        s->inf->priv.process.ppid  = -1;
-                        break;
                 case TYPE_FILESYSTEM:
+                        s->inf->priv.filesystem.f_bsize = 0L;
+                        s->inf->priv.filesystem.f_blocks = 0L;
+                        s->inf->priv.filesystem.f_blocksfree = 0L;
+                        s->inf->priv.filesystem.f_blocksfreetotal = 0L;
+                        s->inf->priv.filesystem.f_files = 0L;
+                        s->inf->priv.filesystem.f_filesfree = 0L;
+                        FREE(s->inf->priv.filesystem.mntpath);
+                        s->inf->priv.filesystem.inode_percent = 0;
+                        s->inf->priv.filesystem.inode_total = 0L;
+                        s->inf->priv.filesystem.space_percent = 0;
+                        s->inf->priv.filesystem.space_total = 0L;
                         s->inf->priv.filesystem._flags = -1;
-                        s->inf->priv.filesystem.flags  = -1;
+                        s->inf->priv.filesystem.flags = -1;
+                        break;
+                case TYPE_FILE:
+                        // persistent: st_ino, readpos
+                        s->inf->priv.file.st_size  = 0;
+                        s->inf->priv.file.st_ino_prev = 0;
+                        *s->inf->priv.file.cs_sum = 0;
+                        break;
+                case TYPE_PROCESS:
+                        s->inf->priv.process._pid = -1;
+                        s->inf->priv.process._ppid = -1;
+                        s->inf->priv.process.pid = -1;
+                        s->inf->priv.process.ppid = -1;
+                        s->inf->priv.process.status_flag = 0;
+                        s->inf->priv.process.children = 0;
+                        s->inf->priv.process.mem_kbyte = 0L;
+                        s->inf->priv.process.total_mem_kbyte = 0L;
+                        s->inf->priv.process.mem_percent = 0;
+                        s->inf->priv.process.total_mem_percent = 0;
+                        s->inf->priv.process.cpu_percent = 0;
+                        s->inf->priv.process.total_cpu_percent = 0;
+                        s->inf->priv.process.uptime = 0;
+                        break;
+                default:
                         break;
         }
 }
@@ -1837,20 +1890,28 @@ int Util_getfqdnhostname(char *buf, unsigned len) {
         char hostname[STRLEN];
         struct addrinfo hints, *info = NULL;
         
+	// Set the base hostname
         if (gethostname(hostname, sizeof(hostname))) {
                 LogError("%s: Error getting hostname -- %s\n", prog, STRERROR);
                 return -1;
         }
+	snprintf(buf, len, "%s", hostname);
         
+	// Try to look for FQDN hostname
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
         hints.ai_flags = AI_CANONNAME;
         if ((status = getaddrinfo(hostname, NULL, &hints, &info))) {
-                LogError("%s: Cannot translate '%s' to FQDN name -- %s\n", prog, hostname, gai_strerror(status));
-                snprintf(buf, len, "%s", hostname); // fallback to gethostname()
-        } else
-                snprintf(buf, len, "%s", info->ai_canonname);
+                LogError("%s: Cannot translate '%s' to FQDN name -- %s\n", prog, hostname, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
+        } else {
+		for (struct addrinfo *result = info; result; result = result->ai_next) {
+			if (Str_startsWith(result->ai_canonname, hostname)) {
+	                	snprintf(buf, len, "%s", result->ai_canonname);
+				break;
+			}
+		}
+	}
         if (info)
                 freeaddrinfo(info);
         return 0;

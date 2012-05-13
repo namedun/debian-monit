@@ -76,21 +76,21 @@ set daemon  60              # check services at 1-minute intervals
 #     # and register without credentials     # Don't register credentials
 #
 #
-## Monit by default uses the following alert mail format:
-##
+## Monit by default uses the following format for alerts if the the mail-format
+## statement is missing::
 ## --8<--
-## From: monit@$HOST                         # sender
-## Subject: monit alert --  $EVENT $SERVICE  # subject
+## set mail-format {
+##      from: monit@$HOST
+##   subject: monit alert --  $EVENT $SERVICE
+##   message: $EVENT Service $SERVICE
+##                 Date:        $DATE
+##                 Action:      $ACTION
+##                 Host:        $HOST
+##                 Description: $DESCRIPTION
 ##
-## $EVENT Service $SERVICE                   #
-##                                           #
-## 	Date:        $DATE                   #
-## 	Action:      $ACTION                 #
-## 	Host:        $HOST                   # body
-## 	Description: $DESCRIPTION            #
-##                                           #
-## Your faithful employee,                   #
-## Monit                                     #
+##            Your faithful employee,
+##            Monit
+## }
 ## --8<--
 ##
 ## You can override this message format or parts of it, such as subject

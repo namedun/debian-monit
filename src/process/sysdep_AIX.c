@@ -101,10 +101,14 @@
 #include <sys/proc.h>
 #endif
 
-#ifdef HAVE_LIBPERFSTAT_H
-#include <libperfstat.h>
+#ifdef HAVE_SYS_PROTOSW_H
+#include <sys/protosw.h>
 #endif
 
+#ifdef HAVE_LIBPERFSTAT_H
+#include <sys/protosw.h>
+#include <libperfstat.h>
+#endif
 
 #include "process.h"
 #include "process_sysdep.h"

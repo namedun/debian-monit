@@ -46,7 +46,7 @@
  * in David R. Hanson's excellent book "C Interfaces and Implementations".
  * See http://www.cs.princeton.edu/software/cii/
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

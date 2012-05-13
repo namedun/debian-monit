@@ -30,7 +30,7 @@
 /**
  * Global defines, macros and types
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
