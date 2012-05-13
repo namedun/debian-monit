@@ -748,7 +748,7 @@ static void help() {
  */
 static void version() {
         printf("This is Monit version " VERSION "\n");
-        printf("Copyright (C) 2000-2011 Tildeslash Ltd.");
+        printf("Copyright (C) 2001-2012 Tildeslash Ltd.");
         printf(" All Rights Reserved.\n");
 }
 

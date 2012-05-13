@@ -52,6 +52,7 @@
 #include <unistd.h>
 #endif
 
+#include "ssl.h"
 #include "net.h"
 #include "socket.h"
 #include "monit.h"
@@ -73,48 +74,47 @@
  * Show all services in the service list.
  */
 int status(char *level) {
-
+        
 #define LINE 1024
-
-  int status= FALSE;
-  Socket_T sock = NULL;
-  char buf[LINE];
-  char *auth= NULL;
-
-  if(!exist_daemon()) {
-    LogError("%s: Status not available -- the monit daemon is not running\n",
-      prog);
-    return status;
-  }
-
-  if(!(sock= socket_new(Run.bind_addr?Run.bind_addr:"localhost", Run.httpdport,
-                        SOCKET_TCP, Run.httpdssl, NET_TIMEOUT))) {
-    LogError("%s: error connecting to the monit daemon\n", prog);
-    return status;
-  }
-
-  auth= Util_getBasicAuthHeaderMonit();
-  socket_print(sock, 
-	       "GET /_status?format=text&level=%s HTTP/1.0\r\n%s\r\n",
-	       level, auth?auth:"");
-  FREE(auth);
-
-  /* Read past HTTP headers and check status */
-  while(socket_readln(sock, buf, LINE)) {
-    if(*buf == '\n' || *buf == '\r')
-      break;
-    if(Str_startsWith(buf, "HTTP/1.0 200"))
-      status= TRUE;
-  }
-
-  if(!status) {
-    LogError("%s: cannot read status from the monit daemon\n", prog);
-  } else {
-    while(socket_readln(sock, buf, LINE)) {
-      printf("%s", buf);
-    }
-  }
-  socket_free(&sock);
-
-  return status;
+        
+        int status = FALSE;
+        Socket_T S = NULL;
+        char buf[LINE];
+        char *auth = NULL;
+        
+        if(!exist_daemon()) {
+                LogError("%s: Status not available -- the monit daemon is not running\n", prog);
+                return status;
+        }
+        S = socket_create_t(Run.bind_addr ? Run.bind_addr : "localhost", Run.httpdport, SOCKET_TCP, 
+                            (Ssl_T){.use_ssl = Run.httpdssl, .clientpemfile = Run.httpsslclientpem}, NET_TIMEOUT);
+        if (! S) {
+                LogError("%s: error connecting to the monit daemon\n", prog);
+                return status;
+        }
+        
+        auth = Util_getBasicAuthHeaderMonit();
+        socket_print(S,
+                     "GET /_status?format=text&level=%s HTTP/1.0\r\n%s\r\n",
+                     level, auth?auth:"");
+        FREE(auth);
+        
+        /* Read past HTTP headers and check status */
+        while(socket_readln(S, buf, LINE)) {
+                if(*buf == '\n' || *buf == '\r')
+                        break;
+                if(Str_startsWith(buf, "HTTP/1.0 200"))
+                        status= TRUE;
+        }
+        
+        if(!status) {
+                LogError("%s: cannot read status from the monit daemon\n", prog);
+        } else {
+                while(socket_readln(S, buf, LINE)) {
+                        printf("%s", buf);
+                }
+        }
+        socket_free(&S);
+        
+        return status;
 }

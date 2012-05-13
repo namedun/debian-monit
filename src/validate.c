@@ -110,10 +110,9 @@
 static void check_uid(Service_T);
 static void check_gid(Service_T);
 static void check_size(Service_T);
+static void check_uptime(Service_T);
 static void check_perm(Service_T);
 static void check_match(Service_T);
-static int  check_match_ignore(Service_T, char *);
-static void check_match_if(Service_T, char *);
 static int  check_skip(Service_T, time_t);
 static void check_timeout(Service_T);
 static void check_checksum(Service_T);
@@ -201,6 +200,8 @@ int check_process(Service_T s) {
                         check_process_state(s);
                         check_process_pid(s);
                         check_process_ppid(s);
+                        if (s->uptimelist)
+                                check_uptime(s);
                         for (pr = s->resourcelist; pr; pr = pr->next)
                                 check_process_resources(s, pr);
                 } else
@@ -1066,30 +1067,60 @@ static void check_size(Service_T s) {
                 if (Util_evalQExpression(sl->operator, s->inf->priv.file.st_size, sl->size))
                         Event_post(s, Event_Size, STATE_FAILED, sl->action, "size test failed for %s -- current size is %llu B", s->path, s->inf->priv.file.st_size);
                 else {
-                        DEBUG("'%s' file size check succeeded [current size=%llu B]\n", s->name, s->inf->priv.file.st_size);
+                        DEBUG("'%s' size check succeeded [current size=%llu B]\n", s->name, s->inf->priv.file.st_size);
                         Event_post(s, Event_Size, STATE_SUCCEEDED, sl->action, "size succeeded");
                 }
         }
 }
 
+
 /**
- * Match content
+ * Test uptime
+ */
+static void check_uptime(Service_T s) {
+        Uptime_T ul;
+
+        ASSERT(s && s->uptimelist);
+
+        for (ul = s->uptimelist; ul; ul = ul->next) {
+                if (Util_evalQExpression(ul->operator, s->inf->priv.process.uptime, ul->uptime))
+                        Event_post(s, Event_Uptime, STATE_FAILED, ul->action, "uptime test failed for %s -- current uptime is %llu seconds", s->path, s->inf->priv.process.uptime);
+                else {
+                        DEBUG("'%s' uptime check succeeded [current uptime=%llu seconds]\n", s->name, s->inf->priv.process.uptime);
+                        Event_post(s, Event_Uptime, STATE_SUCCEEDED, ul->action, "uptime succeeded");
+                }
+        }
+}
+
+
+static int check_pattern(Match_T pattern, const char *line) {
+#ifdef HAVE_REGEX_H
+        return regexec(pattern->regex_comp, line, 0, NULL, 0);
+#else
+        if (strstr(line, pattern->match_string) == NULL)
+                return -1;
+        else
+                return 0;
+#endif
+}
+
+
+/**
+ * Match content.
+ *
+ * The test compares only the lines terminated with \n.
+ *
+ * In the case that line with missing \n is read, the test stops, as we suppose that the file contains only partial line and the rest of it is yet stored in the buffer of the application which writes to the file.
+ * The test will resume at the beginning of the incomplete line during the next cycle, allowing the writer to finish the write.
+ *
+ * We test only MATCH_LINE_LENGTH at maximum (512 bytes) - in the case that the line is bigger, we read the rest of the line (till '\n') but ignore the characters past the maximum (512+).
  */
 static void check_match(Service_T s) {
-        int  advance = 0;
-        int  length = 0;
+        Match_T ml;
         FILE *file;
         char line[MATCH_LINE_LENGTH];
         
         ASSERT(s && s->matchlist);
-        
-        /* If inode changed or size shrinked -> set read position = 0 */
-        if (s->inf->priv.file.st_ino != s->inf->priv.file.st_ino_prev || s->inf->priv.file.readpos > s->inf->priv.file.st_size)
-                s->inf->priv.file.readpos = 0;
-        
-        /* Do we need to match? */
-        if (s->inf->priv.file.readpos == s->inf->priv.file.st_size)
-                return;
         
         /* Open the file */
         if (! (file = fopen(s->path, "r"))) {
@@ -1097,8 +1128,24 @@ static void check_match(Service_T s) {
                 return;
         }
         
+        /* FIXME: Refactor: Initialize the filesystems table ahead of file and filesystems test and index it by device id + replace the Str_startsWith() with lookup to the table by device id (obtained via file's stat()).
+                            The central filesystems initialization will allow to reduce the statfs() calls in the case that there will be multiple file and/or filesystems tests for the same fs. Temporarily we go with
+                            dummy Str_startsWith() as quick fix which will cover 99.9% of use cases without rising the statfs overhead if statfs call would be inlined here.
+         */ 
+        if (Str_startsWith(s->path, "/proc")) {
+                s->inf->priv.file.readpos = 0;
+        } else {
+                /* If inode changed or size shrinked -> set read position = 0 */
+                if (s->inf->priv.file.st_ino != s->inf->priv.file.st_ino_prev || s->inf->priv.file.readpos > s->inf->priv.file.st_size)
+                        s->inf->priv.file.readpos = 0;
+        
+                /* Do we need to match? Even if not, go to final, so we can reset the content match error flags in this cycle */
+                if (s->inf->priv.file.readpos == s->inf->priv.file.st_size)
+                        goto final;
+        }
+        
         while (TRUE) {
-                
+next:
                 /* Seek to the read position */
                 if (fseek(file, (long)s->inf->priv.file.readpos, SEEK_SET)) {
                         LogError("'%s' cannot seek file %s: %s\n", s->name, s->path, STRERROR);
@@ -1111,129 +1158,71 @@ static void check_match(Service_T s) {
                         goto final;
                 }
                 
-                length = (int)strlen(line);
-                
-                /* Empty line? Should not happen... but who knows */
-                if (length == 0)
+                int length = strlen(line);
+                if (length == 0) {
+                        /* No content: shouldn't happen - empty line will contain at least '\n' */
                         goto final;
-                
-                /* Complete line or just beginning? (ignore full buffers) */
-                if (length < MATCH_LINE_LENGTH-1 && line[length-1] != '\n')
-                        goto final; /* we gonna read it next time */
-                
-                advance = length;
-                
-                /*
-                 * Does this line end with '\n'? Otherwise ignore and check it
-                 * as soon as it is complete
-                 */
-                if (length == MATCH_LINE_LENGTH-1) {
-                        int rv = 0;
-                        
-                        while ((unsigned char)rv != '\n' && rv != EOF) {
-                                rv = fgetc(file);
-                                advance++;
+                } else if (line[length-1] != '\n') {
+                        if (length < MATCH_LINE_LENGTH-1) {
+                                /* Incomplete line: we gonna read it next time again, allowing the writer to complete the write */
+                                goto final;
+                        } else if (length == MATCH_LINE_LENGTH-1) {
+                                /* Our read buffer is full: ignore the content past the MATCH_LINE_LENGTH */
+                                int rv;
+                                do {
+                                        if ((rv = fgetc(file)) == EOF)
+                                                goto final;
+                                        length++;
+                                } while (rv != '\n');
                         }
-                        
-                        if (rv == EOF)
-                                break;
-                }
-                
-                /* Set read position to the end of last read */
-                s->inf->priv.file.readpos += advance;
-                
-                /* Remove appending newline */
-                if (line[length-1] == '\n')
+                } else {
+                        /* Remove appending newline */
                         line[length-1] = 0;
-                
-                check_match_if (s, line);
+                }
+                /* Set read position to the end of last read */
+                s->inf->priv.file.readpos += length;
+
+                /* Check ignores */
+                for (ml = s->matchignorelist; ml; ml = ml->next) {
+                        if ((check_pattern(ml, line) == 0)  ^ (ml->not)) {
+                                /* We match! -> line is ignored! */
+                                DEBUG("'%s' Ignore pattern %s'%s' match on content line\n", s->name, ml->not ? "not " : "", ml->match_string);
+                                goto next;
+                        }
+                }
+
+                /* Check non ignores */
+                for (ml = s->matchlist; ml; ml = ml->next) {
+                        if ((check_pattern(ml, line) == 0) ^ (ml->not)) {
+                                DEBUG("'%s' Pattern %s'%s' match on content line [%s]\n", s->name, ml->not ? "not " : "", ml->match_string, line);
+                                /* Save the line: we limit the content showed in the event roughly to MATCH_LINE_LENGTH (we allow exceed to not break the line) */
+                                if (! ml->log)
+                                        ml->log = StringBuffer_create(MATCH_LINE_LENGTH);
+                                if (StringBuffer_length(ml->log) < MATCH_LINE_LENGTH) {
+                                        StringBuffer_append(ml->log, "%s\n", line);
+                                        if (StringBuffer_length(ml->log) >= MATCH_LINE_LENGTH)
+                                                StringBuffer_append(ml->log, "...\n");
+                                }
+                        } else {
+                                DEBUG("'%s' Pattern %s'%s' doesn't match on content line [%s]\n", s->name, ml->not ? "not " : "", ml->match_string, line);
+                        }
+                }
         }
-        
 final:
         if (fclose(file))
                 LogError("'%s' cannot close file %s: %s\n", s->name, s->path, STRERROR);
-}
 
-/**
- * Match line for "ignore" statements
- */
-static int check_match_ignore(Service_T s, char *line) {
-        int     rv = FALSE;
-        int     match_return;
-        Match_T ml;
-        Match_T prev = NULL;
-        
-        /* Check ignores */
-        
-        for (ml = s->matchlist; ml; prev = ml, ml = ml->next) {
-                if (ml->ignore) {
-#ifdef HAVE_REGEX_H
-                        match_return = regexec(ml->regex_comp, line, 0, NULL, 0);
-#else
-                        if (strstr(line, ml->match_string) == NULL)
-                                match_return = -1;
-                        else
-                                match_return = 0;
-#endif
-                        if ((match_return == 0)  ^ (ml->not)) {
-                                /* We match! -> line is ignored! */
-                                DEBUG("'%s' Regular expression %s'%s' ignore match on content line\n", s->name, ml->not ? "not " : "", ml->match_string);
-                                rv = TRUE;
-                                break;
-                        }
-                }
-        }
-        
-        /* Optimize match list => put recent match in front */
-        
-        if (prev != NULL && rv == TRUE) {
-                prev->next   = ml->next;
-                ml->next     = s->matchlist;
-                s->matchlist = ml;
-        }
-        
-        return rv;
-}
-
-/**
- * Match line for "if" statements
- */
-static void check_match_if (Service_T s, char *line) {
-        int     match_return;
-        int     ignore_tested = FALSE;
-        Match_T ml;
-        
-        /* Check non ignores */
-        
+        /* Post process the matches: generate events for particular patterns */
         for (ml = s->matchlist; ml; ml = ml->next) {
-                
-                if (! ml->ignore) {
-                        
-#ifdef HAVE_REGEX_H
-                        match_return = regexec(ml->regex_comp, line, 0, NULL, 0);
-#else
-                        if (strstr(line, ml->match_string) == NULL)
-                                match_return = -1;
-                        else
-                                match_return = 0;
-#endif
-                        
-                        if ((match_return == 0) ^ (ml->not)) {
-                                /* Check if we have to test for ignores! */
-                                if (! ignore_tested && check_match_ignore(s, line))
-                                        return;
-                                
-                                DEBUG("'%s' Regular expression %s'%s' match on content line\n", s->name, ml->not ? "not " : "", ml->match_string);
-                                Event_post(s, Event_Content, STATE_CHANGED, ml->action, "content match [%s]", line);
-                        } else {
-                                DEBUG("'%s' Regular expression %s'%s' doesn't match on content line\n", s->name, ml->not ? "not " : "", ml->match_string);
-                                Event_post(s, Event_Content, STATE_CHANGEDNOT, ml->action, "content doesn't match [%s]", line);
-                        }
+                if (ml->log) {
+                        Event_post(s, Event_Content, STATE_CHANGED, ml->action, "content match:\n%s", StringBuffer_toString(ml->log));
+                        StringBuffer_free(&ml->log);
+                } else {
+                        Event_post(s, Event_Content, STATE_CHANGEDNOT, ml->action, "content doesn't match");
                 }
         }
-        
-        return;
 }
+
 
 /**
  * Test filesystem flags for possible change since last cycle

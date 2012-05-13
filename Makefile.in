@@ -15,7 +15,7 @@
 
 @SET_MAKE@
 
-# Copyright (C) 2011 Tildeslash Ltd. All rights reserved.
+# Copyright (C) Tildeslash Ltd. All rights reserved.
 
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
@@ -40,6 +40,8 @@ bin_PROGRAMS = monit$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
+	$(top_srcdir)/contrib/monit.service.in \
+	$(top_srcdir)/contrib/monit.upstart.in \
 	$(top_srcdir)/src/config.h.in COPYING config/config.guess \
 	config/config.sub config/install-sh config/ltmain.sh \
 	config/missing
@@ -51,7 +53,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/config.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = contrib/monit.upstart contrib/monit.service
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
 PROGRAMS = $(bin_PROGRAMS)
@@ -438,6 +440,10 @@ $(top_srcdir)/src/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f src/config.h src/stamp-h1
+contrib/monit.upstart: $(top_builddir)/config.status $(top_srcdir)/contrib/monit.upstart.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+contrib/monit.service: $(top_builddir)/config.status $(top_srcdir)/contrib/monit.service.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"

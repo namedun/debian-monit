@@ -60,7 +60,7 @@
 /**
  * Implementation of the Net Facade for Unix Systems.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

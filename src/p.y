@@ -164,6 +164,7 @@
   static struct myprogram programset;
   static struct myperm permset;
   static struct mysize sizeset;
+  static struct myuptime uptimeset;
   static struct mymatch matchset;
   static struct myicmp icmpset;
   static struct mymail mailset;
@@ -198,6 +199,7 @@
   static void  addtimestamp(Timestamp_T, int);
   static void  addactionrate(ActionRate_T);
   static void  addsize(Size_T);
+  static void  adduptime(Uptime_T);
   static void  addfilesystem(Filesystem_T);
   static void  addicmp(Icmp_T);
   static void  addgeneric(Port_T, char*, char*);
@@ -234,6 +236,7 @@
   static void  reset_timestampset();
   static void  reset_actionrateset();
   static void  reset_sizeset();
+  static void  reset_uptimeset();
   static void  reset_checksumset();
   static void  reset_permset();
   static void  reset_uidset();
@@ -287,7 +290,7 @@
 %token TIMESTAMP CHANGED SECOND MINUTE HOUR DAY
 %token SSLAUTO SSLV2 SSLV3 TLSV1 CERTMD5
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
-%token INODE SPACE PERMISSION SIZE MATCH NOT IGNORE ACTION
+%token INODE SPACE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
 %token EXEC UNMONITOR ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
 %token URL CONTENT PID PPID FSFLAG
 %token REGISTER CREDENTIALS 
@@ -342,6 +345,7 @@ optproc         : start
                 | exist
                 | pid
                 | ppid
+                | uptime
                 | connection
                 | connectionunix
                 | actionrate
@@ -671,11 +675,24 @@ httpdoption     : ssl
                 ;
 
 ssl             : ssldisable { Run.httpdssl = FALSE; }
-                | sslenable pemfile clientpemfile allowselfcert { 
+                | sslenable optssllist {
                     Run.httpdssl = TRUE;                   
-                    if (!have_ssl())
+                    if (! have_ssl())
                       yyerror("SSL is not supported");
+                    else if (! Run.httpsslpem)
+                      yyerror("SSL server PEM file is required (pemfile option)");
+                    else if (! file_checkStat(Run.httpsslpem, "SSL server PEM file", S_IRWXU))
+                      yyerror("SSL server PEM file permissions check failed");
                   }
+                ;
+
+optssllist      : /* EMPTY */
+                | optssllist optssl
+                ;
+
+optssl          : pemfile
+                | clientpemfile
+                | allowselfcert
                 ;
 
 sslenable       : HTTPDSSL
@@ -707,13 +724,10 @@ bindaddress     : ADDRESS STRING { Run.bind_addr = $2; }
 
 pemfile         : PEMFILE PATH {
                     Run.httpsslpem = $2;
-                    if (!file_checkStat(Run.httpsslpem, "SSL server PEM file", S_IRWXU))
-                      yyerror2("SSL server PEM file has too loose permissions");
                   }
                 ;
 
-clientpemfile   : /* EMPTY */ 
-                | CLIENTPEMFILE PATH {
+clientpemfile   : CLIENTPEMFILE PATH {
                     Run.httpsslclientpem = $2; 
                     Run.clientssl = TRUE;
                     if (!file_checkStat(Run.httpsslclientpem, "SSL client PEM file", S_IRWXU | S_IRGRP | S_IROTH))
@@ -721,13 +735,8 @@ clientpemfile   : /* EMPTY */
                   }
                 ;
 
-allowselfcert   : /* EMPTY */ { 
-                   Run.allowselfcert = FALSE; 
-                   config_ssl(Run.allowselfcert); 
-                 }
-                | ALLOWSELFCERTIFICATION {   
+allowselfcert   : ALLOWSELFCERTIFICATION {   
                     Run.allowselfcert = TRUE;
-                    config_ssl(Run.allowselfcert); 
                   }
                 ;
 
@@ -1200,6 +1209,13 @@ ppid            : IF CHANGED PPID rate1 THEN action1 {
                   }
                 ;
 
+uptime          : IF UPTIME operator NUMBER time rate1 THEN action1 recovery {
+                    uptimeset.operator = $<number>3;
+                    uptimeset.uptime = ((unsigned long long)$4 * $<number>5);
+                    addeventaction(&(uptimeset).action, $<number>8, $<number>9);
+                    adduptime(&uptimeset);
+                  }
+
 icmpcount       : /* EMPTY */ {
                    $<number>$ = ICMP_ATTEMPT_COUNT;
                   }
@@ -1312,6 +1328,7 @@ eventoption     : ACTION          { mailset.events |= Event_Action; }
                 | TIMEOUT         { mailset.events |= Event_Timeout; }
                 | TIMESTAMP       { mailset.events |= Event_Timestamp; }
                 | UID             { mailset.events |= Event_Uid; }
+                | UPTIME          { mailset.events |= Event_Uptime; }
                 ;
 
 formatlist      : /* EMPTY */
@@ -1935,6 +1952,7 @@ static void preparse() {
   Run.httpsslpem          = NULL;
   Run.httpsslclientpem    = NULL;
   Run.clientssl           = FALSE;
+  Run.allowselfcert       = FALSE; 
   Run.mailserver_timeout  = NET_TIMEOUT;
   Run.bind_addr           = NULL;
   Run.eventlist           = NULL;
@@ -1985,7 +2003,7 @@ static void postparse() {
         Service_T s;
         
         if (cfg_errflag || ! servicelist)
-        return;
+                return;
         
         /* Check the sanity of any dependency graph */
         check_depend();
@@ -1998,8 +2016,8 @@ static void postparse() {
         }
         
         if (Run.logfile)
-        Run.dolog = TRUE;
-        
+                Run.dolog = TRUE;
+
         for (s = servicelist; s; s = s->next) {
                 /* Set the general system service shortcut */
                 if (s->type == TYPE_SYSTEM)
@@ -2346,6 +2364,26 @@ static void addsize(Size_T ss) {
 
 
 /*
+ * Add a new Uptime object to the current service uptime list
+ */
+static void adduptime(Uptime_T uu) {
+  Uptime_T u;
+
+  ASSERT(uu);
+
+  NEW(u);
+  u->operator = uu->operator;
+  u->uptime = uu->uptime;
+  u->action = uu->action;
+
+  u->next = current->uptimelist;
+  current->uptimelist = u;
+
+  reset_uptimeset();
+}
+
+
+/*
  * Set Checksum object in the current service
  */
 static void addchecksum(Checksum_T cs) {
@@ -2422,12 +2460,25 @@ static void addperm(Perm_T ps) {
 
 }
 
+
+static void appendmatch(Match_T *list, Match_T item) {
+  if (*list) {
+    /* Find the end of the list (keep the same patterns order as in the config file) */
+    Match_T last;
+    for (last = *list; last->next; last = last->next)
+      ;
+    last->next = item;
+  } else {
+    *list = item;
+  }
+}
+
+
 /*
  * Set Match object in the current service
  */
 static void addmatch(Match_T ms, int actionnumber, int linenumber) {
   Match_T m;
-  Match_T ml;
   int     reg_return;
   
   ASSERT(ms);
@@ -2458,16 +2509,7 @@ static void addmatch(Match_T ms, int actionnumber, int linenumber) {
       yyerror2("regex parsing error:%s", errbuf);
   }
 #endif
-
-  if (current->matchlist) {
-    /* Find the end of the list */
-    for (ml = current->matchlist; ml->next; ml = ml->next)
-      ;
-
-    ml->next = m;
-    
-  } else
-    current->matchlist = m;
+  appendmatch(m->ignore ? &current->matchignorelist : &current->matchlist, m);
 }
 
 
@@ -3273,6 +3315,16 @@ static void reset_sizeset() {
   sizeset.size = 0;
   sizeset.test_changes = FALSE;
   sizeset.action = NULL;
+}
+
+
+/*
+ * Reset the Uptime set to default values
+ */
+static void reset_uptimeset() {
+  uptimeset.operator = OPERATOR_EQUAL;
+  uptimeset.uptime = 0;
+  uptimeset.action = NULL;
 }
 
 

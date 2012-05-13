@@ -41,7 +41,7 @@
  * itself.
  *
  * @see Process.h
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

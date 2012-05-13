@@ -10776,11 +10776,13 @@ done
 # ------------------------------------------------------------------------
 
 # Require a working setjmp
-if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error "cannot run test program while cross compiling
-See \`config.log' for more details." "$LINENO" 5; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking setjmp is available" >&5
+$as_echo_n "checking setjmp is available... " >&6; }
+if test "${libmonit_cv_setjmp_available+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then :
+  as_fn_error "cross-compiling: please set 'libmonit_cv_setjmp_available=yes|no'" "$LINENO" 5
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -10794,7 +10796,8 @@ jmp_buf env; setjmp(env);
 }
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
-
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
 else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
@@ -10805,18 +10808,23 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $libmonit_cv_setjmp_available" >&5
+$as_echo "$libmonit_cv_setjmp_available" >&6; }
 
 # Require that we have vsnprintf that conforms to c99. I.e. does bounds check
-if test "$cross_compiling" = yes; then :
-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error "cannot run test program while cross compiling
-See \`config.log' for more details." "$LINENO" 5; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking vsnprintf is c99 conformant" >&5
+$as_echo_n "checking vsnprintf is c99 conformant... " >&6; }
+if test "${libmonit_cv_vsnprintf_c99_conformant+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then :
+  as_fn_error "cross-compiling: please set 'libmonit_cv_vsnprintf_c99_conformant=yes|no'" "$LINENO" 5
 else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 #include <stdarg.h>
-        #include <stdio.h>
+                          #include <stdio.h>
 int
 main ()
 {
@@ -10826,7 +10834,8 @@ char t[1]; va_list ap; int n = vsnprintf(t, 1, "hello", ap); if(n == 5) return 0
 }
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
-
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
 else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
@@ -10837,6 +10846,9 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $libmonit_cv_vsnprintf_c99_conformant" >&5
+$as_echo "$libmonit_cv_vsnprintf_c99_conformant" >&6; }
 
 
 # ------------------------------------------------------------------------

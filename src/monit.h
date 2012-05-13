@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2000-2011 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2001-2011 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3.
@@ -611,8 +611,19 @@ typedef struct mysize {
         EventAction_T action;  /**< Description of the action upon event occurence */
         
         /** For internal use */
-        struct mysize *next;                          /**< next timestamp in chain */
+        struct mysize *next;                               /**< next size in chain */
 } *Size_T;
+
+
+/** Defines uptime object */
+typedef struct myuptime {
+        int  operator;                                    /**< Comparison operator */
+        unsigned long long uptime;                           /**< Uptime watermark */
+        EventAction_T action;  /**< Description of the action upon event occurence */
+
+        /** For internal use */
+        struct myuptime *next;                           /**< next uptime in chain */
+} *Uptime_T;
 
 
 /** Defines checksum object */
@@ -641,6 +652,7 @@ typedef struct mymatch {
 #ifdef HAVE_REGEX_H
         regex_t *regex_comp;                                    /**< Match compile */
 #endif
+        StringBuffer_T log;    /**< The temporary buffer used to record the matches */
         EventAction_T action;  /**< Description of the action upon event occurence */
         
         /** For internal use */
@@ -758,7 +770,9 @@ typedef struct myservice {
         Port_T      portlist; /**< Portnumbers to check, either local or at a host */
         Resource_T  resourcelist;                          /**< Resouce check list */
         Size_T      sizelist;                                 /**< Size check list */
+        Uptime_T    uptimelist;                             /**< Uptime check list */
         Match_T     matchlist;                             /**< Content Match list */
+        Match_T     matchignorelist;                /**< Content Match ignore list */
         Timestamp_T timestamplist;                       /**< Timestamp check list */
         Uid_T       uid;                                            /**< Uid check */
         Program_T   program;              /**< Status (of program execution) check */

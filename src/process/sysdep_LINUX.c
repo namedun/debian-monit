@@ -299,8 +299,22 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
  * @param nelem number of averages
  * @return: 0 if successful, -1 if failed (and all load averages are 0).
  */
-int getloadavg_sysdep (double *loadv, int nelem) {
-  return getloadavg(loadv, nelem);
+int getloadavg_sysdep(double *loadv, int nelem) {
+#ifdef HAVE_GETLOADAVG
+        return getloadavg(loadv, nelem);
+#else
+        char buf[STRLEN];
+        double load[3];
+        if (! read_proc_file(buf, sizeof(buf), "loadavg", -1, NULL))
+                return -1;
+        if (sscanf(buf, "%lf %lf %lf", &load[0], &load[1], &load[2]) != 3) {
+                DEBUG("system statistic error -- cannot get load average\n");
+                return -1;
+        }
+        for (int i = 0; i < nelem; i++)
+                loadv[i] = load[i];
+        return 0;
+#endif
 }
 
 

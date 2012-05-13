@@ -46,7 +46,7 @@
 /**
  * Implementation of the Command and Process interfaces.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

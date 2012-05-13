@@ -35,7 +35,7 @@
 /**
  * Implementation of the Bootstrap interface
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
@@ -51,8 +51,8 @@ void(*_ErrorHandler)(const char *error, va_list ap) = NULL;
 
 
 void Bootstrap(void) {
-        Thread_init();
         Exception_init();
+        Thread_init();
 }
 
 

@@ -66,6 +66,15 @@
  */
 
 
+/* ------------------------------------------------------------- Definitions */
+
+
+typedef enum {
+        Process_Stopped = 0,
+        Process_Started
+} Process_Status;
+
+
 /* -------------------------------------------------------------- Prototypes */
 
 
@@ -74,8 +83,7 @@ static int  do_stop(Service_T, int);
 static void do_monitor(Service_T, int);
 static void do_unmonitor(Service_T, int);
 static void do_depend(Service_T, int, int);
-static void wait_start(Service_T);
-static int  wait_stop(Service_T);
+static Process_Status wait_process(Service_T, Process_Status expect);
 
 
 /* ------------------------------------------------------------------ Public */
@@ -90,7 +98,7 @@ static int  wait_stop(Service_T);
 int control_service_daemon(const char *S, const char *action) {
         int rv = FALSE;
         int status, content_length = 0;
-        Socket_T s;
+        Socket_T socket;
         char *auth;
         char buf[STRLEN];
         ASSERT(S);
@@ -99,15 +107,16 @@ int control_service_daemon(const char *S, const char *action) {
                 LogError("%s: Cannot %s service '%s' -- invalid action %s\n", prog, action, S, action);
                 return FALSE;
         }
-        s = socket_new(Run.bind_addr ? Run.bind_addr : "localhost", Run.httpdport, SOCKET_TCP, Run.httpdssl, NET_TIMEOUT);
-        if (!s) {
+        socket = socket_create_t(Run.bind_addr ? Run.bind_addr : "localhost", Run.httpdport, SOCKET_TCP, 
+                            (Ssl_T){.use_ssl = Run.httpdssl, .clientpemfile = Run.httpsslclientpem}, NET_TIMEOUT);
+        if (! socket) {
                 LogError("%s: Cannot connect to the monit daemon. Did you start it with http support?\n", prog);
                 return FALSE;
         }
 
         /* Send request */
         auth = Util_getBasicAuthHeaderMonit();
-        if (socket_print(s,
+        if (socket_print(socket,
                 "POST /%s HTTP/1.0\r\n"
                 "Content-Type: application/x-www-form-urlencoded\r\n"
                 "Content-Length: %d\r\n"
@@ -124,7 +133,7 @@ int control_service_daemon(const char *S, const char *action) {
         }
 
         /* Process response */
-        if (! socket_readln(s, buf, STRLEN)) {
+        if (! socket_readln(socket, buf, STRLEN)) {
                 LogError("%s: error receiving data -- %s\n", prog, STRERROR);
                 goto err1;
         }
@@ -137,13 +146,13 @@ int control_service_daemon(const char *S, const char *action) {
                 char *message = NULL;
 
                 /* Skip headers */
-                while (socket_readln(s, buf, STRLEN)) {
+                while (socket_readln(socket, buf, STRLEN)) {
                         if (! strncmp(buf, "\r\n", sizeof(buf)))
                                 break;
                         if (Str_startsWith(buf, "Content-Length") && ! sscanf(buf, "%*s%*[: ]%d", &content_length))
                                 goto err1;
                 }
-                if (content_length > 0 && content_length < 1024 && socket_readln(s, buf, STRLEN)) {
+                if (content_length > 0 && content_length < 1024 && socket_readln(socket, buf, STRLEN)) {
                         char token[] = "</h2>";
                         char *p = strstr(buf, token);
                         if (strlen(p) <= strlen(token))
@@ -162,7 +171,7 @@ err2:
                 rv = TRUE;
 err1:
         FREE(auth);
-        socket_free(&s);
+        socket_free(&socket);
         return rv;
 }
 
@@ -303,7 +312,7 @@ static void do_start(Service_T s, int flag) {
                 spawn(s, s->start, NULL);
                 /* We only wait for a process type, other service types does not have a pid file to watch */
                 if (s->type == TYPE_PROCESS)
-                        wait_start(s);
+                        wait_process(s, Process_Started);
         }
         Util_monitorSet(s);
 }
@@ -324,7 +333,7 @@ static int do_stop(Service_T s, int flag) {
         if (s->stop && (s->type != TYPE_PROCESS || Util_isProcessRunning(s, FALSE))) {
                 LogInfo("'%s' stop: %s\n", s->name, s->stop->arg[0]);
                 spawn(s, s->stop, NULL);
-                if (s->type == TYPE_PROCESS && ! wait_stop(s)) // Only wait for process service types stop
+                if (s->type == TYPE_PROCESS && (wait_process(s, Process_Stopped) != Process_Stopped)) // Only wait for process service types stop
                         rv = FALSE;
         }
         if (flag)
@@ -409,57 +418,40 @@ static void do_depend(Service_T s, int action, int flag) {
     
 
 /*
- * This function runs in its own thread and waits for the service to
- * start running. If the service did not start a failed event is
- * posted to notify the user.
+ * This function waits for the process to change state. If the process state doesn't match the expectation,
+ * a failed event is posted to notify the user. The time is saved on enter so in the case that the time steps
+ * backwards/forwards, the wait_process will wait for absolute time and not stall or prematurely exit.
  * @param service A Service to wait for
+ * @param expect A expected state (see Process_Status)
+ * @return Either Process_Started if the process is running or Process_Stopped if it's not running
  */
-static void wait_start(Service_T s) {
-        int isrunning = FALSE;
-        time_t timeout = time(NULL) + s->start->timeout;
-        int debug = Run.debug;
+static Process_Status wait_process(Service_T s, Process_Status expect) {
+        int debug = Run.debug, isrunning = FALSE;
+        unsigned long now = time(NULL) * 1000, wait = 50;
+        unsigned long timeout = now + s->start->timeout * 1000;
         ASSERT(s);
-        while ((time(NULL) < timeout) && !Run.stopped) {
-                if ((isrunning = Util_isProcessRunning(s, TRUE)))
+        do {
+                Time_usleep(wait * USEC_PER_MSEC);
+                now += wait ;
+                wait = wait < 1000 ? wait * 2 : 1000; // double the wait during each cycle until 1s is reached
+                isrunning = Util_isProcessRunning(s, TRUE);
+                if ((expect == Process_Stopped && ! isrunning) || (expect == Process_Started && isrunning))
                         break;
-                Time_usleep(5000);
-                Run.debug = 0; // Turn off debug second time through to avoid flooding the log with pid file does not exist. This poll stuff here _will_ be refactored away
-        }
-        Run.debug = debug;
-        if (! isrunning)
-                Event_post(s, Event_Exec, STATE_FAILED, s->action_EXEC, "failed to start");
-        else
-                Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "started");
-}
-
-
-/*
- * This function waits for the service to stop running. If the service
- * did not stop a failed event is posted to notify the user. This
- * function does purposefully not run in its own thread because, if we
- * did a restart we need to know if we successfully managed to stop
- * the service first before we can do a start.
- * @param service A Service to wait for
- * @return TRUE if the service was stopped otherwise FALSE
- */
-static int wait_stop(Service_T s) {
-        int isrunning = TRUE;
-        time_t timeout = time(NULL) + s->stop->timeout;
-        int debug = Run.debug;
-        ASSERT(s);
-        while ((time(NULL) < timeout) && !Run.stopped) {
-                if (! (isrunning = Util_isProcessRunning(s, TRUE)))
-                        break;
-                Time_usleep(5000);
-                Run.debug = 0; // Turn off debug second time through to avoid flooding the log with pid file does not exist. This poll stuff here _will_ be refactored away
-        }
-        Run.debug = debug;
+                Run.debug = FALSE; // Turn off debug second time through to avoid flooding the log with pid file does not exist. This poll stuff here _will_ be refactored away
+        } while (now < timeout && ! Run.stopped);
+        Run.debug = debug; // restore the debug state
         if (isrunning) {
-                Event_post(s, Event_Exec, STATE_FAILED, s->action_EXEC, "failed to stop");
-                return FALSE;
+                if (expect == Process_Started)
+                        Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "started");
+                else
+                        Event_post(s, Event_Exec, STATE_FAILED, s->action_EXEC, "failed to stop");
+                return Process_Started;
         } else {
-                Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "stopped");
+                if (expect == Process_Started)
+                        Event_post(s, Event_Exec, STATE_FAILED, s->action_EXEC, "failed to start");
+                else
+                        Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "stopped");
+                return Process_Stopped;
         }
-        return TRUE;
 }
 

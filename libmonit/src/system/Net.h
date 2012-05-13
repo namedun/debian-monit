@@ -30,10 +30,9 @@
 
 
 /**
- * This Interface is a Facade for system specific network and socket
- * operation.
+ * Facade for system specific network and socket operation.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

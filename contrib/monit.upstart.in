@@ -27,7 +27,7 @@ stop on runlevel [!2345]
 expect daemon
 respawn
 
-exec /usr/local/bin/monit -c /etc/monitrc
+exec @prefix@/bin/monit -c /etc/monitrc
 
-pre-stop exec /usr/local/bin/monit -c /etc/monitrc quit
+pre-stop exec @prefix@/bin/monit -c /etc/monitrc quit
 

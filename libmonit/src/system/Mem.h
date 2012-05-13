@@ -30,7 +30,7 @@
 /**
  * General purpose <b>memory allocation</b> methods.
  *
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

@@ -38,7 +38,7 @@
  * Clients can use this stream in a non-blocking manner by setting 
  * InputStream_setTimeout() to 0.
  * 
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 

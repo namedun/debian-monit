@@ -100,15 +100,25 @@ AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h pthread.h setjmp.h \
 # ------------------------------------------------------------------------
 
 # Require a working setjmp
-AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <setjmp.h>]],
-        [[jmp_buf env; setjmp(env);]])], 
-        [], [AC_MSG_FAILURE([setjmp is required])])
+AC_CACHE_CHECK([setjmp is available],
+               [libmonit_cv_setjmp_available],
+               [AC_RUN_IFELSE([AC_LANG_PROGRAM(
+                       [[#include <setjmp.h>]],
+                       [[jmp_buf env; setjmp(env);]])],
+                       [AC_MSG_RESULT(yes)],
+                       [AC_MSG_FAILURE([setjmp is required])],
+                       [AC_MSG_ERROR(cross-compiling: please set 'libmonit_cv_setjmp_available=[yes|no]')])])
 
 # Require that we have vsnprintf that conforms to c99. I.e. does bounds check
-AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdarg.h> 
-        #include <stdio.h>]],
-[[char t[1]; va_list ap; int n = vsnprintf(t, 1, "hello", ap); if(n == 5) return 0;return 1;]])], 
-[], [AC_MSG_FAILURE([vsnprintf does not conform to c99])])
+AC_CACHE_CHECK([vsnprintf is c99 conformant],
+               [libmonit_cv_vsnprintf_c99_conformant],
+               [AC_RUN_IFELSE([AC_LANG_PROGRAM(
+                        [[#include <stdarg.h>
+                          #include <stdio.h>]],
+                        [[char t[1]; va_list ap; int n = vsnprintf(t, 1, "hello", ap); if(n == 5) return 0;return 1;]])],
+                        [AC_MSG_RESULT(yes)],
+                        [AC_MSG_FAILURE([vsnprintf does not conform to c99])],
+                        [AC_MSG_ERROR(cross-compiling: please set 'libmonit_cv_vsnprintf_c99_conformant=[yes|no]')])])
 
 
 # ------------------------------------------------------------------------
@@ -250,7 +260,8 @@ fi
 # ---------------------------------------------------------------------------
 
 AM_CONFIG_HEADER(src/xconfig.h)
-AC_OUTPUT(Makefile test/Makefile)
+AC_CONFIG_FILES([Makefile test/Makefile])
+AC_OUTPUT
 
 cat <<EOT
 +------------------------------------------------------------+

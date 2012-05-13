@@ -86,7 +86,7 @@
 
 #define FOOT_HTML "</center></div></div>"\
 "<div id='footer'>"\
-"Copyright &copy; 2000-2011 <a href=\"http://tildeslash.com/\">Tildeslash</a>. All rights reserved. "\
+"Copyright &copy; 2001-2012 <a href=\"http://tildeslash.com/\">Tildeslash</a>. All rights reserved. "\
 "<span style='margin-left:5px;'></span>"\
 "<a href=\"http://mmonit.com/monit/\">Monit web site</a> | "\
 "<a href=\"http://mmonit.com/wiki/\">Monit Wiki</a> | "\

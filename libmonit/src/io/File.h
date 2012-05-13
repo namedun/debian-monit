@@ -31,7 +31,7 @@
 /**
  * A set of low-level class methods for operating on a file.
  * 
- * @see www.mmonit.com
+ * @see http://www.mmonit.com/
  * @file
  */
 
