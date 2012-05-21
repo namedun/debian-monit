@@ -1,3 +1,9 @@
+monit (1:5.4-2) UNRELEASED; urgency=low
+
+  * Chande dh compat to 9, enable hardening support
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 21 May 2012 13:01:20 +0400
+
 monit (1:5.4-1) unstable; urgency=low
 
   * Reformat debian/copyright according to accepted DEP5 spec
