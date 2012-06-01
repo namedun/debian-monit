@@ -5,9 +5,11 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  monit.1 |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/monit.1
-+++ b/monit.1
-@@ -3212,7 +3212,7 @@
+Index: b/monit.1
+===================================================================
+--- a/monit.1	2012-06-01 14:00:42.000000000 +0400
++++ b/monit.1	2012-06-01 14:03:06.000000000 +0400
+@@ -3250,7 +3250,7 @@
  .IP "8. \s-1CHECK\s0 \s-1PROGRAM\s0 <unique name> \s-1PATH\s0 <executable file>" 4
  .IX Item "8. CHECK PROGRAM <unique name> PATH <executable file>"
  <path> is the absolute path to the executable program or script.
