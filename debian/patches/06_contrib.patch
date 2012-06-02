@@ -8,10 +8,8 @@ Forwarded: not-needed
  contrib/monit.upstart |    6 +++---
  2 files changed, 9 insertions(+), 9 deletions(-)
 
-Index: b/contrib/monit.upstart
-===================================================================
---- a/contrib/monit.upstart	2012-06-01 14:00:21.000000000 +0400
-+++ b/contrib/monit.upstart	2012-06-01 14:00:26.000000000 +0400
+--- a/contrib/monit.upstart
++++ b/contrib/monit.upstart
 @@ -12,7 +12,7 @@
  #   initctl reload-configuration
  #
@@ -31,10 +29,8 @@ Index: b/contrib/monit.upstart
 -pre-stop exec /usr/local/bin/monit -c /etc/monitrc quit
 +pre-stop exec /usr/bin/monit -c /etc/monit/monitrc quit
  
-Index: b/contrib/monit.service
-===================================================================
---- a/contrib/monit.service	2012-06-01 14:01:08.000000000 +0400
-+++ b/contrib/monit.service	2012-06-01 14:02:33.000000000 +0400
+--- a/contrib/monit.service
++++ b/contrib/monit.service
 @@ -1,11 +1,11 @@
  # This file is a systemd template for the monit service. To
 -# register monit with systemd, place this file in 
