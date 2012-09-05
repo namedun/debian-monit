@@ -37,6 +37,7 @@
 /**
  * Implementation of the Mem interface
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

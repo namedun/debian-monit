@@ -89,7 +89,7 @@ int check_postfix_policy(Socket_T socket) {
     socket_setError(socket, "POSTFIX-POLICY: error sending data -- %s\n", STRERROR);
     return FALSE;
   }
-  
+
   if(! socket_readln(socket, buf, sizeof(buf))) {
     socket_setError(socket, "POSTFIX-POLICY: error receiving data -- %s\n", STRERROR);
     return FALSE;
@@ -102,8 +102,8 @@ int check_postfix_policy(Socket_T socket) {
       *buf?buf:"no action returned");
     return FALSE;
   }
-  
+
   return TRUE;
-  
+
 }
 

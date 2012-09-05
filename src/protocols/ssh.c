@@ -47,12 +47,12 @@ int check_ssh(Socket_T socket) {
   char  buf[STRLEN];
 
   ASSERT(socket);
-    
+
   if(!socket_readln(socket, buf, sizeof(buf))) {
     socket_setError(socket, "SSH: error receiving identification string -- %s\n", STRERROR);
     return FALSE;
   }
-  
+
   if(! Str_startsWith(buf, "SSH-")) {
     socket_setError(socket, "SSH: protocol error %s\n", buf);
     return FALSE;
@@ -66,7 +66,7 @@ int check_ssh(Socket_T socket) {
 
   /* Read one extra line to prevent the "Read from socket failed" warning */
   socket_readln(socket, buf, sizeof(buf));
-   
+
   return TRUE;
-  
+
 }

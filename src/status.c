@@ -74,14 +74,14 @@
  * Show all services in the service list.
  */
 int status(char *level) {
-        
+
 #define LINE 1024
-        
+
         int status = FALSE;
         Socket_T S = NULL;
         char buf[LINE];
         char *auth = NULL;
-        
+
         if(!exist_daemon()) {
                 LogError("%s: Status not available -- the monit daemon is not running\n", prog);
                 return status;
@@ -92,13 +92,13 @@ int status(char *level) {
                 LogError("%s: error connecting to the monit daemon\n", prog);
                 return status;
         }
-        
+
         auth = Util_getBasicAuthHeaderMonit();
         socket_print(S,
                      "GET /_status?format=text&level=%s HTTP/1.0\r\n%s\r\n",
                      level, auth?auth:"");
         FREE(auth);
-        
+
         /* Read past HTTP headers and check status */
         while(socket_readln(S, buf, LINE)) {
                 if(*buf == '\n' || *buf == '\r')
@@ -106,7 +106,7 @@ int status(char *level) {
                 if(Str_startsWith(buf, "HTTP/1.0 200"))
                         status= TRUE;
         }
-        
+
         if(!status) {
                 LogError("%s: cannot read status from the monit daemon\n", prog);
         } else {
@@ -115,6 +115,6 @@ int status(char *level) {
                 }
         }
         socket_free(&S);
-        
+
         return status;
 }

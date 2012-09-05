@@ -29,7 +29,7 @@ int main(void) {
         Bootstrap(); // Need to initialize library
 
         printf("============> Start StringBuffer Tests\n\n");
-        
+
         printf("=> Test1: create/destroy\n");
         {
                 sb= StringBuffer_new("");
@@ -43,7 +43,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test1: OK\n\n");
-        
+
         printf("=> Test2: Append NULL value\n");
         {
                 sb= StringBuffer_new("");
@@ -54,7 +54,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test2: OK\n\n");
-        
+
         printf("=> Test3: Create with string\n");
         {
                 sb= StringBuffer_new("abc");
@@ -64,7 +64,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test3: OK\n\n");
-        
+
         printf("=> Test4: Append string value\n");
         {
                 sb= StringBuffer_new("abc");
@@ -82,7 +82,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test4: OK\n\n");
-        
+
         printf("=> Test5: getCharAt\n");
         {
                 sb= StringBuffer_new("abcdefgh");
@@ -92,7 +92,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test5: OK\n\n");
-        
+
         printf("=> Test6: setCharAt\n");
         {
                 sb= StringBuffer_new("abcdefgh");
@@ -103,7 +103,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test6: OK\n\n");
-        
+
         printf("=> Test7: trim\n");
         {
                 sb= StringBuffer_new("\t 'foo bar' \n ");
@@ -122,7 +122,7 @@ int main(void) {
                 StringBuffer_free(&sb);
         }
         printf("=> Test7: OK\n\n");
-        
+
         printf("=> Test8: deleteFrom\n");
         {
                 sb= StringBuffer_new("abcdefgh");
@@ -134,7 +134,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test8: OK\n\n");
-        
+
         printf("=> Test9: indexOf and lastIndexOf\n");
         {
                 sb= StringBuffer_new("jan-henrik haukeland");
@@ -157,7 +157,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test9: OK\n\n");
-        
+
         printf("=> Test10: length and clear\n");
         {
                 sb= StringBuffer_new("jan-henrik haukeland");
@@ -169,7 +169,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test10: OK\n\n");
-        
+
         printf("=> Test11: out-of-index exception\n");
         {
                 sb= StringBuffer_new("abc");
@@ -183,7 +183,7 @@ int main(void) {
                 END_TRY;
                 StringBuffer_free(&sb);
         }
-        
+
         printf("=> Test12: toString value\n");
         {
                 sb= StringBuffer_new("abc");
@@ -194,7 +194,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test12: OK\n\n");
-        
+
         printf("=> Test13: internal resize\n");
         {
                 int i;
@@ -209,7 +209,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test13: OK\n\n");
-                
+
         printf("=> Test14: substring\n");
         {
                 sb= StringBuffer_new("jan-henrik haukeland");
@@ -220,7 +220,7 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test14: OK\n\n");
-        
+
         printf("=> Test15: replace\n");
         {
                 printf("\tNothing to replace\n");
@@ -283,8 +283,8 @@ int main(void) {
                 assert(sb==NULL);
         }
         printf("=> Test15: OK\n\n");
-        
+
         printf("============> StringBuffer Tests: OK\n\n");
-        
+
         return 0;
 }

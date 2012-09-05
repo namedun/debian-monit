@@ -51,6 +51,7 @@
  * variables as needed <em>before</em> calling Command_execute()
  *
  * @see Command.h
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

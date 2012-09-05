@@ -84,9 +84,9 @@ int check_apache_status(Socket_T socket) {
     socket_setError(socket, "HTTP: error sending data -- %s\n", STRERROR);
     return FALSE;
   }
-  
+
   return check_apache_stat(socket);  
-  
+
 }
 
 
@@ -103,7 +103,7 @@ int check_apache_status(Socket_T socket) {
  * @return TRUE if logging is OK otherwise FALSE
  */
 static int check_apache_stat(Socket_T socket) {
-  
+
   int scored = 0;
   int errors = 0;
   char line[READ_SIZE];
@@ -119,7 +119,7 @@ static int check_apache_stat(Socket_T socket) {
   int waitlimit= 0;
   int gracefullimit= 0;
   int cleanuplimit= 0;
-  
+
   int no_logging = 0;
   int no_close = 0;
   int no_dns = 0;
@@ -160,15 +160,15 @@ static int check_apache_stat(Socket_T socket) {
       }
     }
   }
-  
+
   DEBUG("Scoreboard: %s\n", search_string);
-  
+
   /* Check that some scoreboard line was found, if not return an error */
   if(!scored){
     socket_setError(socket, "APACHE-STATUS error: no scoreboard line returned by Apache\n");
     return FALSE;
   }
-  
+
   /* Total each of the status messages in the scoreboard */
   for(p = search_string ; *p ; p++){
     active_servers++;
@@ -218,7 +218,7 @@ static int check_apache_stat(Socket_T socket) {
   /* 
    * Conditions are only tested if the limit parameter is greater than zero. 
    */
-  
+
   if(loglimit > 0){
     if(Util_evalQExpression(myPort->ApacheStatus.loglimitOP, 
 			    (100 * no_logging / active_servers), loglimit)) {
@@ -315,5 +315,5 @@ static int check_apache_stat(Socket_T socket) {
   }
 
   return (errors==0);
-  
+
 }

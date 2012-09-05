@@ -70,7 +70,7 @@ typedef struct my_ssl_connection {
         unsigned char    *cert_md5;
         unsigned int      cert_md5_len;
         char             *clientpemfile;
-        
+
         struct my_ssl_connection *prev;
         struct my_ssl_connection *next;
 } ssl_connection;

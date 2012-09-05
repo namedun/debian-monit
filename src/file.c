@@ -80,10 +80,10 @@
  * Initialize the programs file variables
  */
 void file_init() {
-  
+
   char pidfile[STRLEN];
   char buf[STRLEN];
-  
+
   /* Check if the pidfile was already set during configfile parsing */
   if(Run.pidfile == NULL) {
     /* Set the location of this programs pidfile */
@@ -107,7 +107,7 @@ void file_init() {
     snprintf(buf, STRLEN, "%s/.%s", Run.Env.home, MYSTATEFILE);
     Run.statefile= Str_dup(buf);
   }
-  
+
 }
 
 
@@ -137,7 +137,7 @@ void file_finalize() {
  * FALSE if not found or different type of object
  */
 time_t file_getTimestamp(char *object, mode_t type) {
-  
+
   struct stat buf;
 
   ASSERT(object);
@@ -155,7 +155,7 @@ time_t file_getTimestamp(char *object, mode_t type) {
   }
 
   return FALSE;
-  
+
 }
 
 
@@ -169,7 +169,7 @@ time_t file_getTimestamp(char *object, mode_t type) {
 char *file_findControlFile() {
 
   char *rcfile= CALLOC(sizeof(char), STRLEN + 1);
-  
+
   snprintf(rcfile, STRLEN, "%s/.%s", Run.Env.home, MONITRC);
   if(file_exist(rcfile)) {
     return rcfile;
@@ -193,7 +193,7 @@ char *file_findControlFile() {
   LogError("%s: Cannot find the control file at ~/.%s, /etc/%s, %s/%s, /usr/local/etc/%s or at ./%s \n",
       prog, MONITRC, MONITRC, SYSCONFDIR, MONITRC, MONITRC, MONITRC);
   exit(1);
-  
+
 }
 
 
@@ -204,11 +204,11 @@ char *file_findControlFile() {
  * @return TRUE if the file was created, otherwise FALSE. 
  */
 int file_createPidFile(char *pidfile) {
-  
+
   FILE *F= NULL;
-  
+
   ASSERT(pidfile);
-  
+
   umask(MYPIDMASK);
   unlink(pidfile);
   if ((F= fopen(pidfile,"w")) == (FILE *)NULL) {
@@ -219,7 +219,7 @@ int file_createPidFile(char *pidfile) {
   fclose(F);
 
   return TRUE;
-  
+
 }
 
 
@@ -229,13 +229,13 @@ int file_createPidFile(char *pidfile) {
  * @return TRUE if file exist and is a regular file, otherwise FALSE
  */
 int file_isFile(char *file) {
-  
+
   struct stat buf;
-  
+
   ASSERT(file);
 
   return (stat(file, &buf) == 0 && S_ISREG(buf.st_mode));
-  
+
 }
 
 
@@ -246,13 +246,13 @@ int file_isFile(char *file) {
  * FALSE
  */
 int file_isDirectory(char *dir) {
-  
+
 	struct stat buf;
-  
+
   ASSERT(dir);
 	
   return (stat(dir, &buf) == 0 && S_ISDIR(buf.st_mode));
-  
+
 }
 
 
@@ -262,13 +262,13 @@ int file_isDirectory(char *dir) {
  * @return TRUE if fifo exist, otherwise FALSE
  */
 int file_isFifo(char *fifo) {
-  
+
   struct stat buf;
-  
+
   ASSERT(fifo);
 
   return (stat(fifo, &buf) == 0 && S_ISFIFO(buf.st_mode));
-  
+
 }
 
 
@@ -278,13 +278,13 @@ int file_isFifo(char *fifo) {
  * @return TRUE if file exist otherwise FALSE
  */
 int file_exist(char *file) {
-  
+
   struct stat buf;
-  
+
   ASSERT(file);
 
   return (stat(file, &buf) == 0);
-  
+
 }
 
 
@@ -350,7 +350,7 @@ int file_checkStat(char *filename, char *description, int permmask) {
 	buf.st_mode& 0777);
     return FALSE;
   }
-  
+
   return TRUE;
 
 }

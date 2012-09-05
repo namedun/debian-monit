@@ -15,11 +15,11 @@
 
 
 int main(void) {
-        
+
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start Str Tests\n\n");
-        
+
         printf("=> Test1: copy\n");
         {
                 char s3[STRLEN];
@@ -29,7 +29,7 @@ int main(void) {
                 assert(!Str_copy(NULL, NULL, 7));
         }
         printf("=> Test1: OK\n\n");
-        
+
         printf("=> Test2: dup\n");
         {
                 char *s4= Str_dup("abc123");
@@ -40,7 +40,7 @@ int main(void) {
                 FREE(s4);
         }
         printf("=> Test2: OK\n\n");
-        
+
         printf("=> Test3: ndup\n");
         {
                 char *s5= Str_ndup("abc123", 3);
@@ -51,7 +51,7 @@ int main(void) {
                 FREE(s5);
         }
         printf("=> Test3: OK\n\n");
-        
+
         printf("=> Test4: Str_cat & Str_vcat\n");
         {
                 char *s6;
@@ -66,7 +66,7 @@ int main(void) {
                 FREE(s6);
         }
         printf("=> Test4: OK\n\n");
-        
+
         printf("=> Test5: chomp\n");
         {
                 char s3[]= "abc\r\n123";
@@ -76,7 +76,7 @@ int main(void) {
                 assert(!Str_chomp(NULL));
         }
         printf("=> Test5: OK\n\n");
-        
+
         printf("=> Test6: trim\n");
         {
                 char e[] = "   ";
@@ -101,7 +101,7 @@ int main(void) {
                 assert(Str_isEqual(Str_trim(o), "a"));
         }
         printf("=> Test6: OK\n\n");
-        
+
         printf("=> Test7: trim quotes\n");
         {
                 char s5[]= "\"'abc'\"";
@@ -125,7 +125,7 @@ int main(void) {
                 assert(Str_isEqual("abc def", Str_unquote(s5d)));
         }
         printf("=> Test7: OK\n\n");
-        
+
         printf("=> Test8: toLowerCase\n");
         {
                 char s6[]= "AbC";
@@ -135,7 +135,7 @@ int main(void) {
                 assert(!Str_toLower(NULL));
         }
         printf("=> Test8: OK\n\n");
-        
+
         printf("=> Test9: toUpperCase\n");
         {
                 char s7[]= "aBc";
@@ -145,7 +145,7 @@ int main(void) {
                 assert(!Str_toUpper(NULL));
         }
         printf("=> Test9: OK\n\n");
-                
+
         printf("=> Test10: parseInt, parseLLong, parseDouble\n");
         {
                 char i[STRLEN]= "   -2812 bla";
@@ -180,7 +180,7 @@ int main(void) {
                 assert(!Str_replaceChar(NULL, 'b', 'X'));
         }
         printf("=> Test11: OK\n\n");
-        
+
         printf("=> Test12: startsWith\n");
         {
                 char *a= "mysql://localhost:3306/zild?user=root&password=swordfish";
@@ -199,7 +199,7 @@ int main(void) {
                 assert(!Str_startsWith("/", "/WEB-INF"));
         }
         printf("=> Test12: OK\n\n");
-        
+
         printf("=> Test13: endsWith\n");
         {
                 char *a= "mysql://localhost:3306";
@@ -218,7 +218,7 @@ int main(void) {
                 assert(!Str_endsWith("abc", "defabc"));
         }
         printf("=> Test13: OK\n\n");
-        
+
         printf("=> Test14: isEqual\n");
         {
                 char *a= "mysql://localhost:3306";
@@ -234,7 +234,7 @@ int main(void) {
                 assert(Str_isEqual("", ""));
         }
         printf("=> Test14: OK\n\n");
-        
+
         printf("=> Test15: trail\n");
         {
                 char s[]= "This string will be trailed someplace";
@@ -273,7 +273,7 @@ int main(void) {
                 assert(Str_hash(d) == Str_hash(d));
         }
         printf("=> Test16: OK\n\n");
-        
+
         printf("=> Test17: regular expression match\n");
         {
                 char *phone_pattern= "^[-0-9+( )]{7,40}$";
@@ -308,7 +308,7 @@ int main(void) {
                 printf("\tResult: match(%s, %s)\n", 
                        phone_pattern, invalid_phone4);
                 assert(! Str_match(phone_pattern, invalid_phone4));
-                
+
                 printf("\tResult: match(%s, %s)\n", 
                        email_pattern, valid_email1);
                 assert(Str_match(email_pattern, valid_email1));
@@ -329,7 +329,7 @@ int main(void) {
                 assert(! Str_match(email_pattern, invalid_email4));
         }
         printf("=> Test17: OK\n\n");
-        
+
         printf("=> Test18: lim\n");
         {
                 char *zero = "";
@@ -348,7 +348,7 @@ int main(void) {
                 assert(! Str_lim(ten, 100));
         }
         printf("=> Test18: OK\n\n");
-        
+
         printf("=> Test19: substring\n");
         {
                 assert(Str_sub("foo bar baz", "bar"));
@@ -384,7 +384,7 @@ int main(void) {
                 assert(dest[0]==0);
         }
         printf("=> Test20: OK\n\n");
-      
+
         printf("=> Test21: Str_has\n");
         {
                 char *foo = "'bar' (baz)"; 
@@ -392,7 +392,7 @@ int main(void) {
                 assert(! Str_has(",;", foo));
         }
         printf("=> Test21: OK\n\n");
-                
+
         printf("=> Test22: Str_curtail\n");
         {
                 char s[]= "<text>Hello World</text>"; 
@@ -401,7 +401,7 @@ int main(void) {
                 assert(Str_isByteEqual(Str_curtail(s, "@"), "<text"));
         }
         printf("=> Test22: OK\n\n");
-        
+
         printf("=> Test23: Str_ton\n");
         {
                 char str[43];
@@ -414,8 +414,8 @@ int main(void) {
                 assert(l5 == Str_parseLLong(Str_ton(l5, str)));
         }
         printf("=> Test23: OK\n\n");
-        
-        
+
+
         printf("============> Str Tests: OK\n\n");
         return 0;
 }

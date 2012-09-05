@@ -32,6 +32,7 @@
 /**
  * Facade for system specific network and socket operation.
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
@@ -108,12 +109,5 @@ size_t Net_read(int socket, void *buffer, size_t size, time_t timeout);
  */
 size_t Net_write(int socket, const void *buffer, size_t size, time_t timeout);
 
-
-/**
- * Returns true if fd is a socket otherwise, false.
- * @param fd File descriptor to test
- * @return true if fd is a socket, otherwise false.
- */
-int Net_isSocket(int fd);
 
 #endif

@@ -1,10 +1,58 @@
-                     CHANGES version 5.4
+                     CHANGES version 5.5
                                 
            This file summarizes changes made since 5.0
                                 
        Bug fixes may refer to an auto-generated id in our
           bug-tracking system, which can be found here
           https://savannah.nongnu.org/bugs/?group=monit
+
+
+Version 5.5
+
+IMPROVEMENTS:
+
+* check program:
+        - Multiple exit values can be tested within single program check
+        - Exit value test supports multiple cycles option ("for X cycles")
+        - If exit value test matches and the stderr has no data, try stdout
+
+  Example syntax:
+    check program mytest with path "/usr/bin/mytest.sh" with timeout 1000 seconds
+       if status == 2 then exec "/usr/local/bin/fix_script.sh"
+       if status == 2 for 6 cycles then unmonitor
+       if status == 10 then alert
+
+* Renamed mail header (message-id and mime-version) to prevent
+  triggering spam check of capitalization. Thanks to Ryan Lee
+  for tips.
+
+* The 'check system <name>' statement sets the system hostname in mail
+  alerts and initial hostname in M/Monit.
+
+* Increase the default mailserver timeout to 30 seconds.
+
+* Add support for OpenBSD 5.1.
+
+BUGFIXES:
+
+* Fix the rare hung on linux which may occur during program execution.
+  Thanks to Nick Upson for report.
+
+* In the case that the process start/restart execution failed,
+  monit kept "Execution failed" flag even if the process was
+  recovered later (for example it was starting slowly or manually
+  recovered).
+
+* Fix the mail alert (strict SMTP implementation) to pass
+  MTA-side sanity checks like postscreen. Thanks to Len Conrad
+  for report.
+
+* The -t option tests the configuration file syntax even if the
+  file permissions are wrong. Thanks to Adam Nielsen for report.
+
+* Do not display the default non-existence test for the check
+  program (not applicable in the check program context).
+
 
 
 Version 5.4

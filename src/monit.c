@@ -173,14 +173,14 @@ int main(int argc, char **argv) {
  */
 int do_wakeupcall() {
         pid_t pid;
-        
+
         if ((pid = exist_daemon()) > 0) {
                 kill(pid, SIGUSR1);
-                LogInfo("%s daemon at %d awakened\n", prog, pid);
-                
+                LogInfo("%s daemon with PID %d awakened\n", prog, pid);
+
                 return TRUE;
         }
-        
+
         return FALSE;
 }
 
@@ -194,23 +194,23 @@ int do_wakeupcall() {
  * datastructures and the log system.
  */
 static void do_init() {
-        
+
         int status;
-        
+
         /*
          * Register interest for the SIGTERM signal,
          * in case we run in daemon mode this signal
          * will terminate a running daemon.
          */
         signal(SIGTERM, do_destroy);
-        
+
         /*
          * Register interest for the SIGUSER1 signal,
          * in case we run in daemon mode this signal
          * will wakeup a sleeping daemon.
          */
         signal(SIGUSR1, do_wakeup);
-        
+
         /*
          * Register interest for the SIGINT signal,
          * in case we run as a server but not as a daemon
@@ -218,24 +218,24 @@ static void do_init() {
          * CTRL^C in the terminal
          */
         signal(SIGINT, do_destroy);
-        
+
         /*
          * Register interest for the SIGHUP signal,
          * in case we run in daemon mode this signal
          * will reload the configuration.
          */
         signal(SIGHUP, do_reload);
-        
+
         /*
          * Register no interest for the SIGPIPE signal,
          */
         signal(SIGPIPE, SIG_IGN);
-        
+
         /*
          * Initialize the random number generator
          */
         srandom((unsigned)(time(NULL) + getpid()));
-        
+
         /*
          * Initialize the Runtime mutex. This mutex
          * is used to synchronize handling of global
@@ -246,7 +246,7 @@ static void do_init() {
                 LogError("%s: Cannot initialize mutex -- %s\n", prog, strerror(status));
                 exit(1);
         }
-        
+
         /*
          * Initialize heartbeat mutex and condition
          */
@@ -260,25 +260,25 @@ static void do_init() {
                 LogError("%s: Cannot initialize heartbeat condition -- %s\n", prog, strerror(status));
                 exit(1);
         }
-        
+
         /* 
          * Get the position of the control file 
          */
         if (! Run.controlfile)
                 Run.controlfile = file_findControlFile();
-        
+
         /*
          * Initialize the process information gathering interface
          */
         Run.doprocess = init_process_info();
-        
+
         /*
          * Start the Parser and create the service list. This will also set
          * any Runtime constants defined in the controlfile.
          */
         if (! parse(Run.controlfile))
                 exit(1);
-        
+
         /*
          * Stop and report success if we are just validating the Control
          * file syntax. The previous parse statement exits the program with
@@ -289,13 +289,13 @@ static void do_init() {
                 LogInfo("Control file syntax OK\n");
                 exit(0);
         }
-        
+
         /*
          * Initialize the log system 
          */
         if (! log_init())
                 exit(1);
-        
+
         /* 
          * Did we find any service ?  
          */
@@ -303,12 +303,12 @@ static void do_init() {
                 LogError("%s: No services has been specified\n", prog);
                 exit(0);
         }
-        
+
         /* 
          * Initialize Runtime file variables 
          */
         file_init();
-        
+
         /* 
          * Should we print debug information ? 
          */
@@ -316,7 +316,7 @@ static void do_init() {
                 Util_printRunList();
                 Util_printServiceList();
         }
-        
+
         /*
          * Reap any stray child processes we may have created
          */
@@ -330,10 +330,10 @@ static void do_init() {
  */
 static void do_reinit() {
         int status;
-        
+
         LogInfo("Awakened by the SIGHUP signal\n");
         LogInfo("Reinitializing %s - Control file '%s'\n", prog, Run.controlfile);
-        
+
         /* Wait non-blocking for any children that has exited. Since we
          reinitialize any information about children we have setup to wait
          for will be lost. This may create zombie processes until Monit
@@ -341,7 +341,7 @@ static void do_reinit() {
          before it ifself exit. TODO: Later refactored versions will use a 
          globale process table which a sigchld handler can check */
         waitforchildren();
-        
+
         if(Run.mmonits && heartbeatRunning) {
                 if ((status = pthread_cond_signal(&heartbeatCond)) != 0)
                         LogError("%s: Failed to signal the heartbeat thread -- %s\n", prog, strerror(status));
@@ -349,58 +349,58 @@ static void do_reinit() {
                         LogError("%s: Failed to stop the heartbeat thread -- %s\n", prog, strerror(status));
                 heartbeatRunning = FALSE;
         }
-        
+
         Run.doreload = FALSE;
-        
+
         /* Stop http interface */
         if (Run.dohttpd)
                 monit_http(STOP_HTTP);
-        
+
         /* Save the current state (no changes are possible now since the http thread is stopped) */
         State_save();
         State_close();
-        
+
         /* Run the garbage collector */
         gc();
-        
+
         if (! parse(Run.controlfile)) {
                 LogError("%s daemon died\n", prog);
                 exit(1);
         }
-        
+
         /* Close the current log */
         log_close();
-        
+
         /* Reinstall the log system */
         if (! log_init())
                 exit(1);
-        
+
         /* Did we find any services ?  */
         if (! servicelist) {
                 LogError("%s: No services has been specified\n", prog);
                 exit(0);
         }
-        
+
         /* Reinitialize Runtime file variables */
         file_init();
-        
+
         if (! file_createPidFile(Run.pidfile)) {
                 LogError("%s daemon died\n", prog);
                 exit(1);
         }
-        
+
         /* Update service data from the state repository */
         if (! State_open())
                 exit(1);
         State_update();
-        
+
         /* Start http interface */
         if (can_http())
                 monit_http(START_HTTP);
-        
+
         /* send the monit startup notification */
         Event_post(Run.system, Event_Instance, STATE_CHANGED, Run.system->action_MONIT_RELOAD, "Monit reloaded");
-        
+
         if(Run.mmonits && ((status = pthread_create(&heartbeatThread, NULL, heartbeat, NULL)) != 0))
                 LogError("%s: Failed to create the heartbeat thread -- %s\n", prog, strerror(status));
         else
@@ -414,9 +414,9 @@ static void do_reinit() {
 static void do_action(char **args) {
         char *action = args[optind];
         char *service = args[++optind];
-        
+
         Run.once = TRUE;
-        
+
         if (! action) {
                 do_default();
         } else if (IS(action, "start")     ||
@@ -427,24 +427,24 @@ static void do_action(char **args) {
                 if (Run.mygroup || service) {
                         int errors = 0;
                         int (*_control_service)(const char *, const char *) = exist_daemon() ? control_service_daemon : control_service_string;
-                        
+
                         if (Run.mygroup) {
                                 ServiceGroup_T sg = NULL;
-                                
+
                                 for (sg = servicegrouplist; sg; sg = sg->next) {
                                         if (! strcasecmp(Run.mygroup, sg->name)) {
                                                 ServiceGroupMember_T sgm = NULL;
-                                                
+
                                                 for (sgm = sg->members; sgm; sgm = sgm->next)
                                                         if (! _control_service(sgm->name, action))
                                                                 errors++;
-                                                
+
                                                 break;
                                         }
                                 }
                         } else if (IS(service, "all")) {
                                 Service_T s = NULL;
-                                
+
                                 for (s = servicelist; s; s = s->next) {
                                         if (s->visited)
                                                 continue;
@@ -491,13 +491,13 @@ static void do_action(char **args) {
 static void do_exit() {
         int status;
         sigset_t ns;
-        
+
         set_signal_block(&ns, NULL);
         Run.stopped = TRUE;
         if (Run.isdaemon && !Run.once) {
                 if (can_http())
                         monit_http(STOP_HTTP);
-                
+
                 if(Run.mmonits && heartbeatRunning) {
                         if ((status = pthread_cond_signal(&heartbeatCond)) != 0)
                                 LogError("%s: Failed to signal the heartbeat thread -- %s\n", prog, strerror(status));
@@ -505,9 +505,9 @@ static void do_exit() {
                                 LogError("%s: Failed to stop the heartbeat thread -- %s\n", prog, strerror(status));
                         heartbeatRunning = FALSE;
                 }
-                
+
                 LogInfo("%s daemon with pid [%d] killed\n", prog, (int)getpid());
-                
+
                 /* send the monit stop notification */
                 Event_post(Run.system, Event_Instance, STATE_CHANGED, Run.system->action_MONIT_STOP, "Monit stopped");
         }
@@ -523,40 +523,40 @@ static void do_exit() {
  */
 static void do_default() {
         int status;
-        
+
         if (Run.isdaemon) {
                 if (do_wakeupcall())
                         exit(0);
-                
+
                 Run.once = FALSE;
                 if (can_http())
                         LogInfo("Starting %s daemon with http interface at [%s:%d]\n", prog, Run.bind_addr?Run.bind_addr:"*", Run.httpdport);
                 else
                         LogInfo("Starting %s daemon\n", prog);
-                
+
                 if (Run.startdelay)
                         LogInfo("Monit start delay set -- pause for %ds\n", Run.startdelay);
-                
+
                 if (Run.init != TRUE)
                         daemonize(); 
                 else if (! Run.debug)
                         Util_redirectStdFds();
-                
+
                 if (! file_createPidFile(Run.pidfile)) {
                         LogError("%s daemon died\n", prog);
                         exit(1);
                 }
-                
+
                 if (! State_open())
                         exit(1);
                 State_update();
-                
+
                 atexit(file_finalize);
-                
+
                 if (Run.startdelay) {
                         time_t now = time(NULL);
                         time_t delay = now + Run.startdelay;
-                        
+
                         /* sleep can be interrupted by signal => make sure we paused long enough */
                         while (now < delay) {
                                 sleep((unsigned int)(delay - now));
@@ -565,31 +565,31 @@ static void do_default() {
                                 now = time(NULL);
                         }
                 }
-                
+
                 if (can_http())
                         monit_http(START_HTTP);
-                
+
                 /* send the monit startup notification */
                 Event_post(Run.system, Event_Instance, STATE_CHANGED, Run.system->action_MONIT_START, "Monit started");
-                
+
                 if(Run.mmonits && ((status = pthread_create(&heartbeatThread, NULL, heartbeat, NULL)) != 0))
                         LogError("%s: Failed to create the heartbeat thread -- %s\n", prog, strerror(status));
                 else
                         heartbeatRunning = TRUE;
-                
+
                 while (TRUE) {
                         validate();
                         State_save();
-                        
+
                         /* In the case that there is no pending action then sleep */
                         if (!Run.doaction)
                                 sleep(Run.polltime);
-                        
+
                         if (Run.dowakeup) {
                                 Run.dowakeup = FALSE;
                                 LogInfo("Awakened by User defined signal 1\n");
                         }
-                        
+
                         if (Run.stopped)
                                 do_exit();
                         else if (Run.doreload)
@@ -609,15 +609,15 @@ static void handle_options(int argc, char **argv) {
         int opt;
         opterr = 0;
         Run.mygroup = NULL;
-        
+
         while ((opt = getopt(argc,argv,"c:d:g:l:p:s:iItvVhH")) != -1) {
-                
+
                 switch(opt) {
-                                
+
                         case 'c':
                                 Run.controlfile = Str_dup(optarg);
                                 break;
-                                
+
                         case 'd':
                                 Run.isdaemon = TRUE;
                                 sscanf(optarg, "%d", &Run.polltime);
@@ -626,60 +626,60 @@ static void handle_options(int argc, char **argv) {
                                         exit(1);
                                 }
                                 break;
-                                
+
                         case 'g':
                                 Run.mygroup = Str_dup(optarg);
                                 break;
-                                
+
                         case 'l':
                                 Run.logfile = Str_dup(optarg);
                                 if (IS(Run.logfile, "syslog"))
                                         Run.use_syslog = TRUE;
                                 Run.dolog = TRUE;
                                 break;
-                                
+
                         case 'p':
                                 Run.pidfile = Str_dup(optarg);
                                 break;
-                                
+
                         case 's':
                                 Run.statefile = Str_dup(optarg);
                                 break;
-                                
+
                         case 'I':
                                 Run.init = TRUE;
                                 break;
-                                
+
                         case 't':
                                 Run.testing = TRUE;
                                 break;
-                                
+
                         case 'v':
                                 Run.debug++;
                                 break;
-                                
+
                         case 'H':
                                 if (argc > optind)
                                         Util_printHash(argv[optind]);
                                 else
                                         Util_printHash(NULL);
-                                
+
                                 exit(0);
                                 break;
-                                
+
                         case 'V':
                                 version();
                                 exit(0);
                                 break;
-                                
+
                         case 'h':
                                 help();
                                 exit(0);
                                 break;
-                                
+
                         case '?':
                                 switch(optopt) {
-                                                
+
                                         case 'c':
                                         case 'd':
                                         case 'g':
@@ -690,15 +690,15 @@ static void handle_options(int argc, char **argv) {
                                                 break;
                                         default:
                                                 LogError("%s: invalid option -- %c  (-h will show valid options)\n", prog, optopt);
-                                                
+
                                 }
-                                
+
                                 exit(1);
-                                
+
                 }
-                
+
         }
-        
+
 }
 
 
@@ -759,7 +759,7 @@ static void version() {
 static void *heartbeat(void *args) {
         sigset_t ns;
         struct timespec wait;
-        
+
         set_signal_block(&ns, NULL);
         LogInfo("M/Monit heartbeat started\n");
         LOCK(heartbeatMutex)

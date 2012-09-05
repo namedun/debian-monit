@@ -73,10 +73,10 @@ static void onKill(Process_T P) {
 int main(void) {
 
         Bootstrap(); // Need to initialize library
-                
+
         printf("============> Start Command Tests\n\n");
-        
-        
+
+
         printf("=> Test1: create/destroy\n");
         {
                 Command_T c = Command_new("/bin/sh", "-c", "ps -aef|grep monit", NULL);
@@ -85,7 +85,7 @@ int main(void) {
                 assert(!c);
         }
         printf("=> Test1: OK\n\n");
-        
+
         printf("=> Test2: set and get uid/gid\n");
         {
                 Command_T c = Command_new("/bin/sh", "-c", "ps -aef|grep monit", NULL);
@@ -102,7 +102,7 @@ int main(void) {
                 assert(!c);
         }
         printf("=> Test2: OK\n\n");
-                
+
         printf("=> Test3: set and get working directory\n");
         {
                 Command_T c = Command_new("/bin/sh", "-c", "ps -aef|grep monit", NULL);
@@ -130,7 +130,7 @@ int main(void) {
                 assert(!c);
         }
         printf("=> Test3: OK\n\n");
-        
+
         printf("=> Test4: set and get env\n");
         {
                 Command_T c = Command_new("/bin/sh", "-c", "ps -aef|grep monit", NULL);
@@ -167,7 +167,7 @@ int main(void) {
                 assert(!c);
         }
         printf("=> Test4: OK\n\n");
-        
+
         printf("=> Test5: set and get Command\n");
         {
                 Command_T c = Command_new("/bin/sh", "-c", "ps -aef|grep monit", NULL);
@@ -200,7 +200,7 @@ int main(void) {
                 assert(!c);
         }
         printf("=> Test6: OK\n\n");
-                
+
         printf("=> Test7: terminate and kill sub-process\n");
         {
                 // Test terminate
@@ -209,7 +209,7 @@ int main(void) {
                 onTerminate(Command_execute(c));
                 Command_free(&c);
                 assert(!c);
-                
+
                 // Test kill
                 c = Command_new("/bin/sh", "-c", "trap 1 2 15; sleep 30; ", NULL);
                 assert(c);
@@ -220,7 +220,7 @@ int main(void) {
         printf("=> Test7: OK\n\n");
 
         printf("============> Command Tests: OK\n\n");
-       
+
         return 0;
 }
 

@@ -71,7 +71,7 @@ void Util_handleEscapes(char *buf);
  */
 int Util_handle0Escapes(char *buf);
 
- 
+
 /**
  * Convert a digest buffer to a char string
  * @param digest buffer containing a MD digest

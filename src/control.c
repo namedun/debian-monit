@@ -415,7 +415,7 @@ static void do_depend(Service_T s, int action, int flag) {
                 }
         }
 }
-    
+
 
 /*
  * This function waits for the process to change state. If the process state doesn't match the expectation,

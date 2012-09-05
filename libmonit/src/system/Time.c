@@ -41,6 +41,7 @@
 /**
  * Implementation of the Time interface
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
@@ -91,7 +92,7 @@ static time_t parseDate(const char *date) {
                 {
                         YYCTYPE yych;
                         unsigned int yyaccept = 0;
-                        
+
                         if ((YYLIMIT - YYCURSOR) < 8) YYFILL(8);
                         yych = *YYCURSOR;
                         switch (yych) {

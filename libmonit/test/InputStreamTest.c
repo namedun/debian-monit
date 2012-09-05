@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "Bootstrap.h"
 #include "InputStream.h"
@@ -25,9 +26,9 @@ int main(void) {
         InputStream_T in = NULL;
 
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start InputStream Tests\n\n");
-        
+
         printf("=> Test0: create/destroy the file input stream\n");
         {
                 in = InputStream_new(File_open(DATA, "r"));
@@ -37,7 +38,7 @@ int main(void) {
                 assert(in == NULL);
         }
         printf("=> Test0: OK\n\n");
-        
+
         printf("=> Test1: get/set timeout\n");
         {
                 assert((fd = File_open(DATA, "r")) >= 0);
@@ -119,15 +120,16 @@ int main(void) {
                         ERROR("\t/usr/share/dict/words not available -- skipping test\n");
         }
         printf("=> Test5: OK\n\n");
-        
+
         printf("=> Test6: wrong descriptor - expecting read fail\n");
         {
                 in = InputStream_new(999);
                 TRY
-                assert(InputStream_read(in) != -1);
-                assert(false); // Should not come here
+                        assert(InputStream_read(in) != -1);
+                        printf("Test6: Failed");
+                        exit(1); // Should not come here
                 CATCH(AssertException)
-                // Passed
+                        // Passed
                 END_TRY;
                 InputStream_free(&in);
         }

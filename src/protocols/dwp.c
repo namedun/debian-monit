@@ -83,7 +83,7 @@ int check_dwp(Socket_T socket) {
     socket_setError(socket, "DWP: error sending data -- %s\n", STRERROR);
     return FALSE;
   }
-  
+
   if(! socket_readln(socket, buf, sizeof(buf))) {
     socket_setError(socket, "DWP: error receiving data -- %s\n", STRERROR);
     return FALSE;
@@ -96,8 +96,8 @@ int check_dwp(Socket_T socket) {
     socket_setError(socket, "DWP error: %s\n", buf);
     return FALSE;
   }
-  
+
   return TRUE;
-  
+
 }
 

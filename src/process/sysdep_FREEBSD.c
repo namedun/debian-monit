@@ -178,7 +178,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
     if ((args = kvm_getargv(kvm_handle, &pinfo[i], 0))) {
       for (int j = 0; args[j]; j++)
         StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
-      pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
+      pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline))); 
     }
     StringBuffer_free(&cmdline);
     if (! pt[i].cmdline || ! *pt[i].cmdline)

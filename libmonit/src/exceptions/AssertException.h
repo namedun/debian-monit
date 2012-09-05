@@ -33,6 +33,7 @@
  * Thrown to indicate that an assertion has failed.
  * @see Exception.h
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

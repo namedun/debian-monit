@@ -99,7 +99,7 @@ static int data_send(Socket_T socket, Mmonit_T C, const char *D) {
 static int data_check(Socket_T socket, Mmonit_T C) {
         int  status;
         char buf[STRLEN];
-        
+
         if (! socket_readln(socket, buf, sizeof(buf))) {
                 LogError("M/Monit: error receiving data from %s -- %s\n", C->url->url, STRERROR);
                 return FALSE;
@@ -126,11 +126,11 @@ int handle_mmonit(Event_T E) {
         int       rv = HANDLER_MMONIT;
         Socket_T  socket = NULL;
         Mmonit_T  C = Run.mmonits;
-        
+
         /* The event is sent to mmonit just once - only in the case that the state changed */
         if (! C || (E && ! E->state_changed))
                 return HANDLER_SUCCEEDED;
-        
+
         StringBuffer_T sb = StringBuffer_create(256);
         for (; C; C = C->next) {
                 if (! (socket = socket_create_t(C->url->hostname, C->url->port, SOCKET_TCP, C->ssl, C->timeout))) {

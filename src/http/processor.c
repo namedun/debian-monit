@@ -406,7 +406,7 @@ const char *get_status_string(int status) {
 static void do_service(Socket_T s) {
   volatile HttpResponse res= create_HttpResponse(s);
   volatile HttpRequest req= create_HttpRequest(s);
-  
+
   if(res && req) {
     if(is_authenticated(req, res)) {
       if(IS(req->method, METHOD_GET)) {
@@ -428,7 +428,7 @@ static void do_service(Socket_T s) {
  */
 static char *get_date(char *result, int size) {
   time_t now;
-  
+
   time(&now);
   if(strftime(result, size, DATEFMT, gmtime(&now)) <= 0) {
     *result= 0;
@@ -673,7 +673,7 @@ static void destroy_HttpResponse(HttpResponse res) {
  */
 static void destroy_entry(void *p) {
   struct entry *h= p; 
-  
+
   if(h->next) {
     destroy_entry(h->next);
   }
@@ -762,7 +762,7 @@ static void internal_error(Socket_T S, int status, char *msg) {
   char date[STRLEN];
   char server[STRLEN];
   const char *status_msg= get_status_string(status);
-  
+
   get_date(date, STRLEN);
   get_server(server, STRLEN);
   socket_print(S, 

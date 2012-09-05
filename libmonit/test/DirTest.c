@@ -20,9 +20,9 @@
 
 int main(void) {
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start Dir Tests\n\n");
-        
+
         printf("=> Test1: mkdir\n");
         {
                 File_setUmask(022);
@@ -55,7 +55,7 @@ int main(void) {
                 printf("\tResult: Current working dir is: %s\n", cwd);
         }
         printf("=> Test3: OK\n\n");
-                 
+
         printf("=> Test4: delete\n");
         {
                 printf("\tResult: deleting dir X.. ");
@@ -66,8 +66,8 @@ int main(void) {
                 printf("ok\n");
         }
         printf("=> Test4: OK\n\n");
-                 
+
         printf("============> Dir Tests: OK\n\n");
-                 
+
         return 0;
 }
