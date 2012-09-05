@@ -27,7 +27,7 @@
 
 
 %{
-  
+
 /*
  * DESCRIPTION
  *
@@ -36,7 +36,7 @@
  */
 
 #include "config.h"
-  
+
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -51,7 +51,7 @@
 
 #include "monit.h"
 #include "tokens.h"
-        
+
 // libmonit
 #include "util/Str.h"
 
@@ -65,15 +65,15 @@
     char           *currentfile;
     YY_BUFFER_STATE buffer;
   } buffer_stack[MAX_STACK_DEPTH];
-  
-  
+
+
   int lineno= 1;
   int arglineno= 1;
   char *currentfile=NULL;
   char *argcurrentfile=NULL;
   char *argyytext=NULL;
 
-  
+
   /* Prototypes */
   extern void yyerror(const char*,...);
   extern void yywarning(const char *,...);
@@ -84,7 +84,7 @@
   static void push_buffer_state(YY_BUFFER_STATE, char*);
   static int  pop_buffer_state(void);
   static URL_T create_URL(char *proto);
-  
+
 %}
 
 ws          [ \r\t]+
@@ -651,7 +651,7 @@ group[ \t]+       {
 }
 
 <EVERY_COND>{
-        
+
   {ws}            ;
 
   {number}        {
@@ -659,7 +659,7 @@ group[ \t]+       {
                     BEGIN(INITIAL);
                     save_arg(); return NUMBER;
                   }
-        
+
   ['"]{ws}?[0-9,*-]+{ws}[0-9,*-]+{ws}[0-9,*-]+{ws}[0-9,*-]+{ws}[0-9,*-]+{ws}?['"] { // A minimal syntax check of the cron format string; 5 fields separated with white-space
                     yylval.string= Str_dup(Str_unquote(yytext));
                     BEGIN(INITIAL);
@@ -706,7 +706,7 @@ group[ \t]+       {
 
 
 <<EOF>>           {
-                       
+
                        if ( !pop_buffer_state() )
                        {
                          yyterminate();
@@ -758,7 +758,7 @@ static void include_file(char *pattern) {
       continue;
 
     yyin = fopen( globbuf.gl_pathv[i], "r" );
-    
+
     if (! yyin)
       yyerror( "failed to include file" );
     else
@@ -769,13 +769,9 @@ static void include_file(char *pattern) {
 
 
 static void push_buffer_state(YY_BUFFER_STATE buffer, char *filename) {
-
-  if ( buffer_stack_ptr >= MAX_STACK_DEPTH )
-  {
-
-    yyerror("include files are nested too deeply" );
+  if ( buffer_stack_ptr >= MAX_STACK_DEPTH ) {
+    yyerror("include files limit reached");
     exit( 1 );
-    
   }
 
   buffer_stack[buffer_stack_ptr].lineno = lineno;
@@ -786,11 +782,11 @@ static void push_buffer_state(YY_BUFFER_STATE buffer, char *filename) {
 
   lineno = 1;
   currentfile = Str_dup(filename);
-      
+
   yy_switch_to_buffer(buffer);
 
   BEGIN(INITIAL);
-  
+
 }
 
 
@@ -801,7 +797,7 @@ static int pop_buffer_state(void) {
     return 0;
 
   } else {
-    
+
     fclose(yyin);
     lineno=buffer_stack[buffer_stack_ptr].lineno;
 
@@ -810,21 +806,21 @@ static int pop_buffer_state(void) {
 
     yy_delete_buffer( YY_CURRENT_BUFFER );
     yy_switch_to_buffer( buffer_stack[buffer_stack_ptr].buffer );
-    
+
   }
 
   return 1;
- 
+
 }
 
 
 static void save_arg(void) {
-  
+
   arglineno=lineno;
   argcurrentfile=currentfile;
   FREE(argyytext);
   argyytext=Str_dup(yytext);
-  
+
 }
 
 

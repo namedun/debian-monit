@@ -46,6 +46,7 @@
 /**
  * Implementation of the Command and Process interfaces.
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
@@ -500,6 +501,7 @@ Process_T Command_execute(T C) {
                 signal(SIGTERM, SIG_DFL);
                 signal(SIGPIPE, SIG_DFL);
                 signal(SIGCHLD, SIG_DFL); 
+                signal(SIGUSR1, SIG_DFL);
                 signal(SIGHUP, SIG_IGN);  // Ensure future opens won't allocate controlling TTYs
                 // Execute the program
                 execve(P->args[0], P->args, P->env);

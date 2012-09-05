@@ -37,6 +37,7 @@
  * General purpose <b>Thread</b> abstractions. This interface  defines object
  * types and methods for handling threads, synchronization and semaphores. 
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

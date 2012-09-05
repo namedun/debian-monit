@@ -50,7 +50,7 @@
  * in the UNIX Environment"
  */
 Sigfunc *signal(int signo, Sigfunc *func) {
-  
+
   struct sigaction act, oact;
 
   act.sa_handler = func;
@@ -67,9 +67,9 @@ Sigfunc *signal(int signo, Sigfunc *func) {
   }
   if (sigaction(signo, &act, &oact) < 0)
       return(SIG_ERR);
-  
+
   return(oact.sa_handler);
-  
+
 }
 
 
@@ -97,5 +97,5 @@ void set_signal_block(sigset_t *new, sigset_t *old) {
 void unset_signal_block(sigset_t *old) {
 
   pthread_sigmask(SIG_SETMASK, old, NULL);
-  
+
 }

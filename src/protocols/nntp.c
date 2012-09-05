@@ -57,13 +57,13 @@ int check_nntp(Socket_T socket) {
   }
 
   Str_chomp(buf);
-  
+
   sscanf(buf, "%d %*s", &status);
   if(status != 200) {
     socket_setError(socket, "NNTP error: %s\n", buf);
     return FALSE;
   }
-  
+
   if(socket_print(socket, "QUIT\r\n") < 0) {
     socket_setError(socket, "NNTP: error sending data -- %s\n", STRERROR);
     return FALSE;
@@ -83,6 +83,6 @@ int check_nntp(Socket_T socket) {
   }
 
   return TRUE;
-  
+
 }
 

@@ -102,7 +102,7 @@ int handle_alert(Event_T E) {
      * for this event.
      */
     for(m= s->maillist; m; m= m->next) {
-      
+
       if(
         /* particular event notification type is allowed for given recipient */
         IS_EVENT_SET(m->events, Event_get_id(E)) &&
@@ -177,7 +177,7 @@ int handle_alert(Event_T E) {
 
     if(list) {
 
-      if(!sendmail(list))
+      if(sendmail(list))
         rv = HANDLER_ALERT;
       gc_mail_list(&list);
 
@@ -195,10 +195,10 @@ static void substitute(Mail_T *m, Event_T e) {
 
   ASSERT(m && e);
 
-  Util_replaceString(&(*m)->from,    "$HOST", Run.localhostname);
-  Util_replaceString(&(*m)->subject, "$HOST", Run.localhostname);
-  Util_replaceString(&(*m)->message, "$HOST", Run.localhostname);
-  
+  Util_replaceString(&(*m)->from,    "$HOST", Run.system->name);
+  Util_replaceString(&(*m)->subject, "$HOST", Run.system->name);
+  Util_replaceString(&(*m)->message, "$HOST", Run.system->name);
+
   Time_string(e->collected.tv_sec, timestamp);
   Util_replaceString(&(*m)->subject, "$DATE", timestamp);
   Util_replaceString(&(*m)->message, "$DATE", timestamp);
@@ -219,7 +219,7 @@ static void substitute(Mail_T *m, Event_T e) {
 
 static void copy_mail(Mail_T n, Mail_T o) {
   ASSERT(n && o);
-  
+
   n->to= Str_dup(o->to);
   n->from=
       o->from?

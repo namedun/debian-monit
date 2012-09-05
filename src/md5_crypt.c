@@ -73,7 +73,7 @@ char *md5_crypt(const char *pw, const char *id, const char *salt, char *buf, int
 
         /* Refine the Salt first */
         sp = (const md5_byte_t *)salt;
-    
+
         /* If it starts with the id string, then skip that */
         if (! strncmp(salt, id, strlen(id)))
                     sp += strlen(id);

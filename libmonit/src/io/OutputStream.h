@@ -38,6 +38,7 @@
  * Clients can use this stream in a non-blocking manner by setting 
  * OutputStream_setTimeout() to 0.
  * 
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
@@ -161,7 +162,7 @@ int OutputStream_print(T S, const char *s, ...) __attribute__((format (printf, 2
  */
 int OutputStream_vprint(T S, const char *s, va_list ap);
 
-        
+
 /**
  * Write <code>size</code> bytes from the buffer <code>b</code>.
  * @param S An OutputStream object

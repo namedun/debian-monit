@@ -67,7 +67,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
  */
 int getloadavg_sysdep (double *loadv, int nelem) {
   int i;
-  
+
   for (i = 0; i < nelem; i++)
     loadv[i] = 0.0;
 

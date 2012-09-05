@@ -134,7 +134,7 @@ static time_t get_starttime() {
 
   return time(NULL) - (time_t)up;
 }
-  
+
 
 /* ------------------------------------------------------------------ Public */
 
@@ -217,7 +217,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
   for (i = 0; i < treesize; i++) {
 
     pt[i].pid = atoi(globbuf.gl_pathv[i] + strlen("/proc/"));
-    
+
     if (!read_proc_file(buf, sizeof(buf), "stat", pt[i].pid, NULL)) {
       DEBUG("system statistic error -- cannot read /proc/%d/stat\n", pt[i].pid);
       continue;
@@ -255,10 +255,10 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
       DEBUG("system statistic error -- file /proc/%d/stat parse error\n", pt[i].pid);
       continue;
     }
-    
+
     pt[i].ppid      = stat_ppid;
     pt[i].starttime = get_starttime() + (time_t)(stat_item_starttime / HZ);
-  
+
     /* jiffies -> seconds = 1 / HZ
      * HZ is defined in "asm/param.h"  and it is usually 1/100s but on
      * alpha system it is 1/1024s */
@@ -284,7 +284,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
         buf[j] = ' ';
     pt[i].cmdline = *buf ? Str_dup(buf) : Str_dup(procname);
   }
-  
+
   *reference = pt;
   globfree(&globbuf);
 
@@ -330,7 +330,7 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
   unsigned long  cached = 0UL;
   unsigned long  swap_total = 0UL;
   unsigned long  swap_free = 0UL;
-  
+
   if (! read_proc_file(buf, 1024, "meminfo", -1, NULL)) {
     LogError("system statistic error -- cannot get real memory free amount\n");
     goto error;
@@ -416,7 +416,7 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
     si->total_cpu_wait_percent = -10;
   } else {
     unsigned long long delta = cpu_total - old_cpu_total;
-  
+
     si->total_cpu_user_percent = (int)(1000 * (double)(cpu_user - old_cpu_user) / delta);
     si->total_cpu_syst_percent = (int)(1000 * (double)(cpu_syst - old_cpu_syst) / delta);
     si->total_cpu_wait_percent = (int)(1000 * (double)(cpu_wait - old_cpu_wait) / delta);

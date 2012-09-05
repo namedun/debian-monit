@@ -34,9 +34,9 @@
 int check_default(Socket_T socket) {
 
   ASSERT(socket);
-  
+
   return TRUE;
-    
+
 }
 
- 
+

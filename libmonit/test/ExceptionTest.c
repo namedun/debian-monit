@@ -178,7 +178,7 @@ void *thread(void *args) {
 int main(void) {
         Bootstrap(); // Need to initialize library
         printf("============> Start Exeption Tests\n\n");
-        
+
         printf("=> Test1: TRY-CATCH\n");
         {
                 TRY
@@ -189,7 +189,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test1: OK\n\n");
-        
+
         printf("=> Test2: TRY-CATCH indirect throw\n");
         {
                 TRY
@@ -200,7 +200,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test2: OK\n\n");
-        
+
         printf("=> Test3: TRY-ELSE\n");
         {
                 TRY
@@ -211,7 +211,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test3: OK\n\n");
- 
+
         printf("=> Test4: TRY-CATCH-ELSE\n");
         {
                 TRY
@@ -251,7 +251,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test6: OK\n\n");
-        
+
         printf("=> Test7: CATCH NumberFormatException\n");
         {
                 TRY
@@ -262,7 +262,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test7: OK\n\n");
-        
+
         printf("=> Test8: CATCH AssertException\n");
         {
                 TRY
@@ -274,7 +274,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test8: OK\n\n");
-        
+
         printf("=> Test9: Nested TRY-CATCH\n");
         {
                 TRY
@@ -290,7 +290,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test9: OK\n\n");
-        
+
         printf("=> Test10: RETHROW\n");
         {
                 TRY
@@ -305,7 +305,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test10: OK\n\n");
-        
+
         printf("=> Test11: No exception thrown\n");
         {
                 TRY
@@ -315,7 +315,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test11: OK\n\n");
-                
+
         printf("=> Test12: Exception message append\n");
         {
                 TRY
@@ -331,8 +331,8 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test12: OK\n\n");
-        
-        
+
+
         printf("=> Test13: FINALLY rethrows exception\n");
         {
                 TRY
@@ -354,7 +354,7 @@ int main(void) {
         }
         printf("=> Test13: OK\n\n");
 
-        
+
         printf("=> Test14: Test thread-safeness\n");
         {
                 int i;
@@ -366,7 +366,7 @@ int main(void) {
                         Thread_join(threads[i]);
         }
         printf("=> Test14: OK\n\n");
-        
+
         printf("============> Exception Tests: OK\n\n");
 
         return 0;

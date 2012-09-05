@@ -56,10 +56,11 @@
 
 #include "system/Net.h"
 
-                
+
 /**
  * Implementation of the Net Facade for Unix Systems.
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
@@ -137,10 +138,4 @@ size_t Net_write(int socket, const void *buffer, size_t size, time_t timeout) {
                 }
         }
 	return n;
-}
-
-
-int Net_isSocket(int fd) {
-        struct stat buf;
-        return (fstat(fd, &buf) == 0 && S_ISSOCK(buf.st_mode));
 }

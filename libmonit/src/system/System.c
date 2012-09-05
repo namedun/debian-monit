@@ -37,10 +37,11 @@
 /**
  * Implementation of the System Facade for Unix Systems.
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
- 
+
 
 /* ----------------------------------------------------------- Definitions */
 

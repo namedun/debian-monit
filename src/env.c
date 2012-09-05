@@ -97,7 +97,7 @@ static void set_environment(void);
  * Initialize the program environment
  */
 void init_env() {
-  
+
   /* Setup for safe(r) exec */
   set_sandbox();
 
@@ -160,7 +160,7 @@ static void set_sandbox(void) {
   }
   if (! tz)
     environ[0] = 0;
-  
+
   if (putenv(path)) {
     LogError("%s: cannot set the PATH variable -- %s\n", prog, STRERROR);
     exit(1);
@@ -171,14 +171,14 @@ static void set_sandbox(void) {
    * can happen if that is not the case.
    */
   for(i= 0; i < 3; i++) {
-    
+
     if(fstat(i, &st) == -1 && open("/dev/null", O_RDWR) != i) {
-      
+
       LogError("Cannot open /dev/null -- %s\n", STRERROR);
       exit(1);
-      
+
     }
-    
+
   }
 
   Util_closeFds();
@@ -192,7 +192,7 @@ static void set_sandbox(void) {
 static void set_environment(void) {
 
   struct passwd *pw;
-  
+
   /* Get password struct */
   if ( ! (pw= getpwuid(geteuid())) ) {
     LogError("%s: You don't exist. Go away.\n", prog);
@@ -200,14 +200,14 @@ static void set_environment(void) {
   }
   Run.Env.home= Str_dup(pw->pw_dir);
   Run.Env.user= Str_dup(pw->pw_name);
-  
+
   /* Get CWD */
   Run.Env.cwd= CALLOC(sizeof(char), MAXPATHLEN+1);
   if ( ! (getcwd(Run.Env.cwd, MAXPATHLEN)) ) {
     LogError("%s: Cannot read current directory -- %s\n", prog, STRERROR);
     exit(1);
   }
-  
+
   /*
    * Save and clear the file creation mask
    */

@@ -89,7 +89,7 @@ static void document_head(StringBuffer_T B, int V, const char *myip) {
                 (long)Util_getProcessUptime(Run.pidfile),
                 Run.polltime,
                 Run.startdelay,
-                Run.localhostname ? Run.localhostname : "",
+                Run.system->name ? Run.system->name : "",
                 Run.controlfile ? Run.controlfile : "");
 
         if (Run.dohttpd) {
@@ -98,7 +98,7 @@ static void document_head(StringBuffer_T B, int V, const char *myip) {
                 if (Run.mmonitcredentials)
                         StringBuffer_append(B, "<credentials><username>%s</username><password>%s</password></credentials>", Run.mmonitcredentials->uname, Run.mmonitcredentials->passwd);
         }
- 
+
         StringBuffer_append(B,
                 "</server>"
                 "<platform>"

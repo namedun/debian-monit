@@ -54,19 +54,19 @@ int check_pop(Socket_T socket) {
   const char *ok= "+OK";
 
   ASSERT(socket);
-  
+
   if(!socket_readln(socket, buf, sizeof(buf))) {
     socket_setError(socket, "POP: error receiving data -- %s\n", STRERROR);
     return FALSE;
   }
 
   Str_chomp(buf);
-  
+
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "POP error: %s\n", buf);
     return FALSE;
   }
-  
+
   if(socket_print(socket, "QUIT\r\n") < 0) {
     socket_setError(socket, "POP: error sending data -- %s\n", STRERROR);
     return FALSE;
@@ -78,13 +78,13 @@ int check_pop(Socket_T socket) {
   }
 
   Str_chomp(buf);
-  
+
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "POP error: %s\n", buf);
     return FALSE;
   }
 
   return TRUE;
-  
+
 }
 

@@ -24,7 +24,7 @@
 
 
 %{
-  
+
 /*
  * DESCRIPTION
  *   Simple context-free grammar for parsing the control file. 
@@ -56,19 +56,19 @@
 #ifdef HAVE_GRP_H
 #include <grp.h>
 #endif 
-  
+
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-  
+
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-  
+
 #ifdef HAVE_TIME_H
 #include <time.h>
 #endif
-  
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
@@ -106,7 +106,7 @@
 #ifdef HAVE_REGEX_H
 #include <regex.h>
 #endif
-  
+
 #include "net.h"
 #include "monit.h"
 #include "protocol.h"
@@ -161,7 +161,7 @@
   static Service_T depend_list = NULL;
   static struct mygid gidset;
   static struct myuid uidset;
-  static struct myprogram programset;
+  static struct mystatus statusset;
   static struct myperm permset;
   static struct mysize sizeset;
   static struct myuptime uptimeset;
@@ -180,18 +180,17 @@
   static struct myrate rate2 = {1, 1};
   static char * htpasswd_file = NULL;
   static int    digesttype = DIGEST_CLEARTEXT;
-  static int    hassystem = FALSE;
 
 #define BITMAP_MAX (sizeof(long long) * 8)
 
-  
+
 /* -------------------------------------------------------------- Prototypes */
 
   static void  preparse();
   static void  postparse();
-  static void  addservice(Service_T);
   static void  addmail(char *, Mail_T, Mail_T *);
-  static void  createservice(int, char *, char *, int (*)(Service_T));
+  static Service_T createservice(int, char *, char *, int (*)(Service_T));
+  static void  addservice(Service_T);
   static void  adddependant(char *);
   static void  addservicegroup(char *);
   static void  addport(Port_T);
@@ -218,7 +217,7 @@
   static void  addperm(Perm_T);
   static void  addmatch(Match_T, int, int);
   static void  addmatchpath(Match_T, int);
-  static void  addprogram(Program_T);
+  static void  addstatus(Status_T);
   static void  adduid(Uid_T);
   static void  addgid(Gid_T);
   static void  addeuid(uid_t);
@@ -240,7 +239,7 @@
   static void  reset_checksumset();
   static void  reset_permset();
   static void  reset_uidset();
-  static void  reset_programset();
+  static void  reset_statusset();
   static void  reset_gidset();
   static void  reset_filesystemset();
   static void  reset_icmpset();
@@ -478,7 +477,7 @@ optfifo         : start
 optstatuslist   : /* EMPTY */
                 | optstatuslist optstatus
                 ;
-               
+
 optstatus       : start
                 | stop
                 | restart
@@ -488,7 +487,7 @@ optstatus       : start
                 | every
                 | group
                 | depend
-                | exitvalue
+                | statusvalue
                 ; 
 
 setalert        : SET alertmail formatlist reminder {
@@ -602,7 +601,8 @@ credentials     : /* EMPTY */
                 ;
 
 setmailservers  : SET MAILSERVER mailserverlist nettimeout hostname {
-                   Run.mailserver_timeout = $<number>4;
+                   if (($<number>4) > SMTP_TIMEOUT)
+                     Run.mailserver_timeout = $<number>4;
                    Run.mail_hostname = $<string>5;
                   }
                 ;
@@ -859,8 +859,7 @@ checkhost       : CHECKHOST SERVICENAME ADDRESS STRING {
                 ;
 
 checksystem     : CHECKSYSTEM SERVICENAME {
-                    createservice(TYPE_SYSTEM, $<string>2, Str_dup(""), check_system);
-                    hassystem = TRUE;
+                    Run.system = createservice(TYPE_SYSTEM, $<string>2, Str_dup(""), check_system); // The name given in the 'check system' statement overrides system hostname
                   }
                 ;
 
@@ -869,9 +868,10 @@ checkfifo       : CHECKFIFO SERVICENAME PATHTOK PATH {
                   }
                 ;
 
-checkprogram     : CHECKPROGRAM SERVICENAME PATHTOK PATH {
+checkprogram     : CHECKPROGRAM SERVICENAME PATHTOK PATH programtimeout {
                         check_exec($4);
                         createservice(TYPE_PROGRAM, $<string>2, $4, check_program);
+                        current->program->timeout = $<number>5;
                   }
                 ;
 
@@ -1117,7 +1117,7 @@ target          : /* EMPTY */
                     portset.request = $2;
                   }
                 ;
-                
+
 maxforward      : /* EMPTY */ 
                 |  MAXFORWARD NUMBER {
                      portset.maxforward = verifyMaxForward($2); 
@@ -1231,9 +1231,9 @@ exectimeout     : /* EMPTY */ {
                    $<number>$ = $2;
                   }
                 ;
-                
+
 programtimeout  : /* EMPTY */ {
-                   $<number>$ = 600; // Default program status check timeout is 5 min
+                   $<number>$ = PROGRAM_TIMEOUT; // Default program status check timeout is 5 min
                   }
                 | TIMEOUT NUMBER SECOND {
                    $<number>$ = $2;
@@ -1381,16 +1381,15 @@ depend          : DEPENDS dependlist
 dependlist      : dependant
                 | dependlist dependant
                 ;
- 
+
 dependant       : SERVICENAME { adddependant($<string>1); }
                 ;
 
-exitvalue       : IF STATUS operator NUMBER programtimeout rate1 THEN action1 recovery {
-                        programset.operator = $<number>3;
-                        programset.return_value = $<number>4;
-                        programset.timeout = $<number>5;
-                        addeventaction(&(programset).action, $<number>8, $<number>9);
-                        addprogram(&programset);
+statusvalue     : IF STATUS operator NUMBER rate1 THEN action1 recovery {
+                        statusset.operator = $<number>3;
+                        statusset.return_value = $<number>4;
+                        addeventaction(&(statusset).action, $<number>7, $<number>8);
+                        addstatus(&statusset);
                    }
                 ;
 
@@ -1785,16 +1784,16 @@ void yyerror(const char *s, ...) {
   char *msg = NULL;
 
   ASSERT(s);
-  
+
   va_start(ap,s);
   msg = Str_vcat(s, ap);
   va_end(ap);
-  
+
   LogError("%s:%i: Error: %s '%s'\n", currentfile, lineno, msg, yytext);
   cfg_errflag++;
- 
+
   FREE(msg);
-  
+
 }
 
 /**
@@ -1805,15 +1804,15 @@ void yywarning(const char *s, ...) {
   char *msg = NULL;
 
   ASSERT(s);
-  
+
   va_start(ap,s);
   msg = Str_vcat(s, ap);
   va_end(ap);
-  
+
   LogWarning("%s:%i: Warning: %s '%s'\n", currentfile, lineno, msg, yytext);
- 
+
   FREE(msg);
-  
+
 }
 
 /**
@@ -1824,16 +1823,16 @@ void yyerror2(const char *s, ...) {
   char *msg = NULL;
 
   ASSERT(s);
-  
+
   va_start(ap,s);
   msg = Str_vcat(s, ap);
   va_end(ap);
-  
+
   LogError("%s:%i: Error: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
   cfg_errflag++;
- 
+
   FREE(msg);
-  
+
 }
 
 /**
@@ -1844,15 +1843,15 @@ void yywarning2(const char *s, ...) {
   char *msg = NULL;
 
   ASSERT(s);
-  
+
   va_start(ap,s);
   msg = Str_vcat(s, ap);
   va_end(ap);
-  
+
   LogWarning("%s:%i: Warning: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
- 
+
   FREE(msg);
-  
+
 }
 
 /*
@@ -1864,14 +1863,6 @@ int parse(char *controlfile) {
   ASSERT(controlfile);
 
   servicelist = tail = current = NULL;
-
-  /*
-   * Secure check the monitrc file. The run control file must have the
-   * same uid as the REAL uid of this process, it must have permissions
-   * no greater than 700 and it must not be a symbolic link.
-   */
-  if (! file_checkStat(controlfile, "control file", S_IRUSR|S_IWUSR|S_IXUSR))
-    return FALSE;
 
   if ((yyin = fopen(controlfile,"r")) == (FILE *)NULL) {
     LogError("%s: Error: cannot open the control file '%s' -- %s\n", prog, controlfile, STRERROR);
@@ -1887,22 +1878,6 @@ int parse(char *controlfile) {
     preparse();
     yyparse();
     fclose(yyin);
-    /* Add the default general system service if not specified explicitly */
-    if (!hassystem) {
-      char *name = Str_cat("system_%s", Run.localhostname);
-      if (Util_existService(name) || (current && IS(name, current->name))) {
-        LogError("'check system' not defined in control file, failed to add automatic configuration (service name %s is used already) -- please add 'check system <name>' manually\n", name, name);
-        FREE(name);
-        cfg_errflag++;
-      } else {
-        createservice(TYPE_SYSTEM, name, Str_dup(""), check_system);
-      }
-    }
-    /* If defined - add the last service to the service list */
-    if (current) {
-      addservice(current);
-      FREE(current);
-    }
     postparse();
   END_LOCK;
 
@@ -1910,6 +1885,14 @@ int parse(char *controlfile) {
 
   if (argyytext != NULL)
     FREE(argyytext);
+
+  /*
+   * Secure check the monitrc file. The run control file must have the
+   * same uid as the REAL uid of this process, it must have permissions
+   * no greater than 700 and it must not be a symbolic link.
+   */
+  if (! file_checkStat(controlfile, "control file", S_IRUSR|S_IWUSR|S_IXUSR))
+    return FALSE;
 
   return(cfg_errflag == 0);
 }
@@ -1923,13 +1906,6 @@ int parse(char *controlfile) {
  */
 static void preparse() {
   int i;
-  char localhost[STRLEN];
-
-  /*
-   * Get the localhost name
-   */
-  if (Util_getfqdnhostname(localhost, sizeof(localhost)))
-    snprintf(localhost, STRLEN, "%s", LOCALHOST);
 
   /* Set instance incarnation ID */
   time(&Run.incarnation);
@@ -1953,7 +1929,7 @@ static void preparse() {
   Run.httpsslclientpem    = NULL;
   Run.clientssl           = FALSE;
   Run.allowselfcert       = FALSE; 
-  Run.mailserver_timeout  = NET_TIMEOUT;
+  Run.mailserver_timeout  = SMTP_TIMEOUT;
   Run.bind_addr           = NULL;
   Run.eventlist           = NULL;
   Run.eventlist_dir       = NULL;
@@ -1967,7 +1943,6 @@ static void preparse() {
   Run.MailFormat.replyto  = NULL;
   Run.MailFormat.subject  = NULL;
   Run.MailFormat.message  = NULL;
-  Run.localhostname       = Str_dup(localhost);
   depend_list             = NULL;
   Run.handler_init        = TRUE;
 #ifdef OPENSSL_FIPS  
@@ -1979,7 +1954,7 @@ static void preparse() {
    * Initialize objects
    */
   reset_uidset();
-  reset_programset();
+  reset_statusset();
   reset_gidset();
   reset_sizeset();
   reset_mailset();
@@ -2000,44 +1975,56 @@ static void preparse() {
  * Check that values are reasonable after parsing
  */
 static void postparse() {
-        Service_T s;
-        
-        if (cfg_errflag || ! servicelist)
+        if (cfg_errflag)
                 return;
-        
-        /* Check the sanity of any dependency graph */
-        check_depend();
-        
-        /* Check that we do not start monit in daemon mode without having a
-         * poll time */
+
+        /* If defined - add the last service to the service list */
+        if (current)
+                addservice(current);
+
+        /* Check that we do not start monit in daemon mode without having a poll time */
         if (!Run.polltime && (Run.isdaemon || Run.init)) {
                 LogError("%s: Error: Poll time not defined. Please define poll time in the\n control file or use the -d option when starting monit\n", prog);
                 cfg_errflag++;
         }
-        
+
         if (Run.logfile)
                 Run.dolog = TRUE;
 
-        for (s = servicelist; s; s = s->next) {
-                /* Set the general system service shortcut */
-                if (s->type == TYPE_SYSTEM)
-                        Run.system = s;
-                else if (s->type == TYPE_HOST) {
+        for (Service_T s = servicelist; s; s = s->next) {
+                if (s->type == TYPE_HOST) {
                         /* Verify that a remote service has a port or an icmp list */
                         if (!s->portlist && !s->icmplist) {
-                                LogError("%s: Error: 'check host' statement is incomplete; Please specify a port number to test\n or an icmp test at the remote host: '%s'\n", prog, s->name);
+                                LogError("%s: Error: 'check host' statement is incomplete: Please specify a port number to test\n or an icmp test at the remote host: '%s'\n", prog, s->name);
                                 cfg_errflag++;
                         }
-                }
-                else if (s->type == TYPE_PROGRAM) {
+                } else if (s->type == TYPE_PROGRAM) {
+                        /* Create the Command object */
+                        s->program->C = Command_new(s->path, NULL);
                         /* Verify that a program test has a status test */
-                        if (! s->program) {
-                                LogError("%s: Error: 'check program %s' is incomplete; Please add an 'if status != n' test\n", prog, s->name);
+                        if (! s->statuslist) {
+                                LogError("%s: Error: 'check program %s' is incomplete: Please add an 'if status != n' test\n", prog, s->name);
                                 cfg_errflag++;
                         }
                 }
         }
-        
+
+        /* Add the default general system service if not specified explicitly: service name default to hostname */
+        if (! Run.system) {
+                char hostname[STRLEN];
+                if (Util_getfqdnhostname(hostname, sizeof(hostname))) {
+                        LogError("Cannot get system hostname -- please add 'check system <name>'\n");
+                        cfg_errflag++;
+                }
+                if (Util_existService(hostname)) {
+                        LogError("'check system' not defined in control file, failed to add automatic configuration (service name %s is used already) -- please add 'check system <name>' manually\n", hostname);
+                        cfg_errflag++;
+                } else {
+                        Run.system = createservice(TYPE_SYSTEM, Str_dup(hostname), Str_dup(""), check_system);
+                        addservice(Run.system);
+                }
+        }
+
         if (Run.mmonits) {
                 if (Run.dohttpd) {
                         if (Run.dommonitcredentials) {
@@ -2054,6 +2041,9 @@ static void postparse() {
                 } else
                 LogWarning("%s: Warning: M/Monit enabled but no httpd allowed -- please add 'set httpd' statement\n", prog);
         }
+
+        /* Check the sanity of any dependency graph */
+        check_depend();
 }
 
 
@@ -2061,24 +2051,26 @@ static void postparse() {
  * Create a new service object and add any current objects to the
  * service list.
  */
-static void createservice(int type, char *name, char *value, int (*check)(Service_T s)) {
-
+static Service_T createservice(int type, char *name, char *value, int (*check)(Service_T s)) {
   ASSERT(name);
   ASSERT(value);
 
   check_name(name);
 
-  if (current) {
-    addservice(current);
-    memset(current, 0, sizeof(*current));
-  } else {
-    NEW(current);
-  }
+  if (current)
+        addservice(current);
+
+  NEW(current);
 
   current->type = type;
 
   NEW(current->inf);
   Util_resetInfo(current);
+
+  if (type == TYPE_PROGRAM) {
+    NEW(current->program);
+    current->program->timeout = PROGRAM_TIMEOUT;
+  }
 
   /* Set default values */
   current->monitor = MONITOR_INIT;
@@ -2101,8 +2093,10 @@ static void createservice(int type, char *name, char *value, int (*check)(Servic
   addeventaction(&(current)->action_MONIT_STOP,   ACTION_STOP,  ACTION_IGNORE);
   addeventaction(&(current)->action_MONIT_RELOAD, ACTION_START, ACTION_IGNORE);
   addeventaction(&(current)->action_ACTION,       ACTION_ALERT, ACTION_IGNORE);
-  
+
   gettimeofday(&current->collected, NULL);
+
+  return current;
 }
 
 
@@ -2110,21 +2104,17 @@ static void createservice(int type, char *name, char *value, int (*check)(Servic
  * Add a service object to the servicelist
  */
 static void addservice(Service_T s) {
-  Service_T n;
-
   ASSERT(s);
- 
-  NEW(n);
-  memcpy(n, s, sizeof(*s));
+
   /* Add the service to the end of the service list */
   if (tail != NULL) {
-    tail->next = n;
-    tail->next_conf = n;
+    tail->next = s;
+    tail->next_conf = s;
   } else {
-    servicelist = n;
-    servicelist_conf = n;
+    servicelist = s;
+    servicelist_conf = s;
   }
-  tail = n;
+  tail = s;
 }
 
 
@@ -2136,7 +2126,7 @@ static void addservicegroup(char *name) {
   ServiceGroupMember_T m;
 
   ASSERT(name);
- 
+
   /* Check if service group with the same name is defined already */
   for (g = servicegrouplist; g; g = g->next)
     if (! strcasecmp(g->name, name))
@@ -2164,9 +2154,9 @@ static void adddependant(char *dependant) {
   Dependant_T d; 
 
   ASSERT(dependant);
-  
+
   NEW(d);
-  
+
   if (current->dependantlist != NULL)
     d->next = current->dependantlist;
 
@@ -2192,7 +2182,7 @@ static void addmail(char *mailto, Mail_T f, Mail_T *l) {
   m->message  = f->message;
   m->events   = f->events;
   m->reminder = f->reminder;
-  
+
   m->next = *l;
   *l = m;
 
@@ -2205,7 +2195,7 @@ static void addmail(char *mailto, Mail_T f, Mail_T *l) {
  */
 static void addport(Port_T port) {
   Port_T p;
-  
+
   ASSERT(port);
 
   NEW(p);
@@ -2252,7 +2242,7 @@ static void addport(Port_T port) {
   p->maxforward = port->maxforward;
   p->next = current->portlist;
   current->portlist = p;
-  
+
   reset_portset();
 
 }
@@ -2293,7 +2283,7 @@ static void addtimestamp(Timestamp_T ts, int notime) {
   t->time         = ts->time;
   t->action       = ts->action;
   t->test_changes = ts->test_changes;
-  
+
   if (t->test_changes || notime) {
     if (! file_exist(current->path)) {
       DEBUG("%s: Debug: the path '%s' used in the TIMESTAMP statement refer to a non-existing object\n", prog, current->path);
@@ -2301,7 +2291,7 @@ static void addtimestamp(Timestamp_T ts, int notime) {
       yyerror2("cannot get the timestamp for '%s'", current->path);
     }
   }
-  
+
   t->next = current->timestamplist;
   current->timestamplist = t;
 
@@ -2355,7 +2345,7 @@ static void addsize(Size_T ss) {
     if (s->test_changes_ok)
       s->size = (unsigned long long)buf.st_size;
   }
- 
+
   s->next = current->sizelist;
   current->sizelist = s;
 
@@ -2436,7 +2426,7 @@ static void addchecksum(Checksum_T cs) {
   c->test_changes_ok = cs->test_changes_ok;
   c->action          = cs->action;
   snprintf(c->hash, sizeof(c->hash), "%s", cs->hash);
- 
+
   current->checksum = c;
 
   reset_checksumset();
@@ -2480,7 +2470,7 @@ static void appendmatch(Match_T *list, Match_T item) {
 static void addmatch(Match_T ms, int actionnumber, int linenumber) {
   Match_T m;
   int     reg_return;
-  
+
   ASSERT(ms);
 
   NEW(m);
@@ -2527,12 +2517,12 @@ static void addmatchpath(Match_T ms, int actionnumber) {
     yyerror2("cannot read regex match file (%s)", ms->match_path);
     return;
   }
-  
+
   while (!feof(handle)) {
     size_t len;
 
     linenumber++;
-    
+
     if (! fgets(buf, 2048, handle))
       continue;
 
@@ -2568,19 +2558,19 @@ static void addmatchpath(Match_T ms, int actionnumber) {
 
 
 /*
- * Set program object in the current service
+ * Set exit status test object in the current service
  */
-static void addprogram(Program_T program) {
-        Program_T p;
-        ASSERT(program);
-        NEW(p);
-        p->return_value = program->return_value;
-        p->operator = program->operator;
-        p->action = program->action;
-        p->timeout = program->timeout;
-        p->C = program->C;
-        current->program = p;
-        reset_programset();
+static void addstatus(Status_T status) {
+        Status_T s;
+        ASSERT(status);
+        NEW(s);
+        s->return_value = status->return_value;
+        s->operator = status->operator;
+        s->action = status->action;
+        s->next = current->statuslist;
+        current->statuslist = s;
+
+        reset_statusset();
 }
 
 
@@ -2623,7 +2613,7 @@ static void addfilesystem(Filesystem_T ds) {
   Filesystem_T dev;
 
   ASSERT(ds);
-  
+
   NEW(dev);
   dev->resource           = ds->resource;
   dev->operator           = ds->operator;
@@ -2654,7 +2644,7 @@ static void addicmp(Icmp_T is) {
   icmp->action       = is->action;
   icmp->is_available = FALSE;
   icmp->response     = -1;
-  
+
   icmp->next         = current->icmplist;
   current->icmplist  = icmp;
 
@@ -2731,7 +2721,7 @@ static void seteventaction(EventAction_T *_ea, int failed, int succeeded) {
  */
 static void addgeneric(Port_T port, char *send, char *expect) {
   Generic_T g = port->generic;
-  
+
   if (g == NULL) {
     NEW(g);
     port->generic = g;
@@ -2741,13 +2731,13 @@ static void addgeneric(Port_T port, char *send, char *expect) {
     NEW(g->next);
     g = g->next;
   }
-  
+
   if (send != NULL) {
     g->send = Str_dup(send);
     g->expect = NULL;
   } else if (expect != NULL) {
 #ifdef HAVE_REGEX_H
-    
+
     int   reg_return;
     NEW(g->expect);
     reg_return = regcomp(g->expect, expect, REG_NOSUB|REG_EXTENDED);
@@ -2777,12 +2767,12 @@ static void addcommand(int what, unsigned timeout) {
   }
 
   command->timeout = timeout;
-  
+
   command = NULL;
-  
+
 }
 
-  
+
 /*
  * Add a new argument to the argument list
  */
@@ -2791,18 +2781,18 @@ static void addargument(char *argument) {
   ASSERT(argument);
 
   if (! command) {
-    
+
     NEW(command);
     check_exec(argument);
-    
+
   }
-  
+
   command->arg[command->length++] = argument;
   command->arg[command->length] = NULL;
-  
+
   if (command->length >= ARGMAX)
     yyerror("exceeded maximum number of program arguments");
-  
+
 }
 
 
@@ -2812,7 +2802,7 @@ static void addargument(char *argument) {
 static void prepare_urlrequest(URL_T U) {
 
   ASSERT(U);
-  
+
   portset.protocol = Protocol_get(Protocol_HTTP);
 
   if (urlrequest == NULL)
@@ -2830,7 +2820,7 @@ static void prepare_urlrequest(URL_T U) {
   portset.protocol = Protocol_get(Protocol_HTTP);
   if (IS(U->protocol, "https"))
     portset.SSL.use_ssl = TRUE;
-  
+
 }
 
 
@@ -2838,7 +2828,7 @@ static void prepare_urlrequest(URL_T U) {
  * Set the url request for a port
  */
 static void  seturlrequest(int operator, char *regex) {
-  
+
   ASSERT(regex);
 
   if (! urlrequest)
@@ -2867,7 +2857,7 @@ static void  seturlrequest(int operator, char *regex) {
  */
 static void addmmonit(URL_T url, int timeout, int sslversion, char *certmd5) {
   Mmonit_T c;
-  
+
   ASSERT(url);
 
   NEW(c);
@@ -2904,7 +2894,7 @@ static void addmmonit(URL_T url, int timeout, int sslversion, char *certmd5) {
 static void addmailserver(MailServer_T mailserver) {
 
   MailServer_T s;
-  
+
   ASSERT(mailserver->host);
 
   NEW(s);
@@ -2925,7 +2915,7 @@ static void addmailserver(MailServer_T mailserver) {
   } else {
     Run.mailservers = s;
   }
-  
+
   reset_mailserverset();
 }
 
@@ -3052,7 +3042,7 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
   char buf[STRLEN];
   FILE *handle = NULL;
   int credentials_added = 0;
-  
+
   ASSERT(filename);
 
   handle = fopen(filename, "r");
@@ -3064,11 +3054,11 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
       yyerror2("cannot read htpasswd", filename);
     return;
   }
-  
+
   while (!feof(handle)) {
     char *colonindex = NULL;
     int i;
-    
+
     if (! fgets(buf, STRLEN, handle))
       continue;
 
@@ -3089,7 +3079,7 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
     /* In case we have a file in /etc/passwd or /etc/shadow style we
      *  want to remove ":.*$" and Crypt and MD5 hashed dont have a colon
      */ 
-    
+
     if ( (NULL != (colonindex = strchr(ht_passwd, ':'))) && ( dtype != DIGEST_CLEARTEXT) )
       *colonindex = '\0';
 
@@ -3147,7 +3137,7 @@ static void addpamauth(char* groupname, int readonly) {
   c->groupname   = groupname;
   c->digesttype  = DIGEST_PAM;
   c->is_readonly = readonly;
-  
+
   DEBUG("%s: Adding PAM group '%s'.\n", prog, groupname); 
 
   return;
@@ -3183,20 +3173,20 @@ static int addcredentials(char *uname, char *passwd, int dtype, int readonly) {
 
     NEW(c->next);
     c = c->next;
-        
+
   }
-  
+
   c->next        = NULL;
   c->uname       = uname;
   c->passwd      = passwd;
   c->groupname   = NULL;
   c->digesttype  = dtype;
   c->is_readonly = readonly;
-  
+
   DEBUG("%s: Debug: Adding credentials for user '%s'.\n", prog, uname); 
-  
+
   return TRUE;
-  
+
 }
 
 
@@ -3236,7 +3226,7 @@ static void setsyslog(char *facility) {
   } else {
     Run.facility = LOG_USER;
   }
-  
+
 }
 
 
@@ -3351,14 +3341,10 @@ static void reset_permset() {
 /*
  * Reset the Status set to default values
  */
-static void reset_programset() {
-        programset.return_value = 0;
-        programset.operator = OPERATOR_EQUAL;
-        programset.action = NULL;
-        programset.timeout = EXEC_TIMEOUT;
-        programset.started = 0;
-        programset.P = NULL;
-        programset.C = NULL;
+static void reset_statusset() {
+        statusset.return_value = 0;
+        statusset.operator = OPERATOR_EQUAL;
+        statusset.action = NULL;
 }
 
 
@@ -3511,10 +3497,10 @@ static void check_depend() {
 
   ASSERT(depend_list);
   servicelist = depend_list;
-    
+
   for (s = depend_list; s; s = s->next_depend)
     s->next = s->next_depend;
-    
+
   reset_depend();
 }
 
@@ -3528,17 +3514,17 @@ static void check_exec(char *exec) {
         else if (! File_isExecutable(exec))
                 yywarning2("Program is not executable:");
 }
- 
- 
+
+
 /* Return a valid max forward value for SIP header */
 static int verifyMaxForward(int mf) { 
   int max = 70;
-  
+
   if (mf >= 0 && mf <= 255)
     max = mf;
   else
     yywarning2("SIP max forward is outside the range [0..255]. Setting max forward to 70");
-  
+
   return max;
 }
 

@@ -228,7 +228,7 @@ running processes matching the pattern.
 =head1 WHAT TO MONITOR?
 
 You can use Monit to monitor daemon B<processes> or similar
-programs running on localhost. Monit is particular useful for
+programs running on localhost. Monit is particularly useful for
 monitoring daemon processes, such as those started at system boot
 time from /etc/init.d/. For instance sendmail, sshd, apache and
 mysql. In contrast to many other monitoring systems, Monit can act if
@@ -2549,8 +2549,17 @@ control file.
 
 An example:
 
- check program myscript with path "/usr/local/bin/myscript.sh"
+ check program myscript with path "/usr/local/bin/myscript.sh" with timeout 1000 seconds
        if status != 0 then alert
+
+Sample script for the above example (/usr/local/bin/myscript.sh):
+
+ #!/bin/bash
+ echo test
+ exit $?
+
+Notes: The interpreter (first line) is required unless the executed
+program is binary. The program must be executable.
 
 Monit will execute the program periodically and if the exit
 status of the program does not match the expected result, Monit
@@ -2587,7 +2596,7 @@ The syntax of the program status statement is:
 
 =over 4
 
-=item IF STATUS operator value [TIMEOUT <N> SECONDS] [[<X>] <Y> CYCLES] THEN action
+=item IF STATUS operator value [[<X>] <Y> CYCLES] THEN action
       [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]
 
 =back
@@ -2599,6 +2608,12 @@ default is EQUAL).
 
 I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 "EXEC" or "UNMONITOR".
+
+Multiple status tests can be used, for example:
+
+ check program hwtest with path "/usr/local/bin/hwtest.sh"
+       if status = 1 then alert
+       if status = 3 for 5 cycles then exec "/usr/local/bin/emergency.sh"
 
 
 =head1 SERVICE POLL TIME
@@ -3213,12 +3228,16 @@ tildeslash.com or "64.87.72.95".
 The system name is usually hostname, but any descriptive name can be
 used. This test allows one to check general system resources such as
 CPU usage (percent of time spent in user, system and wait), total
-memory usage or load average.
+memory usage or load average. The unique name is used as the system
+hostname in mail alerts and when M/Monit is configured, then also
+as initial name of the host entry in M/Monit.
 
-=item 8. CHECK PROGRAM <unique name> PATH <executable file>
+=item 8. CHECK PROGRAM <unique name> PATH <executable file> [TIMEOUT <number> SECONDS]
 
 <path> is the absolute path to the executable program or script.
-The I<status> test allows to check the program's exit status.
+The I<status> test allows to check the program's exit status. If
+program will not finish within <number> seconds, Monit will terminate
+it. The default program timeout is 600 seconds (5 minutes).
 
 =back
 

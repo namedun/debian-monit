@@ -170,7 +170,7 @@ int can_write(int socket, int timeout);
  * @return The number of bytes sent or -1 if an error occured.
  */
 ssize_t sock_write(int socket, const void *buffer, size_t size, int timeout);
-  
+
 
 /**
  * Read up to size bytes from the <code>socket</code> into the

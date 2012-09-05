@@ -148,9 +148,9 @@ int main(void) {
                 assert(L->freelist);
         }
         printf("=> Test7: OK\n\n");
-        
+
         List_free(&L);
-        
+
         printf("=> Test8: List malloc\n");
         {
                 L = List_new();
@@ -225,7 +225,7 @@ int main(void) {
                 List_free(&L);
         }
         printf("=> Test9: OK\n\n");
-        
+
         printf("=> Test10: check pointers\n");
         {
                 L = List_new();
@@ -250,7 +250,7 @@ int main(void) {
                 List_free(&L);
         }
         printf("=> Test10: OK\n\n");
-        
+
         printf("=> Test11: List_toArray()\n");
         {
                 List_T l = List_new();
@@ -268,7 +268,7 @@ int main(void) {
                 List_free(&l);
         }
         printf("=> Test11: OK\n\n");
-        
+
         printf("============> List Tests: OK\n\n");
 
         return 0;

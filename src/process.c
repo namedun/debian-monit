@@ -107,7 +107,7 @@ int update_process_data(Service_T s, ProcessTree_T *pt, int treesize, pid_t pid)
   s->inf->priv.process.pid  = pid;
 
   if ((leaf = findprocess(pid, pt, treesize)) != -1) {
- 
+
     /* save the previous ppid and set actual one */
     s->inf->priv.process._ppid             = s->inf->priv.process.ppid;
     s->inf->priv.process.ppid              = pt[leaf].ppid;
@@ -138,7 +138,7 @@ int update_process_data(Service_T s, ProcessTree_T *pt, int treesize, pid_t pid)
     s->inf->priv.process.cpu_percent       = 0;
     s->inf->priv.process.total_cpu_percent = 0;
   }
-  
+
   return TRUE;
 }
 
@@ -209,7 +209,7 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
     *oldpt_r   = *pt_r; 
     *oldsize_r = *size_r; 
   }
-  
+
   if ((*size_r = initprocesstree_sysdep(pt_r)) <= 0) {
     DEBUG("system statistic error -- cannot initialize the process tree => process resource monitoring disabled\n");
     Run.doprocess = FALSE;
@@ -229,7 +229,7 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
     if (oldpt && ((oldentry = findprocess(pt[i].pid, oldpt, *oldsize_r)) != -1)) {
       pt[i].cputime_prev = oldpt[oldentry].cputime;
       pt[i].time_prev    = oldpt[oldentry].time;
- 
+
       /* The cpu_percent may be set already (for example by HPUX module) */
       if (pt[i].cpu_percent  == 0 && pt[i].cputime_prev != 0 && pt[i].cputime != 0 && pt[i].cputime > pt[i].cputime_prev) {
         pt[i].cpu_percent = (int)((1000 * (double)(pt[i].cputime - pt[i].cputime_prev) / (pt[i].time - pt[i].time_prev)) / systeminfo.cpus);
@@ -241,7 +241,7 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
       pt[i].time_prev    = 0.0;
       pt[i].cpu_percent  = 0;
     }
-        
+
     if (pt[i].pid == pt[i].ppid) {
       pt[i].parent = i;
       continue;
@@ -257,7 +257,7 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
       pt[j].ppid = pt[j].pid  = pt[i].ppid;
       pt[i].parent = j;
     }
-    
+
     if (! connectchild(pt, pt[i].parent, i)) {
       /* connection to parent process has failed, this is usually caused in the part above */
       DEBUG("system statistic error -- cannot connect process id %d to its parent %d\n", pt[i].pid, pt[i].ppid);

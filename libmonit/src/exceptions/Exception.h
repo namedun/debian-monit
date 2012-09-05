@@ -157,6 +157,7 @@
  * @see SQLException.h IOException.h AssertException.h NumberFormatException.h
  * MemoryException.h
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */
@@ -230,7 +231,7 @@ void Exception_throw(const T *e, const char *func, const char *file, int line, c
         TD_set(Exception_stack, &Exception_frame); \
         Exception_flag = setjmp(Exception_frame.env); \
         if (Exception_flag == Exception_entered) {
-                
+
 
 /**
  * Defines a block containing code for handling an exception thrown in 
@@ -266,7 +267,7 @@ void Exception_throw(const T *e, const char *func, const char *file, int line, c
         } { \
                 if (Exception_flag == Exception_entered) \
                         Exception_flag = Exception_finalized;
-                
+
 
 /**
  * Ends a TRY-CATCH block

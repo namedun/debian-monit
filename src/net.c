@@ -270,7 +270,7 @@ int check_host(const char *hostname) {
 int check_socket(int socket) {
 
   return (can_read(socket, 0) || can_write(socket, 0));
-  
+
 }
 
 
@@ -283,7 +283,7 @@ int check_socket(int socket) {
  * @return TRUE if the socket is ready, otherwise FALSE.
  */
 int check_udp_socket(int socket) {
-  
+
   char buf[STRLEN]= {0};
 
   /* We have to send something and if the UDP server is down/unreachable
@@ -299,9 +299,9 @@ int check_udp_socket(int socket) {
       default:           break;
     }
   }
-  
+
   return TRUE;
-  
+
 }
 
 
@@ -321,7 +321,7 @@ int create_socket(const char *hostname, int port, int type, int timeout) {
   struct sockaddr_in *sa;
   struct addrinfo hints;
   struct addrinfo *result;
-  
+
   ASSERT(hostname);
 
   memset(&hints, 0, sizeof(struct addrinfo));
@@ -340,14 +340,14 @@ int create_socket(const char *hostname, int port, int type, int timeout) {
   sin.sin_family= AF_INET;
   sin.sin_port= htons(port);
   freeaddrinfo(result);
-  
+
   if(! set_noblock(s)) {
     goto error;
   }
- 
+
   if(fcntl(s, F_SETFD, FD_CLOEXEC) == -1)
     goto error; 
-  
+
   if(do_connect(s, (struct sockaddr *)&sin, sizeof(sin), timeout) < 0) {
     goto error;
   }
@@ -357,7 +357,7 @@ int create_socket(const char *hostname, int port, int type, int timeout) {
   error:
   close_socket(s);
   return -1;
- 
+
 }
 
 
@@ -383,9 +383,9 @@ int create_generic_socket(Port_T p) {
   default:
       socket_fd= -1;
   }
-  
+
   return socket_fd;
-  
+
 }
 
 
@@ -399,7 +399,7 @@ int create_unix_socket(const char *pathname, int timeout) {
 
   int s;
   struct sockaddr_un unixsocket;
-  
+
   ASSERT(pathname);
 
   if((s= socket(PF_UNIX, SOCK_STREAM, 0)) < 0) {
@@ -409,17 +409,17 @@ int create_unix_socket(const char *pathname, int timeout) {
 
   unixsocket.sun_family= AF_UNIX;
   snprintf(unixsocket.sun_path, sizeof(unixsocket.sun_path), "%s", pathname);
-  
+
   if(! set_noblock(s)) {
     goto error;
   }
-  
+
   if(do_connect(s, (struct sockaddr *)&unixsocket, sizeof(unixsocket), timeout) < 0) {
     goto error;
   }
-  
+
   return s;
-  
+
   error:
   close_socket(s);
   return -1;
@@ -449,7 +449,7 @@ int create_server_socket(int port, int backlog, const char *bindAddr) {
   }
 
   memset(&myaddr, 0, sizeof(struct sockaddr_in));
-  
+
   if(bindAddr) {
     struct sockaddr_in *sa;
     struct addrinfo hints;
@@ -474,25 +474,25 @@ int create_server_socket(int port, int backlog, const char *bindAddr) {
     LogError("%s: Cannot set reuseaddr option -- %s\n", prog, STRERROR);
     goto error;
   }
-  
+
   if(! set_noblock(s))
     goto error;
-  
+
   if(fcntl(s, F_SETFD, FD_CLOEXEC) == -1) {
     LogError("%s: Cannot set close on exec option -- %s\n", prog, STRERROR);
     goto error; 
   }
-  
+
   if(bind(s, (struct sockaddr *)&myaddr, sizeof(struct sockaddr_in)) < 0) {
     LogError("%s: Cannot bind -- %s\n", prog, STRERROR);
     goto error;
   }
-  
+
   if(listen(s, backlog) < 0) {
     LogError("%s: Cannot listen -- %s\n", prog, STRERROR);
     goto error;
   }
-  
+
   return s;
 
   error:
@@ -513,14 +513,14 @@ int close_socket(int socket) {
   int r;
 
   shutdown(socket, 2);
-  
+
   /* Try to close even if shutdown failed so we won't leak file descriptors */
   do {
     r = close(socket);
   } while(r == -1 && errno == EINTR);
   if (r == -1)
     LogError("%s: Socket %d close failed -- %s\n", prog, socket, STRERROR);
-  
+
   return r;
 }
 
@@ -602,15 +602,15 @@ int can_write(int socket, int timeout) {
 ssize_t sock_write(int socket, const void *buffer, size_t size, int timeout) {
 
   ssize_t n = 0;
-  
+
   if(size<=0)
       return 0;
-  
+
   errno= 0;
   do {
     n= write(socket, buffer, size);
   } while(n == -1 && errno == EINTR);
-  
+
   if(n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
     if(! can_write(socket, timeout)) {
       return -1;
@@ -619,7 +619,7 @@ ssize_t sock_write(int socket, const void *buffer, size_t size, int timeout) {
       n= write(socket, buffer, size);
     } while(n == -1 && errno == EINTR);
   }
-  
+
   return n;
 
 }
@@ -636,17 +636,17 @@ ssize_t sock_write(int socket, const void *buffer, size_t size, int timeout) {
  * @return The number of bytes read or -1 if an error occured. 
  */
 ssize_t sock_read(int socket, void *buffer, int size, int timeout) {
-  
+
   ssize_t n;
 
   if(size<=0)
       return 0;
-  
+
   errno= 0;
   do {
     n= read(socket, buffer, size);
   } while(n == -1 && errno == EINTR);
-  
+
   if(n == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
     if(! can_read(socket, timeout)) {
       return -1;
@@ -672,32 +672,32 @@ ssize_t sock_read(int socket, void *buffer, int size, int timeout) {
  * @return The number of bytes sent or -1 if an error occured.
  */
 int udp_write(int socket, void *b, size_t len, int timeout) {
-  
+
   int i, n;
-  
+
   ASSERT(timeout>=0);
-  
+
   for(i= 4; i>=1; i--) {
-    
+
     do {
       n = (int)sock_write(socket, b, len, 0);
     } while(n == -1 && errno == EINTR);
-    
+
     if(n == -1 && (errno != EAGAIN || errno != EWOULDBLOCK))
       return -1;
-    
+
     /* Simple retransmit scheme, wait for the server to reply 
     back to our socket. This assume a request-response pattern, 
     which really is the only pattern we can support */
     if(can_read(socket, (int)(timeout/i))) return n;
     DEBUG("udp_write: Resending request\n");
-    
+
   }
-  
+
   errno= EHOSTUNREACH;
-  
+
   return -1;
-  
+
 }
 
 
@@ -730,7 +730,7 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   int sol_ip;
   unsigned ttl = 255;
 #endif
-  
+
   ASSERT(hostname);   
   ASSERT(len_out < sizeof(buf));
 

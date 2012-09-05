@@ -37,6 +37,7 @@
  * required and may <b>not</b> be removed at compile time.</small>
  * @see AssertException.h 
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

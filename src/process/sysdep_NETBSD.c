@@ -149,12 +149,12 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     LogError("system statistic error -- vm.maxslp failed");
     return FALSE;
   }
-  
+
   if (sysctl(mib_proc2, 6, NULL, &size, NULL, 0) == -1) {
     LogError("system statistic error -- kern.proc2 #1 failed");
     return FALSE;
   }
-  
+
   size *= 2; // Add reserve for new processes which were created between calls of sysctl
   pinfo = CALLOC(1, size);
   mib_proc2[5] = (int)(size / sizeof(struct kinfo_proc2));
@@ -163,9 +163,9 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     LogError("system statistic error -- kern.proc2 #2 failed");
     return FALSE;
   }
-  
+
   treesize = (int)(size / sizeof(struct kinfo_proc2));
-    
+
   pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   if (! (kvm_handle = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, buf))) {
