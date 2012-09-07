@@ -80,7 +80,7 @@ int check_ldap3(Socket_T socket) {
     0x00     	       /** SimpleAuth (octet string) length */
     /* NULL */     	     	  /** Anonymous Credentials */
   };
-    
+
   unsigned char response[14] = {
     0x30,	                 /** Universal Sequence TAG */
     0x0c,	       /** Length of the packet's data part */
@@ -145,6 +145,6 @@ int check_ldap3(Socket_T socket) {
   }
 
   return TRUE;
-    
+
 }
 

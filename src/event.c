@@ -327,7 +327,7 @@ short Event_check_state(Event_T E, short S) {
   /* the internal instance and action events are handled as changed any time since we need to deliver alert whenever it occurs */
   if (E->id == Event_Instance || E->id == Event_Action || (count >= action->count && (S != E->state || S == STATE_CHANGED)))
     return TRUE;
-  
+
   return FALSE;
 }
 
@@ -385,7 +385,7 @@ const char *Event_get_description(Event_T E) {
     }
     et++;
   }
-  
+
   return NULL;
 }
 
@@ -730,12 +730,12 @@ static void Event_queue_add(Event_T E) {
     LogError("%s: Aborting event - cannot access the directory %s\n", prog, Run.eventlist_dir);
     return;
   }
-    
+
   if (!file_checkQueueLimit(Run.eventlist_dir, Run.eventlist_slots)) {
     LogError("%s: Aborting event - queue over quota\n", prog);
     return;
   }
-    
+
   /* compose the file name of actual timestamp and service name */
   snprintf(file_name, STRLEN, "%s/%ld_%lx", Run.eventlist_dir, (long int)time(NULL), (long unsigned)E->source);
 
@@ -805,7 +805,7 @@ static void Event_queue_update(Event_T E, const char *file_name) {
     LogError("%s: Aborting event - cannot access the directory %s\n", prog, Run.eventlist_dir);
     return;
   }
-    
+
   DEBUG("%s: Updating event in the queue file %s for later delivery\n", prog, file_name);
 
   mask = umask(QUEUEMASK);

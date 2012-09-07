@@ -47,7 +47,7 @@
  */
 int check_rsync(Socket_T socket) {
   char  buf[64];
-  char  header[10];
+  char  header[11];
   int   rc, version_major, version_minor;
   char  *rsyncd = "@RSYNCD:";
   char  *rsyncd_exit = "@RSYNCD: EXIT";

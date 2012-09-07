@@ -159,7 +159,6 @@ void sha1_finish(sha1_context_t *context, unsigned char digest[SHA1_DIGEST_SIZE]
                 digest[i] = (unsigned char)((context->state[i>>2] >> ((3-(i & 3)) * 8) ) & 255);
 
         /* Wipe variables */
-        i = 0;
         memset(context->buffer, 0, 64);
         memset(context->state, 0, 20);
         memset(context->count, 0, 8);

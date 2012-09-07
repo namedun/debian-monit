@@ -7,12 +7,12 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 
 --- a/monit.1
 +++ b/monit.1
-@@ -3212,7 +3212,7 @@
- .IP "8. \s-1CHECK\s0 \s-1PROGRAM\s0 <unique name> \s-1PATH\s0 <executable file>" 4
- .IX Item "8. CHECK PROGRAM <unique name> PATH <executable file>"
+@@ -3271,7 +3271,7 @@
+ .IP "8. \s-1CHECK\s0 \s-1PROGRAM\s0 <unique name> \s-1PATH\s0 <executable file> [\s-1TIMEOUT\s0 <number> \s-1SECONDS\s0]" 4
+ .IX Item "8. CHECK PROGRAM <unique name> PATH <executable file> [TIMEOUT <number> SECONDS]"
  <path> is the absolute path to the executable program or script.
--The \fIstatus\fR test allows to check the program's exit status.
-+The \fIstatus\fR test allows one to check the program's exit status.
+-The \fIstatus\fR test allows to check the program's exit status. If
++The \fIstatus\fR test allows one to check the program's exit status. If
+ program will not finish within <number> seconds, Monit will terminate
+ it. The default program timeout is 600 seconds (5 minutes).
  .PP
- You can use noise keywords like 'if', `and', `with(in)', `has',
- `using', 'use', 'on(ly)', `usage' and `program(s)' anywhere in an

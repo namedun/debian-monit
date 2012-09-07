@@ -82,7 +82,7 @@
 void  daemonize() {
 
   pid_t pid;
-  
+
   /*
    * Clear file creation mask
    */
@@ -92,41 +92,41 @@ void  daemonize() {
    * Become a session leader to lose our controlling terminal
    */
   if((pid= fork ()) < 0) {
-    
+
     LogError("Cannot fork of a new process\n");  
     exit (1);
-    
+
   }  
   else if(pid != 0) {
-    
+
     _exit(0);
-    
+
   }
-  
+
   setsid();
 
   if((pid= fork ()) < 0) {
-    
+
     LogError("Cannot fork of a new process\n");  
     exit (1);
-    
+
   }  
   else if(pid != 0) {
-    
+
     _exit(0);
-    
+
   }
 
-  
+
   /*
    * Change current directory to the root so that other file systems
    * can be unmounted while we're running
    */
   if(chdir("/") < 0) {
-    
+
     LogError("Cannot chdir to / -- %s\n", STRERROR);
     exit(1);
-    
+
   }
 
   /*
@@ -144,35 +144,35 @@ void  daemonize() {
  * @return TRUE if signal was send, otherwise FALSE
  */
 int kill_daemon(int sig) {
-  
+
   pid_t pid;
 
   if ( (pid= exist_daemon()) > 0 ) {
-    
+
     if ( kill(pid, sig) < 0 ) {
-      
+
       LogError("%s: Cannot send signal to daemon process -- %s\n",
         prog, STRERROR);
       return FALSE;
-      
+
     }
-    
+
   } else {
-    
+
     LogInfo("%s: No daemon process found\n", prog);
     return TRUE;
-    
+
   }
-  
+
   if(sig == SIGTERM) {
 	  
     fprintf(stdout, "%s daemon with pid [%d] killed\n", prog, (int)pid);
     fflush(stdout);
 
   }
-  
+
   return TRUE;
-  
+
 }
 
 
@@ -189,8 +189,8 @@ int exist_daemon() {
   if( (pid= Util_getPid(Run.pidfile)) )
     if( (getpgid(pid)) > -1 || (errno == EPERM) )
       return( (int)pid );
-  
+
   return(FALSE);
 
 }
-    
+

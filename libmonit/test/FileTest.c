@@ -22,11 +22,11 @@ int main(void) {
         char path[STRLEN];
 
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start File Tests\n\n");
-        
+
         snprintf(path, STRLEN, "/tmp/.FileTest.%d", getpid());
-        
+
         printf("=> Test1: open/close\n");
         {
                 int fd;
@@ -147,7 +147,7 @@ int main(void) {
                 assert(File_exist(path) == false);
         }
         printf("=> Test8: OK\n\n");
-        
+
         printf("=> Test9: removeTrailingSeparator\n");
         {
                 char a[] = "/abc/def/";
@@ -158,7 +158,7 @@ int main(void) {
                 assert(File_removeTrailingSeparator(NULL) == NULL);
         }
         printf("=> Test9: OK\n\n");
-        
+
         printf("============> File Tests: OK\n\n");
 
         return 0;

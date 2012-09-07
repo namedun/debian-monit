@@ -68,7 +68,7 @@
 #ifdef HAVE_PROCINFO_H
 #include <procinfo.h>
 #endif
- 
+
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -162,7 +162,7 @@ int getloadavg_sysdep (double *loadv, int nelem) {
       LogError("system statistic error -- perfstat_cpu_total failed: %s\n", STRERROR);
       return -1;
   }
-      
+
   switch (nelem) {
     case 3:
       loadv[2] = (double)cpu.loadavg[2] / (double)(1<<SBITS);

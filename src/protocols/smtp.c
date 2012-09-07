@@ -53,13 +53,13 @@ static int expect(Socket_T s, int expect, int log);
  */
 int check_smtp(Socket_T socket) {
         ASSERT(socket);
-        
+
         /* Try HELO also before giving up as of rfc2821 4.1.1.1 */
         if (expect(socket, 220, TRUE) 
             && ((say(socket, "EHLO localhost\r\n") && expect(socket, 250, FALSE)) || (say(socket, "HELO localhost\r\n") && expect(socket, 250, TRUE))) 
             && (say(socket, "QUIT\r\n") && expect(socket, 221, TRUE)))
                 return TRUE;
-        
+
         return FALSE;
 }
 
@@ -79,7 +79,7 @@ static int say(Socket_T socket, char *msg) {
 static int expect(Socket_T socket, int expect, int log) {
         int status;
         char buf[STRLEN];
-        
+
         do {
                 if (! socket_readln(socket, buf, STRLEN)) {
                         socket_setError(socket, "SMTP: error receiving data -- %s\n", STRERROR);

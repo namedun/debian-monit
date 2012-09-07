@@ -43,6 +43,7 @@
 /**
  * Implementation of the File Facade for Unix systems. 
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

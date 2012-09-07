@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "Bootstrap.h"
 #include "OutputStream.h"
@@ -21,11 +22,11 @@
 
 int main(void) {
         OutputStream_T out = NULL;
-        
+
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start OutputStream Tests\n\n");
-        
+
         printf("=> Test0: create/destroy the file input stream\n");
         {
                 out = OutputStream_new(STDOUT);
@@ -34,7 +35,7 @@ int main(void) {
                 assert(out == NULL);
         }
         printf("=> Test0: OK\n\n");
-        
+
         printf("=> Test1: get/set timeout\n");
         {
                 out = OutputStream_new(STDOUT);
@@ -64,7 +65,7 @@ int main(void) {
                 OutputStream_free(&out);
         }
         printf("=> Test2: OK\n\n");
-        
+
         printf("=> Test3: printf format\n");
         {
                 out = OutputStream_new(STDOUT);
@@ -96,7 +97,7 @@ int main(void) {
                 OutputStream_free(&out);
         }
         printf("=> Test3: OK\n\n");
-        
+
         printf("=> Test4: write two concatenated lines\n");
         {
                 int i = 0;
@@ -131,14 +132,15 @@ int main(void) {
                 TRY
                         OutputStream_print(out, "Should not show");
                         assert(OutputStream_flush(out) != -1);
-                        assert(false); // Should not come here
+                        printf("Test6: Failed");
+                        exit(1); // Should not come here
                 CATCH(AssertException)
                         // Passed
                 END_TRY;
                 OutputStream_free(&out);
         }
         printf("=> Test6: OK\n\n");
-                
+
         printf("=> Test7: printf large buffer\n");
         {
                 // Note, test assume OutputStream buffer is 1500

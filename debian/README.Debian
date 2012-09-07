@@ -1,3 +1,32 @@
+Monit for Debian
+================
+
+Configuration
+-------------
+
+Hope you'll like monit configuration snippets found in
+/etc/monit/monitrc.d/.
+
+These are supposed to be included into /etc/monit/monitrc *and*
+reviewed accordingly to site configuration and policy, including own
+file permissions (defaults to 0644, configuration snippets *are*
+readable by anyone), IP addresses, host names, exact limit values,
+etc.  Generally we try to provide them working out-of-box but it's not
+always feasible.
+
+Please do post bugs against monit package when you have to change any
+snippet in the way that should be current default (e.g. a binary path
+has changed in the package).
+
+Packagers may drop the default monit config file to:
+/etc/monit/monitrc.d/<package>
+and alternative/optional snippets to:
+/etc/monit/monitrc.d/<package>-<somename>
+
+
+Startup delay
+-------------
+
 For some slow-to-start processes monit can, especially at bootup,
 start to monitor a process before it is fully initialised.  This can
 cause monit to erroneously attempt a restart.

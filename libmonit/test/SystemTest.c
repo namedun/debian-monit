@@ -23,7 +23,7 @@
 int main(void) {
 
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start System Tests\n\n");
 
         printf("=> Test0: check error description\n");

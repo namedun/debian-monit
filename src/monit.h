@@ -120,9 +120,11 @@
 #define PORT_HTTPS         443
 
 #define SSL_TIMEOUT        15
+#define SMTP_TIMEOUT       30
 
 #define START_DELAY        0
 #define EXEC_TIMEOUT       30
+#define PROGRAM_TIMEOUT    600
 
 #define START_HTTP         1
 #define STOP_HTTP          2
@@ -342,7 +344,7 @@ typedef struct mymmonit {
         URL_T url;                                             /**< URL definition */
         Ssl_T ssl;                                             /**< SSL definition */
         int   timeout;              /**< The timeout to wait for connection or i/o */
-        
+
         /** For internal use */
         struct mymmonit *next;                         /**< next receiver in chain */
 } *Mmonit_T;
@@ -357,7 +359,7 @@ typedef struct mymail {
         char *message;                                       /**< The mail message */
         unsigned int events;  /*< Events for which this mail object should be sent */
         unsigned int reminder;              /*< Send error reminder each Xth cycle */
-        
+
         /** For internal use */
         struct mymail *next;                          /**< next recipient in chain */
 } *Mail_T;
@@ -370,7 +372,7 @@ typedef struct mymailserver {
         char *username;                               /** < Username for SMTP_AUTH */
         char *password;                               /** < Password for SMTP_AUTH */
         Ssl_T ssl;                                             /**< SSL definition */
-        
+
         /** For internal use */
         struct mymailserver *next;        /**< Next server to try on connect error */
 } *MailServer_T;
@@ -393,7 +395,7 @@ typedef struct myprocesstree {
         int           status_flag;
         time_t        starttime;
         char         *cmdline;
-        
+
         int           visited;
         int           children_num;
         int           children_sum;
@@ -401,13 +403,13 @@ typedef struct myprocesstree {
         int           cpu_percent_sum;
         unsigned long mem_kbyte;
         unsigned long mem_kbyte_sum;
-        
+
         /** For internal use */
         double        time;                                      /**< 1/10 seconds */
         double        time_prev;                                 /**< 1/10 seconds */
         long          cputime;                                   /**< 1/10 seconds */
         long          cputime_prev;                              /**< 1/10 seconds */
-        
+
         int           parent;
         int          *children;
 } ProcessTree_T;
@@ -492,11 +494,11 @@ typedef struct myport {
                 int cleanuplimit;      /**< Max percentatge of processes in idle cleanup */
                 int cleanuplimitOP;                           /**< cleanuplimit operator */
         } ApacheStatus;
-        
+
         Ssl_T SSL;                                             /**< SSL definition */
         Protocol_T protocol;     /**< Protocol object for testing a port's service */
         Request_T url_request;             /**< Optional url client request object */
-        
+
         /** For internal use */
         struct myport *next;                               /**< next port in chain */
 } *Port_T;
@@ -510,7 +512,7 @@ typedef struct myicmp {
         int is_available;                     /**< TRUE if the server is available */
         double response;                              /**< ICMP ECHO response time */
         EventAction_T action;  /**< Description of the action upon event occurence */
-        
+
         /** For internal use */
         struct myicmp *next;                               /**< next icmp in chain */
 } *Icmp_T;
@@ -518,7 +520,7 @@ typedef struct myicmp {
 
 typedef struct myservicegroupmember {
         char *name;                                           /**< name of service */
-        
+
         /** For internal use */
         struct myservicegroupmember *next;              /**< next service in chain */
 } *ServiceGroupMember_T;
@@ -527,7 +529,7 @@ typedef struct myservicegroupmember {
 typedef struct myservicegroup {
         char *name;                                     /**< name of service group */
         struct myservicegroupmember *members;           /**< Service group members */
-        
+
         /** For internal use */
         struct myservicegroup *next;              /**< next service group in chain */
 } *ServiceGroup_T;
@@ -535,7 +537,7 @@ typedef struct myservicegroup {
 
 typedef struct mydependant {
         char *dependant;                            /**< name of dependant service */
-        
+
         /** For internal use */
         struct mydependant *next;             /**< next dependant service in chain */
 } *Dependant_T;
@@ -547,7 +549,7 @@ typedef struct myresource {
         long limit;                                     /**< Limit of the resource */
         int  operator;                                    /**< Comparison operator */
         EventAction_T action;  /**< Description of the action upon event occurence */
-        
+
         /** For internal use */
         struct myresource *next;                       /**< next resource in chain */
 } *Resource_T;
@@ -560,7 +562,7 @@ typedef struct mytimestamp {
         int  test_changes;            /**< TRUE if we only should test for changes */
         time_t timestamp; /**< The original last modified timestamp for this object*/
         EventAction_T action;  /**< Description of the action upon event occurence */
-        
+
         /** For internal use */
         struct mytimestamp *next;                     /**< next timestamp in chain */
 } *Timestamp_T;
@@ -571,7 +573,7 @@ typedef struct myactionrate {
         int  count;                                            /**< Action counter */
         int  cycle;                                             /**< Cycle counter */
         EventAction_T action;    /**< Description of the action upon matching rate */
-        
+
         /** For internal use */
         struct myactionrate *next;                   /**< next actionrate in chain */
 } *ActionRate_T;
@@ -590,15 +592,23 @@ typedef struct myevery {
         } spec;
 } Every_T;
 
-typedef struct myprogram {
+
+typedef struct mystatus {
         int return_value;                /**< Return value of the program to check */
         int  operator;                                    /**< Comparison operator */
+        EventAction_T action;  /**< Description of the action upon event occurence */
+
+        /** For internal use */
+        struct mystatus *next;                       /**< next exit value in chain */
+} *Status_T;
+
+
+typedef struct myprogram {
+        Process_T P;          /**< A Process_T object representing the sub-process */
+        Command_T C;          /**< A Command_T object for building the sub-process */
         int timeout;          /**< How long the program may run until it is killed */
         time_t started;                      /**< When the sub-process was started */
         int exitStatus;                 /**< Sub-process exit status for reporting */
-        Process_T P;          /**< A Process_T object representing the sub-process */
-        Command_T C;          /**< A Command_T object for building the sub-process */
-        EventAction_T action;  /**< Description of the action upon event occurence */
 } *Program_T;
 
 
@@ -609,7 +619,7 @@ typedef struct mysize {
         int  test_changes;            /**< TRUE if we only should test for changes */
         int  test_changes_ok;   /**< TRUE if size was initialized for changes test */
         EventAction_T action;  /**< Description of the action upon event occurence */
-        
+
         /** For internal use */
         struct mysize *next;                               /**< next size in chain */
 } *Size_T;
@@ -654,7 +664,7 @@ typedef struct mymatch {
 #endif
         StringBuffer_T log;    /**< The temporary buffer used to record the matches */
         EventAction_T action;  /**< Description of the action upon event occurence */
-        
+
         /** For internal use */
         struct mymatch *next;                             /**< next match in chain */
 } *Match_T;
@@ -681,7 +691,7 @@ typedef struct myfilesystem {
         long limit_absolute;                               /**< Watermark - blocks */
         int  limit_percent;                               /**< Watermark - percent */
         EventAction_T action;  /**< Description of the action upon event occurence */
-        
+
         /** For internal use */
         struct myfilesystem *next;                   /**< next filesystem in chain */
 } *Filesystem_T;
@@ -694,7 +704,7 @@ typedef struct myinfo {
         uid_t   st_uid;                                           /**< Owner's uid */
         gid_t   st_gid;                                           /**< Owner's gid */
         time_t  timestamp;                                          /**< Timestamp */
-        
+
         union {
                 struct {
                         long   f_bsize;                               /**< Transfer block size */
@@ -711,7 +721,7 @@ typedef struct myinfo {
                         int    _flags;                   /**< Filesystem flags from last cycle */
                         int    flags;                  /**< Filesystem flags from actual cycle */
                 } filesystem;
-                
+
                 struct {
                         off_t st_size;                                               /**< Size */
                         off_t readpos;                        /**< Position for regex matching */
@@ -719,7 +729,7 @@ typedef struct myinfo {
                         ino_t st_ino_prev;              /**< Previous inode for regex matching */
                         MD_T  cs_sum;                                            /**< Checksum */
                 } file;
-                
+
                 struct {
                         int    _pid;                          /**< Process PID from last cycle */
                         int    _ppid;                  /**< Process parent PID from last cycle */
@@ -741,7 +751,7 @@ typedef struct myinfo {
 
 /** Defines service data */
 typedef struct myservice {
-        
+
         /** Common parameters */
         char *name;                                  /**< Service descriptive name */
         int (*check)(struct myservice *);       /**< Service verification function */
@@ -755,11 +765,12 @@ typedef struct myservice {
         Every_T every;              /**< Timespec for when to run check of service */
         command_t start;                    /**< The start command for the service */
         command_t stop;                      /**< The stop command for the service */
-        command_t restart;
-        
+        command_t restart;                /**< The restart command for the service */
+        Program_T program;                            /**< Program execution check */
+
         Dependant_T dependantlist;                     /**< Dependant service list */
         Mail_T      maillist;                  /**< Alert notification mailinglist */
-        
+
         /** Test rules and event handlers */
         ActionRate_T actionratelist;                    /**< ActionRate check list */
         Checksum_T  checksum;                                  /**< Checksum check */
@@ -775,25 +786,25 @@ typedef struct myservice {
         Match_T     matchignorelist;                /**< Content Match ignore list */
         Timestamp_T timestamplist;                       /**< Timestamp check list */
         Uid_T       uid;                                            /**< Uid check */
-        Program_T   program;              /**< Status (of program execution) check */
-        
-        
+        Status_T    statuslist;           /**< Program execution status check list */
+
+
         EventAction_T action_PID;                      /**< Action upon pid change */
         EventAction_T action_PPID;                    /**< Action upon ppid change */
         EventAction_T action_FSFLAG;      /**< Action upon filesystem flags change */
-        
+
         /** General event handlers */
         EventAction_T action_DATA;       /**< Description of the action upon event */
         EventAction_T action_EXEC;       /**< Description of the action upon event */
         EventAction_T action_INVALID;    /**< Description of the action upon event */
         EventAction_T action_NONEXIST;   /**< Description of the action upon event */
-        
+
         /** Internal monit events */
         EventAction_T action_MONIT_START;         /**< Monit instance start action */
         EventAction_T action_MONIT_STOP;           /**< Monit instance stop action */
         EventAction_T action_MONIT_RELOAD;       /**< Monit instance reload action */
         EventAction_T action_ACTION;           /**< Action requested by CLI or GUI */
-        
+
         /** Runtime parameters */
         int                error;                          /**< Error flags bitmap */
         int                error_hint;   /**< Failed/Changed hint for error bitmap */
@@ -801,7 +812,7 @@ typedef struct myservice {
         struct timeval     collected;                /**< When were data collected */
         int                doaction;          /**< Action scheduled by http thread */
         char              *token;                                /**< Action token */
-        
+
         /** Events */
         struct myevent {
                 #define           EVENT_VERSION  3      /**< The event structure version */
@@ -821,10 +832,10 @@ typedef struct myservice {
                 struct myevent   *next;                         /**< next event in chain */
                 struct myevent   *previous;                 /**< previous event in chain */
         } *eventlist;                                     /**< Pending events list */
-        
+
         /** Context specific parameters */
         char *path;  /**< Path to the filesys, file, directory or process pid file */
-        
+
         /** For internal use */
         pthread_mutex_t   mutex;        /**< Mutex used for action synchronization */
         struct myservice *next;                         /**< next service in chain */
@@ -841,7 +852,6 @@ struct myrun {
         volatile int  stopped;/**< TRUE if monit was stopped. Flag used by threads */
         char *controlfile;                /**< The file to read configuration from */
         char *logfile;                         /**< The file to write logdata into */
-        char *localhostname;                      /**< The host name for localhost */
         char *pidfile;                                  /**< This programs pidfile */
         char *idfile;                           /**< The file with unique monit id */
         char id[STRLEN];                                      /**< Unique monit id */
@@ -879,14 +889,14 @@ struct myrun {
         char *eventlist_dir;                   /**< The event queue base directory */
         int  eventlist_slots;          /**< The event queue size - number of slots */
         int  expectbuffer; /**< Generic protocol expect buffer - STRLEN by default */
-        
-        /** An object holding program relevant "environment" data, see; env.c */
+
+        /** An object holding program relevant "environment" data, see: env.c */
         struct myenvironment {
                 char *user;             /**< The the effective user running this program */
                 char *home;                                    /**< Users home directory */
                 char *cwd;                                /**< Current working directory */
         } Env;
-        
+
         char *mail_hostname;    /**< Used in HELO/EHLO/MessageID when sending mail */
         int mailserver_timeout;    /**< Connect and read timeout for a SMTP server */
         Mail_T maillist;                /**< Global alert notification mailinglist */
@@ -903,7 +913,7 @@ struct myrun {
                 char *subject;                            /**< The standard mail subject */
                 char *message;                            /**< The standard mail message */
         } MailFormat;
-        
+
         pthread_mutex_t mutex;    /**< Mutex used for service data synchronization */
 #ifdef OPENSSL_FIPS
         int fipsEnabled;                /** TRUE if monit should use FIPS-140 mode */

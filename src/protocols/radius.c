@@ -132,7 +132,7 @@ int check_radius(Socket_T socket) {
 
         P = socket_get_Port(socket);
         ASSERT(P);
-  
+
         secret = P->request ? P->request : "testing123";
         secret_len = (int)strlen(secret);
 

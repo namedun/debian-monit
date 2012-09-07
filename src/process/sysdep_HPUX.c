@@ -122,19 +122,19 @@ struct pst_status *psall;
 int init_process_info_sysdep(void) {
         struct pst_dynamic psd;
         struct pst_static pst;
-        
+
         if (pstat_getdynamic(&psd,sizeof(psd),(size_t)1,0) != -1)
                 systeminfo.cpus=psd.psd_proc_cnt;
         else
                 return FALSE;
-        
+
         if (pstat_getstatic(&pst, sizeof(pst), (size_t) 1, 0) != -1) {
                 systeminfo.mem_kbyte_max=(unsigned long)(pst.physical_memory * (pst.page_size / 1024)); 
                 page_size=pst.page_size;
         } else {
                 return FALSE;
         }
-        
+
         return TRUE;
 }
 
@@ -153,17 +153,17 @@ int getloadavg_sysdep (double *a, int na) {
                 switch (na) {
                         case 3:
                                 a[2] = psd.psd_avg_15_min;
-                                
+
                         case 2:
                                 a[1] = psd.psd_avg_5_min;
-                                
+
                         case 1:
                                 a[0] = psd.psd_avg_1_min;
                 }
         } else {
                 return FALSE;
         }
-        
+
         return TRUE;
 }
 
@@ -177,24 +177,24 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
         int            i;
         int            treesize;
         ProcessTree_T *pt;
-        
+
         ASSERT(reference);
-        
+
         pstat_getdynamic(&pst_dyn, sizeof(struct pst_dynamic), 1, 0);
         nproc = pst_dyn.psd_activeprocs;
-        
+
         if (nproc)
                 RESIZE(psall, nproc * sizeof(struct pst_status));
         else 
                 return 0;
-        
+
         if ((treesize = pstat_getproc(psall, sizeof(struct pst_status), nproc , 0)) == -1) {
                 LogError("system statistic error 1 -- pstat_getproc failed: %s\n", strerror(errno));
                 return 0;
         }
-        
+
         pt = CALLOC(sizeof(ProcessTree_T), treesize);
-        
+
         for (i = 0; i < treesize; i++) {
                 pt[i].pid         = psall[i].pst_pid;
                 pt[i].ppid        = psall[i].pst_ppid;
@@ -204,13 +204,13 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
                 pt[i].cpu_percent = (int)(1000. * psall[i].pst_pctcpu / (float)systeminfo.cpus);
                 pt[i].mem_kbyte   = (unsigned long)(psall[i].pst_rssize * (page_size / 1024.0));
                 pt[i].cmdline     = (psall[i].pst_cmd && *psall[i].pst_cmd) ? Str_dup(psall[i].pst_cmd) : Str_dup(psall[i].pst_ucomm);
-                
+
                 if ( psall[i].pst_stat == PS_ZOMBIE )
                         pt[i].status_flag |= PROCESS_ZOMBIE;
         }
-        
+
         *reference = pt;
-        
+
         return treesize;
 }
 
@@ -227,7 +227,7 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
         char               *strtab;
         unsigned long long  total = 0ULL;
         unsigned long long  used  = 0ULL;
-        
+
         /* Memory */
         if(pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1) {
                 LogError("system statistic error -- pstat_getstatic failed: %s\n", STRERROR);
@@ -238,7 +238,7 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
                 return FALSE;
         }
         si->total_mem_kbyte = (unsigned long)((pst.physical_memory - psd.psd_free) * (pst.page_size/1024));
-        
+
         /* Swap */
 again:
         if ((num = swapctl(SC_GETNSWP, 0)) == -1) {
@@ -278,7 +278,7 @@ again:
         FREE(strtab);
         si->swap_kbyte_max   = (unsigned long)(double)(total * page_size) / 1024.;
         si->total_swap_kbyte = (unsigned long)(double)(used  * page_size) / 1024.;
-        
+
         return TRUE;
 }
 
@@ -295,9 +295,9 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
         long               cpu_syst = 0;
         long               cpu_wait = 0;
         struct pst_dynamic psd;
-        
+
         pstat_getdynamic(&psd, sizeof(psd), 1, 0);
-        
+
         for(i = 0; i < CPUSTATES; i++)
                 cpu_total_new += psd.psd_cpu_time[i];
         cpu_total     = cpu_total_new - cpu_total_old;
@@ -305,15 +305,15 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
         cpu_user      = psd.psd_cpu_time[CP_USER] + psd.psd_cpu_time[CP_NICE];
         cpu_syst      = psd.psd_cpu_time[CP_SYS];
         cpu_wait      = psd.psd_cpu_time[CP_WAIT];
-        
+
         si->total_cpu_user_percent = (cpu_total > 0)?(int)(1000 * (double)(cpu_user - cpu_user_old) / cpu_total):-10;
         si->total_cpu_syst_percent = (cpu_total > 0)?(int)(1000 * (double)(cpu_syst - cpu_syst_old) / cpu_total):-10;
         si->total_cpu_wait_percent = (cpu_total > 0)?(int)(1000 * (double)(cpu_wait - cpu_wait_old) / cpu_total):-10;
-        
+
         cpu_user_old = cpu_user;
         cpu_syst_old = cpu_syst;
         cpu_wait_old = cpu_wait;
-        
+
         return TRUE;
 }
 

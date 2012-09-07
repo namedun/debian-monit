@@ -44,6 +44,7 @@
  *
  * This class is reentrant but not thread-safe
  *
+ * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
  * @file
  */

@@ -20,9 +20,9 @@
 int main(void) {
 
         Bootstrap(); // Need to initialize library
-        
+
         printf("============> Start Time Tests\n\n");
-        
+
         printf("=> Test1: Parse String\n");
         {
                 long r;
@@ -41,7 +41,7 @@ int main(void) {
                 printf("\tWhich transform to the local date: %s\n", Time_fmt(d1, STRLEN, "%a, %d %b %Y %H:%M:%S %z", r));
         }
         printf("=> Test1: OK\n\n");
-        
+
         printf("=> Test2: check string ouput\n");
         {
                 char result[30];
@@ -53,7 +53,7 @@ int main(void) {
                 assert(Str_isEqual("Mon, 01 Mar 2010 11:00:00 GMT", result));
         }
         printf("=> Test2: OK\n\n");
-        
+
         printf("=> Test3: check current time\n");
         {
                 struct timeval tv;
@@ -61,13 +61,13 @@ int main(void) {
                 assert(Time_now() == tv.tv_sec);
         }
         printf("=> Test3: OK\n\n");
-        
+
         printf("=> Test4: convert CEST time_t to GMT\n");
         {
                 assert(Time_gmt(1267441200) == 1267437600);
         }
         printf("=> Test4: OK\n\n");
-        
+
         printf("=> Test5: sleep 1s\n");
         {
                 time_t now;
@@ -76,7 +76,7 @@ int main(void) {
                 assert((now + 1) == Time_now());
         }
         printf("=> Test5: OK\n\n");
-                
+
         printf("=> Test6: uptime\n");
         {
                 time_t days = 668040;
@@ -94,10 +94,10 @@ int main(void) {
                 assert(Time_uptime(0, NULL) == NULL);
         }
         printf("=> Test6: OK\n\n");
-        
+
         printf("=> Test7: fmt\n");
         {
-                
+
                 char result[STRLEN];
                 Time_fmt(result, STRLEN, "%D %T", 1267441200);
                 printf("\tResult: 1267441200 -> %s\n", result);
@@ -107,7 +107,7 @@ int main(void) {
                 assert(Str_startsWith(result, "03/01/10"));
         }
         printf("=> Test7: OK\n\n");
-        
+
         printf("=> Test8: Time attributes\n");
         {
                 char b[STRLEN];
@@ -140,7 +140,7 @@ int main(void) {
                 assert(Time_year(time) == 1992);
         }
         printf("=> Test9: OK\n\n");
-        
+
         printf("=> Test10: Time_build\n");
         {
                 time_t time = Time_build(2001, 1, 29, 12, 0, 0);
@@ -169,7 +169,7 @@ int main(void) {
                 END_TRY;
         }
         printf("=> Test10: OK\n\n");
-        
+
         printf("=> Test11: Time_daysBetween\n");
         {
                 time_t from = Time_build(2001, 1, 29, 0, 0, 0);
@@ -180,7 +180,7 @@ int main(void) {
                 assert(Time_daysBetween(Time_build(2001, 1, 1, 0, 0, 0), Time_build(2002, 1, 1, 0, 0, 0)) == 365);
         }
         printf("=> Test11: OK\n\n");
-        
+
         printf("=> Test12: Time_incron\n");
         {
                 const char *exactmatch = "27 11 5 7 2";

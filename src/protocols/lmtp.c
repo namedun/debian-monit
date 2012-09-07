@@ -36,38 +36,38 @@
 
 
 static int do_send(Socket_T socket, char *msg) {
-        
+
         if(socket_write(socket, msg, strlen(msg)) < 0) {
                 socket_setError(socket, "LMTP: error sending data -- %s\n", STRERROR);
                 return FALSE;
         }
-        
+
         return TRUE;
-        
+
 }
 
 
 static int expect(Socket_T socket, int expect, int log) {
-        
+
         int status;
         char buf[STRLEN];
-        
+
         if(!socket_readln(socket, buf, STRLEN)) {
                 socket_setError(socket, "LMTP: error receiving data -- %s\n", STRERROR);
                 return FALSE;
         }
-        
+
         Str_chomp(buf);
-        
+
         sscanf(buf, "%d%*s", &status);
         if(status != expect) {
                 if(log) 
                         socket_setError(socket, "LMTP error: %s\n", buf);
                 return FALSE;
         }
-        
+
         return TRUE;
-        
+
 }
 
 
@@ -81,20 +81,20 @@ static int expect(Socket_T socket, int expect, int log) {
  *  @file
  */
 int check_lmtp(Socket_T socket) {
-    
+
   ASSERT(socket);
-  
+
   if(!expect(socket, 220, TRUE))
     return FALSE;
-  
+
   if (!(do_send(socket, "LHLO localhost\r\n") && expect(socket, 250, TRUE)))
       return FALSE;
 
   if(!(do_send(socket, "QUIT\r\n") && expect(socket, 221, TRUE)))
     return FALSE;
-    
+
   return TRUE;
-  
+
 }
 
 

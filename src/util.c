@@ -228,56 +228,56 @@ static char x2c(char *hex) {
  * Print registered events list
  */
 static void printevents(unsigned int events) {
-        if(events == Event_Null) {
+        if (events == Event_Null) {
                 printf("No events");
-        } else if(events == Event_All) {
+        } else if (events == Event_All) {
                 printf("All events");
         } else {
-                if(IS_EVENT_SET(events, Event_Action))
+                if (IS_EVENT_SET(events, Event_Action))
                         printf("Action ");
-                if(IS_EVENT_SET(events, Event_Checksum))
+                if (IS_EVENT_SET(events, Event_Checksum))
                         printf("Checksum ");
-                if(IS_EVENT_SET(events, Event_Connection))
+                if (IS_EVENT_SET(events, Event_Connection))
                         printf("Connection ");
-                if(IS_EVENT_SET(events, Event_Content))
+                if (IS_EVENT_SET(events, Event_Content))
                         printf("Content ");
-                if(IS_EVENT_SET(events, Event_Data))
+                if (IS_EVENT_SET(events, Event_Data))
                         printf("Data ");
-                if(IS_EVENT_SET(events, Event_Exec))
+                if (IS_EVENT_SET(events, Event_Exec))
                         printf("Exec ");
-                if(IS_EVENT_SET(events, Event_Fsflag))
+                if (IS_EVENT_SET(events, Event_Fsflag))
                         printf("Fsflags ");
-                if(IS_EVENT_SET(events, Event_Gid))
+                if (IS_EVENT_SET(events, Event_Gid))
                         printf("Gid ");
-                if(IS_EVENT_SET(events, Event_Icmp))
+                if (IS_EVENT_SET(events, Event_Icmp))
                         printf("Icmp ");
-                if(IS_EVENT_SET(events, Event_Instance))
+                if (IS_EVENT_SET(events, Event_Instance))
                         printf("Instance ");
-                if(IS_EVENT_SET(events, Event_Invalid))
+                if (IS_EVENT_SET(events, Event_Invalid))
                         printf("Invalid ");
-                if(IS_EVENT_SET(events, Event_Nonexist))
+                if (IS_EVENT_SET(events, Event_Nonexist))
                         printf("Nonexist ");
-                if(IS_EVENT_SET(events, Event_Permission))
+                if (IS_EVENT_SET(events, Event_Permission))
                         printf("Permission ");
-                if(IS_EVENT_SET(events, Event_Pid))
+                if (IS_EVENT_SET(events, Event_Pid))
                         printf("PID ");
-                if(IS_EVENT_SET(events, Event_PPid))
+                if (IS_EVENT_SET(events, Event_PPid))
                         printf("PPID ");
-                if(IS_EVENT_SET(events, Event_Resource))
+                if (IS_EVENT_SET(events, Event_Resource))
                         printf("Resource ");
-                if(IS_EVENT_SET(events, Event_Size))
+                if (IS_EVENT_SET(events, Event_Size))
                         printf("Size ");
-                if(IS_EVENT_SET(events, Event_Status))
+                if (IS_EVENT_SET(events, Event_Status))
                         printf("Status ");
-                if(IS_EVENT_SET(events, Event_Timeout))
+                if (IS_EVENT_SET(events, Event_Timeout))
                         printf("Timeout ");
-                if(IS_EVENT_SET(events, Event_Timestamp))
+                if (IS_EVENT_SET(events, Event_Timestamp))
                         printf("Timestamp ");
-                if(IS_EVENT_SET(events, Event_Uid))
+                if (IS_EVENT_SET(events, Event_Uid))
                         printf("Uid ");
-                if(IS_EVENT_SET(events, Event_Uptime))
+                if (IS_EVENT_SET(events, Event_Uptime))
                         printf("Uptime ");
-                
+
         }
         printf("\n");
 }
@@ -295,33 +295,33 @@ static int PAMquery(int num_msg, const struct pam_message **msg, struct pam_resp
         int i;
         struct ad_user *user = (struct ad_user *)appdata_ptr;
         struct pam_response *response;
-        
+
         /* Sanity checking */
         if (!msg || !resp || !user )
                 return PAM_CONV_ERR;
-        
+
         response = CALLOC(sizeof(struct pam_response), num_msg);
-        
+
         for (i = 0; i < num_msg; i++) {
                 response[i].resp = NULL;
                 response[i].resp_retcode = 0;
-                
+
                 switch ((*(msg[i])).msg_style) {
                         case PAM_PROMPT_ECHO_ON:
                                 /* Store the login as the response. This likely never gets called, since login was on pam_start() */
                                 response[i].resp= appdata_ptr ? Str_dup(user->login) : NULL;
                                 break;
-                                
+
                         case PAM_PROMPT_ECHO_OFF:
                                 /* Store the password as the response */
                                 response[i].resp= appdata_ptr ? Str_dup(user->passwd) : NULL;
                                 break;
-                                
+
                         case PAM_TEXT_INFO:
                         case PAM_ERROR_MSG:
                                 /* Shouldn't happen since we have PAM_SILENT set. If it happens anyway, ignore it. */
                                 break;
-                                
+
                         default:
                                 /* Something strange... */
                                 if (response != NULL)
@@ -349,17 +349,17 @@ static int PAMcheckPasswd(const char *login, const char *passwd) {
                 PAMquery,
                 &user_info
         };
-        
+
         if ((rv = pam_start("monit", login, &conv, &pamh) != PAM_SUCCESS)) {
                 DEBUG("PAM authentication start failed -- %d\n", rv);
                 return FALSE;
         }
-        
+
         rv = pam_authenticate(pamh, PAM_SILENT);
-        
+
         if (pam_end(pamh, rv) != PAM_SUCCESS)
                 pamh = NULL;
-        
+
         return(rv == PAM_SUCCESS ? TRUE : FALSE);
 }
 
@@ -371,27 +371,27 @@ static Auth_T PAMcheckUserGroup(const char *uname) {
         Auth_T c = Run.credentials;
         struct passwd *pwd = NULL; 
         struct group  *grp = NULL;
-        
+
         ASSERT(uname);
-        
+
         if (!(pwd = getpwnam(uname)))
                 return NULL;
-        
+
         if (!(grp = getgrgid(pwd->pw_gid)))
                 return NULL;
-        
+
         while (c) {
                 if (c->groupname) {
                         struct group *sgrp = NULL;
-                        
+
                         /* check for primary group match */
                         if (IS(c->groupname, grp->gr_name))
                                 return c;
-                        
+
                         /* check secondary groups match */
                         if ((sgrp = getgrnam(c->groupname))) {
                                 char **g = NULL;
-                                
+
                                 for (g = sgrp->gr_mem; *g; g++)
                                         if (IS(*g, uname))
                                                 return c;
@@ -410,40 +410,40 @@ static Auth_T PAMcheckUserGroup(const char *uname) {
 char *Util_replaceString(char **src, const char *old, const char *new) {
         int i;
         size_t d;
-        
+
         ASSERT(src);
         ASSERT(*src);
         ASSERT(old);
         ASSERT(new);
-        
+
         i= Util_countWords(*src, old);
         d= strlen(new)-strlen(old);
-        
-        if(i==0)
+
+        if (i==0)
                 return *src;
-        if(d>0)
+        if (d>0)
                 d*= i;
         else
                 d= 0;
-        
+
         {
                 char *p, *q;
                 size_t l = strlen(old);
                 char *buf= CALLOC(sizeof(char), strlen(*src)+d+1);
-                
+
                 q= *src;
                 *buf= 0;
-                
+
                 while((p= strstr(q, old))) {
-                        
+
                         *p= '\0';
                         strcat(buf, q);
                         strcat(buf, new);
                         p+= l;
                         q= p;
-                        
+
                 }
-                
+
                 strcat(buf, q);
                 FREE(*src);
                 *src= buf;
@@ -455,9 +455,9 @@ char *Util_replaceString(char **src, const char *old, const char *new) {
 int Util_countWords(char *s, const char *word) {
         int i= 0;
         char *p= s;
-        
+
         ASSERT(s && word);
-        
+
         while((p= strstr(p, word))) { i++;  p++; }
         return i;
 }
@@ -466,35 +466,35 @@ int Util_countWords(char *s, const char *word) {
 void Util_handleEscapes(char *buf) {
         int editpos;
         int insertpos;
-        
+
         ASSERT(buf);
-        
-        for(editpos=insertpos=0; *(buf+editpos)!='\0'; editpos++, insertpos++) {
-                if(*(buf+editpos) == '\\' ) {
-                        switch(*(buf+editpos+1)) {
+
+        for (editpos=insertpos=0; *(buf+editpos)!='\0'; editpos++, insertpos++) {
+                if (*(buf+editpos) == '\\' ) {
+                        switch (*(buf+editpos+1)) {
                                 case 'n': 
                                         *(buf+insertpos)='\n';
                                         editpos++;
                                         break;
-                                        
+
                                 case 't':
                                         *(buf+insertpos)='\t';
                                         editpos++;
                                         break;
-                                        
+
                                 case 'r':
                                         *(buf+insertpos)='\r';
                                         editpos++;
                                         break;
-                                        
+
                                 case ' ':
                                         *(buf+insertpos)=' ';
                                         editpos++;
                                         break;
-                                        
+
                                 case '0':
-                                        if(*(buf+editpos+2)=='x') {
-                                                if((*(buf+editpos+3)=='0' && *(buf+editpos+4)=='0')) {
+                                        if (*(buf+editpos+2)=='x') {
+                                                if ((*(buf+editpos+3)=='0' && *(buf+editpos+4)=='0')) {
                                                         /* Don't swap \0x00 with 0 to avoid truncating the string. 
                                                          Currently the only place where we support sending of 0 bytes
                                                          is in check_generic(). The \0x00 -> 0 byte swap is performed
@@ -507,21 +507,21 @@ void Util_handleEscapes(char *buf) {
                                                 } 
                                         }
                                         break;
-                                        
+
                                 case '\\':
                                         *(buf+insertpos)='\\';
                                         editpos++;
                                         break;
-                                        
+
                                 default:
                                         *(buf+insertpos)=*(buf+editpos);
-                                        
+
                         }  
-                        
+
                 } else {
                         *(buf+insertpos)=*(buf+editpos);
                 }  
-                
+
         }
         *(buf+insertpos)='\0';
 }
@@ -530,24 +530,24 @@ void Util_handleEscapes(char *buf) {
 int Util_handle0Escapes(char *buf) {
         int editpos;
         int insertpos;
-        
+
         ASSERT(buf);
-        
-        for(editpos=insertpos=0; *(buf+editpos)!='\0'; editpos++, insertpos++) {
-                if(*(buf+editpos) == '\\' ) {
-                        switch(*(buf+editpos+1)) {
+
+        for (editpos=insertpos=0; *(buf+editpos)!='\0'; editpos++, insertpos++) {
+                if (*(buf+editpos) == '\\' ) {
+                        switch (*(buf+editpos+1)) {
                                 case '0':
-                                        if(*(buf+editpos+2)=='x') {
+                                        if (*(buf+editpos+2)=='x') {
                                                 *(buf+insertpos)=x2c(&buf[editpos+3]);
                                                 editpos+=4;
                                         }
                                         break;
-                                        
+
                                 default:
                                         *(buf+insertpos)=*(buf+editpos);
-                                        
+
                         }  
-                        
+
                 } else {
                         *(buf+insertpos)=*(buf+editpos);
                 }  
@@ -562,7 +562,7 @@ char *Util_digest2Bytes(unsigned char *digest, int mdlen, MD_T result) {
         unsigned char *tmp= (unsigned char*)result;
         static unsigned char hex[] = "0123456789abcdef";     
         ASSERT(mdlen * 2 < MD_SIZE); // Overflow guard
-        for(i= 0; i < mdlen; i++) {
+        for (i= 0; i < mdlen; i++) {
                 *tmp++ = hex[digest[i] >> 4];
                 *tmp++ = hex[digest[i] & 0xf];
         }
@@ -589,7 +589,7 @@ int Util_getStreamDigests(FILE *stream, void *sha1_resblock, void *md5_resblock)
                 /* We read the file in blocks of HASHBLOCKSIZE bytes. One call of the computation function processes the whole buffer so that with the next round of the loop another block can be read */
                 size_t n;
                 sum = 0;
-                
+
                 /* Read block. Take care for partial reads */
                 while (1) {
                         n = fread(buffer + sum, 1, HASHBLOCKSIZE - sum, stream);
@@ -602,7 +602,7 @@ int Util_getStreamDigests(FILE *stream, void *sha1_resblock, void *md5_resblock)
                                         return FALSE;
                                 goto process_partial_block;
                         }
-                        
+
                         /* We've read at least one byte, so ignore errors. But always check for EOF, since feof may be true even though N > 0. Otherwise, we could end up calling fread after EOF */
                         if (feof(stream))
                                 goto process_partial_block;
@@ -614,7 +614,7 @@ int Util_getStreamDigests(FILE *stream, void *sha1_resblock, void *md5_resblock)
                 if (sha1_resblock)
                         sha1_append(&ctx_sha1, buffer, HASHBLOCKSIZE);
         }
-        
+
 process_partial_block:
         /* Process any remaining bytes */
         if (sum > 0) {
@@ -636,7 +636,7 @@ void Util_printHash(char *file) {
         MD_T hash;
         unsigned char sha1[STRLEN], md5[STRLEN];
         FILE *fhandle = NULL;
-        
+
         if (! (fhandle = file ? fopen(file, "r") : stdin) || ! Util_getStreamDigests(fhandle, sha1, md5) || (file && fclose(fhandle))) {
                 printf("%s: %s\n", file, STRERROR);
                 exit(1);
@@ -648,11 +648,11 @@ void Util_printHash(char *file) {
 
 int Util_getChecksum(char *file, int hashtype, char *buf, int bufsize) {
         int hashlength = 16;
-        
+
         ASSERT(file);
         ASSERT(buf);
         ASSERT(bufsize >= sizeof(MD_T));
-        
+
         switch (hashtype) {
                 case HASH_MD5:
                         hashlength = 16;
@@ -664,13 +664,13 @@ int Util_getChecksum(char *file, int hashtype, char *buf, int bufsize) {
                         LogError("checksum: invalid hash type: 0x%x\n", hashtype);
                         return FALSE;
         }
-        
+
         if (file_isFile(file)) {
                 FILE *f = fopen(file, "r");
                 if (f) {
                         int fresult = FALSE;
                         MD_T sum;
-                        
+
                         switch (hashtype) {
                                 case HASH_MD5:
                                         fresult = Util_getStreamDigests(f, NULL, sum);
@@ -679,18 +679,18 @@ int Util_getChecksum(char *file, int hashtype, char *buf, int bufsize) {
                                         fresult = Util_getStreamDigests(f, sum, NULL);
                                         break;
                         }
-                        
+
                         if (fclose(f))
                                 LogError("checksum: error closing file '%s' -- %s\n", file, STRERROR);
-                        
+
                         if (! fresult) {
                                 LogError("checksum: file %s stream error (0x%x)\n", file, fresult);
                                 return FALSE;
                         }
-                        
+
                         Util_digest2Bytes((unsigned char *)sum, hashlength, buf);
                         return TRUE;
-                        
+
                 } else
                         LogError("checksum: failed to open file %s -- %s\n", file, STRERROR);
         } else
@@ -740,11 +740,11 @@ void Util_hmacMD5(const unsigned char *data, int datalen, const unsigned char *k
 
 Service_T Util_getService(const char *name) {
         Service_T s;
-        
+
         ASSERT(name);
-        
-        for(s= servicelist; s; s= s->next) {
-                if(IS(s->name, name)) {
+
+        for (s= servicelist; s; s= s->next) {
+                if (IS(s->name, name)) {
                         return s;
                 }
         }
@@ -755,7 +755,7 @@ Service_T Util_getService(const char *name) {
 int Util_getNumberOfServices() {
         int i= 0;
         Service_T s;
-        for(s= servicelist; s; s= s->next) i+=1;
+        for (s= servicelist; s; s= s->next) i+=1;
         return i;
 }
 
@@ -779,23 +779,23 @@ void Util_printRunList() {
         printf(" %-18s = %s\n", "Use process engine", Run.doprocess?"True":"False");
         printf(" %-18s = %d seconds with start delay %d seconds\n", "Poll time", Run.polltime, Run.startdelay);
         printf(" %-18s = %d bytes\n", "Expect buffer", Run.expectbuffer);
-        
-        if(Run.eventlist_dir) {
+
+        if (Run.eventlist_dir) {
                 char slots[STRLEN];
-                
-                if(Run.eventlist_slots < 0)
+
+                if (Run.eventlist_slots < 0)
                         snprintf(slots, STRLEN, "unlimited"); 
                 else
                         snprintf(slots, STRLEN, "%d", Run.eventlist_slots);
-                
+
                 printf(" %-18s = base directory %s with %s slots\n",
                        "Event queue", Run.eventlist_dir, slots);
         }
-        
-        if(Run.mmonits) {
+
+        if (Run.mmonits) {
                 Mmonit_T c;
                 printf(" %-18s = ", "M/Monit(s)");
-                for(c= Run.mmonits; c; c= c->next) {
+                for (c= Run.mmonits; c; c= c->next) {
                         printf("%s with timeout %d seconds%s%s%s%s%s%s",
                                c->url->url,
                                c->timeout,
@@ -810,22 +810,22 @@ void Util_printRunList() {
                         printf("\n                      register without credentials");
                 printf("\n");
         }
-        
-        if(Run.mailservers) {
+
+        if (Run.mailservers) {
                 MailServer_T mta;
                 printf(" %-18s = ", "Mail server(s)");
-                for(mta= Run.mailservers; mta; mta= mta->next)
+                for (mta= Run.mailservers; mta; mta= mta->next)
                         printf("%s:%d%s%s",
                                mta->host,
                                mta->port,
                                mta->ssl.use_ssl?"(ssl)":"",
                                mta->next?", ":" ");
                 printf("with timeout %d seconds", Run.mailserver_timeout);
-                if(Run.mail_hostname)
+                if (Run.mail_hostname)
                         printf(" using '%s' as my hostname", Run.mail_hostname);
                 printf("\n");
         }
-        
+
         printf(" %-18s = %s\n", "Mail from", is_str_defined(Run.MailFormat.from));
         printf(" %-18s = %s\n", "Mail subject",
                is_str_defined(Run.MailFormat.subject));
@@ -833,52 +833,52 @@ void Util_printRunList() {
                Run.MailFormat.message?
                Run.MailFormat.message:"(not defined)",
                Run.MailFormat.message?"..(truncated)":"");
-        
+
         printf(" %-18s = %s\n", "Start monit httpd", Run.dohttpd?"True":"False");
-        
-        if(Run.dohttpd) {
-                
+
+        if (Run.dohttpd) {
+
                 printf(" %-18s = %s\n", "httpd bind address",
                        Run.bind_addr?Run.bind_addr:"Any/All");
                 printf(" %-18s = %d\n", "httpd portnumber", Run.httpdport);
                 printf(" %-18s = %s\n", "httpd signature", Run.httpdsig?"True":"False");
                 printf(" %-18s = %s\n", "Use ssl encryption", Run.httpdssl?"True":"False");
-                
-                if(Run.httpdssl) {
-                        
+
+                if (Run.httpdssl) {
+
                         printf(" %-18s = %s\n", "PEM key/cert file", Run.httpsslpem);
-                        
-                        if(Run.httpsslclientpem!=NULL) {
+
+                        if (Run.httpsslclientpem!=NULL) {
                                 printf(" %-18s = %s\n", "Client cert file", Run.httpsslclientpem);
                         } else {
                                 printf(" %-18s = %s\n", "Client cert file", "None");
                         } 
-                        
+
                         printf(" %-18s = %s\n", "Allow self certs", 
                                Run.allowselfcert?"True":"False");
-                        
+
                 }
-                
+
                 printf(" %-18s = %s\n", "httpd auth. style",
                        (Run.credentials!=NULL)&&has_hosts_allow()?
                        "Basic Authentication and Host/Net allow list":
                        (Run.credentials!=NULL)?"Basic Authentication":
                        has_hosts_allow()?"Host/Net allow list":
                        "No authentication!");
-                
+
         }
-        
+
         {
                 Mail_T list;
-                for(list= Run.maillist; list; list= list->next) {
+                for (list= Run.maillist; list; list= list->next) {
                         printf(" %-18s = %s\n", "Alert mail to", is_str_defined(list->to));
                         printf("   %-16s = ", "Alert on");
                         printevents(list->events);
-                        if(list->reminder)
+                        if (list->reminder)
                                 printf("   %-16s = %u cycles\n", "Alert reminder", list->reminder);
                 }
         }
-        
+
         printf("\n");
 }
 
@@ -899,12 +899,12 @@ void Util_printService(Service_T s) {
         ServiceGroup_T sg;
         ServiceGroupMember_T sgm;
         char buf[STRLEN];
-        
+
         ASSERT(s);
-        
+
         snprintf(buf, sizeof(buf), "%s Name", servicetypes[s->type]);
         printf("%-21s = %s\n", buf, s->name);
-        
+
         for (sg = servicegrouplist; sg; sg = sg->next) {
                 for (sgm = sg->members; sgm; sgm = sgm->next) {
                         if (! strcasecmp(sgm->name, s->name)) {
@@ -918,50 +918,50 @@ void Util_printService(Service_T s) {
         }
         if (sgheader)
                 printf("\n");
-        
-        if(s->type == TYPE_PROCESS) {
+
+        if (s->type == TYPE_PROCESS) {
                 if (s->matchlist)
                         printf(" %-20s = %s\n", "Match", s->path);
                 else
                         printf(" %-20s = %s\n", "Pid file", s->path);
-        } else if(s->type != TYPE_HOST && s->type != TYPE_SYSTEM) {
+        } else if (s->type != TYPE_HOST && s->type != TYPE_SYSTEM) {
                 printf(" %-20s = %s\n", "Path", s->path);
         }
         printf(" %-20s = %s\n", "Monitoring mode", modenames[s->mode]);
-        if(s->start) {
+        if (s->start) {
                 int i = 0;
-                
+
                 printf(" %-20s = '", "Start program");
                 while(s->start->arg[i]) {
-                        if(i) printf(" ");
+                        if (i) printf(" ");
                         printf("%s", s->start->arg[i++]);
                 }
                 printf("'");
-                if(s->start->has_uid)
+                if (s->start->has_uid)
                         printf(" as uid %d", s->start->uid);
-                if(s->start->has_gid)
+                if (s->start->has_gid)
                         printf(" as gid %d", s->start->gid);
                 printf(" timeout %d second(s)", s->start->timeout);
                 printf("\n");
         }
-        if(s->stop) {
+        if (s->stop) {
                 int i = 0;
-                
+
                 printf(" %-20s = '", "Stop program");
                 while(s->stop->arg[i]) {
-                        if(i) printf(" ");
+                        if (i) printf(" ");
                         printf("%s", s->stop->arg[i++]);
                 }
                 printf("'");
-                if(s->stop->has_uid)
+                if (s->stop->has_uid)
                         printf(" as uid %d", s->stop->uid);
-                if(s->stop->has_gid)
+                if (s->stop->has_gid)
                         printf(" as gid %d", s->stop->gid);
                 printf(" timeout %d second(s)", s->stop->timeout);
                 printf("\n");
         }
-        
-        if(s->type != TYPE_SYSTEM) {
+
+        if (s->type != TYPE_SYSTEM && s->type != TYPE_PROGRAM) {
                 printf(" %-20s = ", "Existence");
                 printf("if does not exist %s ", Util_getEventratio(s->action_NONEXIST->failed, buf, sizeof(buf)));
                 printf("then %s ", Util_describeAction(s->action_NONEXIST->failed, buf, sizeof(buf)));
@@ -969,46 +969,49 @@ void Util_printService(Service_T s) {
                 printf("then %s", Util_describeAction(s->action_NONEXIST->succeeded, buf, sizeof(buf)));
                 printf("\n");
         }
-        
-        for(d= s->dependantlist; d; d= d->next)
-                if(d->dependant != NULL)
+
+        for (d= s->dependantlist; d; d= d->next)
+                if (d->dependant != NULL)
                         printf(" %-20s = %s\n", "Depends on Service", d->dependant);
-        
-        if(s->type == TYPE_PROCESS) {
+
+        if (s->type == TYPE_PROCESS) {
                 printf(" %-20s = ", "Pid");
                 printf("if changed %s ", Util_getEventratio(s->action_PID->failed, buf, sizeof(buf)));
                 printf("then %s", Util_describeAction(s->action_PID->failed, buf, sizeof(buf)));
                 printf("\n");
-                
+
                 printf(" %-20s = ", "Ppid");
                 printf("if changed %s ", Util_getEventratio(s->action_PPID->failed, buf, sizeof(buf)));
                 printf("then %s", Util_describeAction(s->action_PPID->failed, buf, sizeof(buf)));
                 printf("\n");
         }
-        
-        if(s->type == TYPE_FILESYSTEM) {
+
+        if (s->type == TYPE_FILESYSTEM) {
                 printf(" %-20s = ", "Filesystem flags");
                 printf("if changed %s ", Util_getEventratio(s->action_FSFLAG->failed, buf, sizeof(buf)));
                 printf("then %s", Util_describeAction(s->action_FSFLAG->failed, buf, sizeof(buf)));
                 printf("\n");
         }
-        
-        if(s->type == TYPE_PROGRAM) {
-                Program_T p = s->program;
-                EventAction_T a= p->action;
-                printf(" %-20s = ", "Status");
-                printf("if '%s' exit value %s %d within %d seconds ", s->name, operatorshortnames[p->operator], p->return_value, p->timeout);
-                printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
-                printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
-                printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
-                printf("\n");
+
+        if (s->type == TYPE_PROGRAM) {
+                printf(" %-20s = ", "Program timeout");
+                printf("terminate the program if not finished within %d seconds\n", s->program->timeout);
+                for (Status_T status = s->statuslist; status; status = status->next) {
+                        EventAction_T a = status->action;
+                        printf(" %-20s = ", "Status");
+                        printf("if exit value %s %d for %s ", operatorshortnames[status->operator], status->return_value, Util_getEventratio(a->failed, buf, sizeof(buf)));
+                        printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
+                        printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
+                        printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
+                        printf("\n");
+                }
         }
 
-        if(s->checksum && s->checksum->action) {
+        if (s->checksum && s->checksum->action) {
                 Checksum_T cs= s->checksum;
                 EventAction_T a= cs->action;
                 printf(" %-20s = ", "Checksum");
-                if(cs->test_changes) {
+                if (cs->test_changes) {
                         printf("if changed %s %s ", checksumnames[cs->type], Util_getEventratio(a->failed, buf, sizeof(buf)));
                         printf("then %s", Util_describeAction(a->failed, buf, sizeof(buf)));
                 } else {
@@ -1019,8 +1022,8 @@ void Util_printService(Service_T s) {
                 }
                 printf("\n");
         }
-        
-        if(s->perm && s->perm->action) {
+
+        if (s->perm && s->perm->action) {
                 EventAction_T a= s->perm->action;
                 printf(" %-20s = ", "Permission");
                 printf("if failed %04o %s ", s->perm->perm, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1029,8 +1032,8 @@ void Util_printService(Service_T s) {
                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                 printf("\n");
         }
-        
-        if(s->uid && s->uid->action) {
+
+        if (s->uid && s->uid->action) {
                 EventAction_T a= s->uid->action;
                 printf(" %-20s = ", "UID");
                 printf("if failed %d %s ", (int)s->uid->uid, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1039,8 +1042,8 @@ void Util_printService(Service_T s) {
                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                 printf("\n");
         }
-        
-        if(s->gid && s->gid->action) {
+
+        if (s->gid && s->gid->action) {
                 EventAction_T a= s->gid->action;
                 printf(" %-20s = ", "GID");
                 printf("if failed %d %s ", (int)s->gid->gid, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1049,9 +1052,9 @@ void Util_printService(Service_T s) {
                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                 printf("\n");
         }
-        
-        if(s->icmplist)
-                for(i= s->icmplist; i; i= i->next) {
+
+        if (s->icmplist)
+                for (i= s->icmplist; i; i= i->next) {
                         EventAction_T a= i->action;
                         printf(" %-20s = ", "ICMP");
                         printf("if failed [%s count %d with timeout %d seconds] %s ", icmpnames[i->type], i->count, i->timeout, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1060,22 +1063,22 @@ void Util_printService(Service_T s) {
                         printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                         printf("\n");
                 }
-        
-        if(s->portlist) {
-                for(n= s->portlist; n; n= n->next) {
+
+        if (s->portlist) {
+                for (n= s->portlist; n; n= n->next) {
                         EventAction_T a= n->action;
-                        if(n->family == AF_INET) {
+                        if (n->family == AF_INET) {
                                 printf(" %-20s = ", "Port");
-                                printf("if failed [%s:%d%s [%s via %s] with timeout %d seconds and retry %d time(s)] %s ", n->hostname, n->port, n->request ? n->request : "", n->protocol->name, Util_portTypeDescription(n), n->timeout, n->retry > 1 ? n->retry : 0, Util_getEventratio(a->failed, buf, sizeof(buf)));
+                                printf("if failed [%s:%d%s [%s via %s] with timeout %d seconds and retry %d time(s) %s ", n->hostname, n->port, n->request ? n->request : "", n->protocol->name, Util_portTypeDescription(n), n->timeout, n->retry > 1 ? n->retry : 0, Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                                 printf("\n");
-                                if(n->SSL.certmd5 != NULL)
+                                if (n->SSL.certmd5 != NULL)
                                         printf(" %-20s = %s\n", "Server cert md5 sum", n->SSL.certmd5);
-                        } else if(n->family == AF_UNIX) {
+                        } else if (n->family == AF_UNIX) {
                                 printf(" %-20s = ", "Unix Socket");
-                                printf("if failed [%s [protocol %s] with timeout %d seconds and retry %d time(s)] %s ", n->pathname, n->protocol->name, n->timeout, n->retry > 1 ? n->retry : 0,Util_getEventratio(a->failed, buf, sizeof(buf)));
+                                printf("if failed [%s [protocol %s] with timeout %d seconds and retry %d time(s) %s ", n->pathname, n->protocol->name, n->timeout, n->retry > 1 ? n->retry : 0,Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
@@ -1083,11 +1086,11 @@ void Util_printService(Service_T s) {
                         }
                 }
         }
-        
-        for(t= s->timestamplist; t; t= t->next) {
+
+        for (t= s->timestamplist; t; t= t->next) {
                 EventAction_T a= t->action;
                 printf(" %-20s = ", "Timestamp");
-                if(t->test_changes) {
+                if (t->test_changes) {
                         printf("if changed %s ", Util_getEventratio(a->failed, buf, sizeof(buf)));
                         printf("then %s", Util_describeAction(a->failed, buf, sizeof(buf)));
                 } else {
@@ -1098,11 +1101,11 @@ void Util_printService(Service_T s) {
                 }
                 printf("\n");
         }
-        
-        for(sl= s->sizelist; sl; sl= sl->next) {
+
+        for (sl= s->sizelist; sl; sl= sl->next) {
                 EventAction_T a= sl->action;
                 printf(" %-20s = ", "Size");
-                if(sl->test_changes) {
+                if (sl->test_changes) {
                         printf("if changed %s ", Util_getEventratio(a->failed, buf, sizeof(buf)));
                         printf("then %s", Util_describeAction(a->failed, buf, sizeof(buf)));
                 } else {
@@ -1112,10 +1115,10 @@ void Util_printService(Service_T s) {
                         printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                 }
                 printf("\n");
-                
+
         }
-        
-        for(ul= s->uptimelist; ul; ul= ul->next) {
+
+        for (ul= s->uptimelist; ul; ul= ul->next) {
                 EventAction_T a= ul->action;
                 printf(" %-20s = ", "Uptime");
                 printf("if %s %llu second(s) %s ", operatornames[ul->operator], ul->uptime, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1142,12 +1145,12 @@ void Util_printService(Service_T s) {
                         printf("\n");
                 }
         }
-        
-        for(dl= s->filesystemlist; dl; dl= dl->next) {
+
+        for (dl= s->filesystemlist; dl; dl= dl->next) {
                 EventAction_T a= dl->action;
-                if(dl->resource == RESOURCE_ID_INODE) {
+                if (dl->resource == RESOURCE_ID_INODE) {
                         printf(" %-20s = ", "Inodes usage limit");
-                        if(dl->limit_absolute > -1) {
+                        if (dl->limit_absolute > -1) {
                                 printf("if %s %ld %s ", operatornames[dl->operator], dl->limit_absolute, Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
@@ -1159,9 +1162,9 @@ void Util_printService(Service_T s) {
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                         }
                         printf("\n");
-                } else if(dl->resource == RESOURCE_ID_SPACE) {
+                } else if (dl->resource == RESOURCE_ID_SPACE) {
                         printf(" %-20s = ", "Space usage limit");
-                        if(dl->limit_absolute > -1) {
+                        if (dl->limit_absolute > -1) {
                                 printf("if %s %ld blocks %s ", operatornames[dl->operator], dl->limit_absolute, Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
@@ -1175,71 +1178,71 @@ void Util_printService(Service_T s) {
                         printf("\n");
                 }
         }
-        
-        for(q= s->resourcelist; q; q= q->next) {
+
+        for (q= s->resourcelist; q; q= q->next) {
                 EventAction_T a= q->action;
-                switch(q->resource_id) {
+                switch (q->resource_id) {
                         case RESOURCE_ID_CPU_PERCENT: 
                                 printf(" %-20s = ", "CPU usage limit");
                                 break;
-                                
+
                         case RESOURCE_ID_TOTAL_CPU_PERCENT: 
                                 printf(" %-20s = ", "CPU usage limit (incl. children)");
                                 break;
-                                
+
                         case RESOURCE_ID_CPUUSER: 
                                 printf(" %-20s = ", "CPU user limit");
                                 break;
-                                
+
                         case RESOURCE_ID_CPUSYSTEM: 
                                 printf(" %-20s = ", "CPU system limit");
                                 break;
-                                
+
                         case RESOURCE_ID_CPUWAIT: 
                                 printf(" %-20s = ", "CPU wait limit");
                                 break;
-                                
+
                         case RESOURCE_ID_MEM_PERCENT: 
                                 printf(" %-20s = ", "Memory usage limit");
                                 break;
-                                
+
                         case RESOURCE_ID_MEM_KBYTE: 
                                 printf(" %-20s = ", "Memory amount limit");
                                 break;
-                                
+
                         case RESOURCE_ID_SWAP_PERCENT: 
                                 printf(" %-20s = ", "Swap usage limit");
                                 break;
-                                
+
                         case RESOURCE_ID_SWAP_KBYTE: 
                                 printf(" %-20s = ", "Swap amount limit");
                                 break;
-                                
+
                         case RESOURCE_ID_LOAD1: 
                                 printf(" %-20s = ", "Load avg. (1min)");
                                 break;
-                                
+
                         case RESOURCE_ID_LOAD5: 
                                 printf(" %-20s = ", "Load avg. (5min)");
                                 break;
-                                
+
                         case RESOURCE_ID_LOAD15: 
                                 printf(" %-20s = ", "Load avg. (15min)");
                                 break;
-                                
+
                         case RESOURCE_ID_CHILDREN:
                                 printf(" %-20s = ", "Children");
                                 break;
-                                
+
                         case RESOURCE_ID_TOTAL_MEM_KBYTE:
                                 printf(" %-20s = ", "Memory amount limit (incl. children)");
                                 break;
-                                
+
                         case RESOURCE_ID_TOTAL_MEM_PERCENT:
                                 printf(" %-20s = ", "Memory usage limit (incl. children)");
                                 break;
                 }
-                switch(q->resource_id) {
+                switch (q->resource_id) {
                         case RESOURCE_ID_CPU_PERCENT: 
                         case RESOURCE_ID_TOTAL_CPU_PERCENT: 
                         case RESOURCE_ID_TOTAL_MEM_PERCENT:
@@ -1253,7 +1256,7 @@ void Util_printService(Service_T s) {
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                                 break;
-                                
+
                         case RESOURCE_ID_MEM_KBYTE: 
                         case RESOURCE_ID_SWAP_KBYTE: 
                                 printf("if %s %ldkB %s ", operatornames[q->operator], q->limit, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1261,7 +1264,7 @@ void Util_printService(Service_T s) {
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                                 break;
-                                
+
                         case RESOURCE_ID_LOAD1: 
                         case RESOURCE_ID_LOAD5: 
                         case RESOURCE_ID_LOAD15: 
@@ -1270,7 +1273,7 @@ void Util_printService(Service_T s) {
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                                 break;
-                                
+
                         case RESOURCE_ID_CHILDREN:
                         case RESOURCE_ID_TOTAL_MEM_KBYTE:
                                 printf("if %s %ld %s ", operatornames[q->operator], q->limit, Util_getEventratio(a->failed, buf, sizeof(buf)));
@@ -1281,7 +1284,7 @@ void Util_printService(Service_T s) {
                 }
                 printf("\n");
         }
-        
+
         if (s->every.type == EVERY_SKIPCYCLES)
                 printf(" %-20s = Check service every %d cycles\n", "Every", s->every.spec.cycle.number);
         else if (s->every.type == EVERY_CRON)
@@ -1291,29 +1294,29 @@ void Util_printService(Service_T s) {
 
         for (ar = s->actionratelist; ar; ar = ar->next)
                 printf(" %-20s = If restarted %d times within %d cycle(s) then %s\n", "Timeout", ar->count, ar->cycle, Util_describeAction(ar->action->failed, buf, sizeof(buf)));
-        
-        for(r= s->maillist; r; r= r->next) {
+
+        for (r= s->maillist; r; r= r->next) {
                 printf(" %-20s = %s\n", "Alert mail to", is_str_defined(r->to));
                 printf("   %-18s = ", "Alert on");
                 printevents(r->events);
-                if(r->reminder)
+                if (r->reminder)
                         printf("   %-18s = %u cycles\n", "Alert reminder", r->reminder);
         }
-        
+
         printf("\n");
-        
+
 }
 
 
 void Util_printServiceList() {
         Service_T s;
         char ruler[STRLEN];
-        
+
         printf("The service list contains the following entries:\n\n");
-        
-        for(s= servicelist_conf; s; s= s->next_conf)
+
+        for (s= servicelist_conf; s; s= s->next_conf)
                 Util_printService(s);
-        
+
         memset(ruler, '-', STRLEN);
         printf("%-.79s\n", ruler);
 }
@@ -1321,17 +1324,17 @@ void Util_printServiceList() {
 
 char *Util_monitId(char *idfile) {
         FILE *file = NULL;
-        
+
         ASSERT(idfile);
-        
-        if(! file_exist(idfile)) {
+
+        if (! file_exist(idfile)) {
                 md5_context_t ctx;
                 char buf[STRLEN];
                 MD_T digest;
                 mode_t mask = umask(PRIVATEMASK);
                 file = fopen(idfile, "w");
                 umask(mask);
-                if(! file) {
+                if (! file) {
                         LogError("%s: Error opening the idfile '%s' -- %s\n", prog, idfile, STRERROR);
                         return NULL;
                 }
@@ -1344,15 +1347,15 @@ char *Util_monitId(char *idfile) {
                 fprintf(file, "%s", Run.id);
                 LogInfo("%s: generated unique Monit id %s and stored to '%s'\n", prog, Run.id, idfile);
         } else {
-                if(! file_isFile(idfile)) {
+                if (! file_isFile(idfile)) {
                         LogError("%s: idfile '%s' is not a regular file\n", prog, idfile);
                         return NULL;
                 }
-                if((file = fopen(idfile,"r")) == (FILE *)NULL) {
+                if ((file = fopen(idfile,"r")) == (FILE *)NULL) {
                         LogError("%s: Error opening the idfile '%s' -- %s\n", prog, idfile, STRERROR);
                         return NULL;
                 }
-                if(fscanf(file, "%256s", Run.id) != 1) {
+                if (fscanf(file, "%255s", Run.id) != 1) {
                         LogError("%s: Error reading id from file '%s'\n", prog, idfile);
                         if (fclose(file))
                                 LogError("%s: Error closing file '%s' -- %s\n", prog, idfile, STRERROR);
@@ -1361,30 +1364,30 @@ char *Util_monitId(char *idfile) {
         }
         if (fclose(file))
                 LogError("%s: Error closing file '%s' -- %s\n", prog, idfile, STRERROR);
-        
+
         return Run.id;
 }
 
 
 pid_t Util_getPid(char *pidfile) {
-        FILE *file= NULL;
-        int pid= -1;
-        
+        FILE *file = NULL;
+        int pid = -1;
+
         ASSERT(pidfile);
-        
-        if(! file_exist(pidfile)) {
+
+        if (! file_exist(pidfile)) {
                 DEBUG("%s: pidfile '%s' does not exist\n",prog, pidfile);
                 return FALSE;
         }
-        if(! file_isFile(pidfile)) {
+        if (! file_isFile(pidfile)) {
                 LogError("%s: pidfile '%s' is not a regular file\n",prog, pidfile);
                 return FALSE;
         }
-        if((file = fopen(pidfile,"r")) == (FILE *)NULL) {
+        if ((file = fopen(pidfile,"r")) == (FILE *)NULL) {
                 LogError("%s: Error opening the pidfile '%s' -- %s\n", prog, pidfile, STRERROR);
                 return FALSE;
         }
-        if(fscanf(file, "%d", &pid) != 1) {
+        if (fscanf(file, "%d", &pid) != 1) {
                 LogError("%s: Error reading pid from file '%s'\n", prog, pidfile);
                 if (fclose(file))
                         LogError("%s: Error closing file '%s' -- %s\n", prog, pidfile, STRERROR);
@@ -1392,26 +1395,26 @@ pid_t Util_getPid(char *pidfile) {
         }
         if (fclose(file))
                 LogError("%s: Error closing file '%s' -- %s\n", prog, pidfile, STRERROR);
-        
-        if(pid < 0)
+
+        if (pid < 0)
                 return(FALSE);
-        
-        return(pid_t)pid;
-        
+
+        return (pid_t)pid;
+
 }
 
 
 int Util_isProcessRunning(Service_T s, int refresh) {
         int   i;
         pid_t pid = -1;
-        
+
         ASSERT(s);
-        
+
         errno = 0;
-        
+
         if (refresh || ! ptree || ! ptreesize)
                 initprocesstree(&ptree, &ptreesize, &oldptree, &oldptreesize);
-        
+
         if (s->matchlist) {
                 /* The process table read may sporadically fail during read, because we're using glob on some platforms which may fail if the proc filesystem
                  * which it traverses is changed during glob (process stopped). Note that the glob failure is rare and temporary - it will be OK on next cycle.
@@ -1419,7 +1422,7 @@ int Util_isProcessRunning(Service_T s, int refresh) {
                 if (Run.doprocess) {
                         for (i = 0; i < ptreesize; i++) {
                                 int found = FALSE;
-                                
+
                                 if (ptree[i].cmdline) {
 #ifdef HAVE_REGEX_H
                                         found = regexec(s->matchlist->regex_comp, ptree[i].cmdline, 0, NULL, 0) ? FALSE : TRUE;
@@ -1440,24 +1443,24 @@ int Util_isProcessRunning(Service_T s, int refresh) {
         } else {
                 pid = Util_getPid(s->path);
         }
-        
+
         if (pid > 0) {
                 if ((getpgid(pid) > -1) || (errno == EPERM))
                         return pid;
                 DEBUG("'%s' Error testing process id [%d] -- %s\n", s->name, pid, STRERROR);
         }
         Util_resetInfo(s);
-        
+
         return 0;
 }
 
 
 time_t Util_getProcessUptime(char *pidfile) {
         time_t ctime;
-        
+
         ASSERT(pidfile);
-        
-        if((ctime= file_getTimestamp(pidfile, S_IFREG)) ) {
+
+        if ((ctime= file_getTimestamp(pidfile, S_IFREG)) ) {
                 time_t now= time(&now);
                 time_t since= now-ctime;
                 return since;
@@ -1475,21 +1478,21 @@ char *Util_getUptime(time_t delta, char *sep) {
         long rest_m;
         char buf[STRLEN];
         char *p = buf;
-        
+
         *buf = 0;
-        if(delta < 0)
+        if (delta < 0)
                 return(Str_dup(""));
-        if((rest_d = delta/day)>0) {
+        if ((rest_d = delta/day)>0) {
                 p += snprintf(p, STRLEN-(p-buf), "%ldd%s", rest_d,sep);
                 delta -= rest_d*day;
         }
-        if((rest_h = delta/hour)>0 || (rest_d > 0)) {
+        if ((rest_h = delta/hour)>0 || (rest_d > 0)) {
                 p += snprintf(p, STRLEN-(p-buf), "%ldh%s", rest_h,sep);
                 delta -= rest_h*hour;
         }
         rest_m = delta/min;
         snprintf(p, STRLEN - (p - buf), "%ldm%s", rest_m, sep);
-        
+
         return Str_dup(buf);
 }
 
@@ -1559,17 +1562,17 @@ char *Util_encodeServiceName(char *name) {
 
 char *Util_getBasicAuthHeaderMonit() {
         Auth_T c = Run.credentials;
-        
+
         /* We find the first cleartext credential for authorization */
         while (c != NULL) {
                 if (c->digesttype == DIGEST_CLEARTEXT && ! c->is_readonly)
                         break;
                 c = c->next;
         }
-        
+
         if (c)
                 return Util_getBasicAuthHeader(c->uname, c->passwd);
-        
+
         return NULL;
 }
 
@@ -1577,12 +1580,12 @@ char *Util_getBasicAuthHeaderMonit() {
 char *Util_getBasicAuthHeader(char *username, char *password) {
         char *auth, *b64;
         char  buf[STRLEN];
-        
+
         if (!username)
                 return NULL;
-        
+
         snprintf(buf, STRLEN, "%s:%s", username, password ? password : "");
-        if(! (b64= encode_base64(strlen(buf), (unsigned char *)buf)) ) {
+        if (! (b64= encode_base64(strlen(buf), (unsigned char *)buf)) ) {
                 LogError("Failed to base64 encode authentication header\n");
                 return NULL;
         }
@@ -1595,8 +1598,8 @@ char *Util_getBasicAuthHeader(char *username, char *password) {
 
 void Util_redirectStdFds() {
         int i;
-        for(i= 0; i < 3; i++) {
-                if(close(i) == -1 || open("/dev/null", O_RDWR) != i) {
+        for (i= 0; i < 3; i++) {
+                if (close(i) == -1 || open("/dev/null", O_RDWR) != i) {
                         LogError("Cannot reopen standard file descriptor (%d) -- %s\n", i, STRERROR);
                 }
         }
@@ -1610,7 +1613,7 @@ void Util_closeFds() {
 #else
         int max_descriptors = 1024;
 #endif
-        for(i = 3; i < max_descriptors; i++)
+        for (i = 3; i < max_descriptors; i++)
                 close(i);
         errno= 0;
 }
@@ -1618,12 +1621,12 @@ void Util_closeFds() {
 
 Auth_T Util_getUserCredentials(char *uname) {
         Auth_T c;
-        
+
         /* check allowed user names */
         for (c = Run.credentials; c; c = c->next)
                 if (c->uname && IS(c->uname, uname))
                         return c;
-        
+
 #ifdef HAVE_LIBPAM
         /* check allowed group names */
         return(PAMcheckUserGroup(uname));
@@ -1662,7 +1665,7 @@ int Util_checkCredentials(char *uname, char *outside) {
                         *temp = '\0';
                         salt[sizeof(salt) - 1] = 0;
                         strncpy(salt, c->passwd+strlen(id), sizeof(salt) - 1);
-                        if(! (temp = strchr(salt, '$'))) {
+                        if (! (temp = strchr(salt, '$'))) {
                                 LogError("Password not in MD5 format.\n");
                                 return FALSE;
                         }
@@ -1692,7 +1695,7 @@ int Util_checkCredentials(char *uname, char *outside) {
                         LogError("Unknown password digestion method.\n");
                         return FALSE;
         }
-        
+
         if (strcmp(outside_crypt,c->passwd) == 0)
                 return TRUE;
         return FALSE;
@@ -1753,7 +1756,7 @@ int Util_hasServiceStatus(Service_T s) {
 
 
 char *Util_getHTTPHostHeader(Socket_T s, char *hostBuf, int len) {
-        if(socket_get_remote_port(s)==80)
+        if (socket_get_remote_port(s)==80)
                 snprintf(hostBuf, len, "%s", socket_get_remote_host(s));
         else
                 snprintf(hostBuf, len, "%s:%d", socket_get_remote_host(s), socket_get_remote_port(s));
@@ -1762,37 +1765,37 @@ char *Util_getHTTPHostHeader(Socket_T s, char *hostBuf, int len) {
 
 
 int Util_evalQExpression(int operator, long long left, long long right) {
-        
-        switch(operator) {
+
+        switch (operator) {
                 case OPERATOR_GREATER:
-                        if(left > right)
+                        if (left > right)
                                 return TRUE;
                         break;
                 case OPERATOR_LESS:
-                        if(left < right)
+                        if (left < right)
                                 return TRUE;
                         break;
                 case OPERATOR_EQUAL:
-                        if(left == right)
+                        if (left == right)
                                 return TRUE;
                         break;
                 case OPERATOR_NOTEQUAL:
-                        if(left != right)
+                        if (left != right)
                                 return TRUE;
                         break;
                 default:
                         LogError("Unknown comparison operator\n");
                         return FALSE;
         }
-        
+
         return FALSE;
-        
+
 }
 
 
 void Util_monitorSet(Service_T s) {
         ASSERT(s);
-        if(s->monitor == MONITOR_NOT) {
+        if (s->monitor == MONITOR_NOT) {
                 s->monitor = MONITOR_INIT;
                 DEBUG("'%s' monitoring enabled\n", s->name);
         }
@@ -1801,7 +1804,7 @@ void Util_monitorSet(Service_T s) {
 
 void Util_monitorUnset(Service_T s) {
         ASSERT(s);
-        if(s->monitor != MONITOR_NOT) {
+        if (s->monitor != MONITOR_NOT) {
                 s->monitor = MONITOR_NOT;
                 DEBUG("'%s' monitoring disabled\n", s->name);
         }
@@ -1810,7 +1813,7 @@ void Util_monitorUnset(Service_T s) {
         if (s->every.type == EVERY_SKIPCYCLES)
                 s->every.spec.cycle.counter = 0;
         s->error = Event_Null;
-        if(s->eventlist)
+        if (s->eventlist)
                 gc_event(&s->eventlist);
         Util_resetInfo(s);
 }
@@ -1818,9 +1821,9 @@ void Util_monitorUnset(Service_T s) {
 
 int Util_getAction(const char *action) {
         int i = 1; /* the ACTION_IGNORE has index 0 => we will start on next item */
-        
+
         ASSERT(action);
-        
+
         while (strlen(actionnames[i])) {
                 if (IS(action, actionnames[i]))
                         return i;
@@ -1838,7 +1841,7 @@ char *Util_describeAction(Action_T A, char *buf, int bufsize) {
         if (A->id == ACTION_EXEC) {
                 int i = 0;
                 command_t C = A->exec;
-                
+
                 while (C->arg[i]) {
                         snprintf(BUF_CURSOR, BUF_AVAILABLE, "%s%s", i ? " " : " '", C->arg[i]);
                         i++;
@@ -1863,7 +1866,7 @@ char *Util_getEventratio(Action_T action, char *buf, int bufsize) {
 
 
 char *Util_portTypeDescription(Port_T p) {
-        switch(p->type) {
+        switch (p->type) {
                 case SOCK_STREAM:
                         return p->SSL.use_ssl?"TCPSSL":"TCP";
                 case SOCK_DGRAM:
@@ -1889,14 +1892,14 @@ int Util_getfqdnhostname(char *buf, unsigned len) {
         int status;
         char hostname[STRLEN];
         struct addrinfo hints, *info = NULL;
-        
+
 	// Set the base hostname
         if (gethostname(hostname, sizeof(hostname))) {
                 LogError("%s: Error getting hostname -- %s\n", prog, STRERROR);
                 return -1;
         }
 	snprintf(buf, len, "%s", hostname);
-        
+
 	// Try to look for FQDN hostname
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = AF_UNSPEC;

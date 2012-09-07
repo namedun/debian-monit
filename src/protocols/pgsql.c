@@ -139,7 +139,7 @@ int check_pgsql(Socket_T socket) {
   }
 
   socket_setError(socket, "PGSQL: unknown error\n");
-  
+
   return FALSE;
 }
 

@@ -54,7 +54,7 @@ int check_clamav(Socket_T socket) {
   const char *ok= "PONG";
 
   ASSERT(socket);
-  
+
   if(socket_print(socket, "PING\r\n") < 0) {
     socket_setError(socket, "CLAMAV: error sending data -- %s\n", STRERROR);
     return FALSE;
@@ -66,13 +66,13 @@ int check_clamav(Socket_T socket) {
   }
 
   Str_chomp(buf);
-  
+
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
     socket_setError(socket, "CLAMAV error: %s\n", buf);
     return FALSE;
   }
 
   return TRUE;
-  
+
 }
 

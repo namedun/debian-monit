@@ -106,12 +106,10 @@ enum ExitStatus_E {
  * Setup the environment with special MONIT_xxx variables. The program
  * executed may use such variable for various purposes.
  */
-static void set_monit_environment(Service_T S, command_t C, Event_T E) {
-        char date[42];
-        Time_string(Time_now(), date);
-        setenv("MONIT_DATE", Str_dup(date), 1);
+static void set_monit_environment(Service_T S, command_t C, Event_T E, const char *date) {
+        setenv("MONIT_DATE", date, 1);
         setenv("MONIT_SERVICE", S->name, 1);
-        setenv("MONIT_HOST", Run.localhostname, 1);
+        setenv("MONIT_HOST", Run.system->name, 1);
         setenv("MONIT_EVENT", E ? Event_get_description(E) : C == S->start ? "Started" : C == S->stop ? "Stopped" : "No Event", 1);
         setenv("MONIT_DESCRIPTION", E ? Event_get_message(E) : C == S->start ? "Started" : C == S->stop ? "Stopped" : "No Event", 1);
         if (S->type == TYPE_PROCESS) {
@@ -139,36 +137,38 @@ void spawn(Service_T S, command_t C, Event_T E) {
         sigset_t save;
         int stat_loc= 0;
         int exit_status;
-        
+        char date[42];
+
         ASSERT(S);
         ASSERT(C);
-        
+
         if(access(C->arg[0], X_OK) != 0) {
                 LogError("Error: Could not execute %s\n", C->arg[0]);
                 return;
         }
-        
+
         /*
          * Block SIGCHLD
          */
         sigemptyset(&mask);
         sigaddset(&mask, SIGCHLD);
         pthread_sigmask(SIG_BLOCK, &mask, &save);
-        
+
+        Time_string(Time_now(), date);
         pid= fork();
         if(pid < 0) {
                 LogError("Cannot fork a new process\n");  
                 exit(1); 
         }
-        
+
         if(pid == 0) {
-                
+
                 /*
                  * Reset to the original umask so programs will inherit the
                  * same file creation mask monit was started with
                  */
                 umask(Run.umask);
-                
+
                 /*
                  * Switch uid/gid if requested
                  */
@@ -182,25 +182,25 @@ void spawn(Service_T S, command_t C, Event_T E) {
                                 stat_loc |= setuid_ERROR;
                         }
                 }
-                
-                set_monit_environment(S, C, E);
-                
+
+                set_monit_environment(S, C, E, date);
+
                 if(! Run.isdaemon) {
                         for(int i = 0; i < 3; i++)
                                 if(close(i) == -1 || open("/dev/null", O_RDWR) != i)
                                         stat_loc |= redirect_ERROR;
                 }
-                
+
                 Util_closeFds();
-                
+
                 setsid();
-                
+
                 pid = fork();
                 if(pid < 0) {
                         stat_loc |= fork_ERROR;
                         _exit(stat_loc);
                 }
-                
+
                 if(pid == 0) {
                         /*
                          * Reset all signals, so the spawned process is *not* created
@@ -213,20 +213,20 @@ void spawn(Service_T S, command_t C, Event_T E) {
                         signal(SIGTERM, SIG_DFL);
                         signal(SIGUSR1, SIG_DFL);
                         signal(SIGPIPE, SIG_DFL);
-                        
+
                         (void) execv(C->arg[0], C->arg);
                         _exit(errno);
                 }
-                
+
                 /* Exit first child and return errors to parent */
                 _exit(stat_loc);
         }
-        
+
         /* Wait for first child - aka second parent, to exit */
         if(waitpid(pid, &stat_loc, 0) != pid) {
                 LogError("Waitpid error\n");
         }
-        
+
         exit_status= WEXITSTATUS(stat_loc);
         if (exit_status & setgid_ERROR)
                 LogError("Failed to change gid to '%d' for '%s'\n", C->gid, C->arg[0]);
@@ -236,15 +236,15 @@ void spawn(Service_T S, command_t C, Event_T E) {
                 LogError("Cannot fork a new process for '%s'\n", C->arg[0]);
         if (exit_status & redirect_ERROR)
                 LogError("Cannot redirect IO to /dev/null for '%s'\n", C->arg[0]);
-        
+
         /*
          * Restore the signal mask
          */
         pthread_sigmask(SIG_SETMASK, &save, NULL);
-        
+
         /*
          * We do not need to wait for the second child since we forked twice,
          * the init system-process will wait for it. So we just return
          */
-        
+
 } 

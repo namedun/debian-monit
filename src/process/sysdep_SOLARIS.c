@@ -191,7 +191,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
 
     pt[i].ppid      = psinfo->pr_ppid;
     pt[i].starttime = psinfo->pr_start.tv_sec;
-        
+
     /* If we don't have any light-weight processes (LWP) then we are definitely a zombie */
     if (psinfo->pr_nlwp == 0) {
       pt[i].status_flag = PROCESS_ZOMBIE;
@@ -200,7 +200,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
       pt[i].mem_kbyte   = 0;
       continue;
     } 
-    
+
     pt[i].mem_kbyte = psinfo->pr_rssize;
 
     pt[i].cmdline  = Str_dup(psinfo->pr_psargs);
@@ -216,7 +216,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
       pt[i].cpu_percent = 0;
     }
   }
-  
+
   *reference = pt;
 
   /* Free globbing buffer */
@@ -320,7 +320,7 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
   kstat_t        *kstat;
   kstat_t       **cpu_ks;
   cpu_stat_t     *cpu_stat;
-  
+
   si->total_cpu_user_percent = si->total_cpu_syst_percent = si->total_cpu_wait_percent = 0;
 
   kctl  = kstat_open();
@@ -329,12 +329,12 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
     LogError("system statistic -- failed to lookup unix::system_misc kstat\n");
     goto error;
   }
-  
+
   if (NULL == (knamed = kstat_data_lookup(kstat, "ncpus"))) {
     LogError("system statistic -- ncpus kstat lookup failed\n");
     goto error;
   }
-  
+
   if ((ncpus = knamed->value.ui32) == 0) {
     LogError("system statistic -- ncpus is 0\n");
     goto error;
@@ -356,7 +356,7 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
       }
     }
   }
-  
+
   for (i = 0; i < ncpu; i++) {
     if (-1 == kstat_read(kctl, cpu_ks[i], &cpu_stat[i])) {
       LogError("system statistic -- failed to read cpu_stat kstat for cpu %d\n", i);
@@ -380,12 +380,12 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
   old_cpu_syst = cpu_syst;
   old_cpu_wait = cpu_wait;
   old_total    = total;
-  
+
   FREE(cpu_ks);
   FREE(cpu_stat);
   kstat_close(kctl);
   return TRUE;
- 
+
   error2:
   old_total = 0;
   FREE(cpu_ks);

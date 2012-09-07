@@ -137,35 +137,35 @@ int init_process_info_sysdep(void) {
  * @return treesize > 0 if succeeded otherwise = 0.
  */
 int initprocesstree_sysdep(ProcessTree_T **reference) {
-  int                        treesize;
-  char                       buf[_POSIX2_LINE_MAX];
-  size_t                     size = sizeof(maxslp);
-  int                        mib_proc2[6] = {CTL_KERN, KERN_PROC2, KERN_PROC_KTHREAD, 0, sizeof(struct kinfo_proc2), 0};
-  static int                 mib_maxslp[] = {CTL_VM, VM_MAXSLP};
-  ProcessTree_T             *pt;
-  kvm_t                     *kvm_handle;
-  static struct kinfo_proc2 *pinfo;
+  int                       treesize;
+  char                      buf[_POSIX2_LINE_MAX];
+  size_t                    size = sizeof(maxslp);
+  int                       mib_proc[6] = {CTL_KERN, KERN_PROC, KERN_PROC_KTHREAD, 0, sizeof(struct kinfo_proc), 0};
+  static int                mib_maxslp[] = {CTL_VM, VM_MAXSLP};
+  ProcessTree_T            *pt;
+  kvm_t                    *kvm_handle;
+  static struct kinfo_proc *pinfo;
 
   if (sysctl(mib_maxslp, 2, &maxslp, &size, NULL, 0) < 0) {
     LogError("system statistic error -- vm.maxslp failed");
     return FALSE;
   }
 
-  if (sysctl(mib_proc2, 6, NULL, &size, NULL, 0) == -1) {
-    LogError("system statistic error -- kern.proc2 #1 failed");
+  if (sysctl(mib_proc, 6, NULL, &size, NULL, 0) == -1) {
+    LogError("system statistic error -- kern.proc #1 failed");
     return FALSE;
   }
 
   size *= 2; // Add reserve for new processes which were created between calls of sysctl
   pinfo = CALLOC(1, size);
-  mib_proc2[5] = (int)(size / sizeof(struct kinfo_proc2));
-  if (sysctl(mib_proc2, 6, pinfo, &size, NULL, 0) == -1) {
+  mib_proc[5] = (int)(size / sizeof(struct kinfo_proc));
+  if (sysctl(mib_proc, 6, pinfo, &size, NULL, 0) == -1) {
     FREE(pinfo);
-    LogError("system statistic error -- kern.proc2 #2 failed");
+    LogError("system statistic error -- kern.proc #2 failed");
     return FALSE;
   }
 
-  treesize = (int)(size / sizeof(struct kinfo_proc2));
+  treesize = (int)(size / sizeof(struct kinfo_proc));
 
   pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
@@ -185,7 +185,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
       pt[i].status_flag |= PROCESS_ZOMBIE; //FIXME: save system service flag too (kernel threads)
     pt[i].time = get_float_time();
     char **args;
-    if ((args = kvm_getargv2(kvm_handle, &pinfo[i], 0))) {
+    if ((args = kvm_getargv(kvm_handle, &pinfo[i], 0))) {
       StringBuffer_T cmdline = StringBuffer_create(64);;
       for (int j = 0; args[j]; j++)
         StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);

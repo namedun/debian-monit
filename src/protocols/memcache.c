@@ -57,7 +57,7 @@ int check_memcache(Socket_T socket) {
   unsigned int length;
   unsigned char response[STRLEN];
   unsigned int status;
-  
+
   unsigned char request[MEMCACHELEN] = {
     MAGIC_REQUEST,                    /** Magic */ 
     0x0a,                             /** Opcode */
@@ -120,4 +120,4 @@ int check_memcache(Socket_T socket) {
   }
 }
 
- 
+

@@ -88,22 +88,22 @@ static volatile int running = FALSE;
 int can_http() {
 
   if(Run.dohttpd && Run.isdaemon) {
-    
+
     if(! has_hosts_allow() && ! Run.credentials) {
-      
+
       LogError("%s: monit httpd not started since no connect allowed\n",
 	  prog);
-      
+
       return FALSE;
-      
+
     }
-    
+
     return TRUE;
-    
+
   }
-  
+
   return FALSE;
-  
+
 }
 
 
@@ -116,7 +116,7 @@ void monit_http(int action) {
   int status;
 
   switch(action) {
-    
+
   case STOP_HTTP:
     if(!running) break;
     LogInfo("Shutting down %s HTTP server\n", prog);
@@ -145,7 +145,7 @@ void monit_http(int action) {
   default:
     LogError("%s: Unknown http server action\n", prog);
     break;
-      
+
   }
 
   return;
@@ -169,4 +169,4 @@ static void *thread_wrapper(void *arg) {
 
 }
 
-  
+
