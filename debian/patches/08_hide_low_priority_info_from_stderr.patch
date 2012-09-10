@@ -1,5 +1,6 @@
 Description: Hide stderr output from LogInfo and LogDebug.
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
+Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-09/msg00000.html
 
 ---
  src/log.c |   10 ++++++----
