@@ -3,29 +3,28 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-09/msg00000.html
 
 ---
- src/log.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ src/log.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 --- a/src/log.c
 +++ b/src/log.c
-@@ -411,14 +411,16 @@
+@@ -411,14 +411,15 @@
  
    LOCK(log_mutex)
  
-+  if (priority < LOG_INFO) {
++  FILE *output = priority < LOG_INFO ? stderr : stdout;
  #ifdef HAVE_VA_COPY
-     va_copy(ap_copy, ap);
+-    va_copy(ap_copy, ap);
 -  vfprintf(stderr, s, ap_copy);
--  va_end(ap_copy);
-+    vfprintf(stderr, s, ap_copy);
-+    va_end(ap_copy);
++  va_copy(ap_copy, ap);
++  vfprintf(output, s, ap_copy);
+   va_end(ap_copy);
  #else
 -  vfprintf(stderr, s, ap);
-+    vfprintf(stderr, s, ap);
++  vfprintf(output, s, ap);
  #endif
 -  fflush(stderr);
-+    fflush(stderr);
-+  }
++  fflush(output);
  
    if (Run.dolog) {
      if (Run.use_syslog) {
