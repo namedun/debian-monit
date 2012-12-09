@@ -1,3 +1,17 @@
+monit (1:5.5-2) unstable; urgency=low
+
+  * Show error while doing an attempt to stop daemon as non-root user
+    (LP: #877667)
+  * Use /run as pidfile location, patch 09 was added
+  * Drop support for "startup" option and /etc/monit/monit_delay
+  * Update patch 08 from upstream
+  * Drop monit_check_config (monitrc now non-empty by default)
+  * Cleanup restart target in monit.init
+  * Drop -c $CONFIG argument from monit options in monit.init
+  * Drop multiarch workarround for libssl in debian/rules
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 09 Dec 2012 17:42:20 +0400
+
 monit (1:5.5-1) unstable; urgency=low
 
   * Bunch of config snippets (debian/monitrc.d/*)
