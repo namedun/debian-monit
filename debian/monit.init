@@ -26,7 +26,7 @@ DELAY="/etc/monit/monit_delay"
 NAME=monit
 DESC="daemon monitor"
 MONIT_OPTS=
-PID="/var/run/$NAME.pid"
+PID="/run/$NAME.pid"
 
 # Check if DAEMON binary exist
 [ -f $DAEMON ] || exit 0

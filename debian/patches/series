@@ -2,3 +2,4 @@
 06_contrib.patch
 07_spelling.patch
 08_hide_low_priority_info_from_stderr.patch
+09_pid_in_rundir.patch

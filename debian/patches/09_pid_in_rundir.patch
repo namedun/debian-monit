@@ -1,0 +1,53 @@
+Description: ./configure script should check first /run
+ directory for pidfile placement.
+Author: Sergey B Kirpichev <skirpichev@gmail.com>
+
+---
+ configure    |    5 ++++-
+ configure.ac |    6 ++++--
+ monit.1      |    4 ++++
+ 3 files changed, 12 insertions(+), 3 deletions(-)
+
+--- a/configure
++++ b/configure
+@@ -12699,7 +12699,10 @@
+ # Find the right directory to put the root-mode PID file in
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking pid file location" >&5
+ $as_echo_n "checking pid file location... " >&6; }
+-if test -d "/var/run"
++if test -d "/run"
++then
++	piddir="/run"
++elif test -d "/var/run"
+ then
+ 	piddir="/var/run"
+ elif test -d "/etc"
+--- a/configure.ac
++++ b/configure.ac
+@@ -404,9 +404,11 @@
+ 
+ # Find the right directory to put the root-mode PID file in
+ AC_MSG_CHECKING([pid file location])
+-if test -d "/var/run"
++if test -d "/run"
+ then
+-	piddir="/var/run"
++	piddir="/run"
++elif test -d "/var/run"
++    piddir="/var/run"
+ elif test -d "/etc"
+ then
+ 	piddir="/etc"
+--- a/monit.1
++++ b/monit.1
+@@ -4024,6 +4024,10 @@
+    Lock file to help prevent concurrent runs (non-root
+    mode).
+ .PP
++\&\fI/run/monit.pid\fR
++   Lock file to help prevent concurrent runs (root mode,
++   Linux systems).
++.PP
+ \&\fI/var/run/monit.pid\fR
+    Lock file to help prevent concurrent runs (root mode,
+    Linux systems).
