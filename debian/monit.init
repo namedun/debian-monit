@@ -92,8 +92,14 @@ case "$1" in
 	fi
     ;;
   restart|force-reload)
-    $0 stop
-    $0 start
+    log_daemon_msg "Restarting $DESC" "$NAME"
+    start-stop-daemon --retry TERM/5/KILL/5 --oknodo --stop --quiet --pidfile $PID 1>/dev/null
+    if start-stop-daemon --start --quiet --oknodo --pidfile $PID --exec $DAEMON -- $MONIT_OPTS 1>/dev/null
+    then
+      log_end_msg 0
+    else
+      log_end_msg 1
+    fi
     ;;
   syntax)
     $DAEMON $MONIT_OPTS -t
