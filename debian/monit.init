@@ -21,7 +21,6 @@ set -e
 . /lib/lsb/init-functions
 
 DAEMON=/usr/bin/monit
-CONFIG="/etc/monit/monitrc"
 NAME=monit
 DESC="daemon monitor"
 MONIT_OPTS=
@@ -31,8 +30,6 @@ PID="/run/$NAME.pid"
 [ -f $DAEMON ] || exit 0
 
 [ -f "/etc/default/$NAME" ] && . /etc/default/$NAME
-
-MONIT_OPTS="-c $CONFIG $MONIT_OPTS"
 
 monit_not_configured () {
   if [ "$1" != "stop" ]
@@ -44,22 +41,12 @@ monit_not_configured () {
   exit 0
 }
 
-monit_check_perms () {
-  # Check the permission on configfile.
-  # The permission must not have more than -rwx------ (0700) permissions.
-
-  # Skip checking, fix perms instead.
-  /bin/chmod go-rwx $CONFIG
-}
-
 monit_checks () {
   # Check if START variable is set to "yes", if not we exit.
   if [ "$START" != "yes" ]
   then
     monit_not_configured $1
   fi
-  # Check permissions of configfile
-  monit_check_perms
 }
 
 case "$1" in
