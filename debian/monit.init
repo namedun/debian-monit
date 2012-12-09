@@ -44,15 +44,6 @@ monit_not_configured () {
   exit 0
 }
 
-monit_check_config () {
-  # Check for emtpy config.
-  if [ "`grep -s -v \"^#\" $CONFIG`" = "" ]
-  then
-    echo "empty config, please edit $CONFIG."
-    exit 0
-  fi
-}
-
 monit_check_perms () {
   # Check the permission on configfile.
   # The permission must not have more than -rwx------ (0700) permissions.
@@ -67,8 +58,6 @@ monit_checks () {
   then
     monit_not_configured $1
   fi
-  # Check for emtpy configfile
-  monit_check_config
   # Check permissions of configfile
   monit_check_perms
 }
