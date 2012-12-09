@@ -1,3 +1,12 @@
+monit (1:5.5-2) unstable; urgency=low
+
+  Support of the "startup" option in /etc/default/monit and
+  setting initial delay with /etc/monit/monit_delay has been removed.
+
+  Please, use START option to enable/disable monit startup during boot.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 09 Dec 2012 15:37:35 +0400
+
 monit (1:5.3.1-2) unstable; urgency=low
 
   Since version 1:5.3.1-2 of the package monit binary has been

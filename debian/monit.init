@@ -22,7 +22,6 @@ set -e
 
 DAEMON=/usr/bin/monit
 CONFIG="/etc/monit/monitrc"
-DELAY="/etc/monit/monit_delay"
 NAME=monit
 DESC="daemon monitor"
 MONIT_OPTS=
@@ -32,33 +31,6 @@ PID="/run/$NAME.pid"
 [ -f $DAEMON ] || exit 0
 
 [ -f "/etc/default/$NAME" ] && . /etc/default/$NAME
-
-# For backward compatibility, handle startup variable:
-if [ -n "$startup" ]
-then
-  if [ "$1" = "start" ]
-  then
-    printf "\tPlease, use START variable in /etc/default/monit\n"
-    printf "\tto enable/disable $NAME startup.\n"
-  fi
-
-  if [ -z "$START" ] && [ "$startup" -eq 1 ]
-  then
-    START="yes"
-  fi
-fi
-
-# For backward compatibility, handle CHECK_INTERVALS variable:
-if [ -n "$CHECK_INTERVALS" ]
-then
-  if [ "$1" = "start" ]
-  then
-    printf "\tPlease, use MONIT_OPTS variable in /etc/default/monit\n"
-    printf "\tto specify command line options for $NAME.\n"
-  fi
-
-  MONIT_OPTS="$MONIT_OPTS -d $CHECK_INTERVALS"
-fi
 
 MONIT_OPTS="-c $CONFIG $MONIT_OPTS"
 
@@ -89,22 +61,6 @@ monit_check_perms () {
   /bin/chmod go-rwx $CONFIG
 }
 
-monit_delayed_monitoring () {
-  if [ -f $DELAY ]
-  then
-    printf "Warning: Please, set start delay for $NAME in config file\n"
-    printf "         and delete $DELAY file.\n"
-
-    if [ ! -x $DELAY ]
-    then
-      printf "Warning: A delayed start file exists ($DELAY)\n"
-      printf "         but it is not executable.\n"
-    else
-      $DELAY &
-    fi
-  fi
-}
-
 monit_checks () {
   # Check if START variable is set to "yes", if not we exit.
   if [ "$START" != "yes" ]
@@ -129,7 +85,6 @@ case "$1" in
     else
       log_end_msg 1
     fi
-    monit_delayed_monitoring
     ;;
   stop)
     log_daemon_msg "Stopping $DESC" "$NAME"
