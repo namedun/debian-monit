@@ -4,3 +4,4 @@
 08_hide_low_priority_info_from_stderr.patch
 09_pid_in_rundir.patch
 10_ssl_multiarch.patch
+11_enable_hurd.patch

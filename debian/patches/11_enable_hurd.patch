@@ -1,0 +1,66 @@
+Description: Enable building for GNU/Hurd
+Author: Sergey B Kirpichev <skirpichev@gmail.com>
+
+---
+ configure             |    6 +++++-
+ configure.ac          |    5 +++++
+ libmonit/configure    |    4 ++++
+ libmonit/configure.ac |    4 ++++
+ 4 files changed, 18 insertions(+), 1 deletion(-)
+
+--- a/configure
++++ b/configure
+@@ -12821,7 +12821,11 @@
+    LIBS="$LIBS -lperfstat"
+ 
+ $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
+-
++elif test "$architecture" = "GNU"
++then
++   ARCH="Hurd"
++   CFLAGS="$CFLAGS -D _REENTRANT"
++   LDFLAGS="$LDFLAGS -rdynamic"
+ else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Architecture not supported: ${architecture}" >&5
+ $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
+--- a/configure.ac
++++ b/configure.ac
+@@ -510,6 +510,11 @@
+    # AIX v. 5.3
+    LIBS="$LIBS -lperfstat"	
+    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
++elif test "$architecture" = "GNU"
++then
++   ARCH="Hurd"
++   CFLAGS="$CFLAGS -D _REENTRANT"
++   LDFLAGS="$LDFLAGS -rdynamic"
+ else
+    AC_MSG_WARN([Architecture not supported: ${architecture}])
+    CFLAGS="$CFLAGS -D _REENTRANT"
+--- a/libmonit/configure
++++ b/libmonit/configure
+@@ -10916,7 +10916,11 @@
+    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
+ 
+ $as_echo "#define AIX 1" >>confdefs.h
++elif test "$architecture" = "GNU"
++then
++   CFLAGS="$CFLAGS -D _REENTRANT"
+ 
++$as_echo "#define HURD 1" >>confdefs.h
+ else
+    as_fn_error "Architecture not supported: ${architecture}" "$LINENO" 5
+ fi
+--- a/libmonit/configure.ac
++++ b/libmonit/configure.ac
+@@ -169,6 +169,10 @@
+ then
+    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
+    AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
++elif test "$architecture" = "GNU"
++then
++   CFLAGS="$CFLAGS -D _REENTRANT"
++   AC_DEFINE([HURD], 1, [Define to 1 if the system is Hurd])
+ else
+    AC_MSG_ERROR([Architecture not supported: ${architecture}])
+ fi
