@@ -1,8 +1,9 @@
-monit (1:5.5-3) UNRELEASED; urgency=low
+monit (1:5.5-3) unstable; urgency=low
 
   * Fix FTBFS for i386 and kfreebsd-i386: patch 10
+  * Enable building on Hurd: patch 11
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 11 Dec 2012 03:15:59 +0400
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 11 Dec 2012 16:06:27 +0400
 
 monit (1:5.5-2) unstable; urgency=low
 
