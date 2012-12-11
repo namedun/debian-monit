@@ -2,11 +2,13 @@ Description: Enable building for GNU/Hurd
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
 
 ---
- configure             |    6 +++++-
- configure.ac          |    5 +++++
- libmonit/configure    |    4 ++++
- libmonit/configure.ac |    4 ++++
- 4 files changed, 18 insertions(+), 1 deletion(-)
+ configure                |    6 +++++-
+ configure.ac             |    5 +++++
+ libmonit/configure       |    4 ++++
+ libmonit/configure.ac    |    4 ++++
+ libmonit/test/FileTest.c |    9 +++++++++
+ src/validate.c           |   10 +++++++++-
+ 6 files changed, 36 insertions(+), 2 deletions(-)
 
 --- a/configure
 +++ b/configure
@@ -64,3 +66,63 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
  else
     AC_MSG_ERROR([Architecture not supported: ${architecture}])
  fi
+--- a/libmonit/test/FileTest.c
++++ b/libmonit/test/FileTest.c
+@@ -130,14 +130,23 @@
+ 
+         printf("=> Test7: normalize path\n");
+         {
++#ifdef PATH_MAX
+                 char s[PATH_MAX];
+                 assert(File_getRealPath("/././tmp/../tmp", s) != NULL);
++#else
++                char *s = realpath("/././tmp/../tmp", NULL);
++                assert(s != NULL);
++#endif
+ #ifdef DARWIN
+                 /* On Darwin /tmp is a link to /private/tmp */
+                 assert(Str_isEqual(s, "/private/tmp")); 
+ #else
+                 assert(Str_isEqual(s, "/tmp"));
+ #endif
++
++#ifndef PATH_MAX
++                free(s);
++#endif
+         }
+         printf("=> Test7: OK\n\n");
+ 
+--- a/src/validate.c
++++ b/src/validate.c
+@@ -227,7 +227,11 @@
+  */
+ int check_filesystem(Service_T s) {
+         char *p;
++#ifdef PATH_MAX
+         char path_buf[PATH_MAX+1];
++#else
++        char *path_buf = NULL;
++#endif
+         Filesystem_T td;
+         struct stat stat_buf;
+ 
+@@ -241,7 +245,8 @@
+                 return FALSE;
+         }
+         if (S_ISLNK(stat_buf.st_mode)) {
+-                if (! realpath(s->path, path_buf)) {
++                p = realpath(s->path, path_buf);
++                if (! p) {
+                         Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem symbolic link error -- %s", STRERROR);
+                         return FALSE;
+                 }
+@@ -262,6 +267,9 @@
+                 Event_post(s, Event_Data, STATE_FAILED, s->action_DATA, "unable to read filesystem %s state", p);
+                 return FALSE;
+         }
++#ifndef PATH_MAX
++        free(path_buf);
++#endif
+         s->inf->priv.filesystem.inode_percent = s->inf->priv.filesystem.f_files > 0 ? (int)((1000.0 * (s->inf->priv.filesystem.f_files - s->inf->priv.filesystem.f_filesfree)) / (float)s->inf->priv.filesystem.f_files) : 0;
+         s->inf->priv.filesystem.space_percent = s->inf->priv.filesystem.f_blocks > 0 ? (int)((1000.0 * (s->inf->priv.filesystem.f_blocks - s->inf->priv.filesystem.f_blocksfree)) / (float)s->inf->priv.filesystem.f_blocks) : 0;
+         s->inf->priv.filesystem.inode_total   = s->inf->priv.filesystem.f_files - s->inf->priv.filesystem.f_filesfree;
