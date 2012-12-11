@@ -1,0 +1,33 @@
+Description: Fix FTBFS for i386 and kfreebsd-i386: add
+ $libdir to SSL library search path.
+Author: Sergey B Kirpichev <skirpichev@gmail.com>
+
+---
+ configure    |    4 ++--
+ configure.ac |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- a/configure
++++ b/configure
+@@ -13449,8 +13450,7 @@
+                                    $maindir/lib64/openssl \
+                                    $maindir/lib64/ssl \
+                                    $maindir/ssl/lib64 \
+-                                   $maindir/lib/${build} \
+-                                   $maindir/lib/${build_alias}; do
++                                   `eval echo $libdir`; do
+                             checkssllibdirdynamic $dir && break 2
+                         done
+                     done
+--- a/configure.ac
++++ b/configure.ac
+@@ -781,8 +782,7 @@
+                                    $maindir/lib64/openssl \
+                                    $maindir/lib64/ssl \
+                                    $maindir/ssl/lib64 \
+-                                   $maindir/lib/${build} \
+-                                   $maindir/lib/${build_alias}; do
++                                   `eval echo $libdir`; do
+                             checkssllibdirdynamic $dir && break 2
+                         done
+                     done
