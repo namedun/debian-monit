@@ -5,7 +5,7 @@ Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
 DM-Upload-Allowed: yes
 Build-Depends: debhelper (>= 9), libssl-dev, libpam-dev, libkvm-dev [kfreebsd-any]
 # this strange things was installed only on ia64 buildd:
-Build-Conflicts: automake
+Build-Conflicts: automake, autoconf
 Standards-Version: 3.9.3
 Homepage: http://mmonit.com/monit/
 Vcs-Git: git://git.debian.org/git/collab-maint/monit.git
