@@ -1,3 +1,10 @@
+monit (1:5.5-4) unstable; urgency=low
+
+  * Fix (I think) FTBFS on ia64 due to installed automake
+  * Update patch 11: fix PATH_MAX issues for Hurd
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 12 Dec 2012 22:52:55 +0400
+
 monit (1:5.5-3) unstable; urgency=low
 
   * Fix FTBFS for i386 and kfreebsd-i386: patch 10
