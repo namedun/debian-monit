@@ -21,6 +21,7 @@ set -e
 . /lib/lsb/init-functions
 
 DAEMON=/usr/bin/monit
+CONFIG=/etc/monit/monitrc
 NAME=monit
 DESC="daemon monitor"
 MONIT_OPTS=
@@ -30,6 +31,8 @@ PID="/run/$NAME.pid"
 [ -f $DAEMON ] || exit 0
 
 [ -f "/etc/default/$NAME" ] && . /etc/default/$NAME
+
+MONIT_OPTS="-c $CONFIG $MONIT_OPTS"
 
 monit_not_configured () {
   if [ "$1" != "stop" ]
