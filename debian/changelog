@@ -1,3 +1,13 @@
+monit (1:5.5-5) unstable; urgency=low
+
+  * Fix FTBFS on ia64, a second attempt
+  * Revert back -c option in monit.init
+  * Implement sysdep_HURD.c
+  * Correct description for patch 11
+  * Add missing DEP3 "Forwarded" headers
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 13 Dec 2012 17:01:58 +0400
+
 monit (1:5.5-4) unstable; urgency=low
 
   * Fix (I think) FTBFS on ia64 due to installed automake
