@@ -1,6 +1,7 @@
 Description: Fix FTBFS for i386 and kfreebsd-i386: add
  $libdir to SSL library search path.
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
+Forwarded: yes, accepted
 
 ---
  configure    |    4 ++--

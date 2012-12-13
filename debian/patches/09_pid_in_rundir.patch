@@ -1,6 +1,7 @@
 Description: ./configure script should check first /run
  directory for pidfile placement.
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
+Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
 
 ---
  configure    |    5 ++++-
