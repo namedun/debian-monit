@@ -14,11 +14,11 @@ Forwarded: no
  configure.ac              |    5 
  libmonit/configure        |    4 
  libmonit/configure.ac     |    4 
- libmonit/test/FileTest.c  |    9 
+ libmonit/test/FileTest.c  |   10 +
  src/device/sysdep_HURD.c  |  135 +++++++++++++
  src/process/sysdep_HURD.c |  456 ++++++++++++++++++++++++++++++++++++++++++++++
  src/validate.c            |   10 -
- 8 files changed, 627 insertions(+), 2 deletions(-)
+ 8 files changed, 628 insertions(+), 2 deletions(-)
 
 --- a/configure
 +++ b/configure
@@ -78,7 +78,15 @@ Forwarded: no
  fi
 --- a/libmonit/test/FileTest.c
 +++ b/libmonit/test/FileTest.c
-@@ -130,14 +130,23 @@
+@@ -8,6 +8,7 @@
+ #include <unistd.h>
+ #include <limits.h>
+ #include <stdarg.h>
++#include <stdlib.h>
+ 
+ #include "Bootstrap.h"
+ #include "Str.h"
+@@ -130,14 +131,23 @@
  
          printf("=> Test7: normalize path\n");
          {
