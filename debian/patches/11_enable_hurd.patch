@@ -1,6 +1,6 @@
 Description: Support for GNU/Hurd
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
-Forwarded: no
+Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
 
  1. Enable building for GNU/Hurd in configure.ac
  2. Fix MAX_PATH use cases, see:
