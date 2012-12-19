@@ -2,7 +2,6 @@ Source: monit
 Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
-DM-Upload-Allowed: yes
 Build-Depends: debhelper (>= 9), libssl-dev, libpam-dev, libkvm-dev [kfreebsd-any]
 # this strange things was installed only on ia64 buildd:
 Build-Conflicts: automake, autoconf
