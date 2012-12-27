@@ -1,3 +1,14 @@
+monit (1:5.5-6) unstable; urgency=low
+
+  * Include stdlib.h to fix blhc E: pointer-trouble-at-implicit in
+    FileTest.c
+  * Drop DMUA, fix lintian warning
+  * Bump up Standards-Version (to 3.9.4)
+  * Use autotools-dev helpers to update config.guess/config.sub (fix
+    lintian warning: outdated-autotools-helper-file)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 27 Dec 2012 14:11:12 +0400
+
 monit (1:5.5-5) unstable; urgency=low
 
   * Fix FTBFS on ia64, a second attempt
