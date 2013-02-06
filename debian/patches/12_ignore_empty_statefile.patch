@@ -1,0 +1,20 @@
+Description: Ignore empty statefile
+Origin: http://lists.nongnu.org/archive/html/monit-dev/2013-02/msg00003.html
+Bug-Ubuntu: https://launchpad.net/bugs/1017327
+
+---
+ src/state.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/src/state.c
++++ b/src/state.c
+@@ -239,6 +239,9 @@
+ 
+ 
+ void State_update() {
++        /* Ignore empty state file */
++        if ((lseek(file, 0L, SEEK_END) == 0))
++            return;
+         TRY
+         {
+                 if (lseek(file, 0L, SEEK_SET) == -1)

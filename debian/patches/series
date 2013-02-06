@@ -5,3 +5,4 @@
 09_pid_in_rundir.patch
 10_ssl_multiarch.patch
 11_enable_hurd.patch
+12_ignore_empty_statefile.patch
