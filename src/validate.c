@@ -447,43 +447,47 @@ int check_fifo(Service_T s) {
 int check_program(Service_T s) {
         ASSERT(s);
         ASSERT(s->program);
-
         time_t now = Time_now();
         Process_T P = s->program->P;
-
         if (P) {
                 if (Process_exitStatus(P) < 0) { // Program is still running
                         time_t execution_time = (now - s->program->started);
                         if (execution_time > s->program->timeout) { // Program timed out
                                 LogError("'%s' program timed out after %ld seconds. Killing program with pid %ld\n", s->name, (long)execution_time, (long)Process_getPid(P));
-                                Process_kill(P); 
+                                Process_kill(P);
                                 Process_waitFor(P); // Wait for child to exit to get correct exit value
-                                // Fall-through with P and evaluate exit value below. 
-                        } else { 
+                                // Fall-through with P and evaluate exit value below.
+                        } else {
                                 // Defer test of exit value until program exit or timeout
                                 DEBUG("'%s' status check defered - waiting on program to exit\n", s->name);
                                 return TRUE;
                         }
                 }
-                s->program->exitStatus = Process_exitStatus(P); // Save exit status for web-view display 
+                s->program->exitStatus = Process_exitStatus(P); // Save exit status for web-view display
                 int n = 0;
-                char buf[STRLEN + 1] = "no output to stderr nor stdout";
-                // Evaluate program's exit status against our status checks
-                // FIXME: add IF-ELSE or SWITCH support
+                char buf[STRLEN + 1];
+                // Evaluate program's exit status against our status checks.
+                /* TODO: Multiple checks we have now should be deprecated and removed - not useful because it 
+                 will alert on everything if != is used other than the match or if = is used, might report nothing on error. */
                 for (Status_T status = s->statuslist; status; status = status->next) {
                         if (Util_evalQExpression(status->operator, s->program->exitStatus, status->return_value)) {
-                                if (! n && ((n = InputStream_readBytes(Process_getErrorStream(P), buf, STRLEN)) > 0 || (n = InputStream_readBytes(Process_getInputStream(P), buf, STRLEN)) > 0))
+                                // Read message from script
+                                if ((n = InputStream_readBytes(Process_getErrorStream(P), buf, STRLEN)) <= 0)
+                                        n = InputStream_readBytes(Process_getInputStream(P), buf, STRLEN);
+                                if (n > 0) {
                                         buf[n] = 0;
-                                Event_post(s, Event_Status, STATE_FAILED, status->action, "status failed (%d) for %s -- Error: %s..", s->program->exitStatus, s->path, buf);
+                                        Event_post(s, Event_Status, STATE_FAILED, status->action, "%s", buf);
+                                } else {
+                                        Event_post(s, Event_Status, STATE_FAILED, status->action, "'%s' failed with exit status (%d) -- no output from program", s->path, s->program->exitStatus);
+                                }
                         } else {
                                 DEBUG("'%s' status check succeeded\n", s->name);
                                 Event_post(s, Event_Status, STATE_SUCCEEDED, status->action, "status succeeded");
                         }
                 }
                 Process_free(&s->program->P);
-        } 
-
-        // Start program 
+        }
+        // Start program
         s->program->P = Command_execute(s->program->C);
         if (! s->program->P) {
                 Event_post(s, Event_Status, STATE_FAILED, s->action_EXEC, "failed to execute '%s' -- %s", s->path, STRERROR);
@@ -1136,8 +1140,10 @@ static void check_match(Service_T s) {
                         s->inf->priv.file.readpos = 0;
 
                 /* Do we need to match? Even if not, go to final, so we can reset the content match error flags in this cycle */
-                if (s->inf->priv.file.readpos == s->inf->priv.file.st_size)
+                if (s->inf->priv.file.readpos == s->inf->priv.file.st_size) {
+                        DEBUG("'%s' content match skipped - file size nor inode has not changed since last test\n", s->name);
                         goto final;
+                }
         }
 
         while (TRUE) {
@@ -1161,6 +1167,7 @@ next:
                 } else if (line[length-1] != '\n') {
                         if (length < MATCH_LINE_LENGTH-1) {
                                 /* Incomplete line: we gonna read it next time again, allowing the writer to complete the write */
+                                DEBUG("'%s' content match: incomplete line read - no new line at end. (retrying next cycle)\n", s->name);
                                 goto final;
                         } else if (length == MATCH_LINE_LENGTH-1) {
                                 /* Our read buffer is full: ignore the content past the MATCH_LINE_LENGTH */

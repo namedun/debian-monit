@@ -1,10 +1,31 @@
-                     CHANGES version 5.5
+                     CHANGES version 5.5.1
                                 
            This file summarizes changes made since 5.0
                                 
        Bug fixes may refer to an auto-generated id in our
           bug-tracking system, which can be found here
           https://savannah.nongnu.org/bugs/?group=monit
+
+
+Version 5.5.1
+
+IMPROVEMENTS:
+
+* Info and debug messages are no longer sent to stderr, only to stdout.
+  Thanks to Sergey Kirpitchev for initial patch.
+
+* Improved output from 'check program', If the program returns an error
+  message, include only that message in alert $DESCRIPTION so users can
+  compose their own alert format. If program provided no output on
+  error, use a default message.
+
+* Improved "check system", $HOST can now be used as a service name.
+  $HOST will expand to the system hostname. Example: check system $HOST
+
+BUGFIXES:
+
+* Fixed "Unable to read magic" which was reported on first Monit start.
+
 
 
 Version 5.5

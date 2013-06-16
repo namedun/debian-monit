@@ -7,9 +7,7 @@ SUBDIRS         = . test
 
 EXTRA_DIST      = README COPYING bootstrap test src config
 
-AM_CPPFLAGS     = $(CPPFLAGS) $(DBCPPFLAGS)
-
-INCLUDES        = -I./src -I./src/exceptions -I./src/io -I./src/net -I./src/util -I./src/thread
+AM_CPPFLAGS     = $(CPPFLAGS) $(DBCPPFLAGS) -I./src -I./src/exceptions -I./src/io -I./src/net -I./src/util -I./src/thread
 
 # libmonit is built static
 noinst_LTLIBRARIES = libmonit.la

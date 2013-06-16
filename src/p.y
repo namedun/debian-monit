@@ -859,7 +859,14 @@ checkhost       : CHECKHOST SERVICENAME ADDRESS STRING {
                 ;
 
 checksystem     : CHECKSYSTEM SERVICENAME {
-                    Run.system = createservice(TYPE_SYSTEM, $<string>2, Str_dup(""), check_system); // The name given in the 'check system' statement overrides system hostname
+                    char hostname[STRLEN];
+                    if (Util_getfqdnhostname(hostname, sizeof(hostname))) {
+                      LogError("Cannot get system hostname\n");
+                      cfg_errflag++;
+                    }
+                    char *servicename = $<string>2;
+                    Util_replaceString(&servicename, "$HOST", hostname);
+                    Run.system = createservice(TYPE_SYSTEM, servicename, Str_dup(""), check_system); // The name given in the 'check system' statement overrides system hostname
                   }
                 ;
 

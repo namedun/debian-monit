@@ -402,7 +402,6 @@ static const char *logPriorityDescription(int p) {
  * @param s A formated (printf-style) string to log
  */
 static void log_log(int priority, const char *s, va_list ap) {
-
 #ifdef HAVE_VA_COPY
   va_list ap_copy;
 #endif
@@ -411,14 +410,15 @@ static void log_log(int priority, const char *s, va_list ap) {
 
   LOCK(log_mutex)
 
+  FILE *output = priority < LOG_INFO ? stderr : stdout;
 #ifdef HAVE_VA_COPY
-    va_copy(ap_copy, ap);
-  vfprintf(stderr, s, ap_copy);
+  va_copy(ap_copy, ap);
+  vfprintf(output, s, ap_copy);
   va_end(ap_copy);
 #else
-  vfprintf(stderr, s, ap);
+  vfprintf(output, s, ap);
 #endif
-  fflush(stderr);
+  fflush(output);
 
   if (Run.dolog) {
     if (Run.use_syslog) {

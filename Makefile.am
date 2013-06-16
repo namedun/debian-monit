@@ -15,10 +15,8 @@ YACCFLAGS	= -dvt
 POD2MAN		= @POD2MAN@
 POD2MANFLAGS	= @POD2MANFLAGS@
 
-AM_CPPFLAGS	= $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\""
+AM_CPPFLAGS	= $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\"" -I./src -I./src/device -I./src/http -I./src/process -I./src/protocols -I./libmonit/src
 AM_LDFLAGS	= $(LDFLAGS) $(EXTLDFLAGS) -L./lib/
-INCLUDES	= -I./src -I./src/device -I./src/http -I./src/process -I./src/protocols 
-INCLUDES	+= -I./libmonit/src
 
 bin_PROGRAMS	= monit
 monit_SOURCES	= src/y.tab.c \

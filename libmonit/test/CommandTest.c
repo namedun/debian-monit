@@ -52,6 +52,7 @@ static void onTerminate(Process_T P) {
         assert(Process_isRunning(P));
         Process_terminate(P);
         printf("\tWaiting on process to terminate.. ");
+        fflush(stdout);
         printf("Process exited with status: %d\n", Process_waitFor(P));
         Process_free(&P);
         assert(! P);
