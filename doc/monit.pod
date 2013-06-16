@@ -3226,16 +3226,17 @@ tildeslash.com or "64.87.72.95".
 =item 7. CHECK SYSTEM <unique name>
 
 The system name is usually hostname, but any descriptive name can be
-used. This test allows one to check general system resources such as
-CPU usage (percent of time spent in user, system and wait), total
-memory usage or load average. The unique name is used as the system
-hostname in mail alerts and when M/Monit is configured, then also
-as initial name of the host entry in M/Monit.
+used. You can use the variable $HOST as the name, which will expand to
+the hostname. This test allows one to check general system resources
+such as CPU usage (percent of time spent in user, system and wait),
+total memory usage or load average. The unique name is used as the
+system hostname in mail alerts and when M/Monit is configured, then
+also as initial name of the host entry in M/Monit.
 
 =item 8. CHECK PROGRAM <unique name> PATH <executable file> [TIMEOUT <number> SECONDS]
 
 <path> is the absolute path to the executable program or script.
-The I<status> test allows to check the program's exit status. If
+The I<status> test allows one to check the program's exit status. If
 program will not finish within <number> seconds, Monit will terminate
 it. The default program timeout is 600 seconds (5 minutes).
 

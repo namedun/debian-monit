@@ -219,7 +219,9 @@ int sendmail(Mail_T mail) {
                 do_send(&S, "STARTTLS\r\n"); 
                 do_status(&S);
                 if (! socket_switch2ssl(S.socket, S.ssl)) {
+                        LogError("Sendmail: Cannot switch to SSL\n");
                         status = SendmailStatus_ErrorStartTLS;
+                        S.quit = FALSE;
                         goto exit;
                 }
                 /* After starttls, send ehlo again: RFC 3207: 4.2 Result of the STARTTLS Command */

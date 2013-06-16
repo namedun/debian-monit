@@ -81,7 +81,7 @@
  *        Allows to skip the content match test for the content which was checked
  *        already to suppress duplicate events.
  *
- * The data are stored in binary form in the statefile using the following format:
+ * Data is stored in binary form in the statefile using the following format:
  *    <MAGIC><VERSION>{<SERVICE_STATE>}+
  *
  * When the persistent field needs to be added, update the State_Version along
@@ -239,6 +239,9 @@ void State_save() {
 
 
 void State_update() {
+        /* Ignore empty state file */
+        if ((lseek(file, 0L, SEEK_END) == 0))
+             return;
         TRY
         {
                 if (lseek(file, 0L, SEEK_SET) == -1)

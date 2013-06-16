@@ -304,7 +304,6 @@ int check_http(Socket_T socket) {
                          "GET %s HTTP/1.1\r\n"
                          "Host: %s\r\n"
                          "Accept: */*\r\n"
-                         "Connection: close\r\n"
                          "User-Agent: %s/%s\r\n"
                          "%s\r\n",
                          request, hostheader, prog, VERSION,

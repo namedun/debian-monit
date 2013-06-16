@@ -72,7 +72,6 @@ static int data_send(Socket_T socket, Mmonit_T C, const char *D) {
                           "Pragma: no-cache\r\n"
                           "Accept: */*\r\n"
                           "User-Agent: %s/%s\r\n"
-                          "Connection: close\r\n"
                           "%s"
                           "\r\n"
                           "%s",
