@@ -22,7 +22,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
 
 --- a/configure
 +++ b/configure
-@@ -12821,7 +12821,11 @@
+@@ -13663,7 +13663,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -37,7 +37,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -510,6 +510,11 @@
+@@ -509,6 +509,11 @@
     # AIX v. 5.3
     LIBS="$LIBS -lperfstat"	
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
@@ -51,7 +51,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
     CFLAGS="$CFLAGS -D _REENTRANT"
 --- a/libmonit/configure
 +++ b/libmonit/configure
-@@ -10916,7 +10916,11 @@
+@@ -11767,7 +11767,11 @@
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
  
  $as_echo "#define AIX 1" >>confdefs.h
@@ -61,7 +61,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
  
 +$as_echo "#define HURD 1" >>confdefs.h
  else
-    as_fn_error "Architecture not supported: ${architecture}" "$LINENO" 5
+    as_fn_error $? "Architecture not supported: ${architecture}" "$LINENO" 5
  fi
 --- a/libmonit/configure.ac
 +++ b/libmonit/configure.ac

@@ -10,7 +10,7 @@ Forwarded: yes, accepted
 
 --- a/configure
 +++ b/configure
-@@ -13449,8 +13450,7 @@
+@@ -14291,8 +14291,7 @@
                                     $maindir/lib64/openssl \
                                     $maindir/lib64/ssl \
                                     $maindir/ssl/lib64 \
@@ -22,7 +22,7 @@ Forwarded: yes, accepted
                      done
 --- a/configure.ac
 +++ b/configure.ac
-@@ -781,8 +782,7 @@
+@@ -780,8 +780,7 @@
                                     $maindir/lib64/openssl \
                                     $maindir/lib64/ssl \
                                     $maindir/ssl/lib64 \

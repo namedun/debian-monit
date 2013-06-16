@@ -11,7 +11,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
 
 --- a/configure
 +++ b/configure
-@@ -12699,7 +12699,10 @@
+@@ -13541,7 +13541,10 @@
  # Find the right directory to put the root-mode PID file in
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking pid file location" >&5
  $as_echo_n "checking pid file location... " >&6; }
@@ -25,7 +25,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
  elif test -d "/etc"
 --- a/configure.ac
 +++ b/configure.ac
-@@ -404,9 +404,11 @@
+@@ -403,9 +403,11 @@
  
  # Find the right directory to put the root-mode PID file in
  AC_MSG_CHECKING([pid file location])
@@ -41,7 +41,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
  	piddir="/etc"
 --- a/monit.1
 +++ b/monit.1
-@@ -4024,6 +4024,10 @@
+@@ -4025,6 +4025,10 @@
     Lock file to help prevent concurrent runs (non-root
     mode).
  .PP
