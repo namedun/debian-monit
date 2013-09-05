@@ -69,8 +69,8 @@
 
 
 static void copy_mail(Mail_T, Mail_T);
-static void replace_bare_linefeed(Mail_T *);
-static void substitute(Mail_T *, Event_T);
+static void escape(Mail_T);
+static void substitute(Mail_T, Event_T);
 
 
 /* ------------------------------------------------------------------ Public */
@@ -119,8 +119,8 @@ int handle_alert(Event_T E) {
 
         NEW(tmp);
         copy_mail(tmp, m);
-        substitute(&tmp, E);
-        replace_bare_linefeed(&tmp);
+        substitute(tmp, E);
+        escape(tmp);
         tmp->next= list;
         list= tmp;
 
@@ -164,8 +164,8 @@ int handle_alert(Event_T E) {
 
         NEW(tmp);
         copy_mail(tmp, m);
-        substitute(&tmp, E);
-        replace_bare_linefeed(&tmp);
+        substitute(tmp, E);
+        escape(tmp);
         tmp->next= list;
         list= tmp;
 
@@ -190,30 +190,30 @@ int handle_alert(Event_T E) {
 }
 
 
-static void substitute(Mail_T *m, Event_T e) {
+static void substitute(Mail_T m, Event_T e) {
   char timestamp[STRLEN];
 
   ASSERT(m && e);
 
-  Util_replaceString(&(*m)->from,    "$HOST", Run.system->name);
-  Util_replaceString(&(*m)->subject, "$HOST", Run.system->name);
-  Util_replaceString(&(*m)->message, "$HOST", Run.system->name);
+  Util_replaceString(&m->from,    "$HOST", Run.system->name);
+  Util_replaceString(&m->subject, "$HOST", Run.system->name);
+  Util_replaceString(&m->message, "$HOST", Run.system->name);
 
   Time_string(e->collected.tv_sec, timestamp);
-  Util_replaceString(&(*m)->subject, "$DATE", timestamp);
-  Util_replaceString(&(*m)->message, "$DATE", timestamp);
+  Util_replaceString(&m->subject, "$DATE", timestamp);
+  Util_replaceString(&m->message, "$DATE", timestamp);
 
-  Util_replaceString(&(*m)->subject, "$SERVICE", Event_get_source_name(e));
-  Util_replaceString(&(*m)->message, "$SERVICE", Event_get_source_name(e));
+  Util_replaceString(&m->subject, "$SERVICE", Event_get_source_name(e));
+  Util_replaceString(&m->message, "$SERVICE", Event_get_source_name(e));
 
-  Util_replaceString(&(*m)->subject, "$EVENT", Event_get_description(e));
-  Util_replaceString(&(*m)->message, "$EVENT", Event_get_description(e));
+  Util_replaceString(&m->subject, "$EVENT", Event_get_description(e));
+  Util_replaceString(&m->message, "$EVENT", Event_get_description(e));
 
-  Util_replaceString(&(*m)->subject, "$DESCRIPTION", NVLSTR(Event_get_message(e)));
-  Util_replaceString(&(*m)->message, "$DESCRIPTION", NVLSTR(Event_get_message(e)));
+  Util_replaceString(&m->subject, "$DESCRIPTION", NVLSTR(Event_get_message(e)));
+  Util_replaceString(&m->message, "$DESCRIPTION", NVLSTR(Event_get_message(e)));
 
-  Util_replaceString(&(*m)->subject, "$ACTION", Event_get_action_description(e));
-  Util_replaceString(&(*m)->message, "$ACTION", Event_get_action_description(e));
+  Util_replaceString(&m->subject, "$ACTION", Event_get_action_description(e));
+  Util_replaceString(&m->message, "$ACTION", Event_get_action_description(e));
 }
 
 
@@ -248,7 +248,10 @@ static void copy_mail(Mail_T n, Mail_T o) {
 }
 
 
-static void replace_bare_linefeed(Mail_T *m) {
-  Util_replaceString(&(*m)->message, "\r\n", "\n");
-  Util_replaceString(&(*m)->message, "\n", "\r\n");
+static void escape(Mail_T m) {
+  // replace bare linefeed
+  Util_replaceString(&m->message, "\r\n", "\n");
+  Util_replaceString(&m->message, "\n", "\r\n");
+  // escape ^.
+  Util_replaceString(&m->message, "\n.", "\n..");
 }

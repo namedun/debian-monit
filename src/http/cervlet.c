@@ -90,9 +90,11 @@
 #define RUN         "/_runtime"
 #define VIEWLOG     "/_viewlog"
 #define DOACTION    "/_doaction"
+#define FAVICON     "/favicon.ico"
 
 /* Private prototypes */
 static int is_readonly(HttpRequest);
+static void printFavicon(HttpResponse);
 static void doGet(HttpRequest, HttpResponse);
 static void doPost(HttpRequest, HttpResponse);
 static void do_head(HttpResponse res, const char *path, const char *name, int refresh);
@@ -218,6 +220,8 @@ static void doGet(HttpRequest req, HttpResponse res) {
                 do_viewlog(req, res);
         } else if(ACTION(ABOUT)) {
                 do_about(req, res);
+        } else if(ACTION(FAVICON)) {
+                printFavicon(res);
         } else if(ACTION(PING)) {
                 do_ping(req, res);
         } else if(ACTION(GETID)) {
@@ -251,6 +255,26 @@ static void is_monit_running(HttpRequest req, HttpResponse res) {
 
         set_status(res, status);
 
+}
+
+
+static void printFavicon(HttpResponse res) {
+        static int l;
+        Socket_T S = res->S;
+        static unsigned char *favicon = NULL;
+
+        if (! favicon) {
+                favicon = CALLOC(sizeof(unsigned char), strlen(FAVICON_ICO));
+                l = decode_base64(favicon, FAVICON_ICO);
+        }
+        if (l) {
+                res->is_committed = TRUE;
+                socket_print(S, "HTTP/1.0 200 OK\r\n");
+                socket_print(S, "Content-length: %d\r\n", l);
+                socket_print(S, "Content-Type: image/x-icon\r\n");
+                socket_print(S, "Connection: close\r\n\r\n");
+                socket_write(S, favicon, l);
+        }
 }
 
 
@@ -315,7 +339,7 @@ static void do_foot(HttpResponse res) {
         StringBuffer_append(res->outputbuffer,
                 "</center></div></div>"
                 "<div id='footer'>"
-                "Copyright &copy; 2001-2012 <a href=\"http://tildeslash.com/\">Tildeslash</a>. All rights reserved. "
+                "Copyright &copy; 2001-2013 <a href=\"http://tildeslash.com/\">Tildeslash</a>. All rights reserved. "
                 "<span style='margin-left:5px;'></span>"
                 "<a href=\"http://mmonit.com/monit/\">Monit web site</a> | "
                 "<a href=\"http://mmonit.com/wiki/\">Monit Wiki</a> | "
@@ -361,7 +385,7 @@ static void do_about(HttpRequest req, HttpResponse res) {
                   "monit " VERSION "</a></center></h1>");
         StringBuffer_append(res->outputbuffer,
                   "<ul>"
-                  "<li style='padding-bottom:10px;'>Copyright &copy; 2001-2012 <a "
+                  "<li style='padding-bottom:10px;'>Copyright &copy; 2001-2013 <a "
                   "href='http://tildeslash.com/'>Tildeslash Ltd"
                   "</a>. All Rights Reserved.</li></ul>");
         StringBuffer_append(res->outputbuffer, "<hr size='1'>");

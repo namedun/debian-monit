@@ -385,8 +385,8 @@ char *Str_curtail(char *s, char *t) {
 int Str_lim(const char *s, int limit) {
         assert(limit>=0);
         if (s)
-                for (; *s; s++) limit--;
-        return (limit <= 0);
+                for (; (*s && limit--); s++) ;
+        return (limit < 0);
 }
 
 

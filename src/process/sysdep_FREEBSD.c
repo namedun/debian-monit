@@ -181,8 +181,10 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
       pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline))); 
     }
     StringBuffer_free(&cmdline);
-    if (! pt[i].cmdline || ! *pt[i].cmdline)
+    if (! pt[i].cmdline || ! *pt[i].cmdline) {
+      FREE(pt[i].cmdline);
       pt[i].cmdline = Str_dup(procname);
+    }
   }
 
   *reference = pt;

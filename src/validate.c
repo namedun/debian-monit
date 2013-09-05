@@ -195,8 +195,12 @@ int check_process(Service_T s) {
         } else
                 Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "process is running with pid %d", (int)pid);
 
+        /* Reset the exec and timeout errors if active ... the process is running (most probably after manual intervention) */
         if (IS_EVENT_SET(s->error, Event_Exec))
                 Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "process is running after previous exec error (slow starting or manually recovered?)");
+        if (IS_EVENT_SET(s->error, Event_Timeout))
+                for (ActionRate_T ar = s->actionratelist; ar; ar = ar->next)
+                        Event_post(s, Event_Timeout, STATE_SUCCEEDED, ar->action, "process is running after previous restart timeout (manually recovered?)");
 
         if (Run.doprocess) {
                 if (update_process_data(s, ptree, ptreesize, pid)) {
@@ -895,6 +899,11 @@ static void check_checksum(Service_T s) {
 
                 Event_post(s, Event_Data, STATE_SUCCEEDED, s->action_DATA, "checksum computed for %s", s->path);
 
+                if (! cs->initialized) {
+                        cs->initialized = TRUE;
+                        snprintf(cs->hash, sizeof(cs->hash), "%s", s->inf->priv.file.cs_sum);
+                }
+
                 switch(cs->type) {
                         case HASH_MD5:
                                 changed = strncmp(cs->hash, s->inf->priv.file.cs_sum, 32);
@@ -910,20 +919,15 @@ static void check_checksum(Service_T s) {
 
                 if (changed) {
 
-                        /* if we are testing for changes only, the value is variable */
                         if (cs->test_changes) {
-                                if (!cs->test_changes_ok)
-                                /* the checksum was not initialized during monit start, so set the checksum now and allow further checksum change testing */
-                                        cs->test_changes_ok = TRUE;
-                                else
-                                        Event_post(s, Event_Checksum, STATE_CHANGED, cs->action, "checksum was changed for %s", s->path);
-
+                                /* if we are testing for changes only, the value is variable */
+                                Event_post(s, Event_Checksum, STATE_CHANGED, cs->action, "checksum was changed for %s", s->path);
                                 /* reset expected value for next cycle */
                                 snprintf(cs->hash, sizeof(cs->hash), "%s", s->inf->priv.file.cs_sum);
-
-                        } else
-                        /* we are testing constant value for failed or succeeded state */
+                        } else {
+                                /* we are testing constant value for failed or succeeded state */
                                 Event_post(s, Event_Checksum, STATE_FAILED, cs->action, "checksum test failed for %s", s->path);
+                        }
 
                 } else if (cs->test_changes) {
 
@@ -1045,10 +1049,10 @@ static void check_size(Service_T s) {
 
                 /* if we are testing for changes only, the value is variable */
                 if (sl->test_changes) {
-                        if (!sl->test_changes_ok) {
+                        if (!sl->initialized) {
                                 /* the size was not initialized during monit start, so set the size now
                                  * and allow further size change testing */
-                                sl->test_changes_ok = TRUE;
+                                sl->initialized = TRUE;
                                 sl->size = s->inf->priv.file.st_size;
                         } else {
                                 if (sl->size != s->inf->priv.file.st_size) {

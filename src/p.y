@@ -674,7 +674,9 @@ httpdoption     : ssl
                 | allow
                 ;
 
-ssl             : ssldisable { Run.httpdssl = FALSE; }
+ssl             : ssldisable optssllist {
+                    Run.httpdssl = FALSE;
+                  }
                 | sslenable optssllist {
                     Run.httpdssl = TRUE;                   
                     if (! have_ssl())
@@ -695,16 +697,12 @@ optssl          : pemfile
                 | allowselfcert
                 ;
 
-sslenable       : HTTPDSSL
-                | HTTPDSSL ENABLE
+sslenable       : HTTPDSSL ENABLE
                 | ENABLE HTTPDSSL
                 ;
 
 ssldisable      : HTTPDSSL DISABLE
                 | DISABLE HTTPDSSL
-                | ssldisable PEMFILE PATH { FREE($3); }
-                | ssldisable CLIENTPEMFILE PATH { FREE($3); }
-                | ssldisable ALLOWSELFCERTIFICATION
                 ;
 
 signature       : sigenable  { Run.httpdsig = TRUE; }
@@ -1266,13 +1264,13 @@ retry           : /* EMPTY */ {
 actionrate      : IF NUMBER RESTART NUMBER CYCLE THEN action1 {
                    actionrateset.count = $2;
                    actionrateset.cycle = $4;
-                   addeventaction(&(actionrateset).action, $<number>7, ACTION_IGNORE);
+                   addeventaction(&(actionrateset).action, $<number>7, ACTION_ALERT);
                    addactionrate(&actionrateset);
                  }
                 | IF NUMBER RESTART NUMBER CYCLE THEN TIMEOUT {
                    actionrateset.count = $2;
                    actionrateset.cycle = $4;
-                   addeventaction(&(actionrateset).action, ACTION_UNMONITOR, ACTION_IGNORE);
+                   addeventaction(&(actionrateset).action, ACTION_UNMONITOR, ACTION_ALERT);
                    addactionrate(&actionrateset);
                  }
                 ;
@@ -2348,8 +2346,8 @@ static void addsize(Size_T ss) {
   s->test_changes = ss->test_changes;
   /* Get the initial size for future comparision, if the file exists */
   if (s->test_changes) {
-    s->test_changes_ok = !stat(current->path, &buf);
-    if (s->test_changes_ok)
+    s->initialized = ! stat(current->path, &buf);
+    if (s->initialized)
       s->size = (unsigned long long)buf.st_size;
   }
 
@@ -2390,21 +2388,16 @@ static void addchecksum(Checksum_T cs) {
 
   ASSERT(cs);
 
-  cs->test_changes_ok = TRUE;
+  cs->initialized = TRUE;
 
   if (! *cs->hash) {
     if (cs->type == HASH_UNKNOWN)
       cs->type = DEFAULT_HASH;
     if ( !(Util_getChecksum(current->path, cs->type, cs->hash, sizeof(cs->hash)))) {
-      if (cs->test_changes == TRUE) {
-        /* If the file doesn't exist and we're checking for checksum changes, set dummy value */
-        cs->test_changes_ok = FALSE;
-        snprintf(cs->hash, sizeof(cs->hash), "00000000000000000000000000000000");
-      } else {
-        yyerror2("cannot compute a checksum for file %s", current->path);
-        reset_checksumset();
-        return;
-      }
+      /* If the file doesn't exist, set dummy value */
+      snprintf(cs->hash, sizeof(cs->hash), "00000000000000000000000000000000");
+      cs->initialized = FALSE;
+      yywarning2("cannot compute a checksum for file %s", current->path);
     }
   }
 
@@ -2416,7 +2409,7 @@ static void addchecksum(Checksum_T cs) {
     } else if (len == 40) {
       cs->type = HASH_SHA1;
     } else {
-      yyerror2("invalid checksum [%s] for file %s", cs->hash, current->path);
+      yyerror2("unknown checksum type [%s] for file %s", cs->hash, current->path);
       reset_checksumset();
       return;
     }
@@ -2428,10 +2421,10 @@ static void addchecksum(Checksum_T cs) {
 
   NEW(c);
 
-  c->type            = cs->type;
-  c->test_changes    = cs->test_changes;
-  c->test_changes_ok = cs->test_changes_ok;
-  c->action          = cs->action;
+  c->type         = cs->type;
+  c->test_changes = cs->test_changes;
+  c->initialized  = cs->initialized;
+  c->action       = cs->action;
   snprintf(c->hash, sizeof(c->hash), "%s", cs->hash);
 
   current->checksum = c;
