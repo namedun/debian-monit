@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.5.1], [monit-general@nongnu.org])
+AC_INIT([monit], [5.6], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -120,6 +120,7 @@ AC_CHECK_HEADERS([ \
 	kvm.h \
 	paths.h \
 	kstat.h \
+	zone.h \
 	sys/protosw.h \
 	limits.h \
 	loadavg.h \
@@ -788,14 +789,12 @@ then
         )
         if test -z "$ssllibdir"; then
             AC_MSG_RESULT([Not found])
-            echo
-            echo "Couldn't find your SSL library files."
-            echo "Use --with-ssl-lib-dir option to fix this problem or disable the"
-            echo "SSL support with --without-ssl"
-            echo
-            exit 1
+            dnl Let the compiler find the library using default paths
+            AC_CHECK_LIB([ssl], [SSL_library_init], [], [AC_MSG_ERROR([Could not find SSL library, please use --with-ssl-lib-dir option or disabled the SSL support using --without-ssl])])
+            AC_CHECK_LIB([crypto],[CRYPTO_new_ex_data], [], [AC_MSG_ERROR([Could not find SSL library, please use --with-ssl-lib-dir option or disabled the SSL support using --without-ssl])])
+        else
+            AC_MSG_RESULT([$ssllibdir])
         fi
-        AC_MSG_RESULT([$ssllibdir])
 
         AC_DEFINE([HAVE_OPENSSL], 1, [Define to 1 if you have openssl.])
         AC_SUBST(sslincldir)

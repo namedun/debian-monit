@@ -137,8 +137,6 @@ static void document_foot(StringBuffer_T B) {
  * @param V Format version
  */
 static void status_service(Service_T S, StringBuffer_T B, short L, int V) {
-        Event_T E = S->eventlist;
-
         if (V == 2)
                 StringBuffer_append(B, "<service name=\"%s\"><type>%d</type>", S->name ? S->name : "", S->type);
         else
@@ -163,18 +161,10 @@ static void status_service(Service_T S, StringBuffer_T B, short L, int V) {
                 if (S->every.type == 1)
                         StringBuffer_append(B, "<counter>%d</counter><number>%d</number>", S->every.spec.cycle.counter, S->every.spec.cycle.number);
                 else
-                        StringBuffer_append(B, "<cron><![CDATA[%s]]></cron>", S->every.spec.cron);
+                        StringBuffer_append(B, "<cron>%s</cron>", S->every.spec.cron);
                 StringBuffer_append(B, "</every>");
         }
 
-        /* if the service is in error state, display first active error message to provide more details */
-        while (E) {
-                if ((E->state == STATE_FAILED || E->state == STATE_CHANGED) && (S->error & E->id) && E->message) {
-                        StringBuffer_append(B, "<status_message><![CDATA[%s]]></status_message>", E->message);
-                        break;
-                }
-                E = E->next;
-        }
         if (L == LEVEL_FULL) {
                 if (Util_hasServiceStatus(S)) {
                         if (S->type == TYPE_FILE || S->type == TYPE_DIRECTORY || S->type == TYPE_FIFO || S->type == TYPE_FILESYSTEM)
@@ -364,15 +354,23 @@ static void status_event(Event_T E, StringBuffer_T B) {
                 "<id>%ld</id>"
                 "<state>%d</state>"
                 "<action>%d</action>"
-                "<message><![CDATA[%s]]></message>",
+                "<message><![CDATA[",
                 tv->tv_sec,
                 (long)tv->tv_usec,
                 Event_get_id(E) == Event_Instance ? "Monit" : Event_get_source_name(E),
                 Event_get_source_type(E),
                 Event_get_id(E),
                 Event_get_state(E),
-                Event_get_action(E),
-                Event_get_message(E));
+                Event_get_action(E));
+        // Escape the CDATA "]]>" stop sequence in string
+        const char *msg = Event_get_message(E);
+        for (int i = 0; msg[i]; i++) {
+                if (msg[i] == '>' && i > 1 && (msg[i - 1] == ']' && msg[i - 2] == ']'))
+                        StringBuffer_append(B, "&gt;");
+                else
+                        StringBuffer_append(B, "%c", msg[i]);
+        }
+        StringBuffer_append(B, "]]></message>");
         Service_T s = Event_get_source(E);
         if (s && s->token)
                 StringBuffer_append(B, "<token>%s</token>", s->token);

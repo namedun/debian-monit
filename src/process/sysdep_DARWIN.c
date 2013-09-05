@@ -217,8 +217,10 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
         pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
       StringBuffer_free(&cmdline);
     }
-    if (! pt[i].cmdline || ! *pt[i].cmdline)
+    if (! pt[i].cmdline || ! *pt[i].cmdline) {
+      FREE(pt[i].cmdline);
       pt[i].cmdline = Str_dup(pinfo[i].kp_proc.p_comm);
+    }
 
     if (pinfo[i].kp_proc.p_stat == SZOMB)
       pt[i].status_flag |= PROCESS_ZOMBIE;

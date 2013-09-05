@@ -92,6 +92,10 @@
 #include <sys/sysinfo.h>
 #endif
 
+#ifdef HAVE_ZONE_H
+#include <zone.h>
+#endif
+
 #include "monit.h"
 #include "process.h"
 #include "process_sysdep.h"
@@ -204,8 +208,10 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
     pt[i].mem_kbyte = psinfo->pr_rssize;
 
     pt[i].cmdline  = Str_dup(psinfo->pr_psargs);
-    if (! pt[i].cmdline || ! *pt[i].cmdline)
+    if (! pt[i].cmdline || ! *pt[i].cmdline) {
+      FREE(pt[i].cmdline);
       pt[i].cmdline = Str_dup(psinfo->pr_fname);
+    }
 
     if (! read_proc_file(buf, sizeof(buf), "status", pt[i].pid, NULL)) {
       pt[i].cputime     = 0;
@@ -253,15 +259,27 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
 
   /* Memory */
   kctl  = kstat_open();
-  kstat = kstat_lookup(kctl, "unix", 0, "system_pages");
-  if (kstat_read(kctl, kstat, 0) == -1) {
-    LogError("system statistic error -- memory usage gathering failed\n");
-    kstat_close(kctl);
-    return FALSE;
+  if (getzoneid() != GLOBAL_ZONEID && (kstat = kstat_lookup(kctl, "memory_cap", -1, NULL))) {
+    /* Joyent SmartOS zone: reports wrong unix::system_pages:freemem in the zone - shows global zone freemem, witch to SmartOS specific memory_cap kstat */
+    if (kstat_read(kctl, kstat, NULL) == -1) {
+      LogError("system statistic error -- memory_cap usage gathering failed\n");
+      kstat_close(kctl);
+      return FALSE;
+    }
+    kstat_named_t *rss;
+    if ((rss = (kstat_named_t *)kstat_data_lookup(kstat, "rss")))
+      si->total_mem_kbyte = rss->value.i64 / 1024;
+  } else {
+    kstat = kstat_lookup(kctl, "unix", 0, "system_pages");
+    if (kstat_read(kctl, kstat, 0) == -1) {
+      LogError("system statistic error -- memory usage gathering failed\n");
+      kstat_close(kctl);
+      return FALSE;
+    }
+    knamed = kstat_data_lookup(kstat, "freemem");
+    if (knamed)
+      si->total_mem_kbyte = systeminfo.mem_kbyte_max - pagetok(knamed->value.ul);
   }
-  knamed = kstat_data_lookup(kstat, "freemem");
-  if (knamed)
-    si->total_mem_kbyte = systeminfo.mem_kbyte_max-pagetok(knamed->value.ul);
   kstat_close(kctl);
 
  /* Swap */

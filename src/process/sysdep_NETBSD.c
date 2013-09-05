@@ -169,6 +169,8 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
   pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
   if (! (kvm_handle = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, buf))) {
+    FREE(pinfo);
+    FREE(pt);
     LogError("system statistic error -- kvm_openfiles failed: %s", buf);
     return FALSE;
   }
@@ -191,8 +193,10 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
       pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
       StringBuffer_free(&cmdline);
     }
-    if (! pt[i].cmdline || ! *pt[i].cmdline)
+    if (! pt[i].cmdline || ! *pt[i].cmdline) {
+      FREE(pt[i].cmdline);
       pt[i].cmdline = Str_dup(pinfo[i].p_comm);
+    }
   }
   FREE(pinfo);
   kvm_close(kvm_handle);

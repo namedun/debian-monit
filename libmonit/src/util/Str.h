@@ -370,11 +370,11 @@ char *Str_curtail(char *s, char *t);
 
 
 /**
- * Returns true if the string <code>s</code> has length equal to or 
- * larger than <code>limit</code>, otherwise false.
+ * Returns true if the string <code>s</code> has length greater than
+ * <code>limit</code>, otherwise false.
  * @param s String to test
  * @param limit The limit in bytes to test s against
- * @return true if <code>s.length >= limit</code> otherwise false
+ * @return true if <code>s.length > limit</code> otherwise false
  * @exception AssertException if limit is less than 0
  */
 int Str_lim(const char *s, int limit);

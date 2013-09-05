@@ -901,8 +901,9 @@ The port statement allows one to use SMTP servers other then those
 listening on port 25. If omitted, port 25 is used unless ssl or
 tls is used, in which case port 465 is used by default.
 
-Monit support plain smtp authentication - you can set a username
-and a password using the USERNAME and PASSWORD options.
+Monit supports AUTH PLAIN and AUTH LOGIN for SMTP authentication.
+You can set a username and a password using the USERNAME and
+PASSWORD options.
 
 To use secure communication, use the SSLV2, SSLV3 or TLSV1
 options, you can also specify the server certificate checksum
