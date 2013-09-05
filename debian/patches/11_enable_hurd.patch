@@ -22,7 +22,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
 
 --- a/configure
 +++ b/configure
-@@ -13663,7 +13663,11 @@
+@@ -13664,7 +13664,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -37,7 +37,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -509,6 +509,11 @@
+@@ -510,6 +510,11 @@
     # AIX v. 5.3
     LIBS="$LIBS -lperfstat"	
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
@@ -112,7 +112,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
  
 --- a/src/validate.c
 +++ b/src/validate.c
-@@ -227,7 +227,11 @@
+@@ -231,7 +231,11 @@
   */
  int check_filesystem(Service_T s) {
          char *p;
@@ -124,7 +124,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
          Filesystem_T td;
          struct stat stat_buf;
  
-@@ -241,7 +245,8 @@
+@@ -245,7 +249,8 @@
                  return FALSE;
          }
          if (S_ISLNK(stat_buf.st_mode)) {
@@ -134,7 +134,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
                          Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem symbolic link error -- %s", STRERROR);
                          return FALSE;
                  }
-@@ -262,6 +267,9 @@
+@@ -266,6 +271,9 @@
                  Event_post(s, Event_Data, STATE_FAILED, s->action_DATA, "unable to read filesystem %s state", p);
                  return FALSE;
          }

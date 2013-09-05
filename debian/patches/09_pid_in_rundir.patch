@@ -11,7 +11,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
 
 --- a/configure
 +++ b/configure
-@@ -13541,7 +13541,10 @@
+@@ -13542,7 +13542,10 @@
  # Find the right directory to put the root-mode PID file in
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking pid file location" >&5
  $as_echo_n "checking pid file location... " >&6; }
@@ -25,7 +25,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
  elif test -d "/etc"
 --- a/configure.ac
 +++ b/configure.ac
-@@ -403,9 +403,11 @@
+@@ -404,9 +404,11 @@
  
  # Find the right directory to put the root-mode PID file in
  AC_MSG_CHECKING([pid file location])

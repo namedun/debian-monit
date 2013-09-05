@@ -4,13 +4,13 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: yes, accepted
 
 ---
- configure    |    4 ++--
- configure.ac |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ configure    |    3 +--
+ configure.ac |    3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
 --- a/configure
 +++ b/configure
-@@ -14291,8 +14291,7 @@
+@@ -14292,8 +14292,7 @@
                                     $maindir/lib64/openssl \
                                     $maindir/lib64/ssl \
                                     $maindir/ssl/lib64 \
@@ -22,7 +22,7 @@ Forwarded: yes, accepted
                      done
 --- a/configure.ac
 +++ b/configure.ac
-@@ -780,8 +780,7 @@
+@@ -781,8 +781,7 @@
                                     $maindir/lib64/openssl \
                                     $maindir/lib64/ssl \
                                     $maindir/ssl/lib64 \
