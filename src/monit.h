@@ -617,7 +617,7 @@ typedef struct mysize {
         int  operator;                                    /**< Comparison operator */
         unsigned long long size;                               /**< Size watermark */
         int  test_changes;            /**< TRUE if we only should test for changes */
-        int  test_changes_ok;   /**< TRUE if size was initialized for changes test */
+        int  initialized;                        /**< TRUE if size was initialized */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -642,7 +642,7 @@ typedef struct mychecksum {
         int   type;                       /**< The type of hash (e.g. md5 or sha1) */
         int   length;                                      /**< Length of the hash */
         int   test_changes;           /**< TRUE if we only should test for changes */
-        int   test_changes_ok; /**< TRUE if cksum was initialized for changes test */
+        int   initialized;                   /**< TRUE if checksum was initialized */
         EventAction_T action;  /**< Description of the action upon event occurence */
 } *Checksum_T;
 

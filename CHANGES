@@ -1,10 +1,43 @@
-                     CHANGES version 5.5.1
+                     CHANGES version 5.6
                                 
            This file summarizes changes made since 5.0
                                 
        Bug fixes may refer to an auto-generated id in our
           bug-tracking system, which can be found here
           https://savannah.nongnu.org/bugs/?group=monit
+
+
+Version 5.6
+
+IMPROVEMENTS:
+
+* SMTP AUTH LOGIN support added (MS Exchange SMTP authentication
+  should now work).
+
+* favicon.ico added to the HTTP interface.
+
+BUGFIXES:
+
+* If an undefined checksum test was used and the file did not exist
+  on Monit start, Monit would return an error.
+
+* If the configuration file ended with a comment but with no trailing LF
+  character, Monit would return syntax error.
+
+* If a service timed out after too many restarts and alert was used as
+  the action, then the Timeout flag remained set even if the service
+  recovered.
+
+* SmartOS zone system memory usage report fix.
+
+* Escape mail messages properly for sending via SMTP.
+
+* Escape XML messages properly.
+
+* Compilation: fix the configure script to support default compiler 
+  paths when searching for OpenSSL (fixes library search on multi-
+  architecture  platforms like Debian and Ubuntu).
+
 
 
 Version 5.5.1
@@ -52,7 +85,7 @@ IMPROVEMENTS:
 
 * Increase the default mailserver timeout to 30 seconds.
 
-* Add support for OpenBSD 5.1.
+* Add support for OpenBSD 5.x
 
 BUGFIXES:
 

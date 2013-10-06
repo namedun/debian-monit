@@ -118,7 +118,7 @@ gigabyte    ("gigabyte"|"gb")
 %%
 
 {wws}             { /* Wide white space */ }
-(#.*)?\\?\n       { lineno++; } 
+(#.*)?\\?\n?      { lineno++; } 
 
 is                {/* EMPTY */}
 as                {/* EMPTY */}
@@ -396,10 +396,6 @@ group[ \t]+       {
 		    yylval.url= 
 		      create_URL(Str_ndup(yytext, strlen(yytext)-3));
                     BEGIN(URL_COND);
-                  }
-[0-9]{2}":"[0-9]{2}":"[0-9]{2} {
-                    yylval.string= Str_dup(yytext);
-                    save_arg(); return TIMESPEC;
                   }
 
 {number}          {

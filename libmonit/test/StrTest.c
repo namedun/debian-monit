@@ -333,18 +333,17 @@ int main(void) {
         printf("=> Test18: lim\n");
         {
                 char *zero = "";
-                char *one = "1";
+                char *two = "12";
                 char *ten = "1234567890";
-                assert(Str_lim(zero, 0));
+                assert(! Str_lim(zero, 0));
                 assert(!Str_lim(zero, 1));
-                assert(Str_lim(one, 0));
-                assert(Str_lim(one, 1));
-                assert(!Str_lim(one, 2));
+                assert(Str_lim(two, 0));
+                assert(Str_lim(two, 1));
+                assert(!Str_lim(two, 2));
                 assert(Str_lim(ten, 0));
                 assert(Str_lim(ten, 5));
                 assert(Str_lim(ten, 9));
-                assert(Str_lim(ten, 10));
-                assert(! Str_lim(ten, 11));
+                assert(!Str_lim(ten, 10));
                 assert(! Str_lim(ten, 100));
         }
         printf("=> Test18: OK\n\n");

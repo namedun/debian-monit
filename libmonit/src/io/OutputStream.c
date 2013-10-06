@@ -304,7 +304,7 @@ static void cvt_f(T S, int code, va_list_box *box, unsigned char flags[], int wi
                 fmt[4] = code;
                 fmt[3] = precision%10 + '0';
                 fmt[2] = (precision/10)%10 + '0';
-                sprintf(buf, fmt, va_arg(box->ap, double));
+                snprintf(buf, sizeof(buf), fmt, va_arg(box->ap, double));
         }
         putd(S, buf, (int)strlen(buf), flags, width, precision);
 }

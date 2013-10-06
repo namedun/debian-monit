@@ -660,10 +660,9 @@ if any, to sign a "copyright disclaimer" for the program, if necessary.
 For more information on this, and how to apply and follow the GNU AGPL, see
 <http://www.gnu.org/licenses/>.
 
-
                         License Exception
 
-In addition, as special exceptions, The copyright holders give permission
+In addition, as a special exception, The copyright holders give permission
 to link the code of portions of this program with the OpenSSL library under
 certain conditions as described in each individual source file, and
 distribute linked combinations including the two.
