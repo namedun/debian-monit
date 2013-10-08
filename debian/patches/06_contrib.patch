@@ -4,21 +4,12 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: not-needed
 
 ---
- contrib/monit.service |   12 ++++++------
- contrib/monit.upstart |    6 +++---
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ contrib/monit.service |    6 +++---
+ contrib/monit.upstart |    4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
 --- a/contrib/monit.upstart
 +++ b/contrib/monit.upstart
-@@ -12,7 +12,7 @@
- #   initctl reload-configuration
- #
- # You can manually start and stop monit like this:
--# 
-+#
- # start monit
- # stop monit
- #
 @@ -27,7 +27,7 @@
  expect daemon
  respawn
@@ -31,21 +22,6 @@ Forwarded: not-needed
  
 --- a/contrib/monit.service
 +++ b/contrib/monit.service
-@@ -1,11 +1,11 @@
- # This file is a systemd template for the monit service. To
--# register monit with systemd, place this file in 
-+# register monit with systemd, place this file in
- # /lib/systemd/system/ and start monit using systemctl:
- #
--# Enable monit to start on boot: 
-+# Enable monit to start on boot:
- #         systemctl enable monit.service
- #
--# Start monit immediately: 
-+# Start monit immediately:
- #         systemctl start monit.service
- #
- # Stop monit:
 @@ -20,9 +20,9 @@
  
  [Service]
