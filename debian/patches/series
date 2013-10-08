@@ -1,5 +1,5 @@
 05_monitrc.patch
 06_contrib.patch
 09_pid_in_rundir.patch
-10_ssl_multiarch.patch
+#10_ssl_multiarch.patch
 11_enable_hurd.patch
