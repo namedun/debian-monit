@@ -24,6 +24,23 @@ and alternative/optional snippets to:
 /etc/monit/monitrc.d/<package>-<somename>
 
 
+Monitoring of deb packages
+--------------------------
+
+If you monitor debian packages, you should consider adding the
+following snippet to your /etc/apt/apt.conf.d/50monit configuration to
+stop monit during a apt upgrade and start it again once apt
+finishes. This avoid spurious monit restarts/alerts of services that
+are stoped/started as part of their debian package postinst.
+
+ --8<--
+  DPkg::Pre-Invoke { "[ -x /usr/bin/monit ] && /etc/init.d/monit stop" };
+  DPkg::Post-Invoke { "[ -x /usr/bin/monit ] && /etc/init.d/monit start" };
+ --8<--
+
+See also man 5 apt.conf.
+
+
 Startup delay
 -------------
 
