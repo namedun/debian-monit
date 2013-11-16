@@ -1,7 +1,10 @@
-monit (1:5.6-2) UNRELEASED; urgency=low
+monit (1:5.6-2) unstable; urgency=low
 
-  * disable ssl patch for now
-  * reformat
+  * disable ssl patch for now & reformat patches/series
+  * Refresh 06_contrib.patch
+  * Document apt's configuration to enable monit's restart while
+    upgrade (Closes: #726658).  Thanks to Michael Vogt.
+  * Fix lintian error: vcs-field-not-canonical
 
  -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 08 Oct 2013 15:47:02 +0400
 
