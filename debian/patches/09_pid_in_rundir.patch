@@ -47,7 +47,7 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00002.html
  .PP
 +\&\fI/run/monit.pid\fR
 +   Lock file to help prevent concurrent runs (root mode,
-+   Linux systems).
++   Linux systems, if /run directory is available).
 +.PP
  \&\fI/var/run/monit.pid\fR
     Lock file to help prevent concurrent runs (root mode,
