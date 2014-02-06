@@ -1,37 +1,62 @@
-Description: Fix binary path in monit.upstart and
-  monit.service examples.
+Description: Fix config file path in monit.upstart.in and
+  monit.service.in examples.
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
-Forwarded: not-needed
+Forwarded: no
 
 ---
- contrib/monit.service |    6 +++---
- contrib/monit.upstart |    4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ contrib/monit.service.in |   13 ++++++-------
+ contrib/monit.upstart.in |    7 +++----
+ 2 files changed, 9 insertions(+), 11 deletions(-)
 
---- a/contrib/monit.upstart
-+++ b/contrib/monit.upstart
-@@ -27,7 +27,7 @@
- expect daemon
- respawn
- 
--exec /usr/local/bin/monit -c /etc/monitrc
-+exec /usr/bin/monit -c /etc/monit/monitrc
- 
--pre-stop exec /usr/local/bin/monit -c /etc/monitrc quit
-+pre-stop exec /usr/bin/monit -c /etc/monit/monitrc quit
- 
---- a/contrib/monit.service
-+++ b/contrib/monit.service
-@@ -20,9 +20,9 @@
+--- a/contrib/monit.service.in
++++ b/contrib/monit.service.in
+@@ -1,11 +1,11 @@
+ # This file is a systemd template for the monit service. To
+-# register monit with systemd, place this file in 
++# register monit with systemd, place this file in
+ # /lib/systemd/system/ and start monit using systemctl:
+ #
+-# Enable monit to start on boot: 
++# Enable monit to start on boot:
+ #         systemctl enable monit.service
+ #
+-# Start monit immediately: 
++# Start monit immediately:
+ #         systemctl start monit.service
+ #
+ # Stop monit:
+@@ -20,10 +20,9 @@
  
  [Service]
  Type=simple
--ExecStart=/usr/local/bin/monit -I
--ExecStop=/usr/local/bin/monit quit
--ExecReload=/usr/local/bin/monit reload
-+ExecStart=/usr/bin/monit -I
-+ExecStop=/usr/bin/monit quit
-+ExecReload=/usr/bin/monit reload
+-ExecStart=@prefix@/bin/monit -I
+-ExecStop=@prefix@/bin/monit quit
+-ExecReload=@prefix@/bin/monit reload
++ExecStart=@prefix@/bin/monit -I -c @sysconfdir@/monitrc
++ExecStop=@prefix@/bin/monit -c @sysconfdir@/monitrc quit
++ExecReload=@prefix@/bin/monit -c @sysconfdir@/monitrc reload
  
  [Install]
  WantedBy=multi-user.target
+-
+--- a/contrib/monit.upstart.in
++++ b/contrib/monit.upstart.in
+@@ -12,7 +12,7 @@
+ #   initctl reload-configuration
+ #
+ # You can manually start and stop monit like this:
+-# 
++#
+ # start monit
+ # stop monit
+ #
+@@ -27,7 +27,6 @@
+ expect daemon
+ respawn
+ 
+-exec @prefix@/bin/monit -c /etc/monitrc
+-
+-pre-stop exec @prefix@/bin/monit -c /etc/monitrc quit
++exec @prefix@/bin/monit -c @sysconfdir@/monitrc
+ 
++pre-stop exec @prefix@/bin/monit -c @sysconfdir@/monitrc quit
