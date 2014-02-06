@@ -17,8 +17,8 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
  libmonit/test/FileTest.c  |   10 +
  src/device/sysdep_HURD.c  |  135 +++++++++++++
  src/process/sysdep_HURD.c |  456 ++++++++++++++++++++++++++++++++++++++++++++++
- src/validate.c            |   10 -
- 8 files changed, 628 insertions(+), 2 deletions(-)
+ src/validate.c            |    9 
+ 8 files changed, 626 insertions(+), 3 deletions(-)
 
 --- a/configure
 +++ b/configure
@@ -112,38 +112,49 @@ Forwarded: http://lists.nongnu.org/archive/html/monit-dev/2012-12/msg00004.html
  
 --- a/src/validate.c
 +++ b/src/validate.c
-@@ -231,7 +231,11 @@
+@@ -231,7 +231,7 @@
   */
  int check_filesystem(Service_T s) {
          char *p;
-+#ifdef PATH_MAX
-         char path_buf[PATH_MAX+1];
-+#else
+-        char path_buf[PATH_MAX+1];
 +        char *path_buf = NULL;
-+#endif
          Filesystem_T td;
          struct stat stat_buf;
  
-@@ -245,7 +249,8 @@
+@@ -245,7 +245,8 @@
                  return FALSE;
          }
          if (S_ISLNK(stat_buf.st_mode)) {
 -                if (! realpath(s->path, path_buf)) {
-+                p = realpath(s->path, path_buf);
++                path_buf = realpath(s->path, path_buf);
 +                if (! p) {
                          Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem symbolic link error -- %s", STRERROR);
                          return FALSE;
                  }
-@@ -266,6 +271,9 @@
+@@ -253,6 +254,7 @@
+                 Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "filesystem symbolic link %s -> %s", s->path, p);
+                 if (stat(p, &stat_buf) != 0) {
+                         Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem doesn't exist");
++                        free(path_buf);
+                         return FALSE;
+                 }
+         }
+@@ -266,12 +268,15 @@
                  Event_post(s, Event_Data, STATE_FAILED, s->action_DATA, "unable to read filesystem %s state", p);
                  return FALSE;
          }
-+#ifndef PATH_MAX
-+        free(path_buf);
-+#endif
++
          s->inf->priv.filesystem.inode_percent = s->inf->priv.filesystem.f_files > 0 ? (int)((1000.0 * (s->inf->priv.filesystem.f_files - s->inf->priv.filesystem.f_filesfree)) / (float)s->inf->priv.filesystem.f_files) : 0;
          s->inf->priv.filesystem.space_percent = s->inf->priv.filesystem.f_blocks > 0 ? (int)((1000.0 * (s->inf->priv.filesystem.f_blocks - s->inf->priv.filesystem.f_blocksfree)) / (float)s->inf->priv.filesystem.f_blocks) : 0;
          s->inf->priv.filesystem.inode_total   = s->inf->priv.filesystem.f_files - s->inf->priv.filesystem.f_filesfree;
+         s->inf->priv.filesystem.space_total   = s->inf->priv.filesystem.f_blocks - s->inf->priv.filesystem.f_blocksfreetotal;
+         Event_post(s, Event_Data, STATE_SUCCEEDED, s->action_DATA, "succeeded getting filesystem statistic for %s", p);
+ 
++        free(path_buf);
++
+         if (s->perm)
+                 check_perm(s);
+ 
 --- /dev/null
 +++ b/src/device/sysdep_HURD.c
 @@ -0,0 +1,135 @@
