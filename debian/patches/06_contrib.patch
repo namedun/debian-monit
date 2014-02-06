@@ -1,7 +1,7 @@
 Description: Fix config file path in monit.upstart.in and
   monit.service.in examples.
 Author: Sergey B Kirpichev <skirpichev@gmail.com>
-Forwarded: no
+Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/4
 
 ---
  contrib/monit.service.in |   13 ++++++-------
