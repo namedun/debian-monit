@@ -7,9 +7,6 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		--sysconfdir=/etc/monit
 
-override_dh_installinit:
-	dh_installinit -- "start 99 2 3 4 5 . stop 01 0 1 6 ."
-
 override_dh_fixperms:
 	dh_fixperms
 	chmod 600 debian/monit/etc/monit/monitrc
