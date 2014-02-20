@@ -1,6 +1,16 @@
 Monit for Debian
 ================
 
+Contribution
+------------
+
+Monit upstream uses Canonical-like CLA, that permit them to relicense a
+contribution under a proprietary license and do propietary derivative works.
+That makes the current GPL license of the project to be a farce.
+
+Please consider contribiting patches to the Debian's monit package instead
+under any DFSG-compatible license.
+
 Configuration
 -------------
 
