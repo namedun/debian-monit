@@ -3,11 +3,8 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
  1. Enable building for GNU/Hurd in configure.ac
- 2. Fix MAX_PATH use cases, see:
-    http://www.gnu.org/software/hurd/hurd/porting/guidelines.html#PATH_MAX_tt_MAX_PATH_tt_MAXPATHL
- 3. Implement
-    src/device/sysdep_HURD.c
-    src/process/sysdep_HURD.c
+ 2. Fix MAX_PATH use cases
+ 3. Implement src/{device,process}/sysdep_HURD.c
 
 ---
  configure                 |    6 +++++-
