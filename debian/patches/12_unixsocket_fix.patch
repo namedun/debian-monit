@@ -1,0 +1,57 @@
+Description: Use type option while testing unix sockets
+Author: Sergey B Kirpichev <skirpichev@gmail.com>
+Bug-Debian: http://bugs.debian.org/739622
+Forwarded: not-needed, I don't want to sign your CLA
+
+---
+ src/net.c |    7 ++++---
+ src/net.h |    3 ++-
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+--- a/src/net.c
++++ b/src/net.c
+@@ -375,7 +375,7 @@
+ 
+   switch(p->family) {
+   case AF_UNIX:
+-      socket_fd= create_unix_socket(p->pathname, p->timeout);
++      socket_fd= create_unix_socket(p->pathname, p->type, p->timeout);
+       break;
+   case AF_INET:
+       socket_fd= create_socket(p->hostname, p->port, p->type, p->timeout);
+@@ -392,17 +392,18 @@
+ /**
+  * Create a non-blocking UNIX socket.
+  * @param pathname The pathname to use for the unix socket
++ * @param type Socket type to use (SOCK_STREAM|SOCK_DGRAM)
+  * @param timeout If not connected within timeout seconds abort and return -1
+  * @return The socket or -1 if an error occured.
+  */
+-int create_unix_socket(const char *pathname, int timeout) {
++int create_unix_socket(const char *pathname, int type, int timeout) {
+ 
+   int s;
+   struct sockaddr_un unixsocket;
+ 
+   ASSERT(pathname);
+ 
+-  if((s= socket(PF_UNIX, SOCK_STREAM, 0)) < 0) {
++  if((s= socket(PF_UNIX, p->type, 0)) < 0) {
+     LogError("%s: Cannot create socket -- %s\n", prog, STRERROR);
+     return -1;
+   }
+--- a/src/net.h
++++ b/src/net.h
+@@ -95,10 +95,11 @@
+ /**
+  * Create a non-blocking UNIX socket.
+  * @param pathname The pathname to use for the unix socket
++ * @param type Socket type to use (SOCK_STREAM|SOCK_DGRAM)
+  * @param timeout If not connected within timeout seconds abort and return -1
+  * @return The socket or -1 if an error occured.
+  */
+-int create_unix_socket(const char *pathname, int timeout);
++int create_unix_socket(const char *pathname, int type, int timeout);
+ 
+ 
+ /**
