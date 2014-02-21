@@ -40,9 +40,9 @@ typedef unsigned int md5_word_t; /* 32-bit word */
 
 /* Define the context of the MD5 Algorithm. */
 typedef struct md5_context_s {
-    md5_word_t count[2];	/* message length in bits, lsw first */
-    md5_word_t abcd[4];		/* digest buffer */
-    md5_byte_t buf[64];		/* accumulate block */
+    md5_word_t count[2]; /* message length in bits, lsw first */
+    md5_word_t abcd[4];  /* digest buffer */
+    md5_byte_t buf[64];  /* accumulate block */
 } md5_context_t;
 
 /* Initialize the algorithm. */

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -32,8 +32,8 @@
 
 /**
  * This class implements a <b>Socket</b>. A socket is an endpoint for
- * communication between two machines. 
- * 
+ * communication between two machines.
+ *
  * @file
  */
 
@@ -98,7 +98,7 @@ Socket_T socket_create_a(int socket, const char *remote_host, int port, void *ss
 
 /**
  * Destroy a Socket object. Close the socket and release allocated
- * resources. 
+ * resources.
  * @param S A Socket object reference
  */
 void socket_free(Socket_T *S);
@@ -107,7 +107,7 @@ void socket_free(Socket_T *S);
 /**
  * Returns TRUE if the socket is ready for i|o
  * @param S A Socket object
- * @return TRUE if the socket is ready otherwise FALSE 
+ * @return TRUE if the socket is ready otherwise FALSE
  */
 int socket_is_ready(Socket_T S);
 
@@ -179,8 +179,8 @@ const char *socket_get_local_host(Socket_T S);
 
 
 /**
- * Writes the given error message into the Socket's internal input buffer. 
- * This method is used to report errors and when no more reads will be 
+ * Writes the given error message into the Socket's internal input buffer.
+ * This method is used to report errors and when no more reads will be
  * attempted. Clients should use socket_getError() to retrieve the error message.
  * @param S A Socket_T object
  * @param error An error string to write to the socket's internal
@@ -269,9 +269,16 @@ void socket_reset(Socket_T S);
 /**
  * Shut down the writing side of the socket
  * @param S A Socket object
- * @return TRUE if the write side was shutdown otherwise FALSE 
+ * @return TRUE if the write side was shutdown otherwise FALSE
  */
 int socket_shutdown_write(Socket_T S);
 
+
+/**
+ * Set TCP_NODELAY option on socket
+ * @param S A Socket object
+ * @return true upon successful completion, otherwise false
+ */
+int socket_set_tcp_nodelay(Socket_T S);
 
 #endif

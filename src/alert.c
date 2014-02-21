@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -227,7 +227,7 @@ static void copy_mail(Mail_T n, Mail_T o) {
       Run.MailFormat.from?
       Str_dup(Run.MailFormat.from):
       Str_dup(ALERT_FROM);
-  n->replyto = 
+  n->replyto =
       o->replyto?
       Str_dup(o->replyto):
       Run.MailFormat.replyto?

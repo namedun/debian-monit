@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -92,7 +92,7 @@ int can_http() {
     if(! has_hosts_allow() && ! Run.credentials) {
 
       LogError("%s: monit httpd not started since no connect allowed\n",
-	  prog);
+          prog);
 
       return FALSE;
 

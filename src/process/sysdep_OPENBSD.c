@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -302,6 +302,6 @@ int used_system_cpu_sysdep(SystemInfo_T *si) {
   cpu_user_old = cp_time[CP_USER];
   cpu_syst_old = cp_time[CP_SYS];
 
-  return TRUE;  
+  return TRUE;
 }
 

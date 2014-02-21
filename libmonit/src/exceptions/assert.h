@@ -26,7 +26,7 @@
 
 #ifndef ASSERTION_INCLUDED
 #define ASSERTION_INCLUDED
-#include <exceptions/AssertException.h>
+#include "AssertException.h"
 
 
 /**

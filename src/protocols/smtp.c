@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -55,8 +55,8 @@ int check_smtp(Socket_T socket) {
         ASSERT(socket);
 
         /* Try HELO also before giving up as of rfc2821 4.1.1.1 */
-        if (expect(socket, 220, TRUE) 
-            && ((say(socket, "EHLO localhost\r\n") && expect(socket, 250, FALSE)) || (say(socket, "HELO localhost\r\n") && expect(socket, 250, TRUE))) 
+        if (expect(socket, 220, TRUE)
+            && ((say(socket, "EHLO localhost\r\n") && expect(socket, 250, FALSE)) || (say(socket, "HELO localhost\r\n") && expect(socket, 250, TRUE)))
             && (say(socket, "QUIT\r\n") && expect(socket, 221, TRUE)))
                 return TRUE;
 
@@ -88,7 +88,7 @@ static int expect(Socket_T socket, int expect, int log) {
                 Str_chomp(buf);
         } while (buf[3] == '-'); // Discard multi-line response
         if (sscanf(buf, "%d", &status) != 1) {
-                if(log) 
+                if(log)
                         socket_setError(socket, "SMTP error: %s\n", buf);
                 return FALSE;
         }

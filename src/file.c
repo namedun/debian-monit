@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -145,8 +145,8 @@ time_t file_getTimestamp(char *object, mode_t type) {
   if(! stat(object, &buf)) {
     if(((type == S_IFREG) && S_ISREG(buf.st_mode)) ||
        ((type == S_IFDIR) && S_ISDIR(buf.st_mode)) ||
-       ((type == (S_IFREG|S_IFDIR)) && (S_ISREG(buf.st_mode) ||
-					S_ISDIR(buf.st_mode)))
+       ((type == S_IFSOCK) && S_ISSOCK(buf.st_mode)) ||
+       ((type == (S_IFREG|S_IFDIR)) && (S_ISREG(buf.st_mode) || S_ISDIR(buf.st_mode)))
        ) {
       return MAX(buf.st_mtime, buf.st_ctime);
     } else {
@@ -199,9 +199,9 @@ char *file_findControlFile() {
 
 /**
  * Create a program's pidfile - Such a file is created when in daemon
- * mode. The file is created with mask = MYPIDMASK (usually 644).  
+ * mode. The file is created with mask = MYPIDMASK (usually 644).
  * @param pidfile The name of the pidfile to create
- * @return TRUE if the file was created, otherwise FALSE. 
+ * @return TRUE if the file was created, otherwise FALSE.
  */
 int file_createPidFile(char *pidfile) {
 
@@ -247,10 +247,10 @@ int file_isFile(char *file) {
  */
 int file_isDirectory(char *dir) {
 
-	struct stat buf;
+        struct stat buf;
 
   ASSERT(dir);
-	
+
   return (stat(dir, &buf) == 0 && S_ISDIR(buf.st_mode));
 
 }
@@ -317,37 +317,37 @@ int file_checkStat(char *filename, char *description, int permmask) {
     return FALSE;
   }
   if((buf.st_mode & 0777 ) & ~permmask) {
-    /* 
-       Explanation: 
+    /*
+       Explanation:
 
            buf.st_mode & 0777 ->  We just want to check the
-                                  permissions not the file type... 
+                                  permissions not the file type...
                                   we did it already!
            () & ~permmask ->      We check if there are any other
-                                  permissions set than in permmask 
+                                  permissions set than in permmask
     */
-    LogError("%s: The %s '%s' must have permissions no more than -%c%c%c%c%c%c%c%c%c (0%o); right now permissions are -%c%c%c%c%c%c%c%c%c (0%o).\n", 
-	prog, description, filename, 
-	permmask&S_IRUSR?'r':'-',
-	permmask&S_IWUSR?'w':'-',
-	permmask&S_IXUSR?'x':'-',
-	permmask&S_IRGRP?'r':'-',
-	permmask&S_IWGRP?'w':'-',
-	permmask&S_IXGRP?'x':'-',
-	permmask&S_IROTH?'r':'-',
-	permmask&S_IWOTH?'w':'-',
-	permmask&S_IXOTH?'x':'-',
-	permmask&0777,
-	buf.st_mode&S_IRUSR?'r':'-',
-	buf.st_mode&S_IWUSR?'w':'-',
-	buf.st_mode&S_IXUSR?'x':'-',
-	buf.st_mode&S_IRGRP?'r':'-',
-	buf.st_mode&S_IWGRP?'w':'-',
-	buf.st_mode&S_IXGRP?'x':'-',
-	buf.st_mode&S_IROTH?'r':'-',
-	buf.st_mode&S_IWOTH?'w':'-',
-	buf.st_mode&S_IXOTH?'x':'-',
-	buf.st_mode& 0777);
+    LogError("%s: The %s '%s' must have permissions no more than -%c%c%c%c%c%c%c%c%c (0%o); right now permissions are -%c%c%c%c%c%c%c%c%c (0%o).\n",
+        prog, description, filename,
+        permmask&S_IRUSR?'r':'-',
+        permmask&S_IWUSR?'w':'-',
+        permmask&S_IXUSR?'x':'-',
+        permmask&S_IRGRP?'r':'-',
+        permmask&S_IWGRP?'w':'-',
+        permmask&S_IXGRP?'x':'-',
+        permmask&S_IROTH?'r':'-',
+        permmask&S_IWOTH?'w':'-',
+        permmask&S_IXOTH?'x':'-',
+        permmask&0777,
+        buf.st_mode&S_IRUSR?'r':'-',
+        buf.st_mode&S_IWUSR?'w':'-',
+        buf.st_mode&S_IXUSR?'x':'-',
+        buf.st_mode&S_IRGRP?'r':'-',
+        buf.st_mode&S_IWGRP?'w':'-',
+        buf.st_mode&S_IXGRP?'x':'-',
+        buf.st_mode&S_IROTH?'r':'-',
+        buf.st_mode&S_IWOTH?'w':'-',
+        buf.st_mode&S_IXOTH?'x':'-',
+        buf.st_mode& 0777);
     return FALSE;
   }
 

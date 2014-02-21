@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         init_env();
         handle_options(argc, argv);
         do_init();
-        do_action(argv); 
+        do_action(argv);
         do_exit();
         return 0;
 }
@@ -261,8 +261,8 @@ static void do_init() {
                 exit(1);
         }
 
-        /* 
-         * Get the position of the control file 
+        /*
+         * Get the position of the control file
          */
         if (! Run.controlfile)
                 Run.controlfile = file_findControlFile();
@@ -291,26 +291,26 @@ static void do_init() {
         }
 
         /*
-         * Initialize the log system 
+         * Initialize the log system
          */
         if (! log_init())
                 exit(1);
 
-        /* 
-         * Did we find any service ?  
+        /*
+         * Did we find any service ?
          */
         if (! servicelist) {
                 LogError("%s: No services has been specified\n", prog);
                 exit(0);
         }
 
-        /* 
-         * Initialize Runtime file variables 
+        /*
+         * Initialize Runtime file variables
          */
         file_init();
 
-        /* 
-         * Should we print debug information ? 
+        /*
+         * Should we print debug information ?
          */
         if (Run.debug) {
                 Util_printRunList();
@@ -337,8 +337,8 @@ static void do_reinit() {
         /* Wait non-blocking for any children that has exited. Since we
          reinitialize any information about children we have setup to wait
          for will be lost. This may create zombie processes until Monit
-         itself exit. However, Monit will wait on all children that has exited 
-         before it ifself exit. TODO: Later refactored versions will use a 
+         itself exit. However, Monit will wait on all children that has exited
+         before it ifself exit. TODO: Later refactored versions will use a
          globale process table which a sigchld handler can check */
         waitforchildren();
 
@@ -538,7 +538,7 @@ static void do_default() {
                         LogInfo("Monit start delay set -- pause for %ds\n", Run.startdelay);
 
                 if (Run.init != TRUE)
-                        daemonize(); 
+                        daemonize();
                 else if (! Run.debug)
                         Util_redirectStdFds();
 

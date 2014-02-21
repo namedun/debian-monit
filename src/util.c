@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -138,57 +138,57 @@ struct ad_user {
 
 /* Unsafe URL characters: <>\"#%{}|\\^[] ` */
 static const unsigned char urlunsafe[256] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
 
 static const unsigned char b2x[][256] = {
-        "00", "01", "02", "03", "04", "05", "06", "07", 
-        "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", 
-        "10", "11", "12", "13", "14", "15", "16", "17", 
-        "18", "19", "1A", "1B", "1C", "1D", "1E", "1F", 
-        "20", "21", "22", "23", "24", "25", "26", "27", 
-        "28", "29", "2A", "2B", "2C", "2D", "2E", "2F", 
-        "30", "31", "32", "33", "34", "35", "36", "37", 
-        "38", "39", "3A", "3B", "3C", "3D", "3E", "3F", 
-        "40", "41", "42", "43", "44", "45", "46", "47", 
-        "48", "49", "4A", "4B", "4C", "4D", "4E", "4F", 
-        "50", "51", "52", "53", "54", "55", "56", "57", 
-        "58", "59", "5A", "5B", "5C", "5D", "5E", "5F", 
-        "60", "61", "62", "63", "64", "65", "66", "67", 
-        "68", "69", "6A", "6B", "6C", "6D", "6E", "6F", 
-        "70", "71", "72", "73", "74", "75", "76", "77", 
+        "00", "01", "02", "03", "04", "05", "06", "07",
+        "08", "09", "0A", "0B", "0C", "0D", "0E", "0F",
+        "10", "11", "12", "13", "14", "15", "16", "17",
+        "18", "19", "1A", "1B", "1C", "1D", "1E", "1F",
+        "20", "21", "22", "23", "24", "25", "26", "27",
+        "28", "29", "2A", "2B", "2C", "2D", "2E", "2F",
+        "30", "31", "32", "33", "34", "35", "36", "37",
+        "38", "39", "3A", "3B", "3C", "3D", "3E", "3F",
+        "40", "41", "42", "43", "44", "45", "46", "47",
+        "48", "49", "4A", "4B", "4C", "4D", "4E", "4F",
+        "50", "51", "52", "53", "54", "55", "56", "57",
+        "58", "59", "5A", "5B", "5C", "5D", "5E", "5F",
+        "60", "61", "62", "63", "64", "65", "66", "67",
+        "68", "69", "6A", "6B", "6C", "6D", "6E", "6F",
+        "70", "71", "72", "73", "74", "75", "76", "77",
         "78", "79", "7A", "7B", "7C", "7D", "7E", "7F",
-        "80", "81", "82", "83", "84", "85", "86", "87", 
+        "80", "81", "82", "83", "84", "85", "86", "87",
         "88", "89", "8A", "8B", "8C", "8D", "8E", "8F",
-        "90", "91", "92", "93", "94", "95", "96", "97", 
-        "98", "99", "9A", "9B", "9C", "9D", "9E", "9F", 
-        "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", 
-        "A8", "A9", "AA", "AB", "AC", "AD", "AE", "AF", 
-        "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", 
-        "B8", "B9", "BA", "BB", "BC", "BD", "BE", "BF", 
-        "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7", 
+        "90", "91", "92", "93", "94", "95", "96", "97",
+        "98", "99", "9A", "9B", "9C", "9D", "9E", "9F",
+        "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7",
+        "A8", "A9", "AA", "AB", "AC", "AD", "AE", "AF",
+        "B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7",
+        "B8", "B9", "BA", "BB", "BC", "BD", "BE", "BF",
+        "C0", "C1", "C2", "C3", "C4", "C5", "C6", "C7",
         "C8", "C9", "CA", "CB", "CC", "CD", "CE", "CF",
-        "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", 
-        "D8", "D9", "DA", "DB", "DC", "DD", "DE", "DF", 
-        "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7", 
-        "E8", "E9", "EA", "EB", "EC", "ED", "EE", "EF", 
-        "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7", 
+        "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7",
+        "D8", "D9", "DA", "DB", "DC", "DD", "DE", "DF",
+        "E0", "E1", "E2", "E3", "E4", "E5", "E6", "E7",
+        "E8", "E9", "EA", "EB", "EC", "ED", "EE", "EF",
+        "F0", "F1", "F2", "F3", "F4", "F5", "F6", "F7",
         "F8", "F9", "FA", "FB", "FC", "FD", "FE", "FF"
 };
 
@@ -369,7 +369,7 @@ static int PAMcheckPasswd(const char *login, const char *passwd) {
  */
 static Auth_T PAMcheckUserGroup(const char *uname) {
         Auth_T c = Run.credentials;
-        struct passwd *pwd = NULL; 
+        struct passwd *pwd = NULL;
         struct group  *grp = NULL;
 
         ASSERT(uname);
@@ -472,7 +472,7 @@ void Util_handleEscapes(char *buf) {
         for (editpos=insertpos=0; *(buf+editpos)!='\0'; editpos++, insertpos++) {
                 if (*(buf+editpos) == '\\' ) {
                         switch (*(buf+editpos+1)) {
-                                case 'n': 
+                                case 'n':
                                         *(buf+insertpos)='\n';
                                         editpos++;
                                         break;
@@ -495,7 +495,7 @@ void Util_handleEscapes(char *buf) {
                                 case '0':
                                         if (*(buf+editpos+2)=='x') {
                                                 if ((*(buf+editpos+3)=='0' && *(buf+editpos+4)=='0')) {
-                                                        /* Don't swap \0x00 with 0 to avoid truncating the string. 
+                                                        /* Don't swap \0x00 with 0 to avoid truncating the string.
                                                          Currently the only place where we support sending of 0 bytes
                                                          is in check_generic(). The \0x00 -> 0 byte swap is performed
                                                          there and in-place.
@@ -504,7 +504,7 @@ void Util_handleEscapes(char *buf) {
                                                 } else {
                                                         *(buf+insertpos)=x2c(&buf[editpos+3]);
                                                         editpos+=4;
-                                                } 
+                                                }
                                         }
                                         break;
 
@@ -516,11 +516,11 @@ void Util_handleEscapes(char *buf) {
                                 default:
                                         *(buf+insertpos)=*(buf+editpos);
 
-                        }  
+                        }
 
                 } else {
                         *(buf+insertpos)=*(buf+editpos);
-                }  
+                }
 
         }
         *(buf+insertpos)='\0';
@@ -546,11 +546,11 @@ int Util_handle0Escapes(char *buf) {
                                 default:
                                         *(buf+insertpos)=*(buf+editpos);
 
-                        }  
+                        }
 
                 } else {
                         *(buf+insertpos)=*(buf+editpos);
-                }  
+                }
         }
         *(buf+insertpos)='\0';
         return insertpos;
@@ -560,7 +560,7 @@ int Util_handle0Escapes(char *buf) {
 char *Util_digest2Bytes(unsigned char *digest, int mdlen, MD_T result) {
         int i;
         unsigned char *tmp= (unsigned char*)result;
-        static unsigned char hex[] = "0123456789abcdef";     
+        static unsigned char hex[] = "0123456789abcdef";
         ASSERT(mdlen * 2 < MD_SIZE); // Overflow guard
         for (i= 0; i < mdlen; i++) {
                 *tmp++ = hex[digest[i] >> 4];
@@ -785,7 +785,7 @@ void Util_printRunList() {
                 char slots[STRLEN];
 
                 if (Run.eventlist_slots < 0)
-                        snprintf(slots, STRLEN, "unlimited"); 
+                        snprintf(slots, STRLEN, "unlimited");
                 else
                         snprintf(slots, STRLEN, "%d", Run.eventlist_slots);
 
@@ -853,9 +853,9 @@ void Util_printRunList() {
                                 printf(" %-18s = %s\n", "Client cert file", Run.httpsslclientpem);
                         } else {
                                 printf(" %-18s = %s\n", "Client cert file", "None");
-                        } 
+                        }
 
-                        printf(" %-18s = %s\n", "Allow self certs", 
+                        printf(" %-18s = %s\n", "Allow self certs",
                                Run.allowselfcert?"True":"False");
 
                 }
@@ -1183,51 +1183,51 @@ void Util_printService(Service_T s) {
         for (q= s->resourcelist; q; q= q->next) {
                 EventAction_T a= q->action;
                 switch (q->resource_id) {
-                        case RESOURCE_ID_CPU_PERCENT: 
+                        case RESOURCE_ID_CPU_PERCENT:
                                 printf(" %-20s = ", "CPU usage limit");
                                 break;
 
-                        case RESOURCE_ID_TOTAL_CPU_PERCENT: 
+                        case RESOURCE_ID_TOTAL_CPU_PERCENT:
                                 printf(" %-20s = ", "CPU usage limit (incl. children)");
                                 break;
 
-                        case RESOURCE_ID_CPUUSER: 
+                        case RESOURCE_ID_CPUUSER:
                                 printf(" %-20s = ", "CPU user limit");
                                 break;
 
-                        case RESOURCE_ID_CPUSYSTEM: 
+                        case RESOURCE_ID_CPUSYSTEM:
                                 printf(" %-20s = ", "CPU system limit");
                                 break;
 
-                        case RESOURCE_ID_CPUWAIT: 
+                        case RESOURCE_ID_CPUWAIT:
                                 printf(" %-20s = ", "CPU wait limit");
                                 break;
 
-                        case RESOURCE_ID_MEM_PERCENT: 
+                        case RESOURCE_ID_MEM_PERCENT:
                                 printf(" %-20s = ", "Memory usage limit");
                                 break;
 
-                        case RESOURCE_ID_MEM_KBYTE: 
+                        case RESOURCE_ID_MEM_KBYTE:
                                 printf(" %-20s = ", "Memory amount limit");
                                 break;
 
-                        case RESOURCE_ID_SWAP_PERCENT: 
+                        case RESOURCE_ID_SWAP_PERCENT:
                                 printf(" %-20s = ", "Swap usage limit");
                                 break;
 
-                        case RESOURCE_ID_SWAP_KBYTE: 
+                        case RESOURCE_ID_SWAP_KBYTE:
                                 printf(" %-20s = ", "Swap amount limit");
                                 break;
 
-                        case RESOURCE_ID_LOAD1: 
+                        case RESOURCE_ID_LOAD1:
                                 printf(" %-20s = ", "Load avg. (1min)");
                                 break;
 
-                        case RESOURCE_ID_LOAD5: 
+                        case RESOURCE_ID_LOAD5:
                                 printf(" %-20s = ", "Load avg. (5min)");
                                 break;
 
-                        case RESOURCE_ID_LOAD15: 
+                        case RESOURCE_ID_LOAD15:
                                 printf(" %-20s = ", "Load avg. (15min)");
                                 break;
 
@@ -1244,31 +1244,31 @@ void Util_printService(Service_T s) {
                                 break;
                 }
                 switch (q->resource_id) {
-                        case RESOURCE_ID_CPU_PERCENT: 
-                        case RESOURCE_ID_TOTAL_CPU_PERCENT: 
+                        case RESOURCE_ID_CPU_PERCENT:
+                        case RESOURCE_ID_TOTAL_CPU_PERCENT:
                         case RESOURCE_ID_TOTAL_MEM_PERCENT:
-                        case RESOURCE_ID_CPUUSER: 
-                        case RESOURCE_ID_CPUSYSTEM: 
-                        case RESOURCE_ID_CPUWAIT: 
-                        case RESOURCE_ID_MEM_PERCENT: 
-                        case RESOURCE_ID_SWAP_PERCENT: 
+                        case RESOURCE_ID_CPUUSER:
+                        case RESOURCE_ID_CPUSYSTEM:
+                        case RESOURCE_ID_CPUWAIT:
+                        case RESOURCE_ID_MEM_PERCENT:
+                        case RESOURCE_ID_SWAP_PERCENT:
                                 printf("if %s %.1f%% %s ", operatornames[q->operator], q->limit / 10.0, Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                                 break;
 
-                        case RESOURCE_ID_MEM_KBYTE: 
-                        case RESOURCE_ID_SWAP_KBYTE: 
+                        case RESOURCE_ID_MEM_KBYTE:
+                        case RESOURCE_ID_SWAP_KBYTE:
                                 printf("if %s %ldkB %s ", operatornames[q->operator], q->limit, Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
                                 printf("then %s", Util_describeAction(a->succeeded, buf, sizeof(buf)));
                                 break;
 
-                        case RESOURCE_ID_LOAD1: 
-                        case RESOURCE_ID_LOAD5: 
-                        case RESOURCE_ID_LOAD15: 
+                        case RESOURCE_ID_LOAD1:
+                        case RESOURCE_ID_LOAD5:
+                        case RESOURCE_ID_LOAD15:
                                 printf("if %s %.1f %s ", operatornames[q->operator], q->limit / 10.0, Util_getEventratio(a->failed, buf, sizeof(buf)));
                                 printf("then %s ", Util_describeAction(a->failed, buf, sizeof(buf)));
                                 printf("else if succeeded %s ", Util_getEventratio(a->succeeded, buf, sizeof(buf)));
@@ -1501,7 +1501,7 @@ char *Util_getUptime(time_t delta, char *sep) {
 int Util_isurlsafe(const char *url) {
         int i;
         ASSERT(url && *url);
-        for (i = 0; url[i]; i++) 
+        for (i = 0; url[i]; i++)
                 if (urlunsafe[(unsigned char)url[i]])
                         return FALSE;
         return TRUE;
@@ -1513,8 +1513,8 @@ char *Util_urlEncode(char *url) {
         if (url) {
                 char *p;
                 int i, n;
-                for (n = i = 0; url[i]; i++) 
-                        if (urlunsafe[(unsigned char)(url[i])]) 
+                for (n = i = 0; url[i]; i++)
+                        if (urlunsafe[(unsigned char)(url[i])])
                                 n += 2;
                 p = escaped = ALLOC(i + n + 1);
                 for (; *url; url++, p++) {
@@ -1531,7 +1531,7 @@ char *Util_urlEncode(char *url) {
 
 
 char *Util_urlDecode(char *url) {
-	if (url && *url) {
+        if (url && *url) {
                 register int x, y;
                 for (x = 0, y = 0; url[y]; x++, y++) {
                         if ((url[x] = url[y]) == '+')
@@ -1545,7 +1545,7 @@ char *Util_urlDecode(char *url) {
                 }
                 url[x] = 0;
         }
-	return url;
+        return url;
 }
 
 
@@ -1645,7 +1645,7 @@ int Util_checkCredentials(char *uname, char *outside) {
         switch (c->digesttype) {
                 case DIGEST_CLEARTEXT:
                         outside_crypt[sizeof(outside_crypt) - 1] = 0;
-                        strncpy(outside_crypt, outside, sizeof(outside_crypt) - 1); 
+                        strncpy(outside_crypt, outside, sizeof(outside_crypt) - 1);
                         break;
                 case DIGEST_MD5:
                 {
@@ -1654,7 +1654,7 @@ int Util_checkCredentials(char *uname, char *outside) {
                         char *temp;
                         /* A password looks like this,
                          *   $id$salt$digest
-                         * the '$' around the id are still part of the id. 
+                         * the '$' around the id are still part of the id.
                          */
                         id[sizeof(id) - 1] = 0;
                         strncpy(id, c->passwd, sizeof(id) - 1);
@@ -1684,7 +1684,7 @@ int Util_checkCredentials(char *uname, char *outside) {
                         snprintf(salt, 3, "%c%c", c->passwd[0], c->passwd[1]);
                         temp = crypt(outside, salt);
                         outside_crypt[sizeof(outside_crypt) - 1] = 0;
-                        strncpy(outside_crypt, temp, sizeof(outside_crypt) - 1); 
+                        strncpy(outside_crypt, temp, sizeof(outside_crypt) - 1);
                         break;
                 }
 #ifdef HAVE_LIBPAM
@@ -1765,22 +1765,22 @@ char *Util_getHTTPHostHeader(Socket_T s, char *hostBuf, int len) {
 }
 
 
-int Util_evalQExpression(int operator, long long left, long long right) {
+int Util_evalQExpression(Operator_Type operator, long long left, long long right) {
 
         switch (operator) {
-                case OPERATOR_GREATER:
+                case Operator_Greater:
                         if (left > right)
                                 return TRUE;
                         break;
-                case OPERATOR_LESS:
+                case Operator_Less:
                         if (left < right)
                                 return TRUE;
                         break;
-                case OPERATOR_EQUAL:
+                case Operator_Equal:
                         if (left == right)
                                 return TRUE;
                         break;
-                case OPERATOR_NOTEQUAL:
+                case Operator_NotEqual:
                         if (left != right)
                                 return TRUE;
                         break;
@@ -1894,14 +1894,14 @@ int Util_getfqdnhostname(char *buf, unsigned len) {
         char hostname[STRLEN];
         struct addrinfo hints, *info = NULL;
 
-	// Set the base hostname
+        // Set the base hostname
         if (gethostname(hostname, sizeof(hostname))) {
                 LogError("%s: Error getting hostname -- %s\n", prog, STRERROR);
                 return -1;
         }
-	snprintf(buf, len, "%s", hostname);
+        snprintf(buf, len, "%s", hostname);
 
-	// Try to look for FQDN hostname
+        // Try to look for FQDN hostname
         memset(&hints, 0, sizeof(hints));
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
@@ -1909,13 +1909,13 @@ int Util_getfqdnhostname(char *buf, unsigned len) {
         if ((status = getaddrinfo(hostname, NULL, &hints, &info))) {
                 LogError("%s: Cannot translate '%s' to FQDN name -- %s\n", prog, hostname, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
         } else {
-		for (struct addrinfo *result = info; result; result = result->ai_next) {
-			if (Str_startsWith(result->ai_canonname, hostname)) {
-	                	snprintf(buf, len, "%s", result->ai_canonname);
-				break;
-			}
-		}
-	}
+                for (struct addrinfo *result = info; result; result = result->ai_next) {
+                        if (Str_startsWith(result->ai_canonname, hostname)) {
+                                snprintf(buf, len, "%s", result->ai_canonname);
+                                break;
+                        }
+                }
+        }
         if (info)
                 freeaddrinfo(info);
         return 0;

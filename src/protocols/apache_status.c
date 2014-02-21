@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -58,8 +58,8 @@ static int check_apache_stat(Socket_T s);
 
 /**
  * Check an Apache server to monitor its status.
- * Do this using the server-status report from mod_status, which 
- * will only be available if the server is responding to 
+ * Do this using the server-status report from mod_status, which
+ * will only be available if the server is responding to
  * some extent.
  *
  * Currently based on the Scoreboard response, which is available
@@ -75,17 +75,17 @@ int check_apache_status(Socket_T socket) {
   ASSERT(socket);
 
   if(socket_print(socket, "GET %s HTTP/1.1\r\n"
-		  "Host: %s\r\n"
-		  "Accept: */*\r\n"
-		  "User-Agent: %s/%s\r\n"
-		  "Connection: close\r\n\r\n",
-		  request, Util_getHTTPHostHeader(socket, host, STRLEN), 
-		  prog, VERSION) < 0) {
+                  "Host: %s\r\n"
+                  "Accept: */*\r\n"
+                  "User-Agent: %s/%s\r\n"
+                  "Connection: close\r\n\r\n",
+                  request, Util_getHTTPHostHeader(socket, host, STRLEN),
+                  prog, VERSION) < 0) {
     socket_setError(socket, "HTTP: error sending data -- %s\n", STRERROR);
     return FALSE;
   }
 
-  return check_apache_stat(socket);  
+  return check_apache_stat(socket);
 
 }
 
@@ -149,7 +149,7 @@ static int check_apache_stat(Socket_T socket) {
 
 
   while(NULL != socket_readln(socket, line, READ_SIZE)) {
-    if(Str_startsWith(line, "Scoreboard")) {   
+    if(Str_startsWith(line, "Scoreboard")) {
       if(1 != sscanf(line, "%*s%*[: ]%1024s", search_string)) {
        Str_chomp(line);
        socket_setError(socket, "APACHE-STATUS error: parsing Apache status response '%s'\n",
@@ -215,13 +215,13 @@ static int check_apache_stat(Socket_T socket) {
     return TRUE;
   }
 
-  /* 
-   * Conditions are only tested if the limit parameter is greater than zero. 
+  /*
+   * Conditions are only tested if the limit parameter is greater than zero.
    */
 
   if(loglimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.loglimitOP, 
-			    (100 * no_logging / active_servers), loglimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.loglimitOP,
+                            (100 * no_logging / active_servers), loglimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
           " %i percent of Apache processes are logging\n", loglimit);
       errors++;
@@ -229,8 +229,8 @@ static int check_apache_stat(Socket_T socket) {
   }
 
   if(startlimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.startlimitOP, 
-			    (100 * no_start / active_servers), startlimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.startlimitOP,
+                            (100 * no_start / active_servers), startlimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
           " %i percent of Apache processes are starting\n", startlimit);
       errors++;
@@ -238,18 +238,18 @@ static int check_apache_stat(Socket_T socket) {
   }
 
   if(requestlimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.requestlimitOP, 
-		    (100 * no_request / active_servers), requestlimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.requestlimitOP,
+                    (100 * no_request / active_servers), requestlimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
-          " %i percent of Apache processes are reading requests\n", 
-	  requestlimit);
+          " %i percent of Apache processes are reading requests\n",
+          requestlimit);
       errors++;
     }
   }
 
   if(replylimit > 0 ){
-    if(Util_evalQExpression(myPort->ApacheStatus.replylimitOP, 
-			    (100 * no_reply / active_servers), replylimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.replylimitOP,
+                            (100 * no_reply / active_servers), replylimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
           " %i percent of Apache processes are sending a reply\n", replylimit);
       errors++;
@@ -257,59 +257,59 @@ static int check_apache_stat(Socket_T socket) {
   }
 
   if(keepalivelimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.keepalivelimitOP, 
-		    (100 * no_keepalive / active_servers), keepalivelimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.keepalivelimitOP,
+                    (100 * no_keepalive / active_servers), keepalivelimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
-	  " %i percent of Apache processes are in keepalive\n", keepalivelimit);
+          " %i percent of Apache processes are in keepalive\n", keepalivelimit);
       errors++;
     }
   }
 
   if(dnslimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.dnslimitOP, 
-			    (100 * no_dns / active_servers), dnslimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.dnslimitOP,
+                            (100 * no_dns / active_servers), dnslimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
-	  " %i percent of Apache processes are waiting for DNS\n", dnslimit);
+          " %i percent of Apache processes are waiting for DNS\n", dnslimit);
       errors++;
     }
   }
 
   if(closelimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.closelimitOP, 
-			    (100 * no_close / active_servers), closelimit)){
+    if(Util_evalQExpression(myPort->ApacheStatus.closelimitOP,
+                            (100 * no_close / active_servers), closelimit)){
       socket_setError(socket, "APACHE-STATUS error:"
-	  " %i percent of Apache processes are closing connections\n", 
-	  closelimit);
+          " %i percent of Apache processes are closing connections\n",
+          closelimit);
       errors++;
     }
   }
 
   if(gracefullimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.gracefullimitOP, 
-		     (100 * no_graceful / active_servers), gracefullimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.gracefullimitOP,
+                     (100 * no_graceful / active_servers), gracefullimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
-	  " %i percent of Apache processes are finishing gracefully\n", 
-	  gracefullimit);
+          " %i percent of Apache processes are finishing gracefully\n",
+          gracefullimit);
       errors++;
     }
   }
 
   if(cleanuplimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.cleanuplimitOP, 
-		    (100 * no_cleanup / active_servers), cleanuplimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.cleanuplimitOP,
+                    (100 * no_cleanup / active_servers), cleanuplimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
-	  " %i percent of Apache processes are in idle cleanup\n", 
-	  cleanuplimit);
+          " %i percent of Apache processes are in idle cleanup\n",
+          cleanuplimit);
       errors++;
     }
   }
 
   if(waitlimit > 0){
-    if(Util_evalQExpression(myPort->ApacheStatus.waitlimitOP, 
-			    (100 * no_wait / active_servers), waitlimit)) {
+    if(Util_evalQExpression(myPort->ApacheStatus.waitlimitOP,
+                            (100 * no_wait / active_servers), waitlimit)) {
       socket_setError(socket, "APACHE-STATUS error:"
-	  " %i percent of Apache processes are waiting for a connection\n", 
-	  waitlimit);
+          " %i percent of Apache processes are waiting for a connection\n",
+          waitlimit);
       errors++;
     }
   }

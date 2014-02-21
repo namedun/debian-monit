@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -55,11 +55,11 @@
  */
 int check_memcache(Socket_T socket) {
   unsigned int length;
-  unsigned char response[STRLEN];
+  unsigned char response[MEMCACHELEN];
   unsigned int status;
 
   unsigned char request[MEMCACHELEN] = {
-    MAGIC_REQUEST,                    /** Magic */ 
+    MAGIC_REQUEST,                    /** Magic */
     0x0a,                             /** Opcode */
     0x00, 0x00,                       /** Key length */
     0x00,                             /** Extra length */

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -79,7 +79,7 @@ int check_dwp(Socket_T socket) {
   ASSERT(socket);
 
   if(socket_print(socket, "HEAD / HTTP/1.1\r\n"
-		  "Connection: close\r\n\r\n") < 0) {
+                  "Connection: close\r\n\r\n") < 0) {
     socket_setError(socket, "DWP: error sending data -- %s\n", STRERROR);
     return FALSE;
   }

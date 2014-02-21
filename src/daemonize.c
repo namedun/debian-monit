@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -93,10 +93,10 @@ void  daemonize() {
    */
   if((pid= fork ()) < 0) {
 
-    LogError("Cannot fork of a new process\n");  
+    LogError("Cannot fork of a new process\n");
     exit (1);
 
-  }  
+  }
   else if(pid != 0) {
 
     _exit(0);
@@ -107,10 +107,10 @@ void  daemonize() {
 
   if((pid= fork ()) < 0) {
 
-    LogError("Cannot fork of a new process\n");  
+    LogError("Cannot fork of a new process\n");
     exit (1);
 
-  }  
+  }
   else if(pid != 0) {
 
     _exit(0);
@@ -135,7 +135,7 @@ void  daemonize() {
    */
   Util_redirectStdFds();
 
-} 
+}
 
 
 /**
@@ -165,7 +165,7 @@ int kill_daemon(int sig) {
   }
 
   if(sig == SIGTERM) {
-	  
+
     fprintf(stdout, "%s daemon with pid [%d] killed\n", prog, (int)pid);
     fflush(stdout);
 

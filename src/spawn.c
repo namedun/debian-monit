@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -34,11 +34,11 @@
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif 
+#endif
 
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
-#endif 
+#endif
 
 #ifdef HAVE_STRING_H
 #include <string.h>
@@ -157,8 +157,8 @@ void spawn(Service_T S, command_t C, Event_T E) {
         Time_string(Time_now(), date);
         pid= fork();
         if(pid < 0) {
-                LogError("Cannot fork a new process\n");  
-                exit(1); 
+                LogError("Cannot fork a new process -- %s\n", STRERROR);
+                exit(1);
         }
 
         if(pid == 0) {
@@ -247,4 +247,4 @@ void spawn(Service_T S, command_t C, Event_T E) {
          * the init system-process will wait for it. So we just return
          */
 
-} 
+}

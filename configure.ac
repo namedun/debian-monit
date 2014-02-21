@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.6], [monit-general@nongnu.org])
+AC_INIT([monit], [5.7], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -33,7 +33,7 @@ AC_PATH_PROG([FLEX], [flex], [no], [$PATH:/usr/local/bin:/usr/bin])
 if test "x$FLEX" = "xno"; then
 	# Require flex unless lex.yy.c already is built
 	if test ! -f src/lex.yy.c; then
-                AC_MSG_RESULT([flex is required. Download from http://www.gnu.org/software/flex/])
+                AC_MSG_ERROR([flex is required. Download from http://www.gnu.org/software/flex/])
 	fi
 fi
 AC_PATH_PROG([POD2MAN], [pod2man], [no], [$PATH:/usr/local/bin:/usr/bin])
@@ -65,7 +65,7 @@ AC_ARG_ENABLE(optimized,
         AS_HELP_STRING([--enable-optimized],
                 [Build software optimized]),
     [
-        CFLAGS=`echo $CFLAGS|sed 's/-O.//'`
+        CFLAGS=`echo $CFLAGS|sed 's/-O.* //'`
         if test "x$enableval" = "xyes" ; then
                 CFLAGS=`echo $CFLAGS|sed 's/-g//'`
                 CFLAGS="$CFLAGS -O3"
@@ -133,6 +133,7 @@ AC_CHECK_HEADERS([ \
 	netdb.h \
         sys/socket.h \
 	netinet/in.h \
+	netinet/tcp.h \
         netinet/in_systm.h \
         pam/pam_appl.h \
         security/pam_appl.h \
@@ -176,6 +177,7 @@ AC_CHECK_HEADERS([ \
 	sys/un.h \
 	sys/utsname.h \
         sys/vmmeter.h \
+        sys/vm_usage.h \
 	sys/vfs.h \
 	syslog.h \
 	unistd.h \
@@ -404,12 +406,13 @@ fi
 
 # Find the right directory to put the root-mode PID file in
 AC_MSG_CHECKING([pid file location])
-if test -d "/var/run"
+if test -d "/run"
 then
-	piddir="/var/run"
-elif test -d "/etc"
-then
-	piddir="/etc"
+	piddir="/run"
+elif test -d "/var/run"; then
+        piddir="/var/run"
+elif test -d "/etc"; then
+        piddir="/etc"
 fi
 
 AC_DEFINE_UNQUOTED([PIDDIR], "$piddir",
@@ -469,7 +472,7 @@ then
 elif test "$architecture" = "HP-UX"
 then
    ARCH="HPUX"
-   CFLAGS="$CFLAGS -D _REENTRANT"
+   CFLAGS="$CFLAGS -D _REENTRANT -D _INCLUDE_XOPEN_SOURCE -D _INCLUDE_XOPEN_SOURCE_EXTENDED -D _XOPEN_SOURCE_EXTENDED -D _INCLUDE_HPUX_SOURCE"
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 elif test "$architecture" = "OpenBSD"
 then

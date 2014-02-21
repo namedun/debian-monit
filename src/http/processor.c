@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -93,7 +93,7 @@
  *
  *  This Processor delegates the actual handling of the request and
  *  reponse to so called cervlets, which must implement two methods;
- *  doGet and doPost. 
+ *  doGet and doPost.
  *
  *  NOTES
  *    This Processor is command oriented and if a second slash '/' is
@@ -103,7 +103,7 @@
  *                      /COMMAND?QUERYSTRING/PATHINFO
  *
  *     The doGet/doPost routines act's on the COMMAND. See the
- *     cervlet.c code in this dir. for an example. 
+ *     cervlet.c code in this dir. for an example.
  *
  *  @file
  */
@@ -115,7 +115,7 @@
 static void do_service(Socket_T);
 static void destroy_entry(void *);
 static char *get_date(char *, int);
-static char *get_server(char *, int); 
+static char *get_server(char *, int);
 static void create_headers(HttpRequest);
 static void send_response(HttpResponse);
 static int basic_authenticate(HttpRequest);
@@ -137,7 +137,7 @@ static int get_next_token(char *s, int *cursor, char **r);
 
 /**
  * Process a HTTP request. This is done by dispatching to the service
- * function. 
+ * function.
  * @param s A Socket_T representing the client connection
  */
 void *http_processor(Socket_T s) {
@@ -157,7 +157,7 @@ void *http_processor(Socket_T s) {
 /**
  * Callback for implementors of cervlet functions.
  * @param doGetFunc doGet function
- * @param doPostFunc doPost function 
+ * @param doPostFunc doPost function
  */
 void add_Impl(void(*doGet)(HttpRequest, HttpResponse), void(*doPost)(HttpRequest, HttpResponse)) {
   Impl.doGet= doGet;
@@ -179,11 +179,11 @@ void send_error(HttpResponse res, int code, const char *msg) {
   set_content_type(res, "text/html");
   set_status(res, code);
   StringBuffer_append(res->outputbuffer,
-	   "<html><head><title>%d %s</title></head>"\
-	   "<body bgcolor=#FFFFFF><h2>%s</h2>%s<p>"\
-	   "<hr><a href='%s'><font size=-1>%s</font></a>"\
-	   "</body></html>\r\n",
-	    code, err, err, msg?msg:"", SERVER_URL, get_server(server, STRLEN));
+           "<html><head><title>%d %s</title></head>"\
+           "<body bgcolor=#FFFFFF><h2>%s</h2>%s<p>"\
+           "<hr><a href='%s'><font size=-1>%s</font></a>"\
+           "</body></html>\r\n",
+            code, err, err, msg?msg:"", SERVER_URL, get_server(server, STRLEN));
   DEBUG("HttpRequest error: %s %d %s\n", SERVER_PROTOCOL, code, msg ? msg : err);
 }
 
@@ -211,10 +211,10 @@ void set_header(HttpResponse res, const char *name, const char *value) {
     HttpHeader n, p;
     for( n= p= res->headers; p; n= p, p= p->next) {
       if(!strcasecmp(p->name, name)) {
-	FREE(p->value);
-	p->value= Str_dup(value);
-	destroy_entry(h);
-	return;
+        FREE(p->value);
+        p->value= Str_dup(value);
+        destroy_entry(h);
+        return;
       }
     }
     n->next= h;
@@ -228,7 +228,7 @@ void set_header(HttpResponse res, const char *name, const char *value) {
  * Sets the status code for the response
  * @param res HttpResponse object
  * @param code A HTTP status code <100-510>
- * @param msg The status code string message 
+ * @param msg The status code string message
  */
 void set_status(HttpResponse res, int code) {
   res->status= code;
@@ -391,7 +391,7 @@ const char *get_status_string(int status) {
       return "Use Proxy";
   default: {
       return "Unknown HTTP status";
-    } 
+    }
   }
 }
 
@@ -410,11 +410,11 @@ static void do_service(Socket_T s) {
   if(res && req) {
     if(is_authenticated(req, res)) {
       if(IS(req->method, METHOD_GET)) {
-	Impl.doGet(req, res);
+        Impl.doGet(req, res);
       } else if(IS(req->method, METHOD_POST)) {
-	Impl.doPost(req, res);
+        Impl.doPost(req, res);
       } else {
-	send_error(res, SC_NOT_IMPLEMENTED, "Method not implemented");
+        send_error(res, SC_NOT_IMPLEMENTED, "Method not implemented");
       }
     }
     send_response(res);
@@ -463,16 +463,16 @@ static void send_response(HttpResponse res) {
     get_date(date, STRLEN);
     get_server(server, STRLEN);
     socket_print(S, "%s %d %s\r\n", res->protocol, res->status,
-		 res->status_msg);
+                 res->status_msg);
     socket_print(S, "Date: %s\r\n", date);
     socket_print(S, "Server: %s\r\n", server);
     socket_print(S, "Content-Length: %d\r\n", length);
     socket_print(S, "Connection: close\r\n");
     if(headers)
-	socket_print(S, "%s", headers);
+        socket_print(S, "%s", headers);
     socket_print(S, "\r\n");
     if(length)
-	socket_write(S, (unsigned char *)StringBuffer_toString(res->outputbuffer), length);
+        socket_write(S, (unsigned char *)StringBuffer_toString(res->outputbuffer), length);
     FREE(headers);
   }
 }
@@ -488,7 +488,7 @@ static HttpRequest create_HttpRequest(Socket_T S) {
   HttpRequest req= NULL;
   char url[REQ_STRLEN];
   char line[REQ_STRLEN];
-  char protocol[STRLEN]; 
+  char protocol[STRLEN];
   char method[REQ_STRLEN];
 
   if(socket_readln(S, line, REQ_STRLEN) == NULL) {
@@ -509,7 +509,7 @@ static HttpRequest create_HttpRequest(Socket_T S) {
   Util_urlDecode(url);
   req->url= Str_dup(url);
   req->method= Str_dup(method);
-  req->protocol= Str_dup(protocol); 
+  req->protocol= Str_dup(protocol);
   create_headers(req);
   if(!create_parameters(req)) {
     destroy_HttpRequest(req);
@@ -550,9 +550,9 @@ static void create_headers(HttpRequest req) {
   S= req->S;
   while(1) {
     if(! socket_readln(S, line, sizeof(line)))
-	break;
+        break;
     if(!strcasecmp(line, "\r\n") || !strcasecmp(line, "\n"))
-	break;
+        break;
     if(NULL != (value= strchr(line, ':'))) {
       NEW(header);
       *value++= 0;
@@ -577,7 +577,7 @@ static int create_parameters(HttpRequest req) {
 
   if(IS(req->method, METHOD_POST) && get_header(req, "Content-Length")) {
     int n;
-    int len; 
+    int len;
     Socket_T S = req->S;
     const char *cl = get_header(req, "Content-Length");
     if(! cl || sscanf(cl, "%d", &len) != 1) {
@@ -641,7 +641,7 @@ static void done(HttpRequest req, HttpResponse res) {
 static void destroy_HttpRequest(HttpRequest req) {
   if(req) {
     FREE(req->method);
-    FREE(req->url); 
+    FREE(req->url);
     FREE(req->pathinfo);
     FREE(req->protocol);
     FREE(req->remote_user);
@@ -660,7 +660,7 @@ static void destroy_HttpRequest(HttpRequest req) {
 static void destroy_HttpResponse(HttpResponse res) {
   if(res) {
     StringBuffer_free(&(res->outputbuffer));
-    if(res->headers) 
+    if(res->headers)
       destroy_entry(res->headers);
     FREE(res);
   }
@@ -672,7 +672,7 @@ static void destroy_HttpResponse(HttpResponse res) {
  * HttpParameter are of this type.
  */
 static void destroy_entry(void *p) {
-  struct entry *h= p; 
+  struct entry *h= p;
 
   if(h->next) {
     destroy_entry(h->next);
@@ -687,16 +687,16 @@ static void destroy_entry(void *p) {
 
 
 /**
- * Do Basic Authentication if this auth. style is allowed. 
+ * Do Basic Authentication if this auth. style is allowed.
  */
 static int is_authenticated(HttpRequest req, HttpResponse res) {
   if(Run.credentials!=NULL) {
     if(! basic_authenticate(req)) {
       send_error(res, SC_UNAUTHORIZED,
-		 "You are <b>not</b> authorized to access <i>monit</i>. "
-		 "Either you supplied the wrong credentials (e.g. bad "
-		 "password), or your browser doesn't understand how to supply "
-		 "the credentials required");
+                 "You are <b>not</b> authorized to access <i>monit</i>. "
+                 "Either you supplied the wrong credentials (e.g. bad "
+                 "password), or your browser doesn't understand how to supply "
+                 "the credentials required");
       set_header(res, "WWW-Authenticate", "Basic realm=\"monit\"");
       return FALSE;
     }
@@ -736,13 +736,13 @@ static int basic_authenticate(HttpRequest req) {
   /* Check if user exist */
   if(NULL==Util_getUserCredentials(uname)) {
     LogError("Warning: Client '%s' supplied unknown user '%s'"
-	" accessing monit httpd\n", socket_get_remote_host(req->S), uname); 
+        " accessing monit httpd\n", socket_get_remote_host(req->S), uname);
     return FALSE;
   }
   /* Check if user has supplied the right password */
   if(! Util_checkCredentials(uname,  password)) {
     LogError("Warning: Client '%s' supplied wrong password for user '%s'"
-	" accessing monit httpd\n", socket_get_remote_host(req->S), uname); 
+        " accessing monit httpd\n", socket_get_remote_host(req->S), uname);
     return FALSE;
   }
   req->remote_user= Str_dup(uname);
@@ -765,19 +765,19 @@ static void internal_error(Socket_T S, int status, char *msg) {
 
   get_date(date, STRLEN);
   get_server(server, STRLEN);
-  socket_print(S, 
-	       "%s %d %s\r\n"
-	       "Date: %s\r\n"
-	       "Server: %s\r\n"
-	       "Content-Type: text/html\r\n"
-	       "Connection: close\r\n"
-	       "\r\n"
-	       "<html><head><title>%s</title></head>"
-	       "<body bgcolor=#FFFFFF><h2>%s</h2>%s<p>"
-	       "<hr><a href='%s'><font size=-1>%s</font></a>"
-	       "</body></html>\r\n",
-	       SERVER_PROTOCOL, status, status_msg, date, server,
-	       status_msg, status_msg, msg, SERVER_URL, server);
+  socket_print(S,
+               "%s %d %s\r\n"
+               "Date: %s\r\n"
+               "Server: %s\r\n"
+               "Content-Type: text/html\r\n"
+               "Connection: close\r\n"
+               "\r\n"
+               "<html><head><title>%s</title></head>"
+               "<body bgcolor=#FFFFFF><h2>%s</h2>%s<p>"
+               "<hr><a href='%s'><font size=-1>%s</font></a>"
+               "</body></html>\r\n",
+               SERVER_PROTOCOL, status, status_msg, date, server,
+               status_msg, status_msg, msg, SERVER_URL, server);
   DEBUG("HttpRequest error: %s %d %s\n", SERVER_PROTOCOL, status, msg ? msg : status_msg);
 }
 
@@ -831,14 +831,14 @@ static int get_next_token(char *s, int *cursor, char **r) {
       *cursor+= 1;
       *r= Str_ndup(&s[i], (*cursor-i));
       return KEY;
-    } 
+    }
     if(s[*cursor]=='=') {
       while(s[*cursor] && s[*cursor]!='&') *cursor+= 1;
       if(s[*cursor]=='&') {
-	*r= Str_ndup(&s[i+1], (*cursor-i)-1);
-	*cursor+= 1;
+        *r= Str_ndup(&s[i+1], (*cursor-i)-1);
+        *cursor+= 1;
       }  else
-	*r= Str_ndup(&s[i+1], (*cursor-i));
+        *r= Str_ndup(&s[i+1], (*cursor-i));
       return VALUE;
     }
     *cursor+= 1;

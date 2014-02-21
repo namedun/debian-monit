@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -35,7 +35,7 @@
 #include "httpstatus.h"
 
 /* Server masquerade */
-#define SERVER_NAME        "monit" 
+#define SERVER_NAME        "monit"
 #define SERVER_VERSION     VERSION
 #define SERVER_URL         "http://mmonit.com/monit/"
 #define SERVER_PROTOCOL    "HTTP/1.0"
@@ -53,7 +53,7 @@
 #define MAX_URL_LENGTH     512
 
 /* Request timeout in seconds */
-#define REQUEST_TIMEOUT    30 
+#define REQUEST_TIMEOUT    30
 
 #define TRUE               1
 #define FALSE              0
@@ -86,7 +86,7 @@ typedef struct response {
   int is_committed;
   HttpHeader headers;
   ssl_connection *ssl;
-  const char *status_msg; 
+  const char *status_msg;
   StringBuffer_T outputbuffer;
 } *HttpResponse;
 

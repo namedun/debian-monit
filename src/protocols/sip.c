@@ -21,7 +21,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -49,11 +49,11 @@
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif 
+#endif
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif 
+#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -72,19 +72,19 @@
 
 /**
  *
- *  A SIP test. 
+ *  A SIP test.
  *
- *  This test has been created in order to construct valid SIP message, 
- *  even with a low poll cycle. (In case of low poll cycle, chance are 
- *  high for a  misinterpretation of the generic test by the SIP AS. It 
+ *  This test has been created in order to construct valid SIP message,
+ *  even with a low poll cycle. (In case of low poll cycle, chance are
+ *  high for a  misinterpretation of the generic test by the SIP AS. It
  *  will considered it for  a retransmission, not for a new message)
  *
  *  The test sends an OPTIONS request and check the server's status code.
  *
  *  The status code must be between 200 and 300
  *  Return TRUE if the status code is OK, otherwise FALSE
- * 
- *  In this current version, redirection is not supported. This code is 
+ *
+ *  In this current version, redirection is not supported. This code is
  * a rewrite of a patch we recieved from Pierrick Grasland and Bret McDanel
  * to check the SIP protocol.
  *
@@ -92,7 +92,7 @@
  */
 
 
- /* -------------------------------------------------------------- Public*/ 
+ /* -------------------------------------------------------------- Public*/
 
 int check_sip(Socket_T socket) {
   int status;
@@ -112,7 +112,7 @@ int check_sip(Socket_T socket) {
   request= P->request?P->request:"monit@foo.bar";
 
   port = socket_get_local_port(socket);
-  proto = socket_is_secure(socket) ? "sips" : "sip";  
+  proto = socket_is_secure(socket) ? "sips" : "sip";
 
   switch(socket_get_type(socket)) {
     case SOCK_DGRAM:
@@ -179,7 +179,7 @@ int check_sip(Socket_T socket) {
 
   DEBUG("Response from SIP server: %s\n", buf);
 
-  if(! sscanf(buf, "%*s %d", &status)) { 
+  if(! sscanf(buf, "%*s %d", &status)) {
     socket_setError(socket, "SIP error: cannot parse SIP status in response: %s\n", buf);
     return FALSE;
   }
@@ -190,7 +190,7 @@ int check_sip(Socket_T socket) {
   }
 
   if(status >= 300 && status < 400) {
-    socket_setError(socket, "SIP info: Server redirection. Returned status %d\n", status); 
+    socket_setError(socket, "SIP info: Server redirection. Returned status %d\n", status);
     return FALSE;
   }
 

@@ -181,8 +181,26 @@ int main(void) {
                 assert(!c);
         }
         printf("=> Test5: OK\n\n");
-
-        printf("=> Test6: execute\n");
+        
+        printf("=> Test6: Append arguments\n");
+        {
+                Command_T c = Command_new("/bin/ls", NULL);
+                assert(c);
+                Command_appendArgument(c, "-l");
+                Command_appendArgument(c, "-t");
+                Command_appendArgument(c, "-r");
+                List_T l = Command_getCommand(c);
+                assert(Str_isEqual(l->head->e, "/bin/ls"));
+                assert(Str_isEqual(l->head->next->e, "-l"));
+                assert(Str_isEqual(l->head->next->next->e, "-t"));
+                assert(Str_isEqual(l->head->next->next->next->e, "-r"));
+                assert(l->head->next->next->next->next == NULL);
+                Command_free(&c);
+                assert(!c);
+        }
+        printf("=> Test6: OK\n\n");
+        
+        printf("=> Test7: execute invalid program\n");
         {
                 // Program producing error
                 Command_T c = Command_new("/bin/sh", "-c", "baluba;", NULL);
@@ -192,33 +210,38 @@ int main(void) {
                 onExec(Command_execute(c));
                 Command_free(&c);
                 assert(!c);
+        }
+        printf("=> Test7: OK\n\n");
 
-                // Correct program
-                c = Command_new("/bin/sh", "-c", "echo \"Please enter your name:\";read name;echo \"Hello $name\";", NULL);
+        printf("=> Test8: execute valid program\n");
+        {
+                Command_T c = Command_new("/bin/sh", "-c", "echo \"Please enter your name:\";read name;echo \"Hello $name\";", NULL);
                 assert(c);
                 onExec(Command_execute(c));
                 Command_free(&c);
                 assert(!c);
         }
-        printf("=> Test6: OK\n\n");
+        printf("=> Test8: OK\n\n");
 
-        printf("=> Test7: terminate and kill sub-process\n");
+        printf("=> Test9: terminate sub-process\n");
         {
-                // Test terminate
-                Command_T c = Command_new("/bin/sh", "-c", "sleep 30;", NULL);
+                Command_T c = Command_new("/bin/sh", "-c", "exec sleep 30;", NULL);
                 assert(c);
                 onTerminate(Command_execute(c));
                 Command_free(&c);
                 assert(!c);
+        }
+        printf("=> Test9: OK\n\n");
 
-                // Test kill
-                c = Command_new("/bin/sh", "-c", "trap 1 2 15; sleep 30; ", NULL);
+        printf("=> Test10: kill sub-process\n");
+        {
+                Command_T c = Command_new("/bin/sh", "-c", "trap 1 2 15; sleep 30; ", NULL);
                 assert(c);
                 onKill(Command_execute(c));
                 Command_free(&c);
                 assert(!c);
         }
-        printf("=> Test7: OK\n\n");
+        printf("=> Test10: OK\n\n");
 
         printf("============> Command Tests: OK\n\n");
 

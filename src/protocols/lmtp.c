@@ -61,7 +61,7 @@ static int expect(Socket_T socket, int expect, int log) {
 
         sscanf(buf, "%d%*s", &status);
         if(status != expect) {
-                if(log) 
+                if(log)
                         socket_setError(socket, "LMTP error: %s\n", buf);
                 return FALSE;
         }

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -58,7 +58,7 @@
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif 
+#endif
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -66,7 +66,7 @@
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif 
+#endif
 
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
@@ -275,8 +275,8 @@ int check_socket(int socket) {
 
 
 /**
- * Verify that the udp server is up. The given socket must be a 
- * connected udp socket if we should be able to test the udp server. 
+ * Verify that the udp server is up. The given socket must be a
+ * connected udp socket if we should be able to test the udp server.
  * The test is conducted by sending a datagram to the server and
  * check for a returned ICMP error when reading from the socket.
  * @param socket A socket
@@ -346,7 +346,7 @@ int create_socket(const char *hostname, int port, int type, int timeout) {
   }
 
   if(fcntl(s, F_SETFD, FD_CLOEXEC) == -1)
-    goto error; 
+    goto error;
 
   if(do_connect(s, (struct sockaddr *)&sin, sizeof(sin), timeout) < 0) {
     goto error;
@@ -453,7 +453,7 @@ int create_server_socket(int port, int backlog, const char *bindAddr) {
   if(bindAddr) {
     struct sockaddr_in *sa;
     struct addrinfo hints;
-    struct addrinfo *result;    
+    struct addrinfo *result;
 
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
@@ -480,7 +480,7 @@ int create_server_socket(int port, int backlog, const char *bindAddr) {
 
   if(fcntl(s, F_SETFD, FD_CLOEXEC) == -1) {
     LogError("%s: Cannot set close on exec option -- %s\n", prog, STRERROR);
-    goto error; 
+    goto error;
   }
 
   if(bind(s, (struct sockaddr *)&myaddr, sizeof(struct sockaddr_in)) < 0) {
@@ -592,7 +592,7 @@ int can_write(int socket, int timeout) {
 
 /**
  * Write <code>size</code> bytes from the <code>buffer</code> to the
- * <code>socket</code> 
+ * <code>socket</code>
  * @param socket the socket to write to
  * @param buffer The buffer to write
  * @param size Number of bytes to send
@@ -633,7 +633,7 @@ ssize_t sock_write(int socket, const void *buffer, size_t size, int timeout) {
  * @param buffer The buffer to write the data to
  * @param size Number of bytes to read from the socket
  * @param timeout Seconds to wait for data to be available
- * @return The number of bytes read or -1 if an error occured. 
+ * @return The number of bytes read or -1 if an error occured.
  */
 ssize_t sock_read(int socket, void *buffer, int size, int timeout) {
 
@@ -686,8 +686,8 @@ int udp_write(int socket, void *b, size_t len, int timeout) {
     if(n == -1 && (errno != EAGAIN || errno != EWOULDBLOCK))
       return -1;
 
-    /* Simple retransmit scheme, wait for the server to reply 
-    back to our socket. This assume a request-response pattern, 
+    /* Simple retransmit scheme, wait for the server to reply
+    back to our socket. This assume a request-response pattern,
     which really is the only pattern we can support */
     if(can_read(socket, (int)(timeout/i))) return n;
     DEBUG("udp_write: Resending request\n");
@@ -731,7 +731,7 @@ double icmp_echo(const char *hostname, int timeout, int count) {
   unsigned ttl = 255;
 #endif
 
-  ASSERT(hostname);   
+  ASSERT(hostname);
   ASSERT(len_out < sizeof(buf));
 
   memset(&hints, 0, sizeof(struct addrinfo));

@@ -156,6 +156,9 @@
 /* Define to 1 if you have the <netinet/ip_icmp.h> header file. */
 #undef HAVE_NETINET_IP_ICMP_H
 
+/* Define to 1 if you have the <netinet/tcp.h> header file. */
+#undef HAVE_NETINET_TCP_H
+
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
 
@@ -357,6 +360,9 @@
 
 /* Define to 1 if you have the <sys/vmmeter.h> header file. */
 #undef HAVE_SYS_VMMETER_H
+
+/* Define to 1 if you have the <sys/vm_usage.h> header file. */
+#undef HAVE_SYS_VM_USAGE_H
 
 /* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
 #undef HAVE_SYS_WAIT_H

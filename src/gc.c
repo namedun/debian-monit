@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -191,6 +191,8 @@ static void _gc_service(Service_T *s) {
                         Process_free(&(*s)->program->P);
                 if ((*s)->program->C)
                         Command_free(&(*s)->program->C);
+                if ((*s)->program->args)
+                        gccmd(&(*s)->program->args);
         }
 
         if((*s)->portlist)

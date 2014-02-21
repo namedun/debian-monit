@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -31,7 +31,7 @@
 /*
  * DESCRIPTION
  *
- *   Lexical grammar for tokenizing the control file. 
+ *   Lexical grammar for tokenizing the control file.
  *
  */
 
@@ -56,9 +56,12 @@
 #include "util/Str.h"
 
 
+// we don't use yyinput => do not generate it
+#define YY_NO_INPUT
+
 #define MAX_STACK_DEPTH 512
 
-  int buffer_stack_ptr=0;
+  int buffer_stack_ptr = 0;
 
   struct buffer_stack_s {
     int             lineno;
@@ -72,7 +75,19 @@
   char *currentfile=NULL;
   char *argcurrentfile=NULL;
   char *argyytext=NULL;
+  typedef enum {
+          Proc_State,
+          File_State,
+          FileSys_State,
+          Dir_State,
+          Host_State,
+          System_State,
+          Fifo_State,
+          Program_State,
+          None_State
+  } Check_State;
 
+  static Check_State check_state = None_State;
 
   /* Prototypes */
   extern void yyerror(const char*,...);
@@ -107,6 +122,7 @@ startarg    start{ws}?(program)?{ws}?([=]{ws})?["]
 stoparg     stop{ws}?(program)?{ws}?([=]{ws})?["]
 restartarg  restart{ws}?(program)?{ws}?([=]{ws})?["]
 execarg     exec(ute)?{ws}?["]
+pathtokarg  path{ws}?["]
 percent     ("percent"|"%")
 byte        ("byte"|"b")
 kilobyte    ("kilobyte"|"kb")
@@ -118,7 +134,7 @@ gigabyte    ("gigabyte"|"gb")
 %%
 
 {wws}             { /* Wide white space */ }
-(#.*)?\\?\n?      { lineno++; } 
+(#.*)?\\?\n?      { lineno++; }
 
 is                {/* EMPTY */}
 as                {/* EMPTY */}
@@ -145,6 +161,15 @@ does              {/* EMPTY */}
 {stoparg}         { BEGIN(ARGUMENT_COND); return STOP; }
 {restartarg}      { BEGIN(ARGUMENT_COND); return RESTART; }
 {execarg}         { BEGIN(ARGUMENT_COND); return EXEC; }
+{pathtokarg}      {
+                        if (check_state == Program_State) {
+                                BEGIN(ARGUMENT_COND); // Parse Path for program as arguments
+                                return PATHTOK;
+                        } else {
+                                unput('"');
+                                return PATHTOK;
+                        }
+                  }
 
 if                { return IF; }
 or                { return OR; }
@@ -217,8 +242,8 @@ lmtp              { return LMTP; }
 rsync             { return RSYNC; }
 tns               { return TNS; }
 pgsql             { return PGSQL; }
-sip               { return SIP; } 
-gps               { return GPS; } 
+sip               { return SIP; }
+gps               { return GPS; }
 radius            { return RADIUS; }
 memcache          { return MEMCACHE; }
 target            { return TARGET; }
@@ -322,12 +347,12 @@ fips              { return FIPS; }
 
 include           { BEGIN(INCLUDE); }
 
-not[ ]+every      { 
+not[ ]+every      {
                     BEGIN(EVERY_COND);
                     return NOTEVERY;
                   }
 
-every             { 
+every             {
                     BEGIN(EVERY_COND);
                     return EVERY;
                   }
@@ -335,56 +360,66 @@ every             {
 depend(s)?[ \t]+(on[ \t]*)? {
                     BEGIN(DEPEND_COND);
                     return DEPENDS;
-                  } 
+                  }
 
 check[ \t]+(process[ \t])? {
                     BEGIN(SERVICE_COND);
+                    check_state = Proc_State;
                     return CHECKPROC;
                   }
 
 check[ \t]+(program[ \t])? {
                     BEGIN(SERVICE_COND);
+                    check_state = Program_State;
                     return CHECKPROGRAM;
                   }
 
 check[ \t]+device { /* Filesystem alias for backward compatibility  */
                     BEGIN(SERVICE_COND);
+                    check_state = FileSys_State;
                     return CHECKFILESYS;
                   }
 
 check[ \t]+filesystem {
                     BEGIN(SERVICE_COND);
+                    check_state = FileSys_State;
                     return CHECKFILESYS;
                   }
 
 check[ \t]+file   {
                     BEGIN(SERVICE_COND);
+                    check_state = File_State;
                     return CHECKFILE;
                   }
 
 check[ \t]+directory {
                     BEGIN(SERVICE_COND);
+                    check_state = Dir_State;
                     return CHECKDIR;
                   }
 
 check[ \t]+host   {
                     BEGIN(SERVICE_COND);
+                    check_state = Host_State;
                     return CHECKHOST;
                   }
 
 check[ \t]+system {
                     BEGIN(SERVICE_COND);
+                    check_state = System_State;
                     return CHECKSYSTEM;
                   }
 
 check[ \t]+fifo   {
                     BEGIN(SERVICE_COND);
+                    check_state = Fifo_State;
                     return CHECKFIFO;
                   }
 
 check[ \t]+program   {
                     BEGIN(SERVICE_COND);
-                        return CHECKPROGRAM;
+                    check_state = Program_State;
+                    return CHECKPROGRAM;
                   }
 
 group[ \t]+       {
@@ -393,8 +428,8 @@ group[ \t]+       {
                   }
 
 [a-zA-Z0-9]+"://" {
-		    yylval.url= 
-		      create_URL(Str_ndup(yytext, strlen(yytext)-3));
+                    yylval.url=
+                      create_URL(Str_ndup(yytext, strlen(yytext)-3));
                     BEGIN(URL_COND);
                   }
 
@@ -409,7 +444,7 @@ group[ \t]+       {
                   }
 
 {percent}         {
-	            return PERCENT;
+                    return PERCENT;
                   }
 
 [a-zA-Z0-9]{str}  {
@@ -574,10 +609,10 @@ group[ \t]+       {
 
   {ws}|[\n]       {
                       BEGIN(INITIAL);
-		      if(!yylval.url->hostname)
-			yyerror("missing hostname in URL");
-		      if(!yylval.url->path)
-			yylval.url->path= Str_dup("/");
+                      if(!yylval.url->hostname)
+                        yyerror("missing hostname in URL");
+                      if(!yylval.url->path)
+                        yylval.url->path= Str_dup("/");
                       yylval.url->url= Str_cat("%s://%s:%d%s%s%s",
                         yylval.url->protocol,
                         /* possible credentials are hidden */
@@ -586,36 +621,36 @@ group[ \t]+       {
                         yylval.url->path,
                         yylval.url->query?"?":"",
                         yylval.url->query?yylval.url->query:"");
-		      save_arg(); return URLOBJECT;
+                      save_arg(); return URLOBJECT;
                   }
 
   [^:@ ]+/[:][^@: ]+[@] {
-	              yylval.url->user= Str_dup(yytext);
+                      yylval.url->user= Str_dup(yytext);
                   }
 
   [:][^@ ]+[@]    {
-	              yytext++;
-	              yylval.url->password= Str_ndup(yytext, strlen(yytext)-1);
+                      yytext++;
+                      yylval.url->password= Str_ndup(yytext, strlen(yytext)-1);
                   }
 
   [^/?:#\r\n ]+   {
-	              yylval.url->hostname= Str_dup(yytext);
+                      yylval.url->hostname= Str_dup(yytext);
                   }
 
   [:]{number}     {
-	              yylval.url->port= atoi(++yytext);
+                      yylval.url->port= atoi(++yytext);
                   }
 
   [/][^?#\r\n ]*  {
-	              yylval.url->path= Util_urlEncode(yytext);
+                      yylval.url->path= Util_urlEncode(yytext);
                   }
 
   [?][^#\r\n ]*   {
-	              yylval.url->query= Util_urlEncode(++yytext);
+                      yylval.url->query= Util_urlEncode(++yytext);
                   }
 
-  [#][^\r\n ]*    { 
-	              /* EMPTY - reference is ignored */ 
+  [#][^\r\n ]*    {
+                      /* EMPTY - reference is ignored */
                   }
 
 }
@@ -671,15 +706,16 @@ group[ \t]+       {
 
 
 <INITIAL,ARGUMENT_COND,SERVICE_COND,DEPEND_COND,URL_COND,STRING_COND,EVERY_COND>. {
+                      check_state = None_State;
                       return yytext[0];
-                  }  
+                  }
 
 
 <INCLUDE>[ \t]*      /* eat the whitespace */
 
 <INCLUDE>\"[^\"\r\n]+\" { /* got the include file name with double quotes */
                      char *temp=Str_dup(yytext);
-                     Str_unquote(temp);    
+                     Str_unquote(temp);
                      include_file(temp);
                      FREE(temp);
                      BEGIN(INITIAL);
@@ -687,7 +723,7 @@ group[ \t]+       {
 
 <INCLUDE>\'[^\'\r\n]+\' { /* got the include file name with single quotes*/
                      char *temp=Str_dup(yytext);
-                     Str_unquote(temp);    
+                     Str_unquote(temp);
                      include_file(temp);
                      FREE(temp);
                      BEGIN(INITIAL);

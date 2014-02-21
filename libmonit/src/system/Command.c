@@ -68,9 +68,9 @@ struct Process_T {
         pid_t pid;
         uid_t uid;
         gid_t gid;
+        int status;
         char **env; 
         char **args;
-        int status;
         int stdin_pipe[2];
         int stdout_pipe[2];
         int stderr_pipe[2];
@@ -164,10 +164,10 @@ static void setupChildPipes(Process_T P) {
 /* Setup stdio pipes in parent process for communication with the subprocess */
 static void setupParentPipes(Process_T P) {
         close(P->stdin_pipe[0]);    // close read end
-        Net_setNonBlocking(P->stdin_pipe[1]);
         close(P->stdout_pipe[1]);   // close write end
-        Net_setNonBlocking(P->stdout_pipe[0]);
         close(P->stderr_pipe[1]);   // close write end
+        Net_setNonBlocking(P->stdin_pipe[1]);
+        Net_setNonBlocking(P->stdout_pipe[0]);
         Net_setNonBlocking(P->stderr_pipe[0]);
 }
 
@@ -352,6 +352,13 @@ void Command_free(T *C) {
         List_free(&(*C)->env);
         FREE((*C)->working_directory);
         FREE(*C);
+}
+
+
+void Command_appendArgument(T C, const char *argument) {
+        assert(C);
+        if (argument)
+                List_append(C->args, Str_dup(argument));
 }
 
 

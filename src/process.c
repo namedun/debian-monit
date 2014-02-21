@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -91,7 +91,7 @@ int init_process_info(void) {
 
 /**
  * Get the proc infomation (CPU percentage, MEM in MByte and percent,
- * status), enduser version. 
+ * status), enduser version.
  * @param p A Service object
  * @param pid The process id
  * @return TRUE if succeeded otherwise FALSE.
@@ -185,15 +185,15 @@ error2:
   systeminfo.total_mem_percent = 0;
 error3:
   systeminfo.total_cpu_user_percent = 0;
-  systeminfo.total_cpu_syst_percent = 0;  
-  systeminfo.total_cpu_wait_percent = 0;  
+  systeminfo.total_cpu_syst_percent = 0;
+  systeminfo.total_cpu_wait_percent = 0;
 
   return FALSE;
 }
 
 
 /**
- * Initialize the process tree 
+ * Initialize the process tree
  * @return treesize >= 0 if succeeded otherwise < 0
  */
 int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, int *oldsize_r) {
@@ -203,11 +203,11 @@ int initprocesstree(ProcessTree_T **pt_r, int *size_r, ProcessTree_T **oldpt_r, 
   ProcessTree_T *oldpt;
   int root = -1;
 
-  if (*pt_r != NULL) {  
+  if (*pt_r != NULL) {
     if (oldpt_r && *oldpt_r != NULL)
       delprocesstree(oldpt_r, oldsize_r);
-    *oldpt_r   = *pt_r; 
-    *oldsize_r = *size_r; 
+    *oldpt_r   = *pt_r;
+    *oldsize_r = *size_r;
   }
 
   if ((*size_r = initprocesstree_sysdep(pt_r)) <= 0) {
@@ -308,7 +308,7 @@ int findprocess(int pid, ProcessTree_T *pt, int size) {
 }
 
 /**
- * Delete the process tree 
+ * Delete the process tree
  */
 void delprocesstree(ProcessTree_T **reference, int *size) {
   int i;

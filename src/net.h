@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -61,8 +61,8 @@ int check_socket(int socket);
 
 
 /**
- * Verify that the udp server is up. The given socket must be a 
- * connected udp socket if we should be able to test the udp server. 
+ * Verify that the udp server is up. The given socket must be a
+ * connected udp socket if we should be able to test the udp server.
  * The test is conducted by sending a datagram to the server and
  * check for a returned ICMP error when reading from the socket.
  * @param socket A socket
@@ -162,7 +162,7 @@ int can_write(int socket, int timeout);
 
 /**
  * Write <code>size</code> bytes from the <code>buffer</code> to the
- * <code>socket</code> 
+ * <code>socket</code>
  * @param socket the socket to write to
  * @param buffer The buffer to write
  * @param size Number of bytes to send
@@ -180,7 +180,7 @@ ssize_t sock_write(int socket, const void *buffer, size_t size, int timeout);
  * @param buffer The buffer to write the data to
  * @param size Number of bytes to read from the socket
  * @param timeout Seconds to wait for data to be available
- * @return The number of bytes read or -1 if an error occured. 
+ * @return The number of bytes read or -1 if an error occured.
 */
 ssize_t sock_read(int socket, void *buffer, int size, int timeout);
 

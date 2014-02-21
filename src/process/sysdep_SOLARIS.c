@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -94,6 +94,10 @@
 
 #ifdef HAVE_ZONE_H
 #include <zone.h>
+#endif
+
+#ifdef HAVE_SYS_VM_USAGE_H
+#include <sys/vm_usage.h>
 #endif
 
 #include "monit.h"
@@ -191,7 +195,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
       pt[i].cpu_percent = 0;
       pt[i].mem_kbyte   = 0;
       continue;
-    } 
+    }
 
     pt[i].ppid      = psinfo->pr_ppid;
     pt[i].starttime = psinfo->pr_start.tv_sec;
@@ -203,7 +207,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
       pt[i].cpu_percent = 0;
       pt[i].mem_kbyte   = 0;
       continue;
-    } 
+    }
 
     pt[i].mem_kbyte = psinfo->pr_rssize;
 
@@ -249,7 +253,7 @@ int getloadavg_sysdep (double *loadv, int nelem) {
  */
 int used_system_memory_sysdep(SystemInfo_T *si) {
   int                 i, n, num;
-  kstat_ctl_t        *kctl;  
+  kstat_ctl_t        *kctl;
   kstat_named_t      *knamed;
   kstat_t            *kstat;
   swaptbl_t          *s;
@@ -258,17 +262,31 @@ int used_system_memory_sysdep(SystemInfo_T *si) {
   unsigned long long  used  = 0ULL;
 
   /* Memory */
-  kctl  = kstat_open();
-  if (getzoneid() != GLOBAL_ZONEID && (kstat = kstat_lookup(kctl, "memory_cap", -1, NULL))) {
-    /* Joyent SmartOS zone: reports wrong unix::system_pages:freemem in the zone - shows global zone freemem, witch to SmartOS specific memory_cap kstat */
-    if (kstat_read(kctl, kstat, NULL) == -1) {
-      LogError("system statistic error -- memory_cap usage gathering failed\n");
-      kstat_close(kctl);
-      return FALSE;
-    }
-    kstat_named_t *rss;
-    if ((rss = (kstat_named_t *)kstat_data_lookup(kstat, "rss")))
-      si->total_mem_kbyte = rss->value.i64 / 1024;
+  kctl = kstat_open();
+  zoneid_t zoneid = getzoneid();
+  if (zoneid != GLOBAL_ZONEID) {
+        /* Zone */
+        if ((kstat = kstat_lookup(kctl, "memory_cap", -1, NULL))) {
+                /* Joyent SmartOS zone: reports wrong unix::system_pages:freemem in the zone - shows global zone freemem, switch to SmartOS specific memory_cap kstat, which is more effective then common getvmusage() */
+                if (kstat_read(kctl, kstat, NULL) == -1) {
+                        LogError("system statistic error -- memory_cap usage gathering failed\n");
+                        kstat_close(kctl);
+                        return FALSE;
+                }
+                kstat_named_t *rss = kstat_data_lookup(kstat, "rss");
+                if (rss)
+                        si->total_mem_kbyte = rss->value.i64 / 1024;
+        } else {
+                /* Solaris Zone */
+		size_t nres;
+		vmusage_t result;
+                if (getvmusage(VMUSAGE_ZONE, Run.polltime, &result, &nres) != 0) {
+                        LogError("system statistic error -- getvmusage failed\n");
+                        kstat_close(kctl);
+                        return FALSE;
+                }
+                si->total_mem_kbyte = result.vmu_rss_all / 1024;
+        }
   } else {
     kstat = kstat_lookup(kctl, "unix", 0, "system_pages");
     if (kstat_read(kctl, kstat, 0) == -1) {
@@ -333,7 +351,7 @@ again:
 int used_system_cpu_sysdep(SystemInfo_T *si) {
   int             i, ncpu = 0, ncpus;
   long            cpu_user = 0, cpu_syst = 0, cpu_wait = 0, total = 0, diff_total;
-  kstat_ctl_t    *kctl;  
+  kstat_ctl_t    *kctl;
   kstat_named_t  *knamed;
   kstat_t        *kstat;
   kstat_t       **cpu_ks;

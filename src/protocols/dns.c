@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -58,7 +58,7 @@ int check_dns(Socket_T socket) {
   int            offset_response = 0;
   int            rc;
   unsigned char  buf[STRLEN];
-  unsigned char *response = NULL; 
+  unsigned char *response = NULL;
   unsigned char  request[19] = {
     0x00,          /** Request Length field for DNS via TCP */
     0x11,

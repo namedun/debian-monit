@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -155,7 +155,9 @@ int validate() {
 
         /* Check the services */
         time_t now = Time_now();
-        for (s = servicelist; s && !Run.stopped; s = s->next) {
+        for (s = servicelist; s; s = s->next) {
+                if (Run.stopped)
+                        break;
                 if (! do_scheduled_action(s) && s->monitor && ! check_skip(s, now)) {
                         check_timeout(s); // Can disable monitoring => need to check s->monitor again
                         if (s->monitor) {
@@ -177,7 +179,7 @@ int validate() {
 
 
 /**
- * Validate a given process service s. Events are posted according to 
+ * Validate a given process service s. Events are posted according to
  * its configuration. In case of a fatal event FALSE is returned.
  */
 int check_process(Service_T s) {
@@ -217,6 +219,9 @@ int check_process(Service_T s) {
 
         /* Test each host:port and protocol in the service's portlist */
         if (s->portlist)
+                /* skip further tests during startup timeout */
+                if (s->start)
+                        if (s->inf->priv.process.uptime < s->start->timeout) return TRUE;
                 for (pp = s->portlist; pp; pp = pp->next)
                         check_connection(s, pp);
 
@@ -226,7 +231,7 @@ int check_process(Service_T s) {
 
 
 /**
- * Validate a given filesystem service s. Events are posted according to 
+ * Validate a given filesystem service s. Events are posted according to
  * its configuration. In case of a fatal event FALSE is returned.
  */
 int check_filesystem(Service_T s) {
@@ -292,7 +297,7 @@ int check_filesystem(Service_T s) {
 
 
 /**
- * Validate a given file service s. Events are posted according to 
+ * Validate a given file service s. Events are posted according to
  * its configuration. In case of a fatal event FALSE is returned.
  */
 int check_file(Service_T s) {
@@ -316,12 +321,12 @@ int check_file(Service_T s) {
                 Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "file exist");
         }
 
-        if (!S_ISREG(s->inf->st_mode)) {
-                Event_post(s, Event_Invalid, STATE_FAILED, s->action_INVALID, "is not a regular file");
+        if (!S_ISREG(s->inf->st_mode) && !S_ISSOCK(s->inf->st_mode)) {
+                Event_post(s, Event_Invalid, STATE_FAILED, s->action_INVALID, "is neither a regular file nor a socket");
                 return FALSE;
         } else {
-                DEBUG("'%s' is a regular file\n", s->name);
-                Event_post(s, Event_Invalid, STATE_SUCCEEDED, s->action_INVALID, "is a regular file");
+                DEBUG("'%s' is a regular file or socket\n", s->name);
+                Event_post(s, Event_Invalid, STATE_SUCCEEDED, s->action_INVALID, "is a regular file or socket");
         }
 
         if (s->checksum)
@@ -398,7 +403,7 @@ int check_directory(Service_T s) {
 
 
 /**
- * Validate a given fifo service s. Events are posted according to 
+ * Validate a given fifo service s. Events are posted according to
  * its configuration. In case of a fatal event FALSE is returned.
  */
 int check_fifo(Service_T s) {
@@ -445,7 +450,7 @@ int check_fifo(Service_T s) {
 
 
 /**
- * Validate a program status. Events are posted according to 
+ * Validate a program status. Events are posted according to
  * its configuration. In case of a fatal event FALSE is returned.
  */
 int check_program(Service_T s) {
@@ -471,7 +476,7 @@ int check_program(Service_T s) {
                 int n = 0;
                 char buf[STRLEN + 1];
                 // Evaluate program's exit status against our status checks.
-                /* TODO: Multiple checks we have now should be deprecated and removed - not useful because it 
+                /* TODO: Multiple checks we have now should be deprecated and removed - not useful because it
                  will alert on everything if != is used other than the match or if = is used, might report nothing on error. */
                 for (Status_T status = s->statuslist; status; status = status->next) {
                         if (Util_evalQExpression(status->operator, s->program->exitStatus, status->return_value)) {
@@ -1029,7 +1034,7 @@ static void check_timestamp(Service_T s) {
                         if (Util_evalQExpression(t->operator, (int)(now - s->inf->timestamp), t->time))
                                 Event_post(s, Event_Timestamp, STATE_FAILED, t->action, "timestamp test failed for %s", s->path);
                         else {
-                                DEBUG("'%s' timestamp test succeeded for %s\n", s->name, s->path); 
+                                DEBUG("'%s' timestamp test succeeded for %s\n", s->name, s->path);
                                 Event_post(s, Event_Timestamp, STATE_SUCCEEDED, t->action, "timestamp succeeded");
                         }
                 }
@@ -1135,7 +1140,7 @@ static void check_match(Service_T s) {
         /* FIXME: Refactor: Initialize the filesystems table ahead of file and filesystems test and index it by device id + replace the Str_startsWith() with lookup to the table by device id (obtained via file's stat()).
                             The central filesystems initialization will allow to reduce the statfs() calls in the case that there will be multiple file and/or filesystems tests for the same fs. Temporarily we go with
                             dummy Str_startsWith() as quick fix which will cover 99.9% of use cases without rising the statfs overhead if statfs call would be inlined here.
-         */ 
+         */
         if (Str_startsWith(s->path, "/proc")) {
                 s->inf->priv.file.readpos = 0;
         } else {

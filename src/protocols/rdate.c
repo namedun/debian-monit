@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -46,7 +46,7 @@
 #include "protocol.h"
 
 /**
- *  Check the server response, check the time it returns and accept a 
+ *  Check the server response, check the time it returns and accept a
  *  TIME_TOLERANCE sec delta with the current system time.
  *
  *  This test is based on RFC868. Rdate returns number of seconds since
@@ -63,7 +63,7 @@ int check_rdate(Socket_T socket) {
   time_t delta;
   time_t rdatet;
   time_t systemt;
-	  
+
   ASSERT(socket);
 
   if(socket_read(socket,(char*) &rdatet, sizeof(time_t)) <= 0) {

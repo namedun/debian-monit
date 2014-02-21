@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -40,11 +40,11 @@
                       "\r\n"\
                       "\tDate:        $DATE\r\n"\
                       "\tAction:      $ACTION\r\n"\
-	              "\tHost:        $HOST\r\n"\
-	              "\tDescription: $DESCRIPTION\r\n"\
-		      "\r\n"\
-		      "Your faithful employee,\r\n"\
-	              "Monit\r\n"
+                      "\tHost:        $HOST\r\n"\
+                      "\tDescription: $DESCRIPTION\r\n"\
+                      "\r\n"\
+                      "Your faithful employee,\r\n"\
+                      "Monit\r\n"
 
 
 /**
