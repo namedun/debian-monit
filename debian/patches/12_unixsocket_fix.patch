@@ -36,7 +36,7 @@ Forwarded: not-needed, I don't want to sign your CLA
    ASSERT(pathname);
  
 -  if((s= socket(PF_UNIX, SOCK_STREAM, 0)) < 0) {
-+  if((s= socket(PF_UNIX, p->type, 0)) < 0) {
++  if((s= socket(PF_UNIX, type, 0)) < 0) {
      LogError("%s: Cannot create socket -- %s\n", prog, STRERROR);
      return -1;
    }
