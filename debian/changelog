@@ -1,3 +1,18 @@
+monit (1:5.7-1) unstable; urgency=low
+
+  * Bump up Standards-Version (to 3.9.5)
+  * Fix/add Forwarded: headers
+  * Imported Upstream version 5.7
+  * Refresh patches, remove 06_contrib.patch,
+    09_pid_in_rundir.patch and 10_ssl_multiarch.patch
+  * Add notes about CLA
+  * Removed obsoleted dh_installinit override (thanks to Christian Dröge)
+  * Cleanup 11_enable_hurd.patch
+  * Actually use type UDP option for unixsocket's (Closes: #739622)
+  * Recommend sysvinit
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 21 Feb 2014 16:58:23 +0400
+
 monit (1:5.6-2) unstable; urgency=low
 
   * disable ssl patch for now & reformat patches/series
