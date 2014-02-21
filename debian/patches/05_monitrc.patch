@@ -26,8 +26,8 @@ Forwarded: not-needed
 +  set logfile /var/log/monit.log
  #
  #
- ## Set the location of the Monit id file which stores the unique id for the
-@@ -33,6 +34,7 @@
+ ## Set the location of the Monit lock file which stores the process id of the
+@@ -38,6 +39,7 @@
  ## default the file is placed in $HOME/.monit.id.
  #
  # set idfile /var/.monit.id
@@ -35,7 +35,7 @@ Forwarded: not-needed
  #
  ## Set the location of the Monit state file which saves monitoring states
  ## on each cycle. By default the file is placed in $HOME/.monit.state. If
-@@ -40,7 +42,7 @@
+@@ -45,7 +47,7 @@
  ## the monitoring state across reboots. If it is on temporary filesystem, the
  ## state will be lost on reboot which may be convenient in some situations.
  #
@@ -44,8 +44,8 @@ Forwarded: not-needed
  #
  ## Set the list of mail servers for alert delivery. Multiple servers may be 
  ## specified using a comma separator. If the first mail server fails, Monit 
-@@ -59,9 +61,9 @@
- ## size using the SLOTS option (if omitted, the queue is limited by space 
+@@ -64,9 +66,9 @@
+ ## by using the SLOTS option (if omitted, the queue is limited by space
  ## available in the back end filesystem).
  #
 -# set eventqueue
@@ -57,7 +57,7 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -113,13 +115,13 @@
+@@ -118,13 +120,13 @@
  ## services monitored and manage services from a web interface. See the
  ## Monit Wiki if you want to enable SSL for the web server. 
  #
@@ -78,7 +78,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -242,5 +244,5 @@
+@@ -247,5 +249,5 @@
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #

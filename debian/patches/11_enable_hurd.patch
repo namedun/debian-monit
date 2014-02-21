@@ -22,7 +22,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure
 +++ b/configure
-@@ -13664,7 +13664,11 @@
+@@ -13663,7 +13663,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -37,7 +37,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -510,6 +510,11 @@
+@@ -511,6 +511,11 @@
     # AIX v. 5.3
     LIBS="$LIBS -lperfstat"	
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
@@ -112,7 +112,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/validate.c
 +++ b/src/validate.c
-@@ -231,7 +231,7 @@
+@@ -236,7 +236,7 @@
   */
  int check_filesystem(Service_T s) {
          char *p;
@@ -121,7 +121,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
          Filesystem_T td;
          struct stat stat_buf;
  
-@@ -245,7 +245,8 @@
+@@ -250,7 +250,8 @@
                  return FALSE;
          }
          if (S_ISLNK(stat_buf.st_mode)) {
@@ -131,7 +131,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
                          Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem symbolic link error -- %s", STRERROR);
                          return FALSE;
                  }
-@@ -253,6 +254,7 @@
+@@ -258,6 +259,7 @@
                  Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "filesystem symbolic link %s -> %s", s->path, p);
                  if (stat(p, &stat_buf) != 0) {
                          Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "filesystem doesn't exist");
@@ -139,7 +139,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
                          return FALSE;
                  }
          }
-@@ -266,12 +268,15 @@
+@@ -271,12 +273,15 @@
                  Event_post(s, Event_Data, STATE_FAILED, s->action_DATA, "unable to read filesystem %s state", p);
                  return FALSE;
          }
