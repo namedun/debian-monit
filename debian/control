@@ -14,6 +14,7 @@ Package: monit
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base (>= 3.2-13)
 Suggests: exim4 | postfix | mail-transport-agent
+Recommends: sysvinit-core
 Description: utility for monitoring and managing daemons or similar programs
  monit is a utility for monitoring and managing daemons or similar
  programs running on a Unix system. It will start specified programs
