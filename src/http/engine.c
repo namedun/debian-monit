@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -107,7 +107,7 @@
  *    accepted. Hosts allowed to connect to this server should be
  *    added to the access control list by calling add_host_allow().
  *
- *  @file 
+ *  @file
  */
 
 
@@ -142,7 +142,7 @@ static int  parse_network(char *, struct ulong_net *);
 /**
  * Start the HTTPD server
  * @param port The Port number to start the server at
- * @param backlog The maximum length of the incomming connection queue 
+ * @param backlog The maximum length of the incomming connection queue
  * @param bindAddr the local address the server will bind to
  */
 void start_httpd(int port, int backlog, char *bindAddr) {
@@ -154,7 +154,7 @@ void start_httpd(int port, int backlog, char *bindAddr) {
   if((myServerSocket= create_server_socket(port, backlog, bindAddr)) < 0) {
 
     LogError("http server: Could not create a server socket at port %d -- %s\n",
-	port, STRERROR);
+        port, STRERROR);
 
     LogError("monit HTTP server not available\n");
 
@@ -171,16 +171,15 @@ void start_httpd(int port, int backlog, char *bindAddr) {
 
     if(Run.httpdssl) {
 
-      mySSLServerConnection= init_ssl_server( Run.httpsslpem,
-					      Run.httpsslclientpem);
+      mySSLServerConnection = init_ssl_server( Run.httpsslpem, Run.httpsslclientpem);
 
       if(mySSLServerConnection == NULL) {
-	
-	LogError("http server: Could not initialize SSL engine\n");
-	
-	LogError("monit HTTP server not available\n");
-	
-	return;
+
+        LogError("http server: Could not initialize SSL engine\n");
+
+        LogError("monit HTTP server not available\n");
+
+        return;
       }
 
 #ifdef HAVE_OPENSSL
@@ -191,14 +190,14 @@ void start_httpd(int port, int backlog, char *bindAddr) {
     while(! stopped) {
 
       if(!(S= socket_producer(myServerSocket, port, mySSLServerConnection))) {
-	continue;
+        continue;
       }
 
       http_processor(S);
 
     }
 
-    delete_ssl_server_socket(mySSLServerConnection);  
+    delete_ssl_server_socket(mySSLServerConnection);
     close_socket(myServerSocket);
 
   }
@@ -207,7 +206,7 @@ void start_httpd(int port, int backlog, char *bindAddr) {
 
 
 /**
- * Stop the HTTPD server. 
+ * Stop the HTTPD server.
  */
 void stop_httpd() {
 
@@ -244,7 +243,7 @@ int add_host_allow(char *name) {
        HostsAllow h;
        struct sockaddr_in *sin = (struct sockaddr_in *)_res->ai_addr;
 
-       NEW(h);      
+       NEW(h);
        memcpy(&h->network, &sin->sin_addr, 4);
        h->mask=    0xffffffff;
        LOCK(hostlist_mutex)
@@ -252,12 +251,12 @@ int add_host_allow(char *name) {
          HostsAllow p, n;
          for(n= p= hostlist; p; n= p, p= p->next) {
            if((p->network == h->network) && ((p->mask == h->mask))) {
-             DEBUG("%s: Debug: Skipping redundant host '%s'\n", prog, name); 
+             DEBUG("%s: Debug: Skipping redundant host '%s'\n", prog, name);
              destroy_host_allow(h);
              goto done;
            }
          }
-         DEBUG("%s: Debug: Adding host allow '%s'\n", prog, name); 
+         DEBUG("%s: Debug: Adding host allow '%s'\n", prog, name);
          n->next= h;
        } else {
          DEBUG("%s: Debug: Adding host allow '%s'\n", prog, name);
@@ -310,25 +309,25 @@ int add_net_allow(char *s_network) {
     for(n= p= hostlist; p; n= p, p= p->next) {
 
       if((p->network == net.network) && ((p->mask == net.mask))) {
-	
+
         DEBUG("%s: Debug: Skipping redundant net '%s'.\n",
-              prog, s_network); 
+              prog, s_network);
         destroy_host_allow(h);
         goto done;
-	
+
       }
 
     }
 
     DEBUG("%s: Debug: Adding net allow '%s'.\n",
-          prog, s_network); 
+          prog, s_network);
 
     n->next= h;
 
   } else {
 
     DEBUG("%s: Debug: Adding net allow '%s'.\n",
-          prog, s_network); 
+          prog, s_network);
 
     hostlist= h;
 
@@ -358,7 +357,7 @@ int has_hosts_allow() {
 }
 
 
-/** 
+/**
  * Free the host allow list
  */
 void destroy_hosts_allow() {
@@ -366,7 +365,7 @@ void destroy_hosts_allow() {
   if(has_hosts_allow()) {
 
     LOCK(hostlist_mutex)
-	destroy_host_allow(hostlist);
+        destroy_host_allow(hostlist);
         hostlist= NULL;
     END_LOCK;
 
@@ -437,7 +436,7 @@ static int authenticate(const struct in_addr addr) {
  * Returns TRUE if host is allowed to connect to
  * this server
  */
-static int is_host_allow(const struct in_addr addr) { 
+static int is_host_allow(const struct in_addr addr) {
 
   HostsAllow p;
   int rv= FALSE;
@@ -581,12 +580,12 @@ static int parse_network(char *s_network, struct ulong_net *net) {
 
     }
 
-  } else { 	 
-  	 
-    /* Parse long netmasks */ 	 
-    if (inet_aton(longmask, &inp) == 0) { 	 
+  } else {
 
-      goto done; 	 
+    /* Parse long netmasks */
+    if (inet_aton(longmask, &inp) == 0) {
+
+      goto done;
 
     }
 
@@ -669,11 +668,11 @@ static Socket_T socket_producer(int server, int port, void *sslserver) {
 
 
 /**
- * Free a (linked list of) host_allow ojbect(s). 
+ * Free a (linked list of) host_allow ojbect(s).
  */
 static void destroy_host_allow(HostsAllow p) {
 
-  HostsAllow a= p; 
+  HostsAllow a= p;
 
   if(a->next) {
     destroy_host_allow(a->next);

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -68,9 +68,9 @@ char *file_findControlFile();
 
 /**
  * Create a program's pidfile - Such a file is created when in daemon
- * mode. The file is created with mask = MYPIDMASK (usually 644).  
+ * mode. The file is created with mask = MYPIDMASK (usually 644).
  * @param pidfile The name of the pidfile to create
- * @return TRUE if the file was created, otherwise FALSE. 
+ * @return TRUE if the file was created, otherwise FALSE.
  */
 int file_createPidFile(char *pidfile);
 

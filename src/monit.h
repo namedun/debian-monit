@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -152,10 +152,12 @@
 #define MODE_PASSIVE       1
 #define MODE_MANUAL        2
 
-#define OPERATOR_GREATER   0
-#define OPERATOR_LESS      1
-#define OPERATOR_EQUAL     2
-#define OPERATOR_NOTEQUAL  3
+typedef enum {
+        Operator_Greater = 0,
+        Operator_Less,
+        Operator_Equal,
+        Operator_NotEqual
+} Operator_Type;
 
 #define TIME_SECOND        1
 #define TIME_MINUTE        60
@@ -211,7 +213,7 @@
 #define HASH_UNKNOWN       0
 #define HASH_MD5           1
 #define HASH_SHA1          2
-#define DEFAULT_HASH       HASH_MD5   
+#define DEFAULT_HASH       HASH_MD5
 /* Length of the longest message digest in bytes */
 #define MD_SIZE            65
 
@@ -230,7 +232,7 @@
 #define HANDLER_MMONIT     0x2
 #define HANDLER_MAX        HANDLER_MMONIT
 
-#define ICMP_ATTEMPT_COUNT      3         
+#define ICMP_ATTEMPT_COUNT      3
 
 
 /** ------------------------------------------------- Special purpose macros */
@@ -244,6 +246,11 @@ Sigfunc *signal(int signo, Sigfunc * func);
 #define SIG_ERR ((Sigfunc *)-1)
 #endif
 
+/* For systems without PATH_MAX define it with a resonable value */
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 
 /** ------------------------------------------------- General purpose macros */
 
@@ -254,7 +261,7 @@ Sigfunc *signal(int signo, Sigfunc * func);
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
 #define IS(a,b)  ((a&&b)?!strcasecmp(a, b):0)
 #define DEBUG if(Run.debug) LogDebug
-#define FLAG(x, y) (x & y) == y 
+#define FLAG(x, y) (x & y) == y
 #define NVLSTR(x) (x?x:"")
 
 
@@ -330,7 +337,7 @@ typedef struct myurl {
 /** Defines a HTTP client request object */
 typedef struct myrequest {
         URL_T url;                                               /**< URL request */
-        int   operator;                 /**< Response content comparison operator */
+        Operator_Type operator;         /**< Response content comparison operator */
 #ifdef HAVE_REGEX_H
         regex_t *regex;                   /* regex used to test the response body */
 #else
@@ -393,9 +400,6 @@ typedef struct myprocesstree {
         int           pid;
         int           ppid;
         int           status_flag;
-        time_t        starttime;
-        char         *cmdline;
-
         int           visited;
         int           children_num;
         int           children_sum;
@@ -403,6 +407,8 @@ typedef struct myprocesstree {
         int           cpu_percent_sum;
         unsigned long mem_kbyte;
         unsigned long mem_kbyte_sum;
+        time_t        starttime;
+        char         *cmdline;
 
         /** For internal use */
         double        time;                                      /**< 1/10 seconds */
@@ -454,18 +460,18 @@ typedef struct mygenericproto {
 
 /** Defines a port object */
 typedef struct myport {
-        volatile int socket;                       /**< Socket used for connection */
-        int  type;                  /**< Socket type used for connection (UDP/TCP) */
-        int  family;            /**< Socket family used for connection (INET/UNIX) */
         char *hostname;                                     /**< Hostname to check */
-        int  port;                                                 /**< Portnumber */
         char *request;                              /**< Specific protocol request */
         char *request_checksum;     /**< The optional checksum for a req. document */
         char *request_hostheader;            /**< The optional Host: header to use */
-        int  request_hashtype;  /**< The optional type of hash for a req. document */
         char *pathname;                   /**< Pathname, in case of an UNIX socket */
-        int maxforward;            /**< Optional max forward for protocol checking */
         Generic_T generic;                                /**< Generic test handle */
+        volatile int socket;                       /**< Socket used for connection */
+        int type;                   /**< Socket type used for connection (UDP/TCP) */
+        int family;             /**< Socket family used for connection (INET/UNIX) */
+        int port;                                                  /**< Portnumber */
+        int request_hashtype;   /**< The optional type of hash for a req. document */
+        int maxforward;            /**< Optional max forward for protocol checking */
         int timeout;   /**< The timeout in seconds to wait for connect or read i/o */
         int retry;       /**< Number of connection retry before reporting an error */
         int is_available;                /**< TRUE if the server/port is available */
@@ -473,26 +479,26 @@ typedef struct myport {
         EventAction_T action;  /**< Description of the action upon event occurence */
         /** Apache-status specific parameters */
         struct apache_status {
-                int loglimit;                  /**< Max percentatge of logging processes */
-                int loglimitOP;                                   /**< loglimit operator */
-                int closelimit;             /**< Max percentatge of closinging processes */
-                int closelimitOP;                               /**< closelimit operator */
-                int dnslimit;         /**< Max percentatge of processes doing DNS lookup */
-                int dnslimitOP;                                   /**< dnslimit operator */
-                int keepalivelimit;          /**< Max percentatge of keepalive processes */
-                int keepalivelimitOP;                       /**< keepalivelimit operator */
-                int replylimit;               /**< Max percentatge of replying processes */
-                int replylimitOP;                               /**< replylimit operator */
-                int requestlimit;     /**< Max percentatge of processes reading requests */
-                int requestlimitOP;                           /**< requestlimit operator */
-                int startlimit;            /**< Max percentatge of processes starting up */
-                int startlimitOP;                               /**< startlimit operator */
-                int waitlimit;  /**< Min percentatge of processes waiting for connection */
-                int waitlimitOP;                                 /**< waitlimit operator */
-                int gracefullimit;/**< Max percentatge of processes gracefully finishing */
-                int gracefullimitOP;                         /**< gracefullimit operator */
-                int cleanuplimit;      /**< Max percentatge of processes in idle cleanup */
-                int cleanuplimitOP;                           /**< cleanuplimit operator */
+                short loglimit;                  /**< Max percentage of logging processes */
+                short loglimitOP;                                  /**< loglimit operator */
+                short closelimit;             /**< Max percentage of closinging processes */
+                short closelimitOP;                              /**< closelimit operator */
+                short dnslimit;         /**< Max percentage of processes doing DNS lookup */
+                short dnslimitOP;                                  /**< dnslimit operator */
+                short keepalivelimit;          /**< Max percentage of keepalive processes */
+                short keepalivelimitOP;                      /**< keepalivelimit operator */
+                short replylimit;               /**< Max percentage of replying processes */
+                short replylimitOP;                              /**< replylimit operator */
+                short requestlimit;     /**< Max percentage of processes reading requests */
+                short requestlimitOP;                          /**< requestlimit operator */
+                short startlimit;            /**< Max percentage of processes starting up */
+                short startlimitOP;                              /**< startlimit operator */
+                short waitlimit;  /**< Min percentage of processes waiting for connection */
+                short waitlimitOP;                                /**< waitlimit operator */
+                short gracefullimit;/**< Max percentage of processes gracefully finishing */
+                short gracefullimitOP;                        /**< gracefullimit operator */
+                short cleanuplimit;      /**< Max percentage of processes in idle cleanup */
+                short cleanuplimitOP;                          /**< cleanuplimit operator */
         } ApacheStatus;
 
         Ssl_T SSL;                                             /**< SSL definition */
@@ -547,7 +553,7 @@ typedef struct mydependant {
 typedef struct myresource {
         int  resource_id;                              /**< Which value is checked */
         long limit;                                     /**< Limit of the resource */
-        int  operator;                                    /**< Comparison operator */
+        Operator_Type operator;                           /**< Comparison operator */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -557,7 +563,7 @@ typedef struct myresource {
 
 /** Defines timestamp object */
 typedef struct mytimestamp {
-        int  operator;                                    /**< Comparison operator */
+        Operator_Type operator;                           /**< Comparison operator */
         int  time;                                        /**< Timestamp watermark */
         int  test_changes;            /**< TRUE if we only should test for changes */
         time_t timestamp; /**< The original last modified timestamp for this object*/
@@ -585,7 +591,7 @@ typedef struct myevery {
         int type; /**< 0 = not set, 1 = cycle, 2 = cron, 3 = negated cron */
         union {
                 struct {
-                        int number; /**< Check this program at a given cycles */                 
+                        int number; /**< Check this program at a given cycles */
                         int counter; /**< Counter for number. When counter == number, check */
                 } cycle; /**< Old cycle based every check */
                 char *cron; /* A crontab format string */
@@ -595,7 +601,7 @@ typedef struct myevery {
 
 typedef struct mystatus {
         int return_value;                /**< Return value of the program to check */
-        int  operator;                                    /**< Comparison operator */
+        Operator_Type operator;                           /**< Comparison operator */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -606,6 +612,7 @@ typedef struct mystatus {
 typedef struct myprogram {
         Process_T P;          /**< A Process_T object representing the sub-process */
         Command_T C;          /**< A Command_T object for building the sub-process */
+        command_t args;                                     /**< Program arguments */
         int timeout;          /**< How long the program may run until it is killed */
         time_t started;                      /**< When the sub-process was started */
         int exitStatus;                 /**< Sub-process exit status for reporting */
@@ -614,7 +621,7 @@ typedef struct myprogram {
 
 /** Defines size object */
 typedef struct mysize {
-        int  operator;                                    /**< Comparison operator */
+        Operator_Type operator;                           /**< Comparison operator */
         unsigned long long size;                               /**< Size watermark */
         int  test_changes;            /**< TRUE if we only should test for changes */
         int  initialized;                        /**< TRUE if size was initialized */
@@ -627,7 +634,7 @@ typedef struct mysize {
 
 /** Defines uptime object */
 typedef struct myuptime {
-        int  operator;                                    /**< Comparison operator */
+        Operator_Type operator;                           /**< Comparison operator */
         unsigned long long uptime;                           /**< Uptime watermark */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
@@ -687,7 +694,7 @@ typedef struct mygid {
 /** Defines filesystem configuration */
 typedef struct myfilesystem {
         int  resource;                        /**< Whether to check inode or space */
-        int  operator;                                    /**< Comparison operator */
+        Operator_Type operator;                           /**< Comparison operator */
         long limit_absolute;                               /**< Watermark - blocks */
         int  limit_percent;                               /**< Watermark - percent */
         EventAction_T action;  /**< Description of the action upon event occurence */
@@ -737,7 +744,7 @@ typedef struct myinfo {
                         int    ppid;                 /**< Process parent PID from actual cycle */
                         int    status_flag;
                         int    children;
-                        long   mem_kbyte;    
+                        long   mem_kbyte;
                         long   total_mem_kbyte;
                         int    mem_percent;                               /**< percentage * 10 */
                         int    total_mem_percent;                         /**< percentage * 10 */
@@ -929,10 +936,10 @@ extern Service_T      servicelist;
 extern Service_T      servicelist_conf;
 extern ServiceGroup_T servicegrouplist;
 extern SystemInfo_T   systeminfo;
-extern ProcessTree_T *ptree;     
-extern int            ptreesize;    
-extern ProcessTree_T *oldptree;  
-extern int            oldptreesize; 
+extern ProcessTree_T *ptree;
+extern int            ptreesize;
+extern ProcessTree_T *oldptree;
+extern int            oldptreesize;
 
 extern char *actionnames[];
 extern char *modenames[];
@@ -988,7 +995,7 @@ void  gc_mail_list(Mail_T *);
 void  gccmd(command_t *);
 void  gc_event(Event_T *e);
 int   kill_daemon(int);
-int   exist_daemon(); 
+int   exist_daemon();
 int   sendmail(Mail_T);
 int   sock_msg(int, char *, ...);
 void  init_env();
@@ -1012,7 +1019,7 @@ int  check_URL(Service_T s);
 int  sha_md5_stream (FILE *, void *, void *);
 void reset_procinfo(Service_T);
 int  check_service_status(Service_T);
-void printhash(char *);  
+void printhash(char *);
 void status_xml(StringBuffer_T, Event_T, short, int, const char *);
 int  handle_mmonit(Event_T);
 int  do_wakeupcall();

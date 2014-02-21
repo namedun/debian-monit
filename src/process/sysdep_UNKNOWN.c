@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -48,7 +48,7 @@ int init_process_info_sysdep(void) {
  *
  * Read all processes of the proc files system to initialize
  * the process tree (sysdep version... but should work for
- * all procfs based unices) 
+ * all procfs based unices)
  * @param reference  reference of ProcessTree
  * @return treesize>0 if succeeded otherwise =0.
  */

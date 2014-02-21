@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -256,7 +256,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference) {
         }
         vm_deallocate(mytask, (vm_address_t)threadtable,threadtable_size * sizeof(thread_act_t));
       }
-      mach_port_deallocate(mytask, task); 	
+      mach_port_deallocate(mytask, task);
     }
   }
   FREE(args);

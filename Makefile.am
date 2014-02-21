@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign no-dependencies subdir-objects
 ACLOCAL_AMFLAGS	 = -I m4
 
-EXTRA_DIST	= README CHANGES COPYING bootstrap doc src config monitrc contrib libmonit monit.1
+EXTRA_DIST	= README CHANGES COPYING CONTRIBUTORS bootstrap doc src config monitrc contrib libmonit monit.1
 
 SUBDIRS		= libmonit
 
@@ -103,9 +103,8 @@ dist-hook::
 	-rm -rf `find $(distdir) -name "._*"`
 	-rm -rf `find $(distdir) -name ".DS_Store"`
 	-rm -rf `find $(distdir) -name ".libs"`
-	-rm -rf `find $(distdir) -name ".svn"`
+	-rm -rf `find $(distdir) -name ".git"`
 	-rm -rf `find $(distdir) -name ".dirstamp"`
-	-rm -rf `find $(distdir) -name ".tmp"`
 	-rm -rf $(distdir)/libmonit/libmonit.xcodeproj
 	-rm -rf $(distdir)/libmonit/config.log
 	-rm -rf $(distdir)/libmonit/config.status
@@ -113,6 +112,7 @@ dist-hook::
 	-rm -f $(distdir)/src/config.h
 	-rm -f $(distdir)/src/stamp-*
 	-rm -f $(distdir)/src/y.output
+	-rm -f $(distdir)/README.md
 	-perl -pi -e 's/^Version: .*/Version: '$(VERSION)'/' $(distdir)/contrib/packages/redhat/monit.spec
 	-chmod 600 monitrc
 	
@@ -124,6 +124,7 @@ distclean-local:
 		src/y.output \
 		monit-[0-9].*tar.gz
 	-rm -rf lib include
+
 
 cleanall: clean distclean
 	-rm -f Makefile.in configure aclocal.m4 autom4te.cache src/config.h.in monit.1 config/config.*

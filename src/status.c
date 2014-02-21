@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -86,7 +86,7 @@ int status(char *level) {
                 LogError("%s: Status not available -- the monit daemon is not running\n", prog);
                 return status;
         }
-        S = socket_create_t(Run.bind_addr ? Run.bind_addr : "localhost", Run.httpdport, SOCKET_TCP, 
+        S = socket_create_t(Run.bind_addr ? Run.bind_addr : "localhost", Run.httpdport, SOCKET_TCP,
                             (Ssl_T){.use_ssl = Run.httpdssl, .clientpemfile = Run.httpsslclientpem}, NET_TIMEOUT);
         if (! S) {
                 LogError("%s: error connecting to the monit daemon\n", prog);

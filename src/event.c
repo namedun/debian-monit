@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -175,7 +175,7 @@ void Event_post(Service_T service, long id, short state, EventAction_T action, c
           e->message = Str_vcat(s, ap);
           va_end(ap);
         }
-	break;
+        break;
       }
       e = e->next;
     } while (e);

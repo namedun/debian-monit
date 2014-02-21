@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -143,9 +143,9 @@ int init_process_info_sysdep(void) {
   char *ptr;
   char  buf[1024];
   long  page_size;
-  int   page_shift;  
+  int   page_shift;
 
-  if (! read_proc_file(buf, sizeof(buf), "meminfo", -1, NULL)) 
+  if (! read_proc_file(buf, sizeof(buf), "meminfo", -1, NULL))
     return FALSE;
   if (! (ptr = strstr(buf, MEMTOTAL))) {
     DEBUG("system statistic error -- cannot get real memory amount\n");
@@ -179,7 +179,7 @@ int init_process_info_sysdep(void) {
 /**
  * Read all processes of the proc files system to initialize
  * the process tree (sysdep version... but should work for
- * all procfs based unices) 
+ * all procfs based unices)
  * @param reference  reference of ProcessTree
  * @return treesize>0 if succeeded otherwise =0.
  */
@@ -207,7 +207,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
   if ((rv = glob("/proc/[0-9]*", GLOB_ONLYDIR, NULL, &globbuf))) {
     LogError("system statistic error -- glob failed: %d (%s)\n", rv, STRERROR);
     return FALSE;
-  } 
+  }
 
   treesize = globbuf.gl_pathc;
 

@@ -163,6 +163,15 @@
  */
 
 
+#ifndef CLANG_ANALYZER_NORETURN
+#if defined(__clang__)
+#define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
+#else
+#define CLANG_ANALYZER_NORETURN
+#endif
+#endif
+
+
 #define T Exception_T
 /** @cond hide */
 #include <pthread.h>
@@ -186,7 +195,7 @@ struct Exception_Frame {
 enum {Exception_entered=0, Exception_thrown, Exception_handled, Exception_finalized};
 extern TD_T Exception_stack;
 void Exception_init(void);
-void Exception_throw(const T *e, const char *func, const char *file, int line, const char *cause, ...);
+void Exception_throw(const T *e, const char *func, const char *file, int line, const char *cause, ...) CLANG_ANALYZER_NORETURN;
 #define pop_exception_stack TD_set(Exception_stack, ((Exception_Frame*)TD_get(Exception_stack))->prev)
 /** @endcond */
 

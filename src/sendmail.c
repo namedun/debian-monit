@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -47,11 +47,11 @@
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif 
+#endif
 
 #ifdef HAVE_SETJMP_H
 #include <setjmp.h>
-#endif 
+#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -106,7 +106,7 @@ void do_send(SendMail_T *S, const char *s, ...) {
         int rv = socket_write(S->socket, msg, strlen(msg));
         FREE(msg);
         if (rv <= 0)
-                THROW(IOException, "Error sending data to the server '%s' -- %s", S->server, STRERROR); 
+                THROW(IOException, "Error sending data to the server '%s' -- %s", S->server, STRERROR);
 }
 
 
@@ -162,13 +162,24 @@ static void open_server(SendMail_T *S) {
 
 
 static void close_server(SendMail_T *S) {
-        if (S->quit) {
-                S->quit = FALSE;
-                do_send(S, "QUIT\r\n");
-                do_status(S);
+        TRY
+        {
+                if (S->quit) {
+                        S->quit = FALSE;
+                        do_send(S, "QUIT\r\n");
+                        do_status(S);
+                }
         }
-        if (S->socket)
-                socket_free(&(S->socket));
+        ELSE
+        {
+                LogError("Sendmail: %s\n", Exception_frame.message);
+        }
+        FINALLY
+        {
+                if (S->socket)
+                        socket_free(&(S->socket));
+        }
+        END_TRY;
 }
 
 
@@ -201,7 +212,7 @@ int sendmail(Mail_T mail) {
                 do_status(&S);
                 /* Switch to TLS now if configured */
                 if (S.ssl.use_ssl && S.ssl.version == SSL_VERSION_TLS) {
-                        do_send(&S, "STARTTLS\r\n"); 
+                        do_send(&S, "STARTTLS\r\n");
                         do_status(&S);
                         if (! socket_switch2ssl(S.socket, S.ssl)) {
                                 S.quit = FALSE;
@@ -213,11 +224,11 @@ int sendmail(Mail_T mail) {
                 }
                 /* Authenticate if possible */
                 if (S.username) {
-                        unsigned char buffer[STRLEN];
+                        char buffer[STRLEN];
                         // PLAIN takes precedence
                         if (StringBuffer_indexOf(S.status_message, " PLAIN") > 0) {
-                                int len = snprintf((char *)buffer, STRLEN, "%c%s%c%s", '\0', S.username, '\0', S.password ? S.password : "");
-                                char *b64 = encode_base64(len, buffer);
+                                int len = snprintf(buffer, STRLEN, "%c%s%c%s", '\0', S.username, '\0', S.password ? S.password : "");
+                                char *b64 = encode_base64(len, (unsigned char *)buffer);
                                 TRY
                                 {
                                         do_send(&S, "AUTH PLAIN %s\r\n", b64);
@@ -232,7 +243,7 @@ int sendmail(Mail_T mail) {
                                 do_send(&S, "AUTH LOGIN\r\n");
                                 do_status(&S);
                                 snprintf(buffer, STRLEN, "%s", S.username);
-                                char *b64 = encode_base64(strlen(buffer), buffer);
+                                char *b64 = encode_base64(strlen(buffer), (unsigned char *)buffer);
                                 TRY
                                 {
                                         do_send(&S, "%s\r\n", b64);
@@ -244,7 +255,7 @@ int sendmail(Mail_T mail) {
                                 }
                                 END_TRY;
                                 snprintf(buffer, STRLEN, "%s", S.password ? S.password : "");
-                                b64 = encode_base64(strlen(buffer), buffer);
+                                b64 = encode_base64(strlen(buffer), (unsigned char *)buffer);
                                 TRY
                                 {
                                         do_send(&S, "%s\r\n", b64);
@@ -259,7 +270,7 @@ int sendmail(Mail_T mail) {
                                 THROW(IOException, "Authentication failed -- no supported authentication methods found");
                         }
                 }
-                for (m = mail; m; m = m->next) { 
+                for (m = mail; m; m = m->next) {
                         do_send(&S, "MAIL FROM: <%s>\r\n", m->from);
                         do_status(&S);
                         do_send(&S, "RCPT TO: <%s>\r\n", m->to);

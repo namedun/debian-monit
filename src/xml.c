@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -31,7 +31,7 @@
 
 #ifdef HAVE_STRING_H
 #include <string.h>
-#endif 
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -43,7 +43,7 @@
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif 
+#endif
 
 #include "monit.h"
 #include "event.h"
@@ -190,13 +190,13 @@ static void status_service(Service_T S, StringBuffer_T B, short L, int V) {
                                         S->inf->priv.filesystem.f_bsize > 0 ? (float)S->inf->priv.filesystem.f_blocks / (float)1048576 * (float)S->inf->priv.filesystem.f_bsize : 0);
                                 if (S->inf->priv.filesystem.f_files > 0) {
                                         StringBuffer_append(B,
-                                  	        "<inode>"
+                                                  "<inode>"
                                                 "<percent>%.1f</percent>"
                                                 "<usage>%ld</usage>"
                                                 "<total>%ld</total>"
-                                        	"</inode>",
-                                        	S->inf->priv.filesystem.inode_percent/10.,
-                                        	S->inf->priv.filesystem.inode_total,
+                                                "</inode>",
+                                                S->inf->priv.filesystem.inode_percent/10.,
+                                                S->inf->priv.filesystem.inode_total,
                                                 S->inf->priv.filesystem.f_files);
                                 }
                         }
@@ -246,30 +246,30 @@ static void status_service(Service_T S, StringBuffer_T B, short L, int V) {
                                 for (p = S->portlist; p; p = p->next) {
                                         if (p->family == AF_INET)
                                                 StringBuffer_append(B,
-                                                  	"<port>"
-                                                  	"<hostname>%s</hostname>"
-                                                  	"<portnumber>%d</portnumber>"
-                                                  	"<request>%s</request>"
-                                                  	"<protocol>%s</protocol>"
-                                                  	"<type>%s</type>"
-                                                  	"<responsetime>%.3f</responsetime>"
-                                                  	"</port>",
-                                                  	p->hostname?p->hostname:"",
-                                                  	p->port,
-                                                  	p->request?p->request:"",
-                                                  	p->protocol->name?p->protocol->name:"",
-                                                  	Util_portTypeDescription(p),
-                                                  	p->is_available?p->response:-1.);
+                                                          "<port>"
+                                                          "<hostname>%s</hostname>"
+                                                          "<portnumber>%d</portnumber>"
+                                                          "<request>%s</request>"
+                                                          "<protocol>%s</protocol>"
+                                                          "<type>%s</type>"
+                                                          "<responsetime>%.3f</responsetime>"
+                                                          "</port>",
+                                                          p->hostname?p->hostname:"",
+                                                          p->port,
+                                                          p->request?p->request:"",
+                                                          p->protocol->name?p->protocol->name:"",
+                                                          Util_portTypeDescription(p),
+                                                          p->is_available?p->response:-1.);
                                         else if (p->family == AF_UNIX)
                                                 StringBuffer_append(B,
-                                                  	"<unix>"
-                                                	"<path>%s</path>"
-                                                	"<protocol>%s</protocol>"
-                                                	"<responsetime>%.3f</responsetime>"
-                                                	"</unix>",
-                                                	p->pathname?p->pathname:"",
-                                                	p->protocol->name?p->protocol->name:"",
-                                                	p->is_available?p->response:-1.);
+                                                        "<unix>"
+                                                        "<path>%s</path>"
+                                                        "<protocol>%s</protocol>"
+                                                        "<responsetime>%.3f</responsetime>"
+                                                        "</unix>",
+                                                        p->pathname?p->pathname:"",
+                                                        p->protocol->name?p->protocol->name:"",
+                                                        p->is_available?p->response:-1.);
                                 }
                         }
                         if (S->type == TYPE_SYSTEM && Run.doprocess) {

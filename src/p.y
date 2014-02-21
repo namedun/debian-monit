@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -27,7 +27,7 @@
 
 /*
  * DESCRIPTION
- *   Simple context-free grammar for parsing the control file. 
+ *   Simple context-free grammar for parsing the control file.
  *
  */
 
@@ -43,19 +43,19 @@
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif 
+#endif
 
 #ifdef HAVE_CTYPE_H
 #include <ctype.h>
-#endif 
+#endif
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
-#endif 
+#endif
 
 #ifdef HAVE_GRP_H
 #include <grp.h>
-#endif 
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -126,12 +126,12 @@
     int daemon;
     int logfile;
     int pidfile;
-  }; 
+  };
 
   struct myrate {
     unsigned count;
     unsigned cycles;
-  }; 
+  };
 
   /* yacc interface */
   void  yyerror(const char *,...);
@@ -252,7 +252,7 @@
   static void  check_depend();
   static void  setsyslog(char *);
   static command_t copycommand(command_t);
-  static int verifyMaxForward(int);  
+  static int verifyMaxForward(int);
 
 %}
 
@@ -276,9 +276,9 @@
 %token SSH DWP LDAP2 LDAP3 RDATE RSYNC TNS PGSQL POSTFIXPOLICY SIP LMTP GPS RADIUS MEMCACHE
 %token <string> STRING PATH MAILADDR MAILFROM MAILREPLYTO MAILSUBJECT
 %token <string> MAILBODY SERVICENAME STRINGNAME
-%token <number> NUMBER PERCENT LOGLIMIT CLOSELIMIT DNSLIMIT KEEPALIVELIMIT 
-%token <number> REPLYLIMIT REQUESTLIMIT STARTLIMIT WAITLIMIT GRACEFULLIMIT 
-%token <number> CLEANUPLIMIT 
+%token <number> NUMBER PERCENT LOGLIMIT CLOSELIMIT DNSLIMIT KEEPALIVELIMIT
+%token <number> REPLYLIMIT REQUESTLIMIT STARTLIMIT WAITLIMIT GRACEFULLIMIT
+%token <number> CLEANUPLIMIT
 %token <real> REAL
 %token CHECKPROC CHECKFILESYS CHECKFILE CHECKDIR CHECKHOST CHECKSYSTEM CHECKFIFO CHECKPROGRAM
 %token CHILDREN SYSTEM STATUS
@@ -292,7 +292,7 @@
 %token INODE SPACE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
 %token EXEC UNMONITOR ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
 %token URL CONTENT PID PPID FSFLAG
-%token REGISTER CREDENTIALS 
+%token REGISTER CREDENTIALS
 %token <url> URLOBJECT
 %token <string> TARGET TIMESPEC
 %token <number> MAXFORWARD
@@ -488,7 +488,7 @@ optstatus       : start
                 | group
                 | depend
                 | statusvalue
-                ; 
+                ;
 
 setalert        : SET alertmail formatlist reminder {
                    mailset.events = Event_All;
@@ -590,7 +590,7 @@ mmonitlist      : mmonit credentials
 
 mmonit          : URLOBJECT nettimeout sslversion certmd5 {
                     check_hostname(($<url>1)->hostname);
-                    addmmonit($<url>1, $<number>2, $<number>3, $<string>4); 
+                    addmmonit($<url>1, $<number>2, $<number>3, $<string>4);
                   }
                 ;
 
@@ -666,7 +666,7 @@ mailserver      : STRING username password sslversion certmd5 {
 
 httpdlist       : /* EMPTY */
                 | httpdlist httpdoption
-                ; 
+                ;
 
 httpdoption     : ssl
                 | signature
@@ -678,7 +678,7 @@ ssl             : ssldisable optssllist {
                     Run.httpdssl = FALSE;
                   }
                 | sslenable optssllist {
-                    Run.httpdssl = TRUE;                   
+                    Run.httpdssl = TRUE;
                     if (! have_ssl())
                       yyerror("SSL is not supported");
                     else if (! Run.httpsslpem)
@@ -726,14 +726,14 @@ pemfile         : PEMFILE PATH {
                 ;
 
 clientpemfile   : CLIENTPEMFILE PATH {
-                    Run.httpsslclientpem = $2; 
+                    Run.httpsslclientpem = $2;
                     Run.clientssl = TRUE;
                     if (!file_checkStat(Run.httpsslclientpem, "SSL client PEM file", S_IRWXU | S_IRGRP | S_IROTH))
                       yyerror2("SSL client PEM file has too loose permissions");
                   }
                 ;
 
-allowselfcert   : ALLOWSELFCERTIFICATION {   
+allowselfcert   : ALLOWSELFCERTIFICATION {
                     Run.allowselfcert = TRUE;
                   }
                 ;
@@ -795,7 +795,7 @@ allow           : ALLOW STRING':'STRING readonly {
                   }
                 | ALLOW STRING {
                     if (! (add_net_allow($2) || add_host_allow($2))) {
-                      yyerror2("erroneous network or host identifier %s", $2); 
+                      yyerror2("erroneous network or host identifier %s", $2);
                     }
                     FREE($2);
                   }
@@ -851,7 +851,7 @@ checkdir        : CHECKDIR SERVICENAME PATHTOK PATH {
                 ;
 
 checkhost       : CHECKHOST SERVICENAME ADDRESS STRING {
-                    check_hostname($4); 
+                    check_hostname($4);
                     createservice(TYPE_HOST, $<string>2, $4, check_remote_host);
                   }
                 ;
@@ -873,9 +873,10 @@ checkfifo       : CHECKFIFO SERVICENAME PATHTOK PATH {
                   }
                 ;
 
-checkprogram     : CHECKPROGRAM SERVICENAME PATHTOK PATH programtimeout {
-                        check_exec($4);
-                        createservice(TYPE_PROGRAM, $<string>2, $4, check_program);
+checkprogram    : CHECKPROGRAM SERVICENAME PATHTOK argumentlist programtimeout {
+                        command_t c = command; // Current command
+                        check_exec(c->arg[0]);
+                        createservice(TYPE_PROGRAM, $<string>2, Str_dup(c->arg[0]), check_program);
                         current->program->timeout = $<number>5;
                   }
                 ;
@@ -944,7 +945,7 @@ connection      : IF FAILED host port type protocol nettimeout retry rate1
                     addport(&portset);
                   }
                 | IF FAILED URL URLOBJECT urloption nettimeout retry rate1
-                  THEN action1 recovery { 
+                  THEN action1 recovery {
                     prepare_urlrequest($<url>4);
                     portset.timeout = $<number>6;
                     portset.retry = $<number>7;
@@ -979,7 +980,7 @@ host            : /* EMPTY */ {
                       portset.hostname = Str_dup(LOCALHOST);
                   }
                 | HOST STRING { check_hostname($2); portset.hostname = $2; }
-		;
+                ;
 
 port            : PORT NUMBER { portset.port = $2; portset.family = AF_INET; }
                 ;
@@ -1104,7 +1105,7 @@ protocol        : /* EMPTY */  {
                 | sendexpectlist {
                     portset.protocol = Protocol_get(Protocol_GENERIC);
                   }
-                ;     
+                ;
 
 sendexpectlist  : sendexpect
                 | sendexpectlist sendexpect
@@ -1123,16 +1124,16 @@ target          : /* EMPTY */
                   }
                 ;
 
-maxforward      : /* EMPTY */ 
+maxforward      : /* EMPTY */
                 |  MAXFORWARD NUMBER {
-                     portset.maxforward = verifyMaxForward($2); 
+                     portset.maxforward = verifyMaxForward($2);
                    }
                 ;
 
 request         : /* EMPTY */
-                | REQUEST PATH hostheader { 
-                    portset.request = Util_urlEncode($2); 
-                    FREE($2); 
+                | REQUEST PATH hostheader {
+                    portset.request = Util_urlEncode($2);
+                    FREE($2);
                   }
                 | REQUEST PATH CHECKSUM STRING hostheader {
                     portset.request = Util_urlEncode($2);
@@ -1147,8 +1148,8 @@ hostheader      : /* EMPTY */
                   }
                 ;
 
-secret          : SECRET STRING { 
-                    portset.request = $2; 
+secret          : SECRET STRING {
+                    portset.request = $2;
                   }
                 ;
 
@@ -1156,45 +1157,45 @@ apache_stat_list: apache_stat
                 | apache_stat_list OR apache_stat
                 ;
 
-apache_stat     : LOGLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.loglimitOP = $<number>2; 
-                    portset.ApacheStatus.loglimit = (int)$3; 
+apache_stat     : LOGLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.loglimitOP = $<number>2;
+                    portset.ApacheStatus.loglimit = $<number>3;
                   }
-                | CLOSELIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.closelimitOP = $<number>2; 
-                    portset.ApacheStatus.closelimit = (int)($3); 
+                | CLOSELIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.closelimitOP = $<number>2;
+                    portset.ApacheStatus.closelimit = $<number>3;
                   }
-                | DNSLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.dnslimitOP = $<number>2; 
-                    portset.ApacheStatus.dnslimit = (int)($3); 
+                | DNSLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.dnslimitOP = $<number>2;
+                    portset.ApacheStatus.dnslimit = $<number>3;
                   }
-                | KEEPALIVELIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.keepalivelimitOP = $<number>2; 
-                    portset.ApacheStatus.keepalivelimit = (int)($3); 
+                | KEEPALIVELIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.keepalivelimitOP = $<number>2;
+                    portset.ApacheStatus.keepalivelimit = $<number>3;
                   }
-                | REPLYLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.replylimitOP = $<number>2; 
-                    portset.ApacheStatus.replylimit = (int)($3); 
+                | REPLYLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.replylimitOP = $<number>2;
+                    portset.ApacheStatus.replylimit = $<number>3;
                   }
-                | REQUESTLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.requestlimitOP = $<number>2; 
-                    portset.ApacheStatus.requestlimit = (int)($3); 
+                | REQUESTLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.requestlimitOP = $<number>2;
+                    portset.ApacheStatus.requestlimit = $<number>3;
                   }
-                | STARTLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.startlimitOP = $<number>2; 
-                    portset.ApacheStatus.startlimit = (int)($3); 
+                | STARTLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.startlimitOP = $<number>2;
+                    portset.ApacheStatus.startlimit = $<number>3;
                   }
-                | WAITLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.waitlimitOP = $<number>2; 
-                    portset.ApacheStatus.waitlimit = (int)($3); 
+                | WAITLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.waitlimitOP = $<number>2;
+                    portset.ApacheStatus.waitlimit = $<number>3;
                   }
-                | GRACEFULLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.gracefullimitOP = $<number>2; 
-                    portset.ApacheStatus.gracefullimit = (int)($3); 
+                | GRACEFULLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.gracefullimitOP = $<number>2;
+                    portset.ApacheStatus.gracefullimit = $<number>3;
                   }
-                | CLEANUPLIMIT operator NUMBER PERCENT { 
-                    portset.ApacheStatus.cleanuplimitOP = $<number>2; 
-                    portset.ApacheStatus.cleanuplimit = (int)($3); 
+                | CLEANUPLIMIT operator NUMBER PERCENT {
+                    portset.ApacheStatus.cleanuplimitOP = $<number>2;
+                    portset.ApacheStatus.cleanuplimit = $<number>3;
                   }
                 ;
 
@@ -1224,7 +1225,7 @@ uptime          : IF UPTIME operator NUMBER time rate1 THEN action1 recovery {
 icmpcount       : /* EMPTY */ {
                    $<number>$ = ICMP_ATTEMPT_COUNT;
                   }
-                | COUNT NUMBER {    
+                | COUNT NUMBER {
                    $<number>$ = $2;
                   }
                 ;
@@ -1282,8 +1283,8 @@ urloption       : /* EMPTY */
                   }
                 ;
 
-urloperator     : EQUAL    { $<number>$ = OPERATOR_EQUAL; }
-                | NOTEQUAL { $<number>$ = OPERATOR_NOTEQUAL; }
+urloperator     : EQUAL    { $<number>$ = Operator_Equal; }
+                | NOTEQUAL { $<number>$ = Operator_NotEqual; }
                 ;
 
 alert           : alertmail formatlist reminder {
@@ -1433,19 +1434,19 @@ resourcesystemopt  : resourceload
 resourcecpuproc : CPU operator NUMBER PERCENT {
                     resourceset.resource_id = RESOURCE_ID_CPU_PERCENT;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10); 
+                    resourceset.limit = ($3 * 10);
                   }
                 | TOTALCPU operator NUMBER PERCENT {
                     resourceset.resource_id = RESOURCE_ID_TOTAL_CPU_PERCENT;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10); 
+                    resourceset.limit = ($3 * 10);
                   }
                 ;
 
 resourcecpu     : resourcecpuid operator NUMBER PERCENT {
                     resourceset.resource_id = $<number>1;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10); 
+                    resourceset.limit = ($3 * 10);
                   }
                 ;
 
@@ -1457,12 +1458,12 @@ resourcecpuid   : CPUUSER   { $<number>$ = RESOURCE_ID_CPUUSER; }
 resourcemem     : MEMORY operator value unit {
                     resourceset.resource_id = RESOURCE_ID_MEM_KBYTE;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) ($<real>3 * ($<number>4 / 1024.0)); 
+                    resourceset.limit = (int) ($<real>3 * ($<number>4 / 1024.0));
                   }
                 | MEMORY operator NUMBER PERCENT {
                     resourceset.resource_id = RESOURCE_ID_MEM_PERCENT;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10); 
+                    resourceset.limit = ($3 * 10);
                   }
                 | TOTALMEMORY operator value unit {
                     resourceset.resource_id = RESOURCE_ID_TOTAL_MEM_KBYTE;
@@ -1488,17 +1489,17 @@ resourceswap    : SWAP operator value unit {
                   }
                 ;
 
-resourcechild   : CHILDREN operator NUMBER { 
+resourcechild   : CHILDREN operator NUMBER {
                     resourceset.resource_id = RESOURCE_ID_CHILDREN;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) $3; 
+                    resourceset.limit = (int) $3;
                   }
                 ;
 
-resourceload    : resourceloadavg operator value { 
+resourceload    : resourceloadavg operator value {
                     resourceset.resource_id = $<number>1;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) ($<real>3 * 10.0); 
+                    resourceset.limit = (int) ($<real>3 * 10.0);
                   }
                 ;
 
@@ -1524,12 +1525,12 @@ timestamp       : IF TIMESTAMP operator NUMBER time rate1 THEN action1 recovery 
                   }
                 ;
 
-operator        : /* EMPTY */ { $<number>$ = OPERATOR_EQUAL; }
-                | GREATER     { $<number>$ = OPERATOR_GREATER; }
-                | LESS        { $<number>$ = OPERATOR_LESS; }
-                | EQUAL       { $<number>$ = OPERATOR_EQUAL; }
-                | NOTEQUAL    { $<number>$ = OPERATOR_NOTEQUAL; }
-                | CHANGED     { $<number>$ = OPERATOR_NOTEQUAL; }
+operator        : /* EMPTY */ { $<number>$ = Operator_Equal; }
+                | GREATER     { $<number>$ = Operator_Greater; }
+                | LESS        { $<number>$ = Operator_Less; }
+                | EQUAL       { $<number>$ = Operator_Equal; }
+                | NOTEQUAL    { $<number>$ = Operator_NotEqual; }
+                | CHANGED     { $<number>$ = Operator_NotEqual; }
                 ;
 
 time            : /* EMPTY */ { $<number>$ = TIME_SECOND; }
@@ -1694,7 +1695,7 @@ match           : IF matchflagnot MATCH PATH rate1 THEN action1 {
                     matchset.match_path = $4;
                     matchset.match_string = NULL;
                     addmatchpath(&matchset, $<number>7);
-                    FREE($4); 
+                    FREE($4);
                   }
                 | IF matchflagnot MATCH STRING rate1 THEN action1 {
                     matchset.ignore = FALSE;
@@ -1707,7 +1708,7 @@ match           : IF matchflagnot MATCH PATH rate1 THEN action1 {
                     matchset.match_path = $4;
                     matchset.match_string = NULL;
                     addmatchpath(&matchset, ACTION_IGNORE);
-                    FREE($4); 
+                    FREE($4);
                   }
                 | IGNORE matchflagnot MATCH STRING {
                     matchset.ignore = TRUE;
@@ -1876,8 +1877,8 @@ int parse(char *controlfile) {
 
   currentfile = Str_dup(controlfile);
 
-  /* 
-   * Creation of the global service list is synchronized  
+  /*
+   * Creation of the global service list is synchronized
    */
   LOCK(Run.mutex)
     preparse();
@@ -1933,7 +1934,7 @@ static void preparse() {
   Run.httpsslpem          = NULL;
   Run.httpsslclientpem    = NULL;
   Run.clientssl           = FALSE;
-  Run.allowselfcert       = FALSE; 
+  Run.allowselfcert       = FALSE;
   Run.mailserver_timeout  = SMTP_TIMEOUT;
   Run.bind_addr           = NULL;
   Run.eventlist           = NULL;
@@ -1950,12 +1951,12 @@ static void preparse() {
   Run.MailFormat.message  = NULL;
   depend_list             = NULL;
   Run.handler_init        = TRUE;
-#ifdef OPENSSL_FIPS  
+#ifdef OPENSSL_FIPS
   Run.fipsEnabled         = FALSE;
 #endif
   for (i = 0; i <= HANDLER_MAX; i++)
     Run.handler_queue[i] = 0;
-  /* 
+  /*
    * Initialize objects
    */
   reset_uidset();
@@ -2004,12 +2005,16 @@ static void postparse() {
                                 cfg_errflag++;
                         }
                 } else if (s->type == TYPE_PROGRAM) {
-                        /* Create the Command object */
-                        s->program->C = Command_new(s->path, NULL);
                         /* Verify that a program test has a status test */
                         if (! s->statuslist) {
                                 LogError("%s: Error: 'check program %s' is incomplete: Please add an 'if status != n' test\n", prog, s->name);
                                 cfg_errflag++;
+                        }
+                        /* Create the Command object */
+                        s->program->C = Command_new(s->path, NULL);
+                        // Append any arguments
+                        for (int i = 1; i < s->program->args->length; i++) {
+                                Command_appendArgument(s->program->C, s->program->args->arg[i]);
                         }
                 }
         }
@@ -2074,6 +2079,8 @@ static Service_T createservice(int type, char *name, char *value, int (*check)(S
 
   if (type == TYPE_PROGRAM) {
     NEW(current->program);
+    current->program->args = command;
+    command = NULL;
     current->program->timeout = PROGRAM_TIMEOUT;
   }
 
@@ -2123,7 +2130,7 @@ static void addservice(Service_T s) {
 }
 
 
-/* 
+/*
  * Add entry to service group list
  */
 static void addservicegroup(char *name) {
@@ -2151,12 +2158,12 @@ static void addservicegroup(char *name) {
 }
 
 
-/* 
+/*
  * Add a dependant entry to the current service dependant list
  *
  */
 static void adddependant(char *dependant) {
-  Dependant_T d; 
+  Dependant_T d;
 
   ASSERT(dependant);
 
@@ -2237,8 +2244,8 @@ static void addport(Port_T port) {
       yyerror("ssl check cannot be activated. SSL is not supported");
     } else {
       if (port->SSL.certmd5 != NULL) {
-	p->SSL.certmd5 = port->SSL.certmd5;
-	cleanup_hash_string(p->SSL.certmd5);
+        p->SSL.certmd5 = port->SSL.certmd5;
+        cleanup_hash_string(p->SSL.certmd5);
       }
       p->SSL.use_ssl = TRUE;
       p->SSL.version = port->SSL.version;
@@ -2493,7 +2500,7 @@ static void addmatch(Match_T ms, int actionnumber, int linenumber) {
   if (reg_return != 0) {
     char errbuf[STRLEN];
     regerror(reg_return, ms->regex_comp, errbuf, STRLEN);
-    if (m->match_path != NULL) 
+    if (m->match_path != NULL)
       yyerror2("regex parsing error:%s on line %i of", errbuf, linenumber);
     else
       yyerror2("regex parsing error:%s", errbuf);
@@ -2638,7 +2645,7 @@ static void addicmp(Icmp_T is) {
   ASSERT(is);
 
   NEW(icmp);
-  icmp->type         = is->type;      
+  icmp->type         = is->type;
   icmp->count        = is->count;
   icmp->timeout      = is->timeout;
   icmp->action       = is->action;
@@ -2717,7 +2724,7 @@ static void seteventaction(EventAction_T *_ea, int failed, int succeeded) {
 
 
 /*
- * Add a generic protocol handler to 
+ * Add a generic protocol handler to
  */
 static void addgeneric(Port_T port, char *send, char *expect) {
   Generic_T g = port->generic;
@@ -2750,7 +2757,7 @@ static void addgeneric(Port_T port, char *send, char *expect) {
     g->expect = Str_dup(expect);
 #endif
     g->send = NULL;
-  } 
+  }
 }
 
 
@@ -2835,7 +2842,7 @@ static void  seturlrequest(int operator, char *regex) {
     NEW(urlrequest);
   urlrequest->operator = operator;
 #ifdef HAVE_REGEX_H
-  {    
+  {
     int reg_return;
     NEW(urlrequest->regex);
     reg_return = regcomp(urlrequest->regex, regex, REG_NOSUB|REG_EXTENDED);
@@ -2869,8 +2876,8 @@ static void addmmonit(URL_T url, int timeout, int sslversion, char *certmd5) {
       c->ssl.use_ssl = TRUE;
       c->ssl.version = (sslversion == SSL_VERSION_NONE) ? SSL_VERSION_AUTO : sslversion;
       if (certmd5) {
-	c->ssl.certmd5 = certmd5;
-	cleanup_hash_string(c->ssl.certmd5);
+        c->ssl.certmd5 = certmd5;
+        cleanup_hash_string(c->ssl.certmd5);
       }
     }
   }
@@ -3078,7 +3085,7 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
 
     /* In case we have a file in /etc/passwd or /etc/shadow style we
      *  want to remove ":.*$" and Crypt and MD5 hashed dont have a colon
-     */ 
+     */
 
     if ( (NULL != (colonindex = strchr(ht_passwd, ':'))) && ( dtype != DIGEST_CLEARTEXT) )
       *colonindex = '\0';
@@ -3138,7 +3145,7 @@ static void addpamauth(char* groupname, int readonly) {
   c->digesttype  = DIGEST_PAM;
   c->is_readonly = readonly;
 
-  DEBUG("%s: Adding PAM group '%s'.\n", prog, groupname); 
+  DEBUG("%s: Adding PAM group '%s'.\n", prog, groupname);
 
   return;
 }
@@ -3183,7 +3190,7 @@ static int addcredentials(char *uname, char *passwd, int dtype, int readonly) {
   c->digesttype  = dtype;
   c->is_readonly = readonly;
 
-  DEBUG("%s: Debug: Adding credentials for user '%s'.\n", prog, uname); 
+  DEBUG("%s: Debug: Adding credentials for user '%s'.\n", prog, uname);
 
   return TRUE;
 
@@ -3272,7 +3279,7 @@ static void reset_resourceset() {
   resourceset.resource_id = 0;
   resourceset.limit = 0;
   resourceset.action = NULL;
-  resourceset.operator = OPERATOR_EQUAL;
+  resourceset.operator = Operator_Equal;
 }
 
 
@@ -3280,7 +3287,7 @@ static void reset_resourceset() {
  * Reset the Timestamp set to default values
  */
 static void reset_timestampset() {
-  timestampset.operator = OPERATOR_EQUAL;
+  timestampset.operator = Operator_Equal;
   timestampset.time = 0;
   timestampset.test_changes = FALSE;
   timestampset.action = NULL;
@@ -3301,7 +3308,7 @@ static void reset_actionrateset() {
  * Reset the Size set to default values
  */
 static void reset_sizeset() {
-  sizeset.operator = OPERATOR_EQUAL;
+  sizeset.operator = Operator_Equal;
   sizeset.size = 0;
   sizeset.test_changes = FALSE;
   sizeset.action = NULL;
@@ -3312,7 +3319,7 @@ static void reset_sizeset() {
  * Reset the Uptime set to default values
  */
 static void reset_uptimeset() {
-  uptimeset.operator = OPERATOR_EQUAL;
+  uptimeset.operator = Operator_Equal;
   uptimeset.uptime = 0;
   uptimeset.action = NULL;
 }
@@ -3343,7 +3350,7 @@ static void reset_permset() {
  */
 static void reset_statusset() {
         statusset.return_value = 0;
-        statusset.operator = OPERATOR_EQUAL;
+        statusset.operator = Operator_Equal;
         statusset.action = NULL;
 }
 
@@ -3371,7 +3378,7 @@ static void reset_gidset() {
  */
 static void reset_filesystemset() {
   filesystemset.resource = 0;
-  filesystemset.operator = OPERATOR_EQUAL;
+  filesystemset.operator = Operator_Equal;
   filesystemset.limit_absolute = -1;
   filesystemset.limit_percent = -1;
   filesystemset.action = NULL;
@@ -3412,8 +3419,8 @@ static void check_name(char *name) {
 
   if (Util_existService(name) || (current && IS(name, current->name)))
     yyerror2("service name conflict, %s already defined", name);
-  if (name && *name == '/')		
-          yyerror2("service name '%s' must not start with '/' -- ", name);	
+  if (name && *name == '/')
+          yyerror2("service name '%s' must not start with '/' -- ", name);
 }
 
 
@@ -3437,7 +3444,7 @@ static int check_perm(int perm) {
 
 
 /*
- * Check hostname 
+ * Check hostname
  */
 static void check_hostname(char *hostname) {
 
@@ -3460,13 +3467,13 @@ static void check_depend() {
   int found_some;                /* last iteration found anything new ?                    */
   depend_list = NULL;            /* depend_list will be the topological sorted servicelist */
 
-  do { 
+  do {
     done = TRUE;
-    found_some = FALSE; 
+    found_some = FALSE;
     for (s = servicelist; s; s = s->next) {
         Dependant_T d;
       if (s->visited)
-	  continue;
+          continue;
       done = FALSE; // still unvisited nodes
       depends_on = NULL;
       for (d = s->dependantlist; d; d = d->next) {
@@ -3488,12 +3495,12 @@ static void check_depend() {
       }
     }
   } while (found_some && !done);
-	
+
   if (!done) {
         ASSERT(depends_on);
-	LogError("%s: Error: Found a depend loop in the control file involving the service '%s'\n", prog, depends_on->name);
-	exit(1);
-   } 
+        LogError("%s: Error: Found a depend loop in the control file involving the service '%s'\n", prog, depends_on->name);
+        exit(1);
+   }
 
   ASSERT(depend_list);
   servicelist = depend_list;
@@ -3517,7 +3524,7 @@ static void check_exec(char *exec) {
 
 
 /* Return a valid max forward value for SIP header */
-static int verifyMaxForward(int mf) { 
+static int verifyMaxForward(int mf) {
   int max = 70;
 
   if (mf >= 0 && mf <= 255)
@@ -3544,7 +3551,7 @@ static int cleanup_hash_string(char *hashstring) {
     if (isxdigit((int) hashstring[i])) {
       hashstring[j] = tolower((int)hashstring[i]);
       j++;
-    } 
+    }
     i++;
   }
   hashstring[j] = '\0';

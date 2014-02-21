@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -69,7 +69,7 @@ int check_generic(Socket_T socket) {
 
     if (g->send != NULL) {
 
-      /* Unescape any \0x00 escaped chars in g's send string 
+      /* Unescape any \0x00 escaped chars in g's send string
       to allow sending a string containing \0 bytes also */
       char *X = Str_dup(g->send);
       int l = Util_handle0Escapes(X);
@@ -80,12 +80,12 @@ int check_generic(Socket_T socket) {
         FREE(buf);
         return FALSE;
       } else
-        DEBUG("GENERIC: successfully sent: '%s'\n", g->send); 
+        DEBUG("GENERIC: successfully sent: '%s'\n", g->send);
 
-      FREE(X);          
+      FREE(X);
 
     } else if (g->expect != NULL) {
-      int n; 
+      int n;
 
       /* Need read, not readln here */
       if((n= socket_read(socket, buf, Run.expectbuffer))<0) {
@@ -104,7 +104,7 @@ int check_generic(Socket_T socket) {
         FREE(buf);
         return FALSE;
       } else
-        DEBUG("GENERIC: successfully received: '%s'\n", Str_trunc(buf, STRLEN - 4)); 
+        DEBUG("GENERIC: successfully received: '%s'\n", Str_trunc(buf, STRLEN - 4));
 
 #else
       /* w/o regex support */
@@ -114,7 +114,7 @@ int check_generic(Socket_T socket) {
         FREE(buf);
         return FALSE;
       } else
-        DEBUG("GENERIC: successfully received: '%s'\n", Str_trunc(buf, STRLEN - 4)); 
+        DEBUG("GENERIC: successfully received: '%s'\n", Str_trunc(buf, STRLEN - 4));
 
 #endif
 

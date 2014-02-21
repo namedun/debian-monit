@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -58,51 +58,51 @@ int check_ldap2(Socket_T socket) {
   unsigned char buf[STRLEN];
 
   unsigned char request[14] = {
-    0x30,	                 /** Universal Sequence TAG */
-    0x0c,	       /** Length of the packet's data part */
+    0x30,                         /** Universal Sequence TAG */
+    0x0c,               /** Length of the packet's data part */
 
-    0x02,	                  /** Universal Integer TAG */
-    0x01,			   	 /** Integer length */
-    0x00,		   	              /** MessageID */
+    0x02,                          /** Universal Integer TAG */
+    0x01,                                    /** Integer length */
+    0x00,                                         /** MessageID */
 
-    0x60,		    /** Application BindRequest TAG */
-    0x07,		        /** Length of the data part */
+    0x60,                    /** Application BindRequest TAG */
+    0x07,                        /** Length of the data part */
 
     0x02,                         /** Universal Integer TAG */
-    0x01,			         /** Integer length */
-    0x02,			       /** Protocol version */	
+    0x01,                                 /** Integer length */
+    0x02,                               /** Protocol version */
 
     0x04,                    /** Universal Octet string TAG */
-    0x00,      			    /** Octet string length */
-    /* NULL */     	     	       /** Anonymous BindDN */
+    0x00,                                  /** Octet string length */
+    /* NULL */                                 /** Anonymous BindDN */
 
-    0x80,	        /** Context specific SimpleAuth TAG */
-    0x00     	       /** SimpleAuth (octet string) length */
-    /* NULL */     	     	  /** Anonymous Credentials */
+    0x80,                /** Context specific SimpleAuth TAG */
+    0x00                    /** SimpleAuth (octet string) length */
+    /* NULL */                            /** Anonymous Credentials */
   };
 
   unsigned char response[14] = {
-    0x30,	                 /** Universal Sequence TAG */
-    0x0c,	       /** Length of the packet's data part */
+    0x30,                         /** Universal Sequence TAG */
+    0x0c,               /** Length of the packet's data part */
 
-    0x02,	                  /** Universal Integer TAG */
-    0x01,			   	 /** Integer length */
-    0x00,		   	              /** MessageID */
+    0x02,                          /** Universal Integer TAG */
+    0x01,                                    /** Integer length */
+    0x00,                                         /** MessageID */
 
-    0x61,		   /** Application BindResponse TAG */
-    0x07,		        /** Length of the data part */
+    0x61,                   /** Application BindResponse TAG */
+    0x07,                        /** Length of the data part */
 
     0x0a,                      /** Universal Enumerated TAG */
-    0x01,			      /** Enumerated length */
-    0x00,			                /** Success */	
+    0x01,                              /** Enumerated length */
+    0x00,                                        /** Success */
 
     0x04,                    /** Universal Octet string TAG */
-    0x00,      			    /** Octet string length */
-    /* NULL */     	     	              /** MatchedDN */
+    0x00,                                  /** Octet string length */
+    /* NULL */                                        /** MatchedDN */
 
     0x04,                    /** Universal Octet string TAG */
-    0x00      			    /** Octet string length */
-    /* NULL */     	     	           /** ErrorMessage */
+    0x00                                  /** Octet string length */
+    /* NULL */                                     /** ErrorMessage */
   };
 
   unsigned char unbind[7] = {
@@ -133,8 +133,8 @@ int check_ldap2(Socket_T socket) {
   }
 
   if(memcmp((unsigned char *)buf,
-	    (unsigned char *)response,
-	    sizeof(response))) {
+            (unsigned char *)response,
+            sizeof(response))) {
     socket_setError(socket, "LDAP: anonymous bind failed\n");
     return FALSE;
   }

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #ifndef MONIT_EVENT_H
@@ -79,7 +79,7 @@ extern EventTable_T Event_Table[];
  *
  * Clients may use the function Event_post() to post events to the
  * event handler for processing.
- * 
+ *
  * @file
  */
 
@@ -165,7 +165,7 @@ const char *Event_get_message(Event_T E);
 /**
  * Get a textual description of actual event type. For instance if the
  * event type is possitive Event_Timestamp, the textual description is
- * "Timestamp error". Likewise if the event type is negative Event_Checksum 
+ * "Timestamp error". Likewise if the event type is negative Event_Checksum
  * the textual description is "Checksum recovery" and so on.
  * @param E An event object
  * @return A string describing the event type in clear text. If the

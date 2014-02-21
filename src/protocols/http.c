@@ -125,7 +125,7 @@ static int do_regex(Socket_T socket, int content_length, Request_T R) {
         regex_return = strstr(buf, R->regex) ? 0 : 1;
 #endif
         switch (R->operator) {
-                case OPERATOR_EQUAL:
+                case Operator_Equal:
                         if (regex_return == 0) {
                                 rv = TRUE;
                                 DEBUG("HTTP: Regular expression matches\n");
@@ -139,7 +139,7 @@ static int do_regex(Socket_T socket, int content_length, Request_T R) {
 #endif
                         }
                         break;
-                case OPERATOR_NOTEQUAL:
+                case Operator_NotEqual:
                         if (regex_return == 0) {
                                 socket_setError(socket, "HTTP error: Regular expression matches\n");
                         } else {
@@ -172,20 +172,22 @@ static int check_request_checksum(Socket_T socket, int content_length, char *che
         switch (hashtype) {
                 case HASH_MD5:
                         md5_init(&ctx_md5);
-                        for (n = 0; content_length > 0; content_length -= n) {
+                        while (content_length > 0) {
                                 if ((n = socket_read(socket, buf, content_length > sizeof(buf) ? sizeof(buf) : content_length)) < 0)
                                         break;
                                 md5_append(&ctx_md5, (const md5_byte_t *)buf, n);
+                                content_length -= n;
                         }
                         md5_finish(&ctx_md5, (md5_byte_t *)hash);
                         keylength = 16; /* Raw key bytes not string chars! */
                         break;
                 case HASH_SHA1:
                         sha1_init(&ctx_sha1);
-                        for (n = 0; content_length > 0; content_length -= n) {
+                        while (content_length > 0) {
                                 if ((n = socket_read(socket, buf, content_length > sizeof(buf) ? sizeof(buf) : content_length)) < 0)
                                         break;
                                 sha1_append(&ctx_sha1, (md5_byte_t *)buf, n);
+                                content_length -= n;
                         }
                         sha1_finish(&ctx_sha1, (md5_byte_t *)hash);
                         keylength = 20; /* Raw key bytes not string chars! */

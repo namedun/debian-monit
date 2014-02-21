@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -225,14 +225,14 @@ int embed_ssl_socket(ssl_connection *ssl, int socket) {
 sslerror:
         cleanup_ssl_socket(ssl);
         return FALSE;
-} 
+}
 
 
 /**
  * Compare certificate with given md5 sum
- * @param ssl reference to ssl connection 
+ * @param ssl reference to ssl connection
  * @param md5sum string of the md5sum to test against
- * @return TRUE, if sums do not match FALSE 
+ * @return TRUE, if sums do not match FALSE
  */
 int check_ssl_md5sum(ssl_connection *ssl, char *md5sum) {
         unsigned int i = 0;
@@ -299,9 +299,7 @@ void delete_ssl_socket(ssl_connection *ssl) {
 ssl_server_connection *init_ssl_server(char *pemfile, char *clientpemfile) {
         SSL_METHOD *server_method = NULL;
         ssl_server_connection *ssl_server;
-
         ASSERT(pemfile);
-
         if (!ssl_initialized)
                 start_ssl();
 
@@ -316,30 +314,28 @@ ssl_server_connection *init_ssl_server(char *pemfile, char *clientpemfile) {
                 LogError("%s: Cannot initialize the SSL method -- %s\n", prog, SSLERROR);
                 goto sslerror;
         }
-
         if (!(ssl_server->ctx = SSL_CTX_new(ssl_server->method))) {
                 LogError("%s: Cannot initialize SSL server certificate handler -- %s\n", prog, SSLERROR);
                 goto sslerror;
         }
-
         if (SSL_CTX_use_certificate_chain_file(ssl_server->ctx, pemfile) != 1) {
                 LogError("%s: Cannot initialize SSL server certificate -- %s\n", prog, SSLERROR);
                 goto sslerror;
         }
-
         if (SSL_CTX_use_PrivateKey_file(ssl_server->ctx, pemfile, SSL_FILETYPE_PEM) != 1) {
                 LogError("%s: Cannot initialize SSL server private key -- %s\n", prog, SSLERROR);
                 goto sslerror;
         }
-
         if (SSL_CTX_check_private_key(ssl_server->ctx) != 1) {
                 LogError("%s: The private key doesn't match the certificate public key -- %s\n", prog, SSLERROR);
                 goto sslerror;
         }
-
+        if (SSL_CTX_set_cipher_list(ssl_server->ctx, CIPHER_LIST) != 1) {
+                LogError("%s: Error setting cipher list '" CIPHER_LIST "' (no valid ciphers)", prog);
+                goto sslerror;
+        }
         /* Disable session cache */
         SSL_CTX_set_session_cache_mode(ssl_server->ctx, SSL_SESS_CACHE_OFF);
-
         /*
          * We need this to force transmission of client certs
          */
@@ -347,14 +343,11 @@ ssl_server_connection *init_ssl_server(char *pemfile, char *clientpemfile) {
                 LogError("%s: Verification engine was not properly initialized -- %s\n", prog, SSLERROR);
                 goto sslerror;
         }
-
         if (ssl_server->clientpemfile) {
                 STACK_OF(X509_NAME) *stack = SSL_CTX_get_client_CA_list(ssl_server->ctx);
                 LogInfo("%s: Found %d client certificates\n", prog, sk_X509_NAME_num(stack));
         }
-
         return ssl_server;
-
 sslerror:
         delete_ssl_server_socket(ssl_server);
         return NULL;
@@ -362,7 +355,7 @@ sslerror:
 
 
 /**
- * Deletes a SSL server connection. 
+ * Deletes a SSL server connection.
  * @param ssl_server data for ssl server connection
  */
 void delete_ssl_server_socket(ssl_server_connection *ssl_server) {
@@ -425,8 +418,8 @@ ssl_connection *insert_accepted_ssl_socket(ssl_server_connection *ssl_server) {
 
 
 /**
- * Closes an accepted SSL server connection and deletes it form the 
- * connection list. 
+ * Closes an accepted SSL server connection and deletes it form the
+ * connection list.
  * @param ssl_server data for ssl server connection
  * @param ssl data the connection to be deleted
  */
@@ -443,7 +436,7 @@ void close_accepted_ssl_socket(ssl_server_connection *ssl_server, ssl_connection
         else
                 ssl->prev->next = ssl->next;
 
-        END_LOCK;  
+        END_LOCK;
 
         delete_ssl_socket(ssl);
 }
@@ -466,10 +459,10 @@ int embed_accepted_ssl_socket(ssl_connection *ssl, int socket) {
         if (!ssl_initialized)
                 start_ssl();
 
-        if (!(ssl->handler = SSL_new(ssl->ctx))) { 
+        if (!(ssl->handler = SSL_new(ssl->ctx))) {
                 LogError("%s: Cannot initialize the SSL handler -- %s\n", prog, SSLERROR);
                 return FALSE;
-        } 
+        }
 
         if (socket < 0) {
                 LogError("%s: Socket error!\n", prog);
@@ -520,7 +513,7 @@ int embed_accepted_ssl_socket(ssl_connection *ssl, int socket) {
 
 
 /**
- * Send data package though the ssl connection 
+ * Send data package though the ssl connection
  * @param ssl ssl connection
  * @param buffer array containg the data
  * @param len size of the data container
@@ -541,7 +534,7 @@ int send_ssl_socket(ssl_connection *ssl, void *buffer, size_t len, int timeout) 
 
 
 /**
- * Receive data package though the ssl connection 
+ * Receive data package though the ssl connection
  * @param ssl ssl connection
  * @param buffer array to hold the data
  * @param len size of the data container
@@ -591,7 +584,7 @@ ssl_connection *new_ssl_connection(char *clientpemfile, int sslversion) {
                 start_ssl();
 
         NEW(ssl);
-        ssl->socket_bio = NULL; 
+        ssl->socket_bio = NULL;
         ssl->handler = NULL;
         ssl->cert = NULL;
         ssl->cipher = NULL;
@@ -649,7 +642,7 @@ ssl_connection *new_ssl_connection(char *clientpemfile, int sslversion) {
         if (!ssl->method) {
                 LogError("%s: Cannot initialize SSL method -- %s\n", prog, SSLERROR);
                 goto sslerror;
-        } 
+        }
 
         if (!(ssl->ctx = SSL_CTX_new(ssl->method))) {
                 LogError("%s: Cannot initialize SSL server certificate handler -- %s\n", prog, SSLERROR);
@@ -768,7 +761,7 @@ static int verify_callback(int preverify_ok, X509_STORE_CTX *ctx) {
                 return 0;
         }
 
-        return 1; 
+        return 1;
 }
 
 
@@ -782,14 +775,14 @@ static int check_preverify(X509_STORE_CTX *ctx) {
                 LogError("%s: SSL connection rejected because certificate verification has failed -- error %i\n", prog, ctx->error);
                 /* Reject connection */
                 return FALSE;
-        } 
+        }
 
         if (Run.allowselfcert && (ctx->error == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT)) {
                 /* Let's accept self signed certs for the moment! */
                 LogInfo("%s: SSL connection accepted with self signed certificate!\n", prog);
                 ctx->error = 0;
                 return TRUE;
-        } 
+        }
 
         /* Reject connection */
         LogError("%s: SSL connection rejected because certificate verification has failed -- error %i!\n", prog, ctx->error);
@@ -887,7 +880,7 @@ static void cleanup_ssl_socket(ssl_connection *ssl) {
 
 
 /**
- * Garbage collection for a SSL server connection. 
+ * Garbage collection for a SSL server connection.
  * @param ssl_server data for ssl server connection
  */
 static void cleanup_ssl_server_socket(ssl_server_connection *ssl_server) {
@@ -907,8 +900,8 @@ static void cleanup_ssl_server_socket(ssl_server_connection *ssl_server) {
 
 /**
  * Updates some data in the ssl connection
- * @param ssl reference to ssl connection 
- * @return TRUE, if not successful FALSE 
+ * @param ssl reference to ssl connection
+ * @return TRUE, if not successful FALSE
  */
 static int update_ssl_cert_data(ssl_connection *ssl) {
         unsigned char md5[EVP_MAX_MD_SIZE];

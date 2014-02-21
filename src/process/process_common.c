@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 /**
@@ -121,7 +121,7 @@ error:
  * Get the actual time as a floating point number
  * @return time in seconds
  */
-double get_float_time(void) {    
+double get_float_time(void) {
         struct timeval t;
 
         gettimeofday(&t, NULL);
@@ -179,6 +179,6 @@ void fillprocesstree(ProcessTree_T *pt, int index) {
                 parent_pt->mem_kbyte_sum   += pt[index].mem_kbyte_sum;
                 parent_pt->cpu_percent_sum += pt[index].cpu_percent_sum;
                 parent_pt->cpu_percent_sum  = (pt[index].cpu_percent_sum > 1000) ? 1000 : parent_pt->cpu_percent_sum;
-        } 
+        }
 }
 

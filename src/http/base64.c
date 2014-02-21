@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -41,7 +41,7 @@
 
 
 /**
- *  Implementation of base64 encoding/decoding. 
+ *  Implementation of base64 encoding/decoding.
  *
  *  @file
  */
@@ -184,12 +184,12 @@ size_t decode_base64(unsigned char *dest, const char *src) {
     for(k=0, l=0; src[k]; k++) {
 
       if(is_base64(src[k])) {
-	
-	buf[l++]= src[k];
-	
+
+        buf[l++]= src[k];
+
       }
 
-    } 
+    }
 
     for(k=0; k<l; k+=4) {
 
@@ -199,21 +199,21 @@ size_t decode_base64(unsigned char *dest, const char *src) {
       c1= buf[k];
 
       if(k+1<l) {
-	
-	c2= buf[k+1];
-	
+
+        c2= buf[k+1];
+
       }
 
       if(k+2<l) {
-	
-	c3= buf[k+2];
-	
+
+        c3= buf[k+2];
+
       }
 
       if(k+3<l) {
-	
-	c4= buf[k+3];
-	
+
+        c4= buf[k+3];
+
       }
 
       b1= decode(c1);
@@ -224,15 +224,15 @@ size_t decode_base64(unsigned char *dest, const char *src) {
       *p++=((b1<<2)|(b2>>4) );
 
       if(c3 != '=') {
-	
-	*p++=(((b2&0xf)<<4)|(b3>>2) );
-	
+
+        *p++=(((b2&0xf)<<4)|(b3>>2) );
+
       }
 
       if(c4 != '=') {
-	
-	*p++=(((b3&0x3)<<6)|b4 );
-	
+
+        *p++=(((b3&0x3)<<6)|b4 );
+
       }
 
     }

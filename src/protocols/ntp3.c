@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -58,7 +58,7 @@
 /* ------------------------------------------------------------------ Public */
 
 
-int check_ntp3(Socket_T socket) 
+int check_ntp3(Socket_T socket)
 {
   int  br;
   char ntpRequest[NTPLEN];

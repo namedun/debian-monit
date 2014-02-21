@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -39,7 +39,7 @@
 /**
  *  A simple 'SSH protocol version exchange' implemetation based on
  *  RFC (http://www.openssh.com/txt/draft-ietf-secsh-transport-14.txt)
- * 
+ *
  *  @file
  */
 int check_ssh(Socket_T socket) {

@@ -129,27 +129,11 @@ T StringBuffer_vappend(T S, const char *s, va_list ap) {
 }
 
 
-char StringBuffer_charAt(T S, int index) {
-        assert(S);
-        if (index < 0 || index > S->used)
-                THROW(AssertException, "Index out of bounds");
-        return S->buffer[index];
-}
-
-
-void StringBuffer_setCharAt(T S, int index, char c) {
-        assert(S);
-        if (index < 0 || index > S->used)
-                THROW(AssertException, "Index out of bounds");
-        S->buffer[index] = c;
-}
-
-
 int StringBuffer_replace(T S, const char *a, const char *b) {
         int n = 0;
         assert(S);
         if (a && b && *a) {
-                register int i, j;
+                int i, j;
                 for (i = 0; S->buffer[i]; i++) {
                         if (S->buffer[i] == *a) {
                                 j = 0;
@@ -221,7 +205,7 @@ T StringBuffer_delete(T S, int index) {
 int StringBuffer_indexOf(T S, const char *s) {
         assert(S);
         if (s && *s) {
-                register int i, j;
+                int i, j;
                 for (i = 0; i <= S->used; i++) {
                         if (S->buffer[i] == *s) {
                                 j = 0;
@@ -239,7 +223,7 @@ int StringBuffer_indexOf(T S, const char *s) {
 int StringBuffer_lastIndexOf(T S, const char *s) {
         assert(S);
         if (s && *s) {
-                register int i, j;
+                int i, j;
                 for (i = S->used; i >= 0; i--) {
                         if (S->buffer[i] == *s) {
                                 j = 0;

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -65,11 +65,11 @@
 #endif
 
 #include "monit.h"
-#include "cervlet.h" 
+#include "cervlet.h"
 #include "engine.h"
 #include "processor.h"
 #include "base64.h"
-#include "event.h" 
+#include "event.h"
 #include "alert.h"
 #include "process.h"
 #include "device.h"
@@ -259,7 +259,7 @@ static void is_monit_running(HttpRequest req, HttpResponse res) {
 
 
 static void printFavicon(HttpResponse res) {
-        static int l;
+        static size_t l;
         Socket_T S = res->S;
         static unsigned char *favicon = NULL;
 
@@ -713,7 +713,7 @@ static void handle_do_action(HttpRequest req, HttpResponse res) {
                         }
                 }
 
-                Run.doaction = TRUE; 
+                Run.doaction = TRUE;
                 do_wakeupcall();
         }
 }
@@ -829,6 +829,21 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
                 if(s->stop->has_gid)
                         StringBuffer_append(res->outputbuffer, " as gid %d", s->stop->gid);
                 StringBuffer_append(res->outputbuffer, " timeout %d second(s)", s->stop->timeout);
+                StringBuffer_append(res->outputbuffer, "</td></tr>");
+        }
+        if(s->restart) {
+                int i= 0;
+                StringBuffer_append(res->outputbuffer, "<tr><td>Restart program</td><td>'");
+                while(s->restart->arg[i]) {
+                        if(i) StringBuffer_append(res->outputbuffer, " ");
+                        StringBuffer_append(res->outputbuffer, "%s", s->restart->arg[i++]);
+                }
+                StringBuffer_append(res->outputbuffer, "'");
+                if(s->restart->has_uid)
+                        StringBuffer_append(res->outputbuffer, " as uid %d", s->restart->uid);
+                if(s->restart->has_gid)
+                        StringBuffer_append(res->outputbuffer, " as gid %d", s->restart->gid);
+                StringBuffer_append(res->outputbuffer, " timeout %d second(s)", s->restart->timeout);
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
 
@@ -1532,27 +1547,27 @@ static void print_buttons(HttpRequest req, HttpResponse res, Service_T s) {
                 return;
         }
 
-        StringBuffer_append(res->outputbuffer, "<table id='buttons'><tr><td>");
+        StringBuffer_append(res->outputbuffer, "<table id='buttons'><tr>");
         /* Start program */
         if(s->start)
-                StringBuffer_append(res->outputbuffer, 
+                StringBuffer_append(res->outputbuffer,
                           "<td><form method=POST action=%s>"
                           "<input type=hidden value='start' name=action>"
                           "<input type=submit value='Start service'></form></td>", s->name);
         /* Stop program */
         if(s->stop)
-                StringBuffer_append(res->outputbuffer, 
+                StringBuffer_append(res->outputbuffer,
                           "<td><form method=POST action=%s>"
                           "<input type=hidden value='stop' name=action>"
                           "<input type=submit value='Stop service'></form></td>", s->name);
         /* Restart program */
-        if(s->start && s->stop)
-                StringBuffer_append(res->outputbuffer, 
+        if((s->start && s->stop) || s->restart)
+                StringBuffer_append(res->outputbuffer,
                           "<td><form method=POST action=%s>"
                           "<input type=hidden value='restart' name=action>"
                           "<input type=submit value='Restart service'></form></td>", s->name);
         /* (un)monitor */
-        StringBuffer_append(res->outputbuffer, 
+        StringBuffer_append(res->outputbuffer,
                   "<td><form method=POST action=%s>"
                   "<input type=hidden value='%s' name=action>"
                   "<input type=submit value='%s'></form></td></tr></table>",
@@ -1830,51 +1845,51 @@ static void print_service_rules_resource(HttpResponse res, Service_T s) {
                         a= q->action;
                         StringBuffer_append(res->outputbuffer, "<tr><td>");
                         switch (q->resource_id) {
-                                case RESOURCE_ID_CPU_PERCENT: 
+                                case RESOURCE_ID_CPU_PERCENT:
                                         StringBuffer_append(res->outputbuffer, "CPU usage limit");
                                         break;
 
-                                case RESOURCE_ID_TOTAL_CPU_PERCENT: 
+                                case RESOURCE_ID_TOTAL_CPU_PERCENT:
                                         StringBuffer_append(res->outputbuffer, "CPU usage limit (incl. children)");
                                         break;
 
-                                case RESOURCE_ID_CPUUSER: 
+                                case RESOURCE_ID_CPUUSER:
                                         StringBuffer_append(res->outputbuffer, "CPU user limit");
                                         break;
 
-                                case RESOURCE_ID_CPUSYSTEM: 
+                                case RESOURCE_ID_CPUSYSTEM:
                                         StringBuffer_append(res->outputbuffer, "CPU system limit");
                                         break;
 
-                                case RESOURCE_ID_CPUWAIT: 
+                                case RESOURCE_ID_CPUWAIT:
                                         StringBuffer_append(res->outputbuffer, "CPU wait limit");
                                         break;
 
-                                case RESOURCE_ID_MEM_PERCENT: 
+                                case RESOURCE_ID_MEM_PERCENT:
                                         StringBuffer_append(res->outputbuffer, "Memory usage limit");
                                         break;
 
-                                case RESOURCE_ID_MEM_KBYTE: 
+                                case RESOURCE_ID_MEM_KBYTE:
                                         StringBuffer_append(res->outputbuffer, "Memory amount limit");
                                         break;
 
-                                case RESOURCE_ID_SWAP_PERCENT: 
+                                case RESOURCE_ID_SWAP_PERCENT:
                                         StringBuffer_append(res->outputbuffer, "Swap usage limit");
                                         break;
 
-                                case RESOURCE_ID_SWAP_KBYTE: 
+                                case RESOURCE_ID_SWAP_KBYTE:
                                         StringBuffer_append(res->outputbuffer, "Swap amount limit");
                                         break;
 
-                                case RESOURCE_ID_LOAD1: 
+                                case RESOURCE_ID_LOAD1:
                                         StringBuffer_append(res->outputbuffer, "Load average (1min)");
                                         break;
 
-                                case RESOURCE_ID_LOAD5: 
+                                case RESOURCE_ID_LOAD5:
                                         StringBuffer_append(res->outputbuffer, "Load average (5min)");
                                         break;
 
-                                case RESOURCE_ID_LOAD15: 
+                                case RESOURCE_ID_LOAD15:
                                         StringBuffer_append(res->outputbuffer, "Load average (15min)");
                                         break;
 
@@ -1892,7 +1907,7 @@ static void print_service_rules_resource(HttpResponse res, Service_T s) {
                         }
                         StringBuffer_append(res->outputbuffer, "</td><td>");
                         switch (q->resource_id) {
-                                case RESOURCE_ID_CPU_PERCENT: 
+                                case RESOURCE_ID_CPU_PERCENT:
                                 case RESOURCE_ID_TOTAL_CPU_PERCENT:
                                 case RESOURCE_ID_TOTAL_MEM_PERCENT:
                                 case RESOURCE_ID_CPUUSER:
@@ -2433,8 +2448,8 @@ static void status_service_txt(Service_T s, HttpResponse res, short level) {
 
                 if(Util_hasServiceStatus(s)) {
                         if(s->type == TYPE_FILE ||
-                           s->type == TYPE_FIFO || 
-                           s->type == TYPE_DIRECTORY || 
+                           s->type == TYPE_FIFO ||
+                           s->type == TYPE_DIRECTORY ||
                            s->type == TYPE_FILESYSTEM) {
                                 StringBuffer_append(res->outputbuffer,
                                           "  %-33s %o\n"
@@ -2445,7 +2460,7 @@ static void status_service_txt(Service_T s, HttpResponse res, short level) {
                                           "gid", (int)s->inf->st_gid);
                         }
                         if(s->type == TYPE_FILE ||
-                           s->type == TYPE_FIFO || 
+                           s->type == TYPE_FIFO ||
                            s->type == TYPE_DIRECTORY) {
                                 StringBuffer_append(res->outputbuffer,
                                           "  %-33s %s\n",
@@ -2458,7 +2473,7 @@ static void status_service_txt(Service_T s, HttpResponse res, short level) {
                                 if(s->checksum) {
                                         StringBuffer_append(res->outputbuffer,
                                                   "  %-33s %s (%s)\n",
-                                                  "checksum", s->inf->priv.file.cs_sum, 
+                                                  "checksum", s->inf->priv.file.cs_sum,
                                                   checksumnames[s->checksum->type]);
                                 }
                         }
@@ -2538,7 +2553,7 @@ static void status_service_txt(Service_T s, HttpResponse res, short level) {
                                         if(p->family == AF_INET) {
                                                 StringBuffer_append(res->outputbuffer,
                                                           "  %-33s %.3fs to %s:%d%s [%s via %s]\n",
-                                                          "port response time", p->is_available ? p->response : 0., 
+                                                          "port response time", p->is_available ? p->response : 0.,
                                                           p->hostname,
                                                           p->port, p->request?p->request:"", p->protocol->name,
                                                           Util_portTypeDescription(p));

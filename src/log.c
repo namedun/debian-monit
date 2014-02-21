@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -307,11 +307,11 @@ void LogDebug(const char *s, ...) {
 void log_close() {
 
   if (Run.use_syslog) {
-    closelog(); 
+    closelog();
   }
 
   if (LOG  && (0 != fclose(LOG))) {
-    LogError("%s: Error closing the log file -- %s\n",	prog, STRERROR);
+    LogError("%s: Error closing the log file -- %s\n",        prog, STRERROR);
   }
 
   LOG= NULL;
@@ -340,7 +340,7 @@ void vsyslog (int facility_priority, const char *format, va_list arglist) {
 static int open_log() {
 
   if (Run.use_syslog) {
-    openlog(prog, LOG_PID, Run.facility); 
+    openlog(prog, LOG_PID, Run.facility);
   } else {
     umask(LOGMASK);
     if ((LOG= fopen(Run.logfile,"a+")) == (FILE *)NULL) {
@@ -397,7 +397,7 @@ static const char *logPriorityDescription(int p) {
 
 
 /**
- * Log a message to monits logfile or syslog. 
+ * Log a message to monits logfile or syslog.
  * @param priority A message priority
  * @param s A formated (printf-style) string to log
  */

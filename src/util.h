@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -43,7 +43,7 @@
  * @param old The old sub-string
  * @param new The new sub-string
  * @return src where all occurrences of the old sub-string are
- * replaced with the new sub-string. 
+ * replaced with the new sub-string.
  */
 char *Util_replaceString(char **src, const char *old, const char *new);
 
@@ -51,7 +51,7 @@ char *Util_replaceString(char **src, const char *old, const char *new);
 /**
  * Count the number the sub-string word occurs in s.
  * @param s The String to search for word in
- * @param word 	The sub-string to count in s
+ * @param word The sub-string to count in s
  */
 int Util_countWords(char *s, const char *word);
 
@@ -64,7 +64,7 @@ void Util_handleEscapes(char *buf);
 
 
 /**
- * Variant of Util_handleEscapes() which only handle \0x00 escape sequences 
+ * Variant of Util_handleEscapes() which only handle \0x00 escape sequences
  * in a string
  * @param buf A string
  * @return The new length of buf
@@ -204,7 +204,7 @@ time_t Util_getProcessUptime(char *pidfile);
 /**
  * Compute an uptime string based on the delta time in seconds. The
  * caller must free the returned string.
- * @param delta seconds. 
+ * @param delta seconds.
  * @param sep string separator
  * @return an uptime string
  */
@@ -238,7 +238,7 @@ char *Util_urlDecode(char *url);
 
 /**
  * URL escape a service name so it can be safely transfeered over HTTP. In
- * particular any '/' chars in name is encoded. The caller must free the 
+ * particular any '/' chars in name is encoded. The caller must free the
  * returned string.
  * @param name a service name string to be URL encoded
  * @return the escaped string
@@ -286,7 +286,7 @@ Auth_T Util_getUserCredentials(char *uname);
 
 /**
  * Check if the given password match the registred password for the
- * given username. 
+ * given username.
  * @param uname Username
  * @param outside The password to test
  * @return TRUE if the passwords match for the given uname otherwise
@@ -314,7 +314,7 @@ int Util_hasServiceStatus(Service_T s);
  * Construct a HTTP/1.1 Host header utilizing information from the
  * socket. The returned hostBuf is set to "hostname:port" or to the
  * empty string if information is not available or not applicable.
- * @param s A connected socket 
+ * @param s A connected socket
  * @param hostBuf the buffer to write the host-header to
  * @param len Length of the hostBuf
  * @return the hostBuffer
@@ -323,13 +323,13 @@ char *Util_getHTTPHostHeader(Socket_T s, char *hostBuf, int len);
 
 
 /**
- * Evaluate a qualification expression. 
+ * Evaluate a qualification expression.
  * @param operator The qualification operator
  * @param left Expression lval
  * @param rightExpression rval
  * @return the boolean value of the expression
  */
-int Util_evalQExpression(int operator, long long left, long long right);
+int Util_evalQExpression(Operator_Type operator, long long left, long long right);
 
 
 /*

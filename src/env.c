@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -115,7 +115,7 @@ void init_env() {
  *    This code was originally posted by Wietse Venema, years ago, in
  *    a discussion on news on how to create safe suid wrappers. For
  *    those interested in NNTP archeology, here's the post:
- *    
+ *
  *  Article 5648 of comp.security.unix:
  *  From: wietse@wzv.win.tue.nl (Wietse Venema)
  *  Newsgroups: comp.security.unix
@@ -123,20 +123,20 @@ void init_env() {
  *  Date: 18 May 1994 07:52:05 +0200
  *  Organization: Eindhoven University of Technology, The Netherlands
  *  Lines: 68
- *  
+ *
  *  milton@picard.med.miami.edu (H. Milton Johnson) writes:
  *  >OK, I admit it, I'm a totally incompetent sysadmin because I am not
  *  >sure I could write a bullet-proof setuid wrapper.  However, if one of
  *  >the competent sysadmins subscribing to this group could post or point
  *  >the way to an example of a bullet- proof setuid wrapper, I'm sure that
  *  >I could use it as a template to address this/future/other problems.
- *  
+ *
  *  Ok, here is a first stab. Perhaps we can make this into a combined
  *  effort and get rid of the problem once and for all.
- *  
+ *
  *           Wietse
  *
- *  [code - see the function below, only marginally changed to suit monit]    
+ *  [code - see the function below, only marginally changed to suit monit]
  *
  *
  */

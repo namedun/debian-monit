@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -129,7 +129,7 @@ int init_process_info_sysdep(void) {
                 return FALSE;
 
         if (pstat_getstatic(&pst, sizeof(pst), (size_t) 1, 0) != -1) {
-                systeminfo.mem_kbyte_max=(unsigned long)(pst.physical_memory * (pst.page_size / 1024)); 
+                systeminfo.mem_kbyte_max=(unsigned long)(pst.physical_memory * (pst.page_size / 1024));
                 page_size=pst.page_size;
         } else {
                 return FALSE;
@@ -148,7 +148,7 @@ int init_process_info_sysdep(void) {
  */
 int getloadavg_sysdep (double *a, int na) {
         struct pst_dynamic psd;
-	
+
         if (pstat_getdynamic(&psd, sizeof(psd), (size_t)1, 0) != -1) {
                 switch (na) {
                         case 3:
@@ -185,7 +185,7 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
 
         if (nproc)
                 RESIZE(psall, nproc * sizeof(struct pst_status));
-        else 
+        else
                 return 0;
 
         if ((treesize = pstat_getproc(psall, sizeof(struct pst_status), nproc , 0)) == -1) {

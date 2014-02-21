@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 /*
  * Based on 100% Public Domain SHA-1 in C By Steve Reid <sreid@sea-to-sky.net>
@@ -105,9 +105,6 @@ static void sha1_transform(unsigned int state[5], const unsigned char buffer[64]
         state[2] += c;
         state[3] += d;
         state[4] += e;
-
-        /* Wipe variables */
-        a = b = c = d = e = 0;
 }
 
 

@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 #include "config.h"
@@ -34,33 +34,33 @@
  *  @file
  */
 int check_gps(Socket_T socket) {
-	char buf[STRLEN];
-	const char *ok_gps_device="GPSD,G=GPS";
-	const char *ok_rtcm104_device="GPSD,G=RTCM104";
-	const char *ok_rtcm104v2_device="GPSD,G=RTCM104v2";
+        char buf[STRLEN];
+        const char *ok_gps_device="GPSD,G=GPS";
+        const char *ok_rtcm104_device="GPSD,G=RTCM104";
+        const char *ok_rtcm104v2_device="GPSD,G=RTCM104v2";
 
-	ASSERT(socket);
+        ASSERT(socket);
 
-	if(socket_print(socket, "G\r\n") < 0) {
-		socket_setError(socket, "GPS: error sending data -- %s\n", STRERROR);
-		return FALSE;
-	}
+        if(socket_print(socket, "G\r\n") < 0) {
+                socket_setError(socket, "GPS: error sending data -- %s\n", STRERROR);
+                return FALSE;
+        }
 
-	if(!socket_readln(socket, buf, sizeof(buf))) {
-		socket_setError(socket, "GPS: error receiving data -- %s\n", STRERROR);
-		return FALSE;
-	}
+        if(!socket_readln(socket, buf, sizeof(buf))) {
+                socket_setError(socket, "GPS: error receiving data -- %s\n", STRERROR);
+                return FALSE;
+        }
 
-	Str_chomp(buf);
-	if(strncasecmp(buf, ok_gps_device, strlen(ok_gps_device)) != 0) {
-		if(strncasecmp(buf, ok_rtcm104v2_device, strlen(ok_rtcm104v2_device)) != 0) {
-			if(strncasecmp(buf, ok_rtcm104_device, strlen(ok_rtcm104_device)) != 0) {
-				socket_setError(socket, "GPS error (no device): %s\n", buf);
-				return FALSE;
-			}
-		}
-	}
-	
-	return TRUE;
+        Str_chomp(buf);
+        if(strncasecmp(buf, ok_gps_device, strlen(ok_gps_device)) != 0) {
+                if(strncasecmp(buf, ok_rtcm104v2_device, strlen(ok_rtcm104v2_device)) != 0) {
+                        if(strncasecmp(buf, ok_rtcm104_device, strlen(ok_rtcm104_device)) != 0) {
+                                socket_setError(socket, "GPS error (no device): %s\n", buf);
+                                return FALSE;
+                        }
+                }
+        }
+
+        return TRUE;
 }
 

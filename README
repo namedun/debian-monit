@@ -5,8 +5,8 @@ MONIT - UNIX Systems Management
 Introduction
 ------------
 
-Monit is a utility for managing and monitoring processes, programs, files,
-directories and filesystems on a Unix system. Monit conducts automatic
+Monit is a free utility for managing and monitoring processes, programs, 
+files, directories and filesystems on a Unix system. Monit conducts automatic
 maintenance and repair and can execute meaningful causal actions in error
 situations.
 
@@ -82,14 +82,6 @@ Please use `man monit' for an in-depth documentation of the program. More
 documentation can be found at http://mmonit.com/monit/documentation/
 
 
-Questions and support
----------------------
-
-If you have questions or comments about the software or documentation
-please subscribe to the Monit general mailing list and post your questions
-there. http://lists.nongnu.org/mailman/listinfo/monit-general
-
-
 Acknowledgments
 ---------------
 
@@ -105,8 +97,29 @@ Contributing
 ------------
  
 You are welcome to contribute to this project, but please note that
-we are only able to accept contributions under a CC0 license,
-http://creativecommons.org/publicdomain/zero/1.0/
+an electronically signed CLA is required to be on file before any Pull
+Request or patches are accepted or you are given commit rights to the
+project. To sign, go to http://tildeslash.com/cla/
+
+
+Reporting a problem
+-------------------
+
+If you believe you have found a bug, please use the issue tracker to
+report the problem. Remember to include the necessary information that 
+will enable us to understand and reproduce this problem.
+
+If you have found a security vulnerabilities we appreciate if you will
+send this information to cve@tildeslash.com.
+
+
+Mailing list
+------------
+
+You can subscribe to Monitʼs mailing list to be the first to hear 
+about new releases and important information about Monit. The mailing 
+list is read-only with very low traffic. Please go here to subscribe;
+https://lists.nongnu.org/mailman/listinfo/monit-announce
 
 
 Contact information

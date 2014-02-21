@@ -11752,7 +11752,7 @@ $as_echo "#define SOLARIS 1" >>confdefs.h
 
 elif test "$architecture" = "HP-UX"
 then
-   CFLAGS="$CFLAGS -D_REENTRANT"
+   CFLAGS="$CFLAGS -D_REENTRANT -D _INCLUDE_XOPEN_SOURCE -D _INCLUDE_XOPEN_SOURCE_EXTENDED -D _XOPEN_SOURCE_EXTENDED -D _INCLUDE_HPUX_SOURCE"
 
 $as_echo "#define HPUX 1" >>confdefs.h
 
