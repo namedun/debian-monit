@@ -1,6 +1,84 @@
-                     CHANGES version 5.7
+                     CHANGES version 5.8
 
            This file summarizes changes made since 5.0
+
+
+Version 5.8
+
+New: Monit no longer purge the environment for sub-processes
+
+New: Add command line option to view Monit ID (-i/--id)
+
+New: Add command line option to reset Monit ID (-r/--resetid)
+
+New: Add client support for using TLS version 1.1 and 1.2. A recent
+1.x version of OpenSSL is required and of course that the server
+speaks this TLS version. At this time, not many does. Example: 
+if failed port 443 with type TCPSSL tlsv11 protocol http  then alert
+
+New: Process UID, EUID and GID tests. Allows to test if the
+process is running as a given user. Example:
+    check process syslog with pidfile /var/run/rsyslogd.pid
+        if failed uid  "syslog" then alert
+        if failed euid "syslog" then alert
+        if failed gid  "syslog" then alert
+
+New: Add WebSocket protocol test support for port check. Example:
+    check host websocket.org with address "echo.websocket.org"
+        if failed 
+           port 80 protocol websocket
+           host "echo.websocket.org"
+           request "/"
+           origin "http://www.websocket.com"
+           version 13
+        then alert
+
+New: Simplified HTTP protocol test to allow testing content without 
+creating an URL object. It is now possible to say in a more natural way,
+ check host mmonit.com with address mmonit.com
+       if failed 
+          port 80 protocol http
+          and request /monit/ with content = "Monit 5.7"
+       then alert
+meaning that if the page mmonit.com/monit does not contain the text
+"Monit 5.7" then the test will fail. To reverse the test, i.e. to test
+that the page should not contain a specific string simply use '!=' 
+instead, like,
+    if failed 
+       port 80 protocol http
+       with content != "Nagios" 
+    then alert
+Remember also that the string to test can be a regular expression
+
+New: The HTTP protocol test now support testing the HTTP status code
+returned by the server by using "status <operator> <number>".
+Backward compatible defaults (return error if status >= 400):
+    if failed 
+       port 80 protocol http
+       and status < 400
+    then alert
+Return error if a page DOES exist (for success 404 is expected):
+    if failed 
+       port 80 protocol http
+       request "/non/existent.php"
+       status = 404
+    then alert
+
+Fixed: Unix Socket test now use the communication type (TCP or UDP)
+specified in port statement. Previously TCP was always used.
+
+Fixed: Improved test to check if a socket was connected. Since we use
+non-blocking connect, we now poll a few ms to avoid "connection failed, 
+XXX is not ready for i|o" errors which could occur, especially on high 
+latency networks or long distance connect.
+
+Fixed: Simplified if-statements reported in UI
+
+Fixed: Ignore lines starting with '#' in an 'allow htpasswd' file
+statement. Thanks to Michael Bakker for reporting the issue
+
+Fixed: Show service restart program on Monit startup in debug mode.
+Thanks to Michael Bakker for reporting the issue
 
 
 Version 5.7

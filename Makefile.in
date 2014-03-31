@@ -40,11 +40,11 @@ bin_PROGRAMS = monit$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure \
-	$(top_srcdir)/contrib/monit.service.in \
-	$(top_srcdir)/contrib/monit.upstart.in \
-	$(top_srcdir)/src/config.h.in COPYING config/config.guess \
-	config/config.sub config/install-sh config/ltmain.sh \
-	config/missing
+	$(top_srcdir)/src/config.h.in \
+	$(top_srcdir)/system/startup/monit.service.in \
+	$(top_srcdir)/system/startup/monit.upstart.in COPYING \
+	config/config.guess config/config.sub config/install-sh \
+	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -53,7 +53,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/config.h
-CONFIG_CLEAN_FILES = contrib/monit.upstart contrib/monit.service
+CONFIG_CLEAN_FILES = system/startup/monit.upstart \
+	system/startup/monit.service
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
 PROGRAMS = $(bin_PROGRAMS)
@@ -86,7 +87,8 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/radius.$(OBJEXT) src/protocols/rdate.$(OBJEXT) \
 	src/protocols/rsync.$(OBJEXT) src/protocols/sip.$(OBJEXT) \
 	src/protocols/smtp.$(OBJEXT) src/protocols/ssh.$(OBJEXT) \
-	src/protocols/tns.$(OBJEXT) src/device/device_common.$(OBJEXT) \
+	src/protocols/tns.$(OBJEXT) src/protocols/websocket.$(OBJEXT) \
+	src/device/device_common.$(OBJEXT) \
 	src/device/sysdep_@ARCH@.$(OBJEXT) \
 	src/process/process_common.$(OBJEXT) \
 	src/process/sysdep_@ARCH@.$(OBJEXT)
@@ -317,7 +319,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign no-dependencies subdir-objects
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README CHANGES COPYING CONTRIBUTORS bootstrap doc src config monitrc contrib libmonit monit.1
+EXTRA_DIST = README CHANGES COPYING CONTRIBUTORS bootstrap doc src config monitrc system libmonit monit.1
 SUBDIRS = libmonit
 FLEXFLAGS = -i
 YACCFLAGS = -dvt
@@ -383,6 +385,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/smtp.c \
 		  src/protocols/ssh.c \
 		  src/protocols/tns.c \
+		  src/protocols/websocket.c \
 		  src/device/device_common.c \
 		  src/device/sysdep_@ARCH@.c \
 		  src/process/process_common.c \
@@ -448,9 +451,9 @@ $(top_srcdir)/src/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f src/config.h src/stamp-h1
-contrib/monit.upstart: $(top_builddir)/config.status $(top_srcdir)/contrib/monit.upstart.in
+system/startup/monit.upstart: $(top_builddir)/config.status $(top_srcdir)/system/startup/monit.upstart.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-contrib/monit.service: $(top_builddir)/config.status $(top_srcdir)/contrib/monit.service.in
+system/startup/monit.service: $(top_builddir)/config.status $(top_srcdir)/system/startup/monit.service.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
@@ -564,6 +567,7 @@ src/protocols/sip.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/smtp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ssh.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/tns.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/websocket.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/device/$(am__dirstamp):
 	@$(MKDIR_P) src/device
 	@: > src/device/$(am__dirstamp)
@@ -632,6 +636,7 @@ mostlyclean-compile:
 	-rm -f src/protocols/smtp.$(OBJEXT)
 	-rm -f src/protocols/ssh.$(OBJEXT)
 	-rm -f src/protocols/tns.$(OBJEXT)
+	-rm -f src/protocols/websocket.$(OBJEXT)
 	-rm -f src/sendmail.$(OBJEXT)
 	-rm -f src/sha1.$(OBJEXT)
 	-rm -f src/signal.$(OBJEXT)
@@ -1208,7 +1213,7 @@ dist-hook::
 	-rm -f $(distdir)/src/stamp-*
 	-rm -f $(distdir)/src/y.output
 	-rm -f $(distdir)/README.md
-	-perl -pi -e 's/^Version: .*/Version: '$(VERSION)'/' $(distdir)/contrib/packages/redhat/monit.spec
+	-perl -pi -e 's/^Version: .*/Version: '$(VERSION)'/' $(distdir)/system/packages/redhat/monit.spec
 	-chmod 600 monitrc
 
 clean-local:

@@ -24,14 +24,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -46,13 +38,13 @@
  */
 int check_nntp(Socket_T socket) {
 
-  int status= 0;
+  int status = 0;
   char buf[STRLEN];
 
   ASSERT(socket);
 
   if(!socket_readln(socket, buf, sizeof(buf))) {
-    socket_setError(socket, "NNTP: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "NNTP: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
@@ -60,17 +52,17 @@ int check_nntp(Socket_T socket) {
 
   sscanf(buf, "%d %*s", &status);
   if(status != 200) {
-    socket_setError(socket, "NNTP error: %s\n", buf);
+    socket_setError(socket, "NNTP error: %s", buf);
     return FALSE;
   }
 
   if(socket_print(socket, "QUIT\r\n") < 0) {
-    socket_setError(socket, "NNTP: error sending data -- %s\n", STRERROR);
+    socket_setError(socket, "NNTP: error sending data -- %s", STRERROR);
     return FALSE;
   }
 
   if(!socket_readln(socket, buf, sizeof(buf))) {
-    socket_setError(socket, "NNTP: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "NNTP: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
@@ -78,7 +70,7 @@ int check_nntp(Socket_T socket) {
 
   sscanf(buf, "%d %*s", &status);
   if(status != 205) {
-    socket_setError(socket, "NNTP error: %s\n", buf);
+    socket_setError(socket, "NNTP error: %s", buf);
     return FALSE;
   }
 

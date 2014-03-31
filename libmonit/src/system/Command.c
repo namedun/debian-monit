@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
 #include "Str.h"
 #include "Dir.h"
@@ -62,6 +63,8 @@ struct T {
         gid_t gid;
         List_T env;
         List_T args;
+        char **_env;
+        char **_args;
         char *working_directory;
 };
 struct Process_T {
@@ -69,8 +72,6 @@ struct Process_T {
         uid_t uid;
         gid_t gid;
         int status;
-        char **env; 
-        char **args;
         int stdin_pipe[2];
         int stdout_pipe[2];
         int stderr_pipe[2];
@@ -79,8 +80,6 @@ struct Process_T {
         OutputStream_T out;
         char *working_directory;
 };
-const char *Command_Path = "PATH=/bin:/usr/bin:/usr/local/bin:/opt/csw/bin:/usr/sfw/bin";
-
 
 /* --------------------------------------------------------------- Private */
 
@@ -88,9 +87,11 @@ const char *Command_Path = "PATH=/bin:/usr/bin:/usr/local/bin:/opt/csw/bin:/usr/
 /* Search the env list and return the pointer to the name (in the list)
  if found, otherwise NULL */
 static inline char *findEnv(T C, const char *name) {
-        for (list_t p = C->env->head; p; p = p->next)
-                if (Str_startsWith(p->e, name))
-                        return p->e;
+        for (list_t p = C->env->head; p; p = p->next) {
+                if ((strncmp(p->e, name, strlen(name)) == 0))
+                        if (((char*)p->e)[strlen(name)] == '=') // Ensure that p->e is not just a sub-string
+                                return p->e;
+        }
         return NULL;
 }
 
@@ -125,6 +126,22 @@ static void buildArgs(T C, const char *path, const char *x, va_list ap) {
         for (; x; x = va_arg(ap_copy, char *))
                 List_append(C->args, Str_dup(x));
         va_end(ap_copy);
+}
+
+
+/* Returns an array of program args */
+static inline char **_args(T C) {
+        if (! C->_args)
+                C->_args = (char**)List_toArray(C->args);
+        return C->_args;
+}
+
+
+/* Returns an array of program environment */
+static inline char **_env(T C) {
+        if (! C->_env)
+                C->_env = (char**)List_toArray(C->env);
+        return C->_env;
 }
 
 
@@ -211,8 +228,6 @@ static Process_T Process_new(void) {
 
 void Process_free(Process_T *P) {
         assert(P && *P);
-        FREE((*P)->args);
-        FREE((*P)->env);
         FREE((*P)->working_directory);
         if (Process_isRunning(*P)) 
                 Process_kill(*P);
@@ -330,22 +345,29 @@ void Process_kill(Process_T P) {
 
 T Command_new(const char *path, const char *arg0, ...) {
         T C;
+        assert(path);
         if (! File_exist(path))
-                THROW(AssertException, "File '%s' does not exist", path ? path : "null");
+                THROW(AssertException, "File '%s' does not exist", path);
         NEW(C);
         C->env = List_new();
         C->args = List_new();
-        List_append(C->env, Str_dup(Command_Path));
         va_list ap;
         va_start(ap, arg0);
         buildArgs(C, path, arg0, ap);
         va_end(ap);
+        // Copy this process's environment for transit to sub-processes
+        extern char **environ;
+        for (char **e = environ; *e; e++) {
+                List_append(C->env, Str_dup(*e));
+        }
         return C;
 }
 
 
 void Command_free(T *C) {
         assert(C && *C);
+        FREE((*C)->_args);
+        FREE((*C)->_env);
         freeStrings((*C)->args);
         List_free(&(*C)->args);
         freeStrings((*C)->env);
@@ -359,6 +381,7 @@ void Command_appendArgument(T C, const char *argument) {
         assert(C);
         if (argument)
                 List_append(C->args, Str_dup(argument));
+        FREE(C->_args); // Recreate Command argument on exec
 }
 
 
@@ -390,9 +413,9 @@ void Command_setDir(T C, const char *dir) {
         assert(C);
         if (dir) { // Allow to set a NULL directory, meaning the calling process's current directory
                 if (! File_isDirectory(dir))
-                        THROW(AssertException, "The working directory '%s' is not a directory", dir);
+                        THROW(AssertException, "The new working directory '%s' is not a directory", dir);
                 if (! File_isExecutable(dir))
-                        THROW(AssertException, "The working directory '%s' is not accessible", dir);
+                        THROW(AssertException, "The new working directory '%s' is not accessible", dir);
         }
         FREE(C->working_directory);
         C->working_directory = Str_dup(dir);
@@ -412,30 +435,7 @@ void Command_setEnv(Command_T C, const char *name, const char *value) {
         assert(name);
         removeEnv(C, name);
         List_append(C->env, Str_cat("%s=%s", name, value ? value : ""));
-}
-
-
-void Command_vSetEnv(T C, const char *env, ...) {
-        assert(C);
-        if (STR_DEF(env)) {
-                va_list ap;
-                char *s, *n, *v, *t;
-                va_start(ap, env);
-                n = s = Str_vcat(env, ap);
-                va_end(ap);
-                while ((v = strchr(n, '='))) {
-                        *(v++) = 0;
-                        t = strchr(v, ';');
-                        if (t)
-                                *(t++) = 0;
-                        Command_setEnv(C, Str_trim(n), Str_trim(v));
-                        if (t)
-                                n = t;
-                        else
-                                break;
-                }
-                FREE(s);
-        }
+        FREE(C->_env); // Recreate Command environment on exec
 }
 
 
@@ -465,10 +465,10 @@ List_T Command_getCommand(T C) {
  parent process until exec or exit is called */
 Process_T Command_execute(T C) {
         assert(C);
+        assert(_env(C));
+        assert(_args(C));
         volatile int exec_error = 0;
         Process_T P = Process_new();
-        P->env = (char**)List_toArray(C->env);
-        P->args = (char**)List_toArray(C->args);
         createPipes(P);
         if ((P->pid = vfork()) < 0) {
                 ERROR("Command: fork failed -- %s\n", System_getLastError());
@@ -495,8 +495,7 @@ Process_T Command_execute(T C) {
                 setsid(); // Loose controlling terminal
                 setupChildPipes(P);
                 // Close all descriptors except stdio
-                int descriptors = getdtablesize();
-                for (int i = 3; i < descriptors; i++)
+                for (int i = 3, descriptors = getdtablesize(); i < descriptors; i++)
                         close(i);
                 // Unblock any signals and reset signal handlers
                 sigset_t mask;
@@ -511,7 +510,7 @@ Process_T Command_execute(T C) {
                 signal(SIGUSR1, SIG_DFL);
                 signal(SIGHUP, SIG_IGN);  // Ensure future opens won't allocate controlling TTYs
                 // Execute the program
-                execve(P->args[0], P->args, P->env);
+                execve(_args(C)[0], _args(C), _env(C));
                 exec_error = errno;
                 _exit(errno);
         }

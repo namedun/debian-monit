@@ -24,20 +24,8 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
 #ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
 #endif
 
 #include "protocol.h"
@@ -51,36 +39,36 @@
 int check_pop(Socket_T socket) {
 
   char buf[STRLEN];
-  const char *ok= "+OK";
+  const char *ok = "+OK";
 
   ASSERT(socket);
 
   if(!socket_readln(socket, buf, sizeof(buf))) {
-    socket_setError(socket, "POP: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "POP: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
   Str_chomp(buf);
 
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
-    socket_setError(socket, "POP error: %s\n", buf);
+    socket_setError(socket, "POP error: %s", buf);
     return FALSE;
   }
 
   if(socket_print(socket, "QUIT\r\n") < 0) {
-    socket_setError(socket, "POP: error sending data -- %s\n", STRERROR);
+    socket_setError(socket, "POP: error sending data -- %s", STRERROR);
     return FALSE;
   }
 
   if(!socket_readln(socket, buf, sizeof(buf))) {
-    socket_setError(socket, "POP: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "POP: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
   Str_chomp(buf);
 
   if(strncasecmp(buf, ok, strlen(ok)) != 0) {
-    socket_setError(socket, "POP error: %s\n", buf);
+    socket_setError(socket, "POP error: %s", buf);
     return FALSE;
   }
 

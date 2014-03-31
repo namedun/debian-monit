@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 Tildeslash Ltd. All rights reserved.
+ * Copyright (C) 2011-2014 Tildeslash Ltd. All rights reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,24 +27,8 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
 #ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef HAVE_TIME_H
-#include <time.h>
-#endif
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
 #endif
 
 #ifdef HAVE_SYS_TYPES_H
@@ -53,18 +37,6 @@
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
 #endif
 
 #include "protocol.h"
@@ -102,14 +74,14 @@ int check_sip(Socket_T socket) {
   Port_T P;
   const char *request;
   const char *myip;
-  char *rport= "";
+  char *rport = "";
   char *proto;
 
   ASSERT(socket);
 
-  P= socket_get_Port(socket);
+  P = socket_get_Port(socket);
   ASSERT(P);
-  request= P->request?P->request:"monit@foo.bar";
+  request = P->request?P->request:"monit@foo.bar";
 
   port = socket_get_local_port(socket);
   proto = socket_is_secure(socket) ? "sips" : "sip";
@@ -128,12 +100,12 @@ int check_sip(Socket_T socket) {
     }
     default:
     {
-      socket_setError(socket, "Unsupported socket type, only TCP and UDP are supported\n");
+      socket_setError(socket, "Unsupported socket type, only TCP and UDP are supported");
       return TRUE;
     }
   }
 
-  myip= socket_get_local_host(socket);
+  myip = socket_get_local_host(socket);
 
   if(socket_print(socket,
     "OPTIONS %s:%s SIP/2.0\r\n"
@@ -166,12 +138,12 @@ int check_sip(Socket_T socket) {
     port,             // contact port
     prog, VERSION     // user agent
     ) < 0) {
-    socket_setError(socket, "SIP: error sending data -- %s\n", STRERROR);
+    socket_setError(socket, "SIP: error sending data -- %s", STRERROR);
     return FALSE;
   }
 
   if(! socket_readln(socket, buf, sizeof(buf))) {
-    socket_setError(socket, "SIP: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "SIP: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
@@ -180,22 +152,22 @@ int check_sip(Socket_T socket) {
   DEBUG("Response from SIP server: %s\n", buf);
 
   if(! sscanf(buf, "%*s %d", &status)) {
-    socket_setError(socket, "SIP error: cannot parse SIP status in response: %s\n", buf);
+    socket_setError(socket, "SIP error: cannot parse SIP status in response: %s", buf);
     return FALSE;
   }
 
   if(status >= 400) {
-    socket_setError(socket, "SIP error: Server returned status %d\n", status);
+    socket_setError(socket, "SIP error: Server returned status %d", status);
     return FALSE;
   }
 
   if(status >= 300 && status < 400) {
-    socket_setError(socket, "SIP info: Server redirection. Returned status %d\n", status);
+    socket_setError(socket, "SIP info: Server redirection. Returned status %d", status);
     return FALSE;
   }
 
   if(status > 100 && status < 200) {
-    socket_setError(socket, "SIP error: Provisional response . Returned status %d\n", status);
+    socket_setError(socket, "SIP error: Provisional response . Returned status %d", status);
     return FALSE;
   }
 

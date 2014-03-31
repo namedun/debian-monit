@@ -246,11 +246,6 @@ Sigfunc *signal(int signo, Sigfunc * func);
 #define SIG_ERR ((Sigfunc *)-1)
 #endif
 
-/* For systems without PATH_MAX define it with a resonable value */
-#ifndef PATH_MAX
-#define PATH_MAX 1024
-#endif
-
 
 /** ------------------------------------------------- General purpose macros */
 
@@ -405,6 +400,9 @@ typedef struct myprocesstree {
         int           children_sum;
         int           cpu_percent;
         int           cpu_percent_sum;
+        uid_t         uid;
+        uid_t         euid;
+        gid_t         gid;
         unsigned long mem_kbyte;
         unsigned long mem_kbyte_sum;
         time_t        starttime;
@@ -475,6 +473,9 @@ typedef struct myport {
         int timeout;   /**< The timeout in seconds to wait for connect or read i/o */
         int retry;       /**< Number of connection retry before reporting an error */
         int is_available;                /**< TRUE if the server/port is available */
+        int version;                                         /**< Protocol version */
+        Operator_Type operator;                           /**< Comparison operator */
+        int status;                                           /**< Protocol status */
         double response;                      /**< Socket connection response time */
         EventAction_T action;  /**< Description of the action upon event occurence */
         /** Apache-status specific parameters */
@@ -742,6 +743,9 @@ typedef struct myinfo {
                         int    _ppid;                  /**< Process parent PID from last cycle */
                         int    pid;                         /**< Process PID from actual cycle */
                         int    ppid;                 /**< Process parent PID from actual cycle */
+                        uid_t  uid;                                           /**< Process UID */
+                        uid_t  euid;                                /**< Effective Process UID */
+                        gid_t  gid;                                           /**< Process GID */
                         int    status_flag;
                         int    children;
                         long   mem_kbyte;
@@ -782,7 +786,6 @@ typedef struct myservice {
         ActionRate_T actionratelist;                    /**< ActionRate check list */
         Checksum_T  checksum;                                  /**< Checksum check */
         Filesystem_T filesystemlist;                    /**< Filesystem check list */
-        Gid_T       gid;                                            /**< Gid check */
         Icmp_T      icmplist;                                 /**< ICMP check list */
         Perm_T      perm;                                    /**< Permission check */
         Port_T      portlist; /**< Portnumbers to check, either local or at a host */
@@ -793,6 +796,8 @@ typedef struct myservice {
         Match_T     matchignorelist;                /**< Content Match ignore list */
         Timestamp_T timestamplist;                       /**< Timestamp check list */
         Uid_T       uid;                                            /**< Uid check */
+        Uid_T       euid;                                 /**< Effective Uid check */
+        Gid_T       gid;                                            /**< Gid check */
         Status_T    statuslist;           /**< Program execution status check list */
 
 
@@ -887,7 +892,6 @@ struct myrun {
         volatile int  dowakeup;  /**< TRUE if a monit daemon was wake up by signal */
         int  doaction;             /**< TRUE if some service(s) has action pending */
         mode_t umask;                /**< The initial umask monit was started with */
-        int  testing;   /**< Running in configuration testing mode - TRUE or FALSE */
         time_t incarnation;              /**< Unique ID for running monit instance */
         int  handler_init;                  /**< The handlers queue initialization */
         int  handler_flag;                            /**< The handlers state flag */

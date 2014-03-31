@@ -118,6 +118,7 @@
 
 // libmonit
 #include "io/File.h"
+#include "util/Str.h"
 
 
 /* ------------------------------------------------------------- Definitions */
@@ -159,8 +160,8 @@
   static command_t command1 = NULL;
   static command_t command2 = NULL;
   static Service_T depend_list = NULL;
-  static struct mygid gidset;
   static struct myuid uidset;
+  static struct mygid gidset;
   static struct mystatus statusset;
   static struct myperm permset;
   static struct mysize sizeset;
@@ -218,8 +219,8 @@
   static void  addmatch(Match_T, int, int);
   static void  addmatchpath(Match_T, int);
   static void  addstatus(Status_T);
-  static void  adduid(Uid_T);
-  static void  addgid(Gid_T);
+  static Uid_T adduid(Uid_T);
+  static Gid_T addgid(Gid_T);
   static void  addeuid(uid_t);
   static void  addegid(gid_t);
   static void  addeventaction(EventAction_T *, int, int);
@@ -239,8 +240,8 @@
   static void  reset_checksumset();
   static void  reset_permset();
   static void  reset_uidset();
-  static void  reset_statusset();
   static void  reset_gidset();
+  static void  reset_statusset();
   static void  reset_filesystemset();
   static void  reset_icmpset();
   static void  reset_rateset();
@@ -272,7 +273,7 @@
 %token HOST HOSTNAME PORT TYPE UDP TCP TCPSSL PROTOCOL CONNECTION
 %token ALERT NOALERT MAILFORMAT UNIXSOCKET SIGNATURE
 %token TIMEOUT RETRY RESTART CHECKSUM EVERY NOTEVERY
-%token DEFAULT HTTP APACHESTATUS FTP SMTP POP IMAP CLAMAV NNTP NTP3 MYSQL DNS
+%token DEFAULT HTTP APACHESTATUS FTP SMTP POP IMAP CLAMAV NNTP NTP3 MYSQL DNS WEBSOCKET
 %token SSH DWP LDAP2 LDAP3 RDATE RSYNC TNS PGSQL POSTFIXPOLICY SIP LMTP GPS RADIUS MEMCACHE
 %token <string> STRING PATH MAILADDR MAILFROM MAILREPLYTO MAILSUBJECT
 %token <string> MAILBODY SERVICENAME STRINGNAME
@@ -281,13 +282,13 @@
 %token <number> CLEANUPLIMIT
 %token <real> REAL
 %token CHECKPROC CHECKFILESYS CHECKFILE CHECKDIR CHECKHOST CHECKSYSTEM CHECKFIFO CHECKPROGRAM
-%token CHILDREN SYSTEM STATUS
+%token CHILDREN SYSTEM STATUS ORIGIN VERSIONOPT
 %token RESOURCE MEMORY TOTALMEMORY LOADAVG1 LOADAVG5 LOADAVG15 SWAP
 %token MODE ACTIVE PASSIVE MANUAL CPU TOTALCPU CPUUSER CPUSYSTEM CPUWAIT
 %token GROUP REQUEST DEPENDS BASEDIR SLOT EVENTQUEUE SECRET HOSTHEADER
-%token UID GID MMONIT INSTANCE USERNAME PASSWORD
+%token UID EUID GID MMONIT INSTANCE USERNAME PASSWORD
 %token TIMESTAMP CHANGED SECOND MINUTE HOUR DAY
-%token SSLAUTO SSLV2 SSLV3 TLSV1 CERTMD5
+%token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 CERTMD5
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
 %token INODE SPACE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
 %token EXEC UNMONITOR ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
@@ -344,6 +345,9 @@ optproc         : start
                 | exist
                 | pid
                 | ppid
+                | uid
+                | euid
+                | gid
                 | uptime
                 | connection
                 | connectionunix
@@ -638,8 +642,7 @@ mailserver      : STRING username password sslversion certmd5 {
                     mailserverset.ssl.version = $<number>4;
                     if (mailserverset.ssl.version != SSL_VERSION_NONE) {
                       mailserverset.ssl.use_ssl = TRUE;
-                      if (mailserverset.ssl.version == SSL_VERSION_SSLV2 ||
-                         mailserverset.ssl.version == SSL_VERSION_SSLV3)
+                      if (mailserverset.ssl.version == SSL_VERSION_SSLV2 || mailserverset.ssl.version == SSL_VERSION_SSLV3)
                          mailserverset.port = PORT_SMTPS;
                       mailserverset.ssl.certmd5 = $<string>5;
                     }
@@ -937,11 +940,16 @@ hostname        : /* EMPTY */     { $<string>$ = NULL; }
                 | HOSTNAME STRING { $<string>$ = $2; }
                 ;
 
-connection      : IF FAILED host port type protocol nettimeout retry rate1
+connection      : IF FAILED host port type protocol urloption nettimeout retry rate1
                   THEN action1 recovery {
-                    portset.timeout = $<number>7;
-                    portset.retry = $<number>8;
-                    addeventaction(&(portset).action, $<number>11, $<number>12);
+                    portset.timeout = $<number>8;
+                    portset.retry = $<number>9;
+                    /* This is a workaround to support content match without having to create
+                     an URL object. 'urloption' creates the Request_T object we need minus the
+                     URL object, but with enough information to perform content test. 
+                     TODO: Parser is in need of refactoring */
+                    portset.url_request = urlrequest;
+                    addeventaction(&(portset).action, $<number>12, $<number>13);
                     addport(&portset);
                   }
                 | IF FAILED URL URLOBJECT urloption nettimeout retry rate1
@@ -1016,7 +1024,21 @@ certmd5         : /* EMPTY */    { $<string>$ = NULL; }
 sslversion      : /* EMPTY */  { $<number>$ = SSL_VERSION_NONE; }
                 | SSLV2        { $<number>$ = SSL_VERSION_SSLV2; }
                 | SSLV3        { $<number>$ = SSL_VERSION_SSLV3; }
-                | TLSV1        { $<number>$ = SSL_VERSION_TLS; }
+                | TLSV1        { $<number>$ = SSL_VERSION_TLSV1; }
+                | TLSV11
+                {
+#ifndef HAVE_TLSV1_1_CLIENT_METHOD
+                        yyerror("Your SSL Library does not support TLS version 1.1");
+#endif
+                        $<number>$ = SSL_VERSION_TLSV11;
+                }
+                | TLSV12
+                {
+#ifndef HAVE_TLSV1_1_CLIENT_METHOD
+                        yyerror("Your SSL Library does not support TLS version 1.2");
+#endif
+                        $<number>$ = SSL_VERSION_TLSV12;
+                }
                 | SSLAUTO      { $<number>$ = SSL_VERSION_AUTO; }
                 ;
 
@@ -1038,7 +1060,7 @@ protocol        : /* EMPTY */  {
                 | PROTOCOL FTP {
                     portset.protocol = Protocol_get(Protocol_FTP);
                   }
-                | PROTOCOL HTTP request {
+                | PROTOCOL HTTP httplist {
                     portset.protocol = Protocol_get(Protocol_HTTP);
                   }
                 | PROTOCOL IMAP {
@@ -1102,6 +1124,9 @@ protocol        : /* EMPTY */  {
                 | PROTOCOL MEMCACHE {
                     portset.protocol = Protocol_get(Protocol_MEMCACHE);
                   }
+                | PROTOCOL WEBSOCKET websocketlist {
+                    portset.protocol = Protocol_get(Protocol_WEBSOCKET);
+                  }
                 | sendexpectlist {
                     portset.protocol = Protocol_get(Protocol_GENERIC);
                   }
@@ -1111,8 +1136,30 @@ sendexpectlist  : sendexpect
                 | sendexpectlist sendexpect
                 ;
 
-sendexpect      : SEND STRING { addgeneric(&portset, $2, NULL); FREE($2);}
-                | EXPECT STRING { addgeneric(&portset, NULL, $2); FREE($2);}
+sendexpect      : SEND STRING {
+                    addgeneric(&portset, $2, NULL);
+                  }
+                | EXPECT STRING {
+                    addgeneric(&portset, NULL, $2);
+                  }
+                ;
+
+websocketlist   : websocket
+                | websocketlist websocket
+                ;
+
+websocket       : ORIGIN STRING {
+                    portset.pathname = $2;
+                  }
+                | REQUEST PATH {
+                    portset.request = $2;
+                  }
+                | HOST STRING {
+                    portset.request_hostheader = $2;
+                  }
+                | VERSIONOPT NUMBER {
+                    portset.version = $<number>2;
+                  }
                 ;
 
 target          : /* EMPTY */
@@ -1130,20 +1177,34 @@ maxforward      : /* EMPTY */
                    }
                 ;
 
-request         : /* EMPTY */
-                | REQUEST PATH hostheader {
-                    portset.request = Util_urlEncode($2);
-                    FREE($2);
-                  }
-                | REQUEST PATH CHECKSUM STRING hostheader {
-                    portset.request = Util_urlEncode($2);
-                    FREE($2);
-                    portset.request_checksum = $4;
+httplist        : /* EMPTY */
+                | httplist http
+                ;
+
+http            : request
+                | responsesum
+                | status
+                | hostheader
+                ;
+
+status          : STATUS operator NUMBER {
+                    portset.operator = $<number>2;
+                    portset.status = $<number>3;
                   }
                 ;
 
-hostheader      : /* EMPTY */
-                | HOSTHEADER STRING {
+request         : REQUEST PATH {
+                    portset.request = Util_urlEncode($2);
+                    FREE($2);
+                  }
+                ;
+
+responsesum     : CHECKSUM STRING {
+                    portset.request_checksum = $2;
+                  }
+                ;
+
+hostheader      : HOSTHEADER STRING {
                     portset.request_hostheader = $2;
                   }
                 ;
@@ -1743,26 +1804,39 @@ size            : IF SIZE operator NUMBER unit rate1 THEN action1 recovery {
 uid             : IF FAILED UID STRING rate1 THEN action1 recovery {
                     uidset.uid = get_uid($4, 0);
                     addeventaction(&(uidset).action, $<number>7, $<number>8);
-                    adduid(&uidset);
+                    current->uid = adduid(&uidset);
                     FREE($4);
                   }
                 | IF FAILED UID NUMBER rate1 THEN action1 recovery {
                     uidset.uid = get_uid(NULL, $4);
                     addeventaction(&(uidset).action, $<number>7, $<number>8);
-                    adduid(&uidset);
+                    current->uid = adduid(&uidset);
+                  }
+                ;
+
+euid            : IF FAILED EUID STRING rate1 THEN action1 recovery {
+                    uidset.uid = get_uid($4, 0);
+                    addeventaction(&(uidset).action, $<number>7, $<number>8);
+                    current->euid = adduid(&uidset);
+                    FREE($4);
+                  }
+                | IF FAILED EUID NUMBER rate1 THEN action1 recovery {
+                    uidset.uid = get_uid(NULL, $4);
+                    addeventaction(&(uidset).action, $<number>7, $<number>8);
+                    current->euid = adduid(&uidset);
                   }
                 ;
 
 gid             : IF FAILED GID STRING rate1 THEN action1 recovery {
                     gidset.gid = get_gid($4, 0);
                     addeventaction(&(gidset).action, $<number>7, $<number>8);
-                    addgid(&gidset);
+                    current->gid = addgid(&gidset);
                     FREE($4);
                   }
                 | IF FAILED GID NUMBER rate1 THEN action1 recovery {
                     gidset.gid = get_gid(NULL, $4);
                     addeventaction(&(gidset).action, $<number>7, $<number>8);
-                    addgid(&gidset);
+                    current->gid = addgid(&gidset);
                   }
                 ;
 
@@ -1960,8 +2034,8 @@ static void preparse() {
    * Initialize objects
    */
   reset_uidset();
-  reset_statusset();
   reset_gidset();
+  reset_statusset();
   reset_sizeset();
   reset_mailset();
   reset_mailserverset();
@@ -2226,6 +2300,9 @@ static void addport(Port_T port) {
   p->url_request        = port->url_request;
   p->request_checksum   = port->request_checksum;
   p->request_hostheader = port->request_hostheader;
+  p->version            = port->version;
+  p->operator           = port->operator;
+  p->status             = port->status;
   memcpy(&p->ApacheStatus, &port->ApacheStatus, sizeof(struct apache_status));
 
   if (p->request_checksum) {
@@ -2584,32 +2661,30 @@ static void addstatus(Status_T status) {
 /*
  * Set Uid object in the current service
  */
-static void adduid(Uid_T us) {
-  Uid_T u;
+static Uid_T adduid(Uid_T u) {
+        ASSERT(u);
 
-  ASSERT(us);
-
-  NEW(u);
-  u->uid       = us->uid;
-  u->action    = us->action;
-  current->uid = u;
-  reset_uidset();
+        Uid_T uid;
+        NEW(uid);
+        uid->uid = u->uid;
+        uid->action = u->action;
+        reset_uidset();
+        return uid;
 }
 
 
 /*
  * Set Gid object in the current service
  */
-static void addgid(Gid_T gs) {
-  Gid_T g;
+static Gid_T addgid(Gid_T g) {
+        ASSERT(g);
 
-  ASSERT(gs);
-
-  NEW(g);
-  g->gid       = gs->gid;
-  g->action    = gs->action;
-  current->gid = g;
-  reset_gidset();
+        Gid_T gid;
+        NEW(gid);
+        gid->gid = g->gid;
+        gid->action = g->action;
+        reset_gidset();
+        return gid;
 }
 
 
@@ -2740,7 +2815,7 @@ static void addgeneric(Port_T port, char *send, char *expect) {
   }
 
   if (send != NULL) {
-    g->send = Str_dup(send);
+    g->send = send;
     g->expect = NULL;
   } else if (expect != NULL) {
 #ifdef HAVE_REGEX_H
@@ -2748,13 +2823,14 @@ static void addgeneric(Port_T port, char *send, char *expect) {
     int   reg_return;
     NEW(g->expect);
     reg_return = regcomp(g->expect, expect, REG_NOSUB|REG_EXTENDED);
+    FREE(expect);
     if (reg_return != 0) {
       char errbuf[STRLEN];
       regerror(reg_return, g->expect, errbuf, STRLEN);
       yyerror2("regex parsing error:%s", errbuf);
     }
 #else
-    g->expect = Str_dup(expect);
+    g->expect = expect;
 #endif
     g->send = NULL;
   }
@@ -3044,73 +3120,67 @@ static void setpidfile(char *pidfile) {
  * Read a apache htpasswd file and add credentials found for username
  */
 static void addhtpasswdentry(char *filename, char *username, int dtype) {
-  char *ht_username = NULL;
-  char *ht_passwd = NULL;
-  char buf[STRLEN];
-  FILE *handle = NULL;
-  int credentials_added = 0;
+        char *ht_username = NULL;
+        char *ht_passwd = NULL;
+        char buf[STRLEN];
+        FILE *handle = NULL;
+        int credentials_added = 0;
+        
+        ASSERT(filename);
+        
+        handle = fopen(filename, "r");
+        
+        if ( handle == NULL ) {
+                if (username != NULL)
+                yyerror2("cannot read htpasswd (%s)", filename);
+                else
+                yyerror2("cannot read htpasswd", filename);
+                return;
+        }
+        
+        while (!feof(handle)) {
+                char *colonindex = NULL;
+                
+                if (! fgets(buf, STRLEN, handle))
+                        continue;
+                        
+                Str_rtrim(buf);
+                Str_curtail(buf, "#");
 
-  ASSERT(filename);
-
-  handle = fopen(filename, "r");
-
-  if ( handle == NULL ) {
-    if (username != NULL)
-      yyerror2("cannot read htpasswd (%s)", filename);
-    else
-      yyerror2("cannot read htpasswd", filename);
-    return;
-  }
-
-  while (!feof(handle)) {
-    char *colonindex = NULL;
-    int i;
-
-    if (! fgets(buf, STRLEN, handle))
-      continue;
-
-    /* strip trailing non visible characters */
-    for (i = (int)strlen(buf)-1; i >= 0; i--) {
-      if ( buf[i] == ' '  || buf[i] == '\r' || buf[i] == '\n' || buf[i] == '\t' )
-        buf[i] ='\0';
-      else
-        break;
-    }
-
-    if ( NULL == (colonindex = strchr(buf, ':')))
-      continue;
-
-    ht_passwd = Str_dup(colonindex+1);
-    *colonindex = '\0';
-
-    /* In case we have a file in /etc/passwd or /etc/shadow style we
-     *  want to remove ":.*$" and Crypt and MD5 hashed dont have a colon
-     */
-
-    if ( (NULL != (colonindex = strchr(ht_passwd, ':'))) && ( dtype != DIGEST_CLEARTEXT) )
-      *colonindex = '\0';
-
-    ht_username = Str_dup(buf);
-
-    if (username == NULL) {
-      if (addcredentials(ht_username, ht_passwd, dtype, FALSE))
-        credentials_added++;
-    } else if (strcmp(username, ht_username) == 0)  {
-      if (addcredentials(ht_username, ht_passwd, dtype, FALSE))
-        credentials_added++;
-    } else {
-      FREE(ht_passwd);
-      FREE(ht_username);
-    }
-  }
-
-  if (credentials_added == 0) {
-    if ( username == NULL )
-      yywarning2("htpasswd file (%s) has no usable credentials", filename);
-    else
-      yywarning2("htpasswd file (%s) has no usable credentials for user %s", filename, username);
-  }
-  fclose(handle);
+                if ( NULL == (colonindex = strchr(buf, ':')))
+                        continue;
+                
+                ht_passwd = Str_dup(colonindex+1);
+                *colonindex = '\0';
+                
+                /* In case we have a file in /etc/passwd or /etc/shadow style we
+                 *  want to remove ":.*$" and Crypt and MD5 hashed dont have a colon
+                 */
+                
+                if ( (NULL != (colonindex = strchr(ht_passwd, ':'))) && ( dtype != DIGEST_CLEARTEXT) )
+                *colonindex = '\0';
+                
+                ht_username = Str_dup(buf);
+                
+                if (username == NULL) {
+                        if (addcredentials(ht_username, ht_passwd, dtype, FALSE))
+                        credentials_added++;
+                } else if (strcmp(username, ht_username) == 0)  {
+                        if (addcredentials(ht_username, ht_passwd, dtype, FALSE))
+                        credentials_added++;
+                } else {
+                        FREE(ht_passwd);
+                        FREE(ht_username);
+                }
+        }
+        
+        if (credentials_added == 0) {
+                if ( username == NULL )
+                yywarning2("htpasswd file (%s) has no usable credentials", filename);
+                else
+                yywarning2("htpasswd file (%s) has no usable credentials for user %s", filename, username);
+        }
+        fclose(handle);
 }
 
 
@@ -3268,6 +3338,8 @@ static void reset_portset() {
   portset.timeout = NET_TIMEOUT;
   portset.retry = 1;
   portset.maxforward = 70;
+  portset.operator = Operator_Less;
+  portset.status = 400;
   urlrequest = NULL;
 }
 
