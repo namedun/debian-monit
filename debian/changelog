@@ -1,3 +1,20 @@
+monit (1:5.8-1) UNRELEASED; urgency=medium
+
+  [ Sergey B Kirpichev ]
+  * Change recommends for sysvinit-core to suggests (Closes: #740803)
+  * Imported Upstream version 5.8
+
+  [ Salvatore Bonaccorso ]
+  * Change pid location for apache2 (Closes: #741016)
+
+  [ Victor Seva ]
+  * Add myself to Uploaders
+  * Refresh patches, remove 12_unixsocket_fix.patch.
+  * Update monit.examples, upstart files are now at
+    system/startup orig directory.
+
+ -- Victor Seva <linuxmaniac@torreviejawireless.org>  Mon, 31 Mar 2014 13:21:03 +0200
+
 monit (1:5.7-1) unstable; urgency=low
 
   * Bump up Standards-Version (to 3.9.5)

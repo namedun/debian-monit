@@ -18,7 +18,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure
 +++ b/configure
-@@ -13663,7 +13663,11 @@
+@@ -13674,7 +13674,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -33,7 +33,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -511,6 +511,11 @@
+@@ -512,6 +512,11 @@
     # AIX v. 5.3
     LIBS="$LIBS -lperfstat"	
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])

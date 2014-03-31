@@ -57,7 +57,7 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -118,13 +120,13 @@
+@@ -119,13 +121,13 @@
  ## services monitored and manage services from a web interface. See the
  ## Monit Wiki if you want to enable SSL for the web server. 
  #
@@ -78,7 +78,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -247,5 +249,5 @@
+@@ -248,5 +250,5 @@
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #

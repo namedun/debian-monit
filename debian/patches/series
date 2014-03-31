@@ -1,3 +1,2 @@
  05_monitrc.patch
  11_enable_hurd.patch
- 12_unixsocket_fix.patch
