@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.7], [monit-general@nongnu.org])
+AC_INIT([monit], [5.8], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -349,6 +349,7 @@ AC_CHECK_FUNCS(syslog)
 AC_CHECK_FUNCS(vsyslog)
 AC_CHECK_FUNCS(backtrace)
 AC_CHECK_FUNCS(getloadavg)
+AC_CHECK_FUNCS(getopt_long)
 
 # Check for SOL_IP
 AC_MSG_CHECKING(for SOL_IP)
@@ -820,6 +821,14 @@ then
         fi
     fi
 fi
+# Check TLS version
+if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
+        AC_CHECK_LIB([ssl], [TLSv1_1_client_method], 
+                [AC_DEFINE([HAVE_TLSV1_1_CLIENT_METHOD], 1, [Define to 1 if you have openssl with TLSv1.1])])
+        AC_CHECK_LIB([ssl], [TLSv1_2_client_method],
+                [AC_DEFINE([HAVE_TLSV1_2_CLIENT_METHOD], 1, [Define to 1 if you have openssl with TLSv1.2])])
+fi
+
 
 # ------------------------------------------------------------------------
 # Outputs
@@ -834,8 +843,8 @@ AH_BOTTOM([
 
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([contrib/monit.upstart])
-AC_CONFIG_FILES([contrib/monit.service])
+AC_CONFIG_FILES([system/startup/monit.upstart])
+AC_CONFIG_FILES([system/startup/monit.service])
 
 AC_OUTPUT
 

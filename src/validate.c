@@ -108,6 +108,7 @@
 
 
 static void check_uid(Service_T);
+static void check_euid(Service_T);
 static void check_gid(Service_T);
 static void check_size(Service_T);
 static void check_uptime(Service_T);
@@ -183,32 +184,34 @@ int validate() {
  * its configuration. In case of a fatal event FALSE is returned.
  */
 int check_process(Service_T s) {
-
         pid_t  pid = -1;
         Port_T pp = NULL;
         Resource_T pr = NULL;
-
         ASSERT(s);
-
         /* Test for running process */
         if (!(pid = Util_isProcessRunning(s, FALSE))) {
                 Event_post(s, Event_Nonexist, STATE_FAILED, s->action_NONEXIST, "process is not running");
                 return FALSE;
-        } else
+        } else {
                 Event_post(s, Event_Nonexist, STATE_SUCCEEDED, s->action_NONEXIST, "process is running with pid %d", (int)pid);
-
+        }
         /* Reset the exec and timeout errors if active ... the process is running (most probably after manual intervention) */
         if (IS_EVENT_SET(s->error, Event_Exec))
                 Event_post(s, Event_Exec, STATE_SUCCEEDED, s->action_EXEC, "process is running after previous exec error (slow starting or manually recovered?)");
         if (IS_EVENT_SET(s->error, Event_Timeout))
                 for (ActionRate_T ar = s->actionratelist; ar; ar = ar->next)
                         Event_post(s, Event_Timeout, STATE_SUCCEEDED, ar->action, "process is running after previous restart timeout (manually recovered?)");
-
         if (Run.doprocess) {
                 if (update_process_data(s, ptree, ptreesize, pid)) {
                         check_process_state(s);
                         check_process_pid(s);
                         check_process_ppid(s);
+                        if (s->uid)
+                                check_uid(s);
+                        if (s->euid)
+                                check_euid(s);
+                        if (s->gid)
+                                check_gid(s);
                         if (s->uptimelist)
                                 check_uptime(s);
                         for (pr = s->resourcelist; pr; pr = pr->next)
@@ -216,7 +219,6 @@ int check_process(Service_T s) {
                 } else
                         LogError("'%s' failed to get service data\n", s->name);
         }
-
         /* Test each host:port and protocol in the service's portlist */
         if (s->portlist)
                 /* skip further tests during startup timeout */
@@ -224,9 +226,7 @@ int check_process(Service_T s) {
                         if (s->inf->priv.process.uptime < s->start->timeout) return TRUE;
                 for (pp = s->portlist; pp; pp = pp->next)
                         check_connection(s, pp);
-
         return TRUE;
-
 }
 
 
@@ -473,13 +473,13 @@ int check_program(Service_T s) {
                         }
                 }
                 s->program->exitStatus = Process_exitStatus(P); // Save exit status for web-view display
-                int n = 0;
-                char buf[STRLEN + 1];
                 // Evaluate program's exit status against our status checks.
                 /* TODO: Multiple checks we have now should be deprecated and removed - not useful because it
                  will alert on everything if != is used other than the match or if = is used, might report nothing on error. */
                 for (Status_T status = s->statuslist; status; status = status->next) {
                         if (Util_evalQExpression(status->operator, s->program->exitStatus, status->return_value)) {
+                                int n = 0;
+                                char buf[STRLEN + 1];
                                 // Read message from script
                                 if ((n = InputStream_readBytes(Process_getErrorStream(P), buf, STRLEN)) <= 0)
                                         n = InputStream_readBytes(Process_getInputStream(P), buf, STRLEN);
@@ -598,7 +598,7 @@ static void check_connection(Service_T s, Port_T p) {
         volatile int retry_count = p->retry;
         volatile int rv = TRUE;
         char buf[STRLEN];
-        char report[STRLEN] = {0};
+        char report[STRLEN] = {};
         struct timeval t1;
         struct timeval t2;
 
@@ -969,31 +969,64 @@ static void check_perm(Service_T s) {
 
 
 /**
- * Test for associated path uid change
+ * Test UID of file or process
  */
 static void check_uid(Service_T s) {
         ASSERT(s && s->uid);
 
-        if (s->inf->st_uid != s->uid->uid)
-                Event_post(s, Event_Uid, STATE_FAILED, s->uid->action, "uid test failed for %s -- current uid is %d", s->path, (int)s->inf->st_uid);
-        else {
-                DEBUG("'%s' uid check succeeded [current uid=%d]\n", s->name, (int)s->inf->st_uid);
-                Event_post(s, Event_Uid, STATE_SUCCEEDED, s->uid->action, "uid succeeded");
+        if (s->type == TYPE_PROCESS) {
+                if (s->inf->priv.process.uid != s->uid->uid)
+                        Event_post(s, Event_Uid, STATE_FAILED, s->uid->action, "uid test failed for %s -- current uid is %d", s->name, s->inf->priv.process.uid);
+                else {
+                        DEBUG("'%s' uid check succeeded [current uid=%d]\n", s->name, s->inf->priv.process.uid);
+                        Event_post(s, Event_Uid, STATE_SUCCEEDED, s->uid->action, "uid succeeded");
+                }
+        } else {
+                if (s->inf->st_uid != s->uid->uid)
+                        Event_post(s, Event_Uid, STATE_FAILED, s->uid->action, "uid test failed for %s -- current uid is %d", s->path, (int)s->inf->st_uid);
+                else {
+                        DEBUG("'%s' uid check succeeded [current uid=%d]\n", s->name, (int)s->inf->st_uid);
+                        Event_post(s, Event_Uid, STATE_SUCCEEDED, s->uid->action, "uid succeeded");
+                }
         }
 }
 
 
 /**
- * Test for associated path gid change
+ * Test effective UID of process
+ */
+static void check_euid(Service_T s) {
+        ASSERT(s && s->uid);
+
+        if (s->inf->priv.process.euid != s->euid->uid)
+                Event_post(s, Event_Uid, STATE_FAILED, s->euid->action, "euid test failed for %s -- current euid is %d", s->name, s->inf->priv.process.euid);
+        else {
+                DEBUG("'%s' euid check succeeded [current euid=%d]\n", s->name, s->inf->priv.process.euid);
+                Event_post(s, Event_Uid, STATE_SUCCEEDED, s->euid->action, "euid succeeded");
+        }
+}
+
+
+/**
+ * Test GID of file or process
  */
 static void check_gid(Service_T s) {
         ASSERT(s && s->gid);
 
-        if (s->inf->st_gid != s->gid->gid )
-                Event_post(s, Event_Gid, STATE_FAILED, s->gid->action, "gid test failed for %s -- current gid is %d", s->path, (int)s->inf->st_gid);
-        else {
-                DEBUG("'%s' gid check succeeded [current gid=%d]\n", s->name, (int)s->inf->st_gid);
-                Event_post(s, Event_Gid, STATE_SUCCEEDED, s->gid->action, "gid succeeded");
+        if (s->type == TYPE_PROCESS) {
+                if (s->inf->priv.process.gid != s->gid->gid )
+                        Event_post(s, Event_Gid, STATE_FAILED, s->gid->action, "gid test failed for %s -- current gid is %d", s->name, s->inf->priv.process.gid);
+                else {
+                        DEBUG("'%s' gid check succeeded [current gid=%d]\n", s->name, s->inf->priv.process.gid);
+                        Event_post(s, Event_Gid, STATE_SUCCEEDED, s->gid->action, "gid succeeded");
+                }
+        } else {
+                if (s->inf->st_gid != s->gid->gid )
+                        Event_post(s, Event_Gid, STATE_FAILED, s->gid->action, "gid test failed for %s -- current gid is %d", s->path, (int)s->inf->st_gid);
+                else {
+                        DEBUG("'%s' gid check succeeded [current gid=%d]\n", s->name, (int)s->inf->st_gid);
+                        Event_post(s, Event_Gid, STATE_SUCCEEDED, s->gid->action, "gid succeeded");
+                }
         }
 }
 

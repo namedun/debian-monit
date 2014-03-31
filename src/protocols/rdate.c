@@ -24,24 +24,13 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
 
-#include <netinet/in.h>
-#include <time.h>
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
 
 #include "protocol.h"
 
@@ -67,7 +56,7 @@ int check_rdate(Socket_T socket) {
   ASSERT(socket);
 
   if(socket_read(socket,(char*) &rdatet, sizeof(time_t)) <= 0) {
-    socket_setError(socket, "RDATE: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "RDATE: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
@@ -75,17 +64,17 @@ int check_rdate(Socket_T socket) {
   rdatet = ntohl(rdatet) - TIME_OFFSET;
 
   if((systemt = time(NULL)) == -1) {
-    socket_setError(socket, "RDATE error: cannot get system time -- %s\n", STRERROR);
+    socket_setError(socket, "RDATE error: cannot get system time -- %s", STRERROR);
     return FALSE;
   }
 
   if(rdatet >= systemt)
     delta = (rdatet-systemt);
   else
-    delta= (systemt-rdatet);
+    delta = (systemt-rdatet);
 
   if(delta > TIME_TOLERANCE) {
-    socket_setError(socket, "RDATE error: time does not match system time -- %s\n", STRERROR);
+    socket_setError(socket, "RDATE error: time does not match system time -- %s", STRERROR);
     return FALSE;
   }
 

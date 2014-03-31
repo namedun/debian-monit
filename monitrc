@@ -107,11 +107,12 @@ set daemon  60              # check services at 1-minute intervals
 #
 ## You can set alert recipients whom will receive alerts if/when a 
 ## service defined in this file has errors. Alerts may be restricted on 
-## events by using a filter as in the second example below. 
+## events by using a filter as in the second example below.
 #
 # set alert sysadm@foo.bar                       # receive all alerts
-## Do not alert when Monit start,stop or perform a user initiated action
-# set alert manager@foo.bar not on { instance, action } 
+## Do not alert when Monit start, stop or perform a user initiated action.
+## This filter is recommended to avoid getting alerts for trivial cases
+# set alert your-name@your.domain not on { instance, action }
 #
 #
 ## Monit has an embedded web server which can be used to view status of 
@@ -179,10 +180,10 @@ set httpd port 2812 and
 #    if loadavg(5min) greater than 10 for 8 cycles then stop
 #    if failed host www.tildeslash.com port 80 protocol http 
 #       and request "/somefile.html"
-#       then restart
+#    then restart
 #    if failed port 443 type tcpssl protocol http
 #       with timeout 15 seconds
-#       then restart
+#    then restart
 #    if 3 restarts within 5 cycles then timeout
 #    depends on apache_bin
 #    group server
@@ -235,9 +236,9 @@ set httpd port 2812 and
 #  check host myserver with address 192.168.1.1
 #    if failed icmp type echo count 3 with timeout 3 seconds then alert
 #    if failed port 3306 protocol mysql with timeout 15 seconds then alert
-#    if failed url http://user:password@www.foo.bar:8080/?querystring
-#       and content == 'action="j_security_check"'
-#       then alert
+#    if failed port 80 protocol http
+#       and request /monit/ with content = "Monit [0-9.]+ Download"
+#    then alert
 #
 #
 ###############################################################################

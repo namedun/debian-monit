@@ -210,10 +210,8 @@ int Str_startsWith(const char *a, const char *b) {
 
 int Str_endsWith(const char *a, const char *b) {
         if (a && b) {
-                register int i = 0, j = 0;
-                while (a[i]) i++;
-                while (b[j]) j++;
-                for(; (i && j); i--, j--)
+                size_t i = 0, j = 0;
+                for(i = strlen(a), j = strlen(b); (i && j); i--, j--)
                         if(toupper(a[i]) != toupper(b[j])) return false;
                 return (i >= j);
         }
@@ -339,19 +337,14 @@ char *Str_cat(const char *s, ...) {
 char *Str_vcat(const char *s, va_list ap) {
         char *t = NULL;
         if (s) {
-                int n = 0;
                 va_list ap_copy;
-                int size = STRLEN;
+                va_copy(ap_copy, ap);
+                int size = vsnprintf(t, 0, s, ap_copy) + 1;
+                va_end(ap_copy);
                 t = ALLOC(size);
-                while (true) {
-                        va_copy(ap_copy, ap);
-                        n = vsnprintf(t, size, s, ap_copy);
-                        va_end(ap_copy);
-                        if (n < size)
-                                break;
-                        size = n + 1;
-                        RESIZE(t, size);
-                }
+                va_copy(ap_copy, ap);
+                vsnprintf(t, size, s, ap_copy);
+                va_end(ap_copy);
         }
         return t;
 }

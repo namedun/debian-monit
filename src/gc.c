@@ -145,7 +145,7 @@ void gccmd(command_t *c) {
 
         ASSERT(c&&*c);
 
-        for(i= 0; (*c)->arg[i]; i++)
+        for(i = 0; (*c)->arg[i]; i++)
                 FREE((*c)->arg[i]);
         FREE(*c);
 
@@ -159,7 +159,7 @@ void gc_event(Event_T *e) {
         if((*e)->next)
                 gc_event(&(*e)->next);
 
-        (*e)->action= NULL;
+        (*e)->action = NULL;
         FREE((*e)->source);
         FREE((*e)->message);
         FREE(*e);
@@ -243,6 +243,9 @@ static void _gc_service(Service_T *s) {
         if((*s)->uid)
                 _gcuid(&(*s)->uid);
 
+        if((*s)->euid)
+                _gcuid(&(*s)->euid);
+
         if((*s)->gid)
                 _gcgid(&(*s)->gid);
 
@@ -294,7 +297,7 @@ static void _gc_service(Service_T *s) {
         FREE((*s)->name);
         FREE((*s)->path);
 
-        (*s)->next= NULL;
+        (*s)->next = NULL;
 
         FREE(*s);
 

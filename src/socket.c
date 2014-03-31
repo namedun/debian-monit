@@ -68,6 +68,7 @@
 // libmonit
 #include "exceptions/assert.h"
 #include "util/Str.h"
+#include "system/Net.h"
 
 
 
@@ -83,7 +84,8 @@
 
 #define TYPE_LOCAL   0
 #define TYPE_ACCEPT  1
-#define RBUFFER_SIZE 1024
+// One TCP frame data size
+#define RBUFFER_SIZE 1500
 
 struct Socket_T {
         int port;
@@ -97,7 +99,7 @@ struct Socket_T {
         ssl_server_connection *sslserver;
         int length;
         int offset;
-        unsigned char buffer[RBUFFER_SIZE+1];
+        unsigned char buffer[RBUFFER_SIZE + 1];
 };
 
 
@@ -150,15 +152,26 @@ Socket_T socket_new(const char *host, int port, int type, int use_ssl, int timeo
 
 
 Socket_T socket_create(void *port) {
-        int s;
+        int socket;
+        Socket_T S = NULL;
         Port_T p = port;
         ASSERT(port);
-        if ((s = create_generic_socket(p)) != -1) {
-                Socket_T S = NULL;
+        switch (p->family) {
+                case AF_UNIX:
+                        socket = create_unix_socket(p->pathname, p->type, p->timeout);
+                        break;
+                case AF_INET:
+                        socket = create_socket(p->hostname, p->port, p->type, p->timeout);
+                        break;
+                default:
+                        LogError("Invalid Port Protocol family\n");
+                        return NULL;
+        }
+        if (socket < 0) {
+                LogError("socket_create: Could not create socket -- %s\n", STRERROR);
+        } else {
                 NEW(S);
-                S->socket = s;
-                S->length = 0;
-                S->offset = 0;
+                S->socket = socket;
                 S->type = p->type;
                 S->port = p->port;
                 S->timeout = p->timeout;
@@ -173,9 +186,8 @@ Socket_T socket_create(void *port) {
                         return NULL;
                 }
                 S->Port = port;
-                return S;
         }
-        return NULL;
+        return S;
 }
 
 
@@ -246,13 +258,25 @@ void socket_free(Socket_T *S) {
                 }
         } else
 #endif
-                close_socket((*S)->socket);
+                Net_close((*S)->socket);
         FREE((*S)->host);
         FREE(*S);
 }
 
 
 /* ------------------------------------------------------------ Properties */
+
+
+void socket_setTimeout(Socket_T S, int timeout) {
+        ASSERT(S);
+        S->timeout = timeout;
+}
+
+
+int socket_getTimeout(Socket_T S) {
+        ASSERT(S);
+        return S->timeout;
+}
 
 
 int socket_is_ready(Socket_T S) {
@@ -353,7 +377,7 @@ int socket_switch2ssl(Socket_T S, Ssl_T ssl)  {
         if (! embed_ssl_socket(S->ssl, S->socket))
                 return FALSE;
         if (ssl.certmd5 && !check_ssl_md5sum(S->ssl, ssl.certmd5)) {
-                LogError("md5sum of certificate does not match!");
+                LogError("md5sum of certificate does not match!\n");
                 return FALSE;
         }
         return TRUE;

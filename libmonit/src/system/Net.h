@@ -95,7 +95,7 @@ int Net_canWrite(int socket, time_t milliseconds);
  * @param timeout Milliseconds to wait for data to be available
  * @return The number of bytes read or -1 if an error occured.
  */
-size_t Net_read(int socket, void *buffer, size_t size, time_t timeout);
+ssize_t Net_read(int socket, void *buffer, size_t size, time_t timeout);
 
 
 /**
@@ -107,7 +107,26 @@ size_t Net_read(int socket, void *buffer, size_t size, time_t timeout);
  * @param timeout Milliseconds to wait for data to be sent
  * @return The number of bytes sent or -1 if an error occured. 
  */
-size_t Net_write(int socket, const void *buffer, size_t size, time_t timeout);
+ssize_t Net_write(int socket, const void *buffer, size_t size, time_t timeout);
+
+
+/**
+ * Aborts a TCP a connection. That is, TCP discards any data still remaining
+ * in the socket send buffer and sends an RST to the peer, not the normal 
+ * four-packet connection termination sequence. See "UNIX Network Programming" 
+ * third edition ch 7.5. Generic Socket Options
+ * @param socket The socket connection to abort and close
+ * @return true if success otherwise false
+ */
+int Net_abort(int socket);
+
+
+/**
+ * Close a socket connection
+ * @param socket The socket connection to close
+ * @return true if success otherwise false
+ */
+int Net_close(int socket);
 
 
 #endif

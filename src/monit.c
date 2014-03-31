@@ -80,6 +80,7 @@
 // libmonit
 #include "Bootstrap.h"
 #include "io/File.h"
+#include "exceptions/AssertException.h"
 
 
 /**
@@ -278,17 +279,6 @@ static void do_init() {
          */
         if (! parse(Run.controlfile))
                 exit(1);
-
-        /*
-         * Stop and report success if we are just validating the Control
-         * file syntax. The previous parse statement exits the program with
-         * an error message if a syntax error is present in the control
-         * file.
-         */
-        if (Run.testing) {
-                LogInfo("Control file syntax OK\n");
-                exit(0);
-        }
 
         /*
          * Initialize the log system
@@ -609,96 +599,150 @@ static void handle_options(int argc, char **argv) {
         int opt;
         opterr = 0;
         Run.mygroup = NULL;
-
-        while ((opt = getopt(argc,argv,"c:d:g:l:p:s:iItvVhH")) != -1) {
-
-                switch(opt) {
-
+        const char *shortopts = "c:d:g:l:p:s:HIirtvVh";
+#ifdef HAVE_GETOPT_LONG
+        struct option longopts[] = {
+                {"conf",        required_argument,      NULL,   'c'},
+                {"daemon",      required_argument,      NULL,   'd'},
+                {"group",       required_argument,      NULL,   'g'},
+                {"logfile",     required_argument,      NULL,   'l'},
+                {"pidfile",     required_argument,      NULL,   'p'},
+                {"statefile",   required_argument,      NULL,   's'},
+                {"hash",        optional_argument,      NULL,   'H'},
+                {"interactive", no_argument,            NULL,   'I'},
+                {"id",          no_argument,            NULL,   'i'},
+                {"resetid",     no_argument,            NULL,   'r'},
+                {"test",        no_argument,            NULL,   't'},
+                {"verbose",     no_argument,            NULL,   'v'},
+                {"version",     no_argument,            NULL,   'V'},
+                {"help",        no_argument,            NULL,   'h'},
+                {0}
+        };
+        while ((opt = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
+#else
+        while ((opt = getopt(argc, argv, shortopts)) != -1) {
+#endif
+                switch (opt) {
                         case 'c':
+                        {
+                                if (! File_isFile(optarg))
+                                        THROW(AssertException, "The control file '%s' is not a file", Str_trunc(optarg, 80));
                                 Run.controlfile = Str_dup(optarg);
                                 break;
-
+                        }
                         case 'd':
+                        {
                                 Run.isdaemon = TRUE;
                                 sscanf(optarg, "%d", &Run.polltime);
-                                if (Run.polltime<1) {
+                                if (Run.polltime < 1) {
                                         LogError("%s: option -%c requires a natural number\n", prog, opt);
                                         exit(1);
                                 }
                                 break;
-
+                        }
                         case 'g':
+                        {
                                 Run.mygroup = Str_dup(optarg);
                                 break;
-
+                        }
                         case 'l':
+                        {
                                 Run.logfile = Str_dup(optarg);
                                 if (IS(Run.logfile, "syslog"))
                                         Run.use_syslog = TRUE;
                                 Run.dolog = TRUE;
                                 break;
-
+                        }
                         case 'p':
+                        {
                                 Run.pidfile = Str_dup(optarg);
                                 break;
-
+                        }
                         case 's':
+                        {
                                 Run.statefile = Str_dup(optarg);
                                 break;
-
+                        }
                         case 'I':
+                        {
                                 Run.init = TRUE;
                                 break;
-
-                        case 't':
-                                Run.testing = TRUE;
+                        }
+                        case 'i':
+                        {
+                                do_init();
+                                assert(Run.id);
+                                printf("Monit ID: %s\n", Run.id);
+                                exit(0);
                                 break;
-
+                        }
+                        case 'r':
+                        {
+                                do_init();
+                                assert(Run.id);
+                                printf("Reset Monit Id? [Y/N]> ");
+                                if (getchar() == 'Y') {
+                                        File_delete(Run.idfile);
+                                        Util_monitId(Run.idfile);
+                                }
+                                exit(0);
+                                break;
+                        }
+                        case 't':
+                        {
+                                do_init(); // Parses control file and initialize program, exit on error
+                                printf("Control file syntax OK\n");
+                                exit(0);
+                                break;
+                        }
                         case 'v':
+                        {
                                 Run.debug++;
                                 break;
-
+                        }
                         case 'H':
+                        {
                                 if (argc > optind)
                                         Util_printHash(argv[optind]);
                                 else
                                         Util_printHash(NULL);
-
                                 exit(0);
                                 break;
-
+                        }
                         case 'V':
+                        {
                                 version();
                                 exit(0);
                                 break;
-
+                        }
                         case 'h':
+                        {
                                 help();
                                 exit(0);
                                 break;
-
+                        }
                         case '?':
+                        {
                                 switch(optopt) {
-
                                         case 'c':
                                         case 'd':
                                         case 'g':
                                         case 'l':
                                         case 'p':
                                         case 's':
+                                        {
                                                 LogError("%s: option -- %c requires an argument\n", prog, optopt);
                                                 break;
+                                        }
                                         default:
+                                        {
                                                 LogError("%s: invalid option -- %c  (-h will show valid options)\n", prog, optopt);
-
+                                        }
                                 }
-
                                 exit(1);
-
+                        }
                 }
-
         }
-
 }
 
 
@@ -715,6 +759,8 @@ static void help() {
         printf(" -p pidfile    Use this lock file in daemon mode\n");
         printf(" -s statefile  Set the file monit should write state information to\n");
         printf(" -I            Do not run in background (needed for run from init)\n");
+        printf(" --id          Print Monit's unique ID\n");
+        printf(" --resetid     Reset Monit's unique ID. Use with caution\n");
         printf(" -t            Run syntax check for the control file\n");
         printf(" -v            Verbose mode, work noisy (diagnostic output)\n");
         printf(" -vv           Very verbose mode, same as -v plus log stacktrace on error\n");
@@ -748,7 +794,7 @@ static void help() {
  */
 static void version() {
         printf("This is Monit version " VERSION "\n");
-        printf("Copyright (C) 2001-2013 Tildeslash Ltd.");
+        printf("Copyright (C) 2001-2014 Tildeslash Ltd.");
         printf(" All Rights Reserved.\n");
 }
 

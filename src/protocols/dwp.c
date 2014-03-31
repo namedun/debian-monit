@@ -24,34 +24,9 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDIO_H
-#include <stdio.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
 
 #include "protocol.h"
 
@@ -80,20 +55,20 @@ int check_dwp(Socket_T socket) {
 
   if(socket_print(socket, "HEAD / HTTP/1.1\r\n"
                   "Connection: close\r\n\r\n") < 0) {
-    socket_setError(socket, "DWP: error sending data -- %s\n", STRERROR);
+    socket_setError(socket, "DWP: error sending data -- %s", STRERROR);
     return FALSE;
   }
 
   if(! socket_readln(socket, buf, sizeof(buf))) {
-    socket_setError(socket, "DWP: error receiving data -- %s\n", STRERROR);
+    socket_setError(socket, "DWP: error receiving data -- %s", STRERROR);
     return FALSE;
   }
 
   Str_chomp(buf);
 
-  n= sscanf(buf, "%255s %d", proto, &status);
+  n = sscanf(buf, "%255s %d", proto, &status);
   if(n!=2 || (status >= 400)) {
-    socket_setError(socket, "DWP error: %s\n", buf);
+    socket_setError(socket, "DWP error: %s", buf);
     return FALSE;
   }
 

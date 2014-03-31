@@ -24,20 +24,8 @@
 
 #include "config.h"
 
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
-#ifdef HAVE_PCRE
-#include <pcre.h>
-#endif
-
 #ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #ifdef HAVE_REGEX_H
@@ -52,7 +40,7 @@
  *  @file
  */
 int check_generic(Socket_T socket) {
-  Generic_T g= NULL;
+  Generic_T g = NULL;
   char *buf;
 #ifdef HAVE_REGEX_H
   int regex_return;
@@ -75,7 +63,7 @@ int check_generic(Socket_T socket) {
       int l = Util_handle0Escapes(X);
 
       if(socket_write(socket, X, l) < 0) {
-        socket_setError(socket, "GENERIC: error sending data -- %s\n", STRERROR);
+        socket_setError(socket, "GENERIC: error sending data -- %s", STRERROR);
         FREE(X);
         FREE(buf);
         return FALSE;
@@ -88,19 +76,19 @@ int check_generic(Socket_T socket) {
       int n;
 
       /* Need read, not readln here */
-      if((n= socket_read(socket, buf, Run.expectbuffer))<0) {
-        socket_setError(socket, "GENERIC: error receiving data -- %s\n", STRERROR);
+      if((n = socket_read(socket, buf, Run.expectbuffer))<0) {
+        socket_setError(socket, "GENERIC: error receiving data -- %s", STRERROR);
         FREE(buf);
         return FALSE;
       }
-      buf[n]= 0;
+      buf[n] = 0;
 
 #ifdef HAVE_REGEX_H
-      regex_return= regexec(g->expect, buf, 0, NULL, 0);
+      regex_return = regexec(g->expect, buf, 0, NULL, 0);
       if (regex_return != 0) {
         char e[STRLEN];
         regerror(regex_return, g->expect, e, STRLEN);
-        socket_setError(socket, "GENERIC: receiving unexpected data [%s] -- %s\n", Str_trunc(buf, STRLEN - 4), e);
+        socket_setError(socket, "GENERIC: receiving unexpected data [%s] -- %s", Str_trunc(buf, STRLEN - 4), e);
         FREE(buf);
         return FALSE;
       } else
@@ -110,7 +98,7 @@ int check_generic(Socket_T socket) {
       /* w/o regex support */
 
       if (strncmp(buf, g->expect, strlen(g->expect)) != 0) {
-        socket_setError(socket, "GENERIC: receiving unexpected data [%s]\n", Str_trunc(buf, STRLEN - 4));
+        socket_setError(socket, "GENERIC: receiving unexpected data [%s]", Str_trunc(buf, STRLEN - 4));
         FREE(buf);
         return FALSE;
       } else
@@ -120,11 +108,11 @@ int check_generic(Socket_T socket) {
 
     } else {
       /* This should not happen */
-      socket_setError(socket, "GENERIC: unexpected strangeness\n");
+      socket_setError(socket, "GENERIC: unexpected strangeness");
       FREE(buf);
       return FALSE;
     }
-    g= g->next;
+    g = g->next;
   }
 
   FREE(buf);

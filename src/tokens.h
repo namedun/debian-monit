@@ -108,134 +108,140 @@
      NTP3 = 326,
      MYSQL = 327,
      DNS = 328,
-     SSH = 329,
-     DWP = 330,
-     LDAP2 = 331,
-     LDAP3 = 332,
-     RDATE = 333,
-     RSYNC = 334,
-     TNS = 335,
-     PGSQL = 336,
-     POSTFIXPOLICY = 337,
-     SIP = 338,
-     LMTP = 339,
-     GPS = 340,
-     RADIUS = 341,
-     MEMCACHE = 342,
-     STRING = 343,
-     PATH = 344,
-     MAILADDR = 345,
-     MAILFROM = 346,
-     MAILREPLYTO = 347,
-     MAILSUBJECT = 348,
-     MAILBODY = 349,
-     SERVICENAME = 350,
-     STRINGNAME = 351,
-     NUMBER = 352,
-     PERCENT = 353,
-     LOGLIMIT = 354,
-     CLOSELIMIT = 355,
-     DNSLIMIT = 356,
-     KEEPALIVELIMIT = 357,
-     REPLYLIMIT = 358,
-     REQUESTLIMIT = 359,
-     STARTLIMIT = 360,
-     WAITLIMIT = 361,
-     GRACEFULLIMIT = 362,
-     CLEANUPLIMIT = 363,
-     REAL = 364,
-     CHECKPROC = 365,
-     CHECKFILESYS = 366,
-     CHECKFILE = 367,
-     CHECKDIR = 368,
-     CHECKHOST = 369,
-     CHECKSYSTEM = 370,
-     CHECKFIFO = 371,
-     CHECKPROGRAM = 372,
-     CHILDREN = 373,
-     SYSTEM = 374,
-     STATUS = 375,
-     RESOURCE = 376,
-     MEMORY = 377,
-     TOTALMEMORY = 378,
-     LOADAVG1 = 379,
-     LOADAVG5 = 380,
-     LOADAVG15 = 381,
-     SWAP = 382,
-     MODE = 383,
-     ACTIVE = 384,
-     PASSIVE = 385,
-     MANUAL = 386,
-     CPU = 387,
-     TOTALCPU = 388,
-     CPUUSER = 389,
-     CPUSYSTEM = 390,
-     CPUWAIT = 391,
-     GROUP = 392,
-     REQUEST = 393,
-     DEPENDS = 394,
-     BASEDIR = 395,
-     SLOT = 396,
-     EVENTQUEUE = 397,
-     SECRET = 398,
-     HOSTHEADER = 399,
-     UID = 400,
-     GID = 401,
-     MMONIT = 402,
-     INSTANCE = 403,
-     USERNAME = 404,
-     PASSWORD = 405,
-     TIMESTAMP = 406,
-     CHANGED = 407,
-     SECOND = 408,
-     MINUTE = 409,
-     HOUR = 410,
-     DAY = 411,
-     SSLAUTO = 412,
-     SSLV2 = 413,
-     SSLV3 = 414,
-     TLSV1 = 415,
-     CERTMD5 = 416,
-     BYTE = 417,
-     KILOBYTE = 418,
-     MEGABYTE = 419,
-     GIGABYTE = 420,
-     INODE = 421,
-     SPACE = 422,
-     PERMISSION = 423,
-     SIZE = 424,
-     MATCH = 425,
-     NOT = 426,
-     IGNORE = 427,
-     ACTION = 428,
-     UPTIME = 429,
-     EXEC = 430,
-     UNMONITOR = 431,
-     ICMP = 432,
-     ICMPECHO = 433,
-     NONEXIST = 434,
-     EXIST = 435,
-     INVALID = 436,
-     DATA = 437,
-     RECOVERED = 438,
-     PASSED = 439,
-     SUCCEEDED = 440,
-     URL = 441,
-     CONTENT = 442,
-     PID = 443,
-     PPID = 444,
-     FSFLAG = 445,
-     REGISTER = 446,
-     CREDENTIALS = 447,
-     URLOBJECT = 448,
-     TARGET = 449,
-     TIMESPEC = 450,
-     MAXFORWARD = 451,
-     FIPS = 452,
-     NOTEQUAL = 453,
-     EQUAL = 454,
-     LESS = 455,
-     GREATER = 456
+     WEBSOCKET = 329,
+     SSH = 330,
+     DWP = 331,
+     LDAP2 = 332,
+     LDAP3 = 333,
+     RDATE = 334,
+     RSYNC = 335,
+     TNS = 336,
+     PGSQL = 337,
+     POSTFIXPOLICY = 338,
+     SIP = 339,
+     LMTP = 340,
+     GPS = 341,
+     RADIUS = 342,
+     MEMCACHE = 343,
+     STRING = 344,
+     PATH = 345,
+     MAILADDR = 346,
+     MAILFROM = 347,
+     MAILREPLYTO = 348,
+     MAILSUBJECT = 349,
+     MAILBODY = 350,
+     SERVICENAME = 351,
+     STRINGNAME = 352,
+     NUMBER = 353,
+     PERCENT = 354,
+     LOGLIMIT = 355,
+     CLOSELIMIT = 356,
+     DNSLIMIT = 357,
+     KEEPALIVELIMIT = 358,
+     REPLYLIMIT = 359,
+     REQUESTLIMIT = 360,
+     STARTLIMIT = 361,
+     WAITLIMIT = 362,
+     GRACEFULLIMIT = 363,
+     CLEANUPLIMIT = 364,
+     REAL = 365,
+     CHECKPROC = 366,
+     CHECKFILESYS = 367,
+     CHECKFILE = 368,
+     CHECKDIR = 369,
+     CHECKHOST = 370,
+     CHECKSYSTEM = 371,
+     CHECKFIFO = 372,
+     CHECKPROGRAM = 373,
+     CHILDREN = 374,
+     SYSTEM = 375,
+     STATUS = 376,
+     ORIGIN = 377,
+     VERSIONOPT = 378,
+     RESOURCE = 379,
+     MEMORY = 380,
+     TOTALMEMORY = 381,
+     LOADAVG1 = 382,
+     LOADAVG5 = 383,
+     LOADAVG15 = 384,
+     SWAP = 385,
+     MODE = 386,
+     ACTIVE = 387,
+     PASSIVE = 388,
+     MANUAL = 389,
+     CPU = 390,
+     TOTALCPU = 391,
+     CPUUSER = 392,
+     CPUSYSTEM = 393,
+     CPUWAIT = 394,
+     GROUP = 395,
+     REQUEST = 396,
+     DEPENDS = 397,
+     BASEDIR = 398,
+     SLOT = 399,
+     EVENTQUEUE = 400,
+     SECRET = 401,
+     HOSTHEADER = 402,
+     UID = 403,
+     EUID = 404,
+     GID = 405,
+     MMONIT = 406,
+     INSTANCE = 407,
+     USERNAME = 408,
+     PASSWORD = 409,
+     TIMESTAMP = 410,
+     CHANGED = 411,
+     SECOND = 412,
+     MINUTE = 413,
+     HOUR = 414,
+     DAY = 415,
+     SSLAUTO = 416,
+     SSLV2 = 417,
+     SSLV3 = 418,
+     TLSV1 = 419,
+     TLSV11 = 420,
+     TLSV12 = 421,
+     CERTMD5 = 422,
+     BYTE = 423,
+     KILOBYTE = 424,
+     MEGABYTE = 425,
+     GIGABYTE = 426,
+     INODE = 427,
+     SPACE = 428,
+     PERMISSION = 429,
+     SIZE = 430,
+     MATCH = 431,
+     NOT = 432,
+     IGNORE = 433,
+     ACTION = 434,
+     UPTIME = 435,
+     EXEC = 436,
+     UNMONITOR = 437,
+     ICMP = 438,
+     ICMPECHO = 439,
+     NONEXIST = 440,
+     EXIST = 441,
+     INVALID = 442,
+     DATA = 443,
+     RECOVERED = 444,
+     PASSED = 445,
+     SUCCEEDED = 446,
+     URL = 447,
+     CONTENT = 448,
+     PID = 449,
+     PPID = 450,
+     FSFLAG = 451,
+     REGISTER = 452,
+     CREDENTIALS = 453,
+     URLOBJECT = 454,
+     TARGET = 455,
+     TIMESPEC = 456,
+     MAXFORWARD = 457,
+     FIPS = 458,
+     NOTEQUAL = 459,
+     EQUAL = 460,
+     LESS = 461,
+     GREATER = 462
    };
 #endif
 /* Tokens.  */
@@ -310,134 +316,140 @@
 #define NTP3 326
 #define MYSQL 327
 #define DNS 328
-#define SSH 329
-#define DWP 330
-#define LDAP2 331
-#define LDAP3 332
-#define RDATE 333
-#define RSYNC 334
-#define TNS 335
-#define PGSQL 336
-#define POSTFIXPOLICY 337
-#define SIP 338
-#define LMTP 339
-#define GPS 340
-#define RADIUS 341
-#define MEMCACHE 342
-#define STRING 343
-#define PATH 344
-#define MAILADDR 345
-#define MAILFROM 346
-#define MAILREPLYTO 347
-#define MAILSUBJECT 348
-#define MAILBODY 349
-#define SERVICENAME 350
-#define STRINGNAME 351
-#define NUMBER 352
-#define PERCENT 353
-#define LOGLIMIT 354
-#define CLOSELIMIT 355
-#define DNSLIMIT 356
-#define KEEPALIVELIMIT 357
-#define REPLYLIMIT 358
-#define REQUESTLIMIT 359
-#define STARTLIMIT 360
-#define WAITLIMIT 361
-#define GRACEFULLIMIT 362
-#define CLEANUPLIMIT 363
-#define REAL 364
-#define CHECKPROC 365
-#define CHECKFILESYS 366
-#define CHECKFILE 367
-#define CHECKDIR 368
-#define CHECKHOST 369
-#define CHECKSYSTEM 370
-#define CHECKFIFO 371
-#define CHECKPROGRAM 372
-#define CHILDREN 373
-#define SYSTEM 374
-#define STATUS 375
-#define RESOURCE 376
-#define MEMORY 377
-#define TOTALMEMORY 378
-#define LOADAVG1 379
-#define LOADAVG5 380
-#define LOADAVG15 381
-#define SWAP 382
-#define MODE 383
-#define ACTIVE 384
-#define PASSIVE 385
-#define MANUAL 386
-#define CPU 387
-#define TOTALCPU 388
-#define CPUUSER 389
-#define CPUSYSTEM 390
-#define CPUWAIT 391
-#define GROUP 392
-#define REQUEST 393
-#define DEPENDS 394
-#define BASEDIR 395
-#define SLOT 396
-#define EVENTQUEUE 397
-#define SECRET 398
-#define HOSTHEADER 399
-#define UID 400
-#define GID 401
-#define MMONIT 402
-#define INSTANCE 403
-#define USERNAME 404
-#define PASSWORD 405
-#define TIMESTAMP 406
-#define CHANGED 407
-#define SECOND 408
-#define MINUTE 409
-#define HOUR 410
-#define DAY 411
-#define SSLAUTO 412
-#define SSLV2 413
-#define SSLV3 414
-#define TLSV1 415
-#define CERTMD5 416
-#define BYTE 417
-#define KILOBYTE 418
-#define MEGABYTE 419
-#define GIGABYTE 420
-#define INODE 421
-#define SPACE 422
-#define PERMISSION 423
-#define SIZE 424
-#define MATCH 425
-#define NOT 426
-#define IGNORE 427
-#define ACTION 428
-#define UPTIME 429
-#define EXEC 430
-#define UNMONITOR 431
-#define ICMP 432
-#define ICMPECHO 433
-#define NONEXIST 434
-#define EXIST 435
-#define INVALID 436
-#define DATA 437
-#define RECOVERED 438
-#define PASSED 439
-#define SUCCEEDED 440
-#define URL 441
-#define CONTENT 442
-#define PID 443
-#define PPID 444
-#define FSFLAG 445
-#define REGISTER 446
-#define CREDENTIALS 447
-#define URLOBJECT 448
-#define TARGET 449
-#define TIMESPEC 450
-#define MAXFORWARD 451
-#define FIPS 452
-#define NOTEQUAL 453
-#define EQUAL 454
-#define LESS 455
-#define GREATER 456
+#define WEBSOCKET 329
+#define SSH 330
+#define DWP 331
+#define LDAP2 332
+#define LDAP3 333
+#define RDATE 334
+#define RSYNC 335
+#define TNS 336
+#define PGSQL 337
+#define POSTFIXPOLICY 338
+#define SIP 339
+#define LMTP 340
+#define GPS 341
+#define RADIUS 342
+#define MEMCACHE 343
+#define STRING 344
+#define PATH 345
+#define MAILADDR 346
+#define MAILFROM 347
+#define MAILREPLYTO 348
+#define MAILSUBJECT 349
+#define MAILBODY 350
+#define SERVICENAME 351
+#define STRINGNAME 352
+#define NUMBER 353
+#define PERCENT 354
+#define LOGLIMIT 355
+#define CLOSELIMIT 356
+#define DNSLIMIT 357
+#define KEEPALIVELIMIT 358
+#define REPLYLIMIT 359
+#define REQUESTLIMIT 360
+#define STARTLIMIT 361
+#define WAITLIMIT 362
+#define GRACEFULLIMIT 363
+#define CLEANUPLIMIT 364
+#define REAL 365
+#define CHECKPROC 366
+#define CHECKFILESYS 367
+#define CHECKFILE 368
+#define CHECKDIR 369
+#define CHECKHOST 370
+#define CHECKSYSTEM 371
+#define CHECKFIFO 372
+#define CHECKPROGRAM 373
+#define CHILDREN 374
+#define SYSTEM 375
+#define STATUS 376
+#define ORIGIN 377
+#define VERSIONOPT 378
+#define RESOURCE 379
+#define MEMORY 380
+#define TOTALMEMORY 381
+#define LOADAVG1 382
+#define LOADAVG5 383
+#define LOADAVG15 384
+#define SWAP 385
+#define MODE 386
+#define ACTIVE 387
+#define PASSIVE 388
+#define MANUAL 389
+#define CPU 390
+#define TOTALCPU 391
+#define CPUUSER 392
+#define CPUSYSTEM 393
+#define CPUWAIT 394
+#define GROUP 395
+#define REQUEST 396
+#define DEPENDS 397
+#define BASEDIR 398
+#define SLOT 399
+#define EVENTQUEUE 400
+#define SECRET 401
+#define HOSTHEADER 402
+#define UID 403
+#define EUID 404
+#define GID 405
+#define MMONIT 406
+#define INSTANCE 407
+#define USERNAME 408
+#define PASSWORD 409
+#define TIMESTAMP 410
+#define CHANGED 411
+#define SECOND 412
+#define MINUTE 413
+#define HOUR 414
+#define DAY 415
+#define SSLAUTO 416
+#define SSLV2 417
+#define SSLV3 418
+#define TLSV1 419
+#define TLSV11 420
+#define TLSV12 421
+#define CERTMD5 422
+#define BYTE 423
+#define KILOBYTE 424
+#define MEGABYTE 425
+#define GIGABYTE 426
+#define INODE 427
+#define SPACE 428
+#define PERMISSION 429
+#define SIZE 430
+#define MATCH 431
+#define NOT 432
+#define IGNORE 433
+#define ACTION 434
+#define UPTIME 435
+#define EXEC 436
+#define UNMONITOR 437
+#define ICMP 438
+#define ICMPECHO 439
+#define NONEXIST 440
+#define EXIST 441
+#define INVALID 442
+#define DATA 443
+#define RECOVERED 444
+#define PASSED 445
+#define SUCCEEDED 446
+#define URL 447
+#define CONTENT 448
+#define PID 449
+#define PPID 450
+#define FSFLAG 451
+#define REGISTER 452
+#define CREDENTIALS 453
+#define URLOBJECT 454
+#define TARGET 455
+#define TIMESPEC 456
+#define MAXFORWARD 457
+#define FIPS 458
+#define NOTEQUAL 459
+#define EQUAL 460
+#define LESS 461
+#define GREATER 462
 
 
 
@@ -447,7 +459,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 259 "src/p.y"
+#line 260 "src/p.y"
 
   URL_T url;
   float real;
@@ -457,7 +469,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 461 "src/y.tab.h"
+#line 473 "src/y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
