@@ -1,4 +1,4 @@
-monit (1:5.8-1) UNRELEASED; urgency=medium
+monit (1:5.8-1) unstable; urgency=low
 
   [ Sergey B Kirpichev ]
   * Change recommends for sysvinit-core to suggests (Closes: #740803)
@@ -13,7 +13,11 @@ monit (1:5.8-1) UNRELEASED; urgency=medium
   * Update monit.examples, upstart files are now at
     system/startup orig directory.
 
- -- Victor Seva <linuxmaniac@torreviejawireless.org>  Mon, 31 Mar 2014 13:21:03 +0200
+  [ Sergey B Kirpichev ]
+  * Spelling fixes for manpage
+  * Change copyright years for Debian packaging
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 15 Apr 2014 00:56:23 +0400
 
 monit (1:5.7-1) unstable; urgency=low
 
