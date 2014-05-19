@@ -35,7 +35,7 @@ dist-hook::
 	-rm -rf `find $(distdir) -name ".DS_Store"`
 	-rm -rf `find $(distdir) -name ".libs"`
 	-rm -rf `find $(distdir) -name ".git"`
-	-rm -f $(distdir)/src/xconfig.h $(distdir)/src/stamp-* 
+	-rm -f $(distdir)/src/xconfig.h $(distdir)/Makefile $(distdir)/src/stamp-* 
 
 clean-local:
 	-rm -f `find . -name "*.o" -o -name "*.lo" -o -name "*.loT" -o -name "*~"`
@@ -44,8 +44,8 @@ distclean-local:
 	-rm -rf autom4te.cache/ 
 
 cleanall: clean distclean
-	-rm -f Makefile.in test/Makefile.in src/Makefile.in configure aclocal.m4 src/xconfig.h.in  config/config.*
-	-rm -rf m4
+	-rm -f Makefile.in test/Makefile.in src/Makefile.in configure aclocal.m4 src/xconfig.h.in
+	-rm -rf m4 config
 
 verify: libmonit.la
 	cd $(srcdir)/test && $(MAKE) verify	

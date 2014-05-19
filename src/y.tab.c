@@ -3471,7 +3471,7 @@ yyreduce:
 #line 799 "src/p.y"
     {
                     if (! (add_net_allow((yyvsp[(2) - (2)].string)) || add_host_allow((yyvsp[(2) - (2)].string)))) {
-                      yyerror2("erroneous network or host identifier %s", (yyvsp[(2) - (2)].string));
+                      yyerror2("Erroneous network or host identifier %s", (yyvsp[(2) - (2)].string));
                     }
                     FREE((yyvsp[(2) - (2)].string));
                   }
@@ -5331,7 +5331,7 @@ yyreduce:
                     rate1.count  = (yyvsp[(1) - (2)].number);
                     rate1.cycles = (yyvsp[(1) - (2)].number);
                     if (rate1.cycles < 1 || rate1.cycles > BITMAP_MAX)
-                      yyerror2("the number of cycles must be between 1 and %d", BITMAP_MAX);
+                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                   }
     break;
 
@@ -5343,9 +5343,9 @@ yyreduce:
                     rate1.count  = (yyvsp[(1) - (3)].number);
                     rate1.cycles = (yyvsp[(2) - (3)].number);
                     if (rate1.cycles < 1 || rate1.cycles > BITMAP_MAX)
-                      yyerror2("the number of cycles must be between 1 and %d", BITMAP_MAX);
+                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                     if (rate1.count < 1 || rate1.count > rate1.cycles)
-                      yyerror2("the number of events must be bigger then 0 and less than poll cycles");
+                      yyerror2("The number of events must be bigger then 0 and less than poll cycles");
                   }
     break;
 
@@ -5357,7 +5357,7 @@ yyreduce:
                     rate2.count  = (yyvsp[(1) - (2)].number);
                     rate2.cycles = (yyvsp[(1) - (2)].number);
                     if (rate2.cycles < 1 || rate2.cycles > BITMAP_MAX)
-                      yyerror2("the number of cycles must be between 1 and %d", BITMAP_MAX);
+                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                   }
     break;
 
@@ -5369,9 +5369,9 @@ yyreduce:
                     rate2.count  = (yyvsp[(1) - (3)].number);
                     rate2.cycles = (yyvsp[(2) - (3)].number);
                     if (rate2.cycles < 1 || rate2.cycles > BITMAP_MAX)
-                      yyerror2("the number of cycles must be between 1 and %d", BITMAP_MAX);
+                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                     if (rate2.count < 1 || rate2.count > rate2.cycles)
-                      yyerror2("the number of events must be bigger then 0 and less than poll cycles");
+                      yyerror2("The number of events must be bigger then 0 and less than poll cycles");
                   }
     break;
 
@@ -5497,7 +5497,7 @@ yyreduce:
 #line 1717 "src/p.y"
     {
                     if (!filesystem_usage(current->inf, current->path))
-                      yyerror2("cannot read usage of filesystem %s", current->path);
+                      yyerror2("Cannot read usage of filesystem %s", current->path);
                     filesystemset.resource = RESOURCE_ID_SPACE;
                     filesystemset.operator = (yyvsp[(3) - (9)].number);
                     filesystemset.limit_absolute = (int)((float)(yyvsp[(4) - (9)].real) / (float)current->inf->priv.filesystem.f_bsize * (float)(yyvsp[(5) - (9)].number));
@@ -6018,7 +6018,7 @@ void yyerror(const char *s, ...) {
   msg = Str_vcat(s, ap);
   va_end(ap);
 
-  LogError("%s:%i: Error: %s '%s'\n", currentfile, lineno, msg, yytext);
+  LogError("%s:%i: %s '%s'\n", currentfile, lineno, msg, yytext);
   cfg_errflag++;
 
   FREE(msg);
@@ -6038,7 +6038,7 @@ void yywarning(const char *s, ...) {
   msg = Str_vcat(s, ap);
   va_end(ap);
 
-  LogWarning("%s:%i: Warning: %s '%s'\n", currentfile, lineno, msg, yytext);
+  LogWarning("%s:%i: %s '%s'\n", currentfile, lineno, msg, yytext);
 
   FREE(msg);
 
@@ -6057,7 +6057,7 @@ void yyerror2(const char *s, ...) {
   msg = Str_vcat(s, ap);
   va_end(ap);
 
-  LogError("%s:%i: Error: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
+  LogError("%s:%i: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
   cfg_errflag++;
 
   FREE(msg);
@@ -6077,7 +6077,7 @@ void yywarning2(const char *s, ...) {
   msg = Str_vcat(s, ap);
   va_end(ap);
 
-  LogWarning("%s:%i: Warning: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
+  LogWarning("%s:%i: %s '%s'\n", argcurrentfile, arglineno, msg, argyytext);
 
   FREE(msg);
 
@@ -6094,7 +6094,7 @@ int parse(char *controlfile) {
   servicelist = tail = current = NULL;
 
   if ((yyin = fopen(controlfile,"r")) == (FILE *)NULL) {
-    LogError("%s: Error: cannot open the control file '%s' -- %s\n", prog, controlfile, STRERROR);
+    LogError("Cannot open the control file '%s' -- %s\n", controlfile, STRERROR);
     return FALSE;
   }
 
@@ -6213,7 +6213,7 @@ static void postparse() {
 
         /* Check that we do not start monit in daemon mode without having a poll time */
         if (!Run.polltime && (Run.isdaemon || Run.init)) {
-                LogError("%s: Error: Poll time not defined. Please define poll time in the\n control file or use the -d option when starting monit\n", prog);
+                LogError("Poll time not defined. Please define poll time in the\n control file or use the -d option when starting monit\n");
                 cfg_errflag++;
         }
 
@@ -6224,13 +6224,13 @@ static void postparse() {
                 if (s->type == TYPE_HOST) {
                         /* Verify that a remote service has a port or an icmp list */
                         if (!s->portlist && !s->icmplist) {
-                                LogError("%s: Error: 'check host' statement is incomplete: Please specify a port number to test\n or an icmp test at the remote host: '%s'\n", prog, s->name);
+                                LogError("'check host' statement is incomplete: Please specify a port number to test\n or an icmp test at the remote host: '%s'\n", s->name);
                                 cfg_errflag++;
                         }
                 } else if (s->type == TYPE_PROGRAM) {
                         /* Verify that a program test has a status test */
                         if (! s->statuslist) {
-                                LogError("%s: Error: 'check program %s' is incomplete: Please add an 'if status != n' test\n", prog, s->name);
+                                LogError("'check program %s' is incomplete: Please add an 'if status != n' test\n", s->name);
                                 cfg_errflag++;
                         }
                         /* Create the Command object */
@@ -6269,10 +6269,10 @@ static void postparse() {
                                         }
                                 }
                                 if (! Run.mmonitcredentials)
-                                LogWarning("%s: Warning: M/Monit registration with credentials enabled, but no suitable credentials found in monit configuration file -- please add 'allow user:password' option to 'set httpd' statement\n", prog);
+                                LogWarning("M/Monit registration with credentials enabled, but no suitable credentials found in monit configuration file -- please add 'allow user:password' option to 'set httpd' statement\n");
                         }
                 } else
-                LogWarning("%s: Warning: M/Monit enabled but no httpd allowed -- please add 'set httpd' statement\n", prog);
+                LogWarning("M/Monit enabled but no httpd allowed -- please add 'set httpd' statement\n");
         }
 
         /* Check the sanity of any dependency graph */
@@ -6524,9 +6524,9 @@ static void addtimestamp(Timestamp_T ts, int notime) {
 
   if (t->test_changes || notime) {
     if (! file_exist(current->path)) {
-      DEBUG("%s: Debug: the path '%s' used in the TIMESTAMP statement refer to a non-existing object\n", prog, current->path);
+      DEBUG("The path '%s' used in the TIMESTAMP statement refer to a non-existing object\n", current->path);
     } else if (!(t->timestamp = file_getTimestamp(current->path, S_IFDIR|S_IFREG))) {
-      yyerror2("cannot get the timestamp for '%s'", current->path);
+      yyerror2("Cannot get the timestamp for '%s'", current->path);
     }
   }
 
@@ -6546,9 +6546,9 @@ static void addactionrate(ActionRate_T ar) {
   ASSERT(ar);
 
   if (ar->count > ar->cycle)
-    yyerror2("the number of restarts must be less than poll cycles");
+    yyerror2("The number of restarts must be less than poll cycles");
   if (ar->count <= 0 || ar->cycle <= 0)
-    yyerror2("zero or negative values not allowed in a action rate statement");
+    yyerror2("Zero or negative values not allowed in a action rate statement");
 
   NEW(a);
   a->count  = ar->count;
@@ -6630,7 +6630,7 @@ static void addchecksum(Checksum_T cs) {
       /* If the file doesn't exist, set dummy value */
       snprintf(cs->hash, sizeof(cs->hash), "00000000000000000000000000000000");
       cs->initialized = FALSE;
-      yywarning2("cannot compute a checksum for file %s", current->path);
+      yywarning2("Cannot compute a checksum for file %s", current->path);
     }
   }
 
@@ -6642,12 +6642,12 @@ static void addchecksum(Checksum_T cs) {
     } else if (len == 40) {
       cs->type = HASH_SHA1;
     } else {
-      yyerror2("unknown checksum type [%s] for file %s", cs->hash, current->path);
+      yyerror2("Unknown checksum type [%s] for file %s", cs->hash, current->path);
       reset_checksumset();
       return;
     }
   } else if (( cs->type == HASH_MD5 && len!=32 ) || ( cs->type == HASH_SHA1 && len != 40 )) {
-    yyerror2("invalid checksum [%s] for file %s", cs->hash, current->path);
+    yyerror2("Invalid checksum [%s] for file %s", cs->hash, current->path);
     reset_checksumset();
     return;
   }
@@ -6727,9 +6727,9 @@ static void addmatch(Match_T ms, int actionnumber, int linenumber) {
     char errbuf[STRLEN];
     regerror(reg_return, ms->regex_comp, errbuf, STRLEN);
     if (m->match_path != NULL)
-      yyerror2("regex parsing error:%s on line %i of", errbuf, linenumber);
+      yyerror2("Regex parsing error: %s on line %i of", errbuf, linenumber);
     else
-      yyerror2("regex parsing error:%s", errbuf);
+      yyerror2("Regex parsing error: %s", errbuf);
   }
 #endif
   appendmatch(m->ignore ? &current->matchignorelist : &current->matchlist, m);
@@ -6747,7 +6747,7 @@ static void addmatchpath(Match_T ms, int actionnumber) {
 
   handle = fopen(ms->match_path, "r");
   if (handle == NULL) {
-    yyerror2("cannot read regex match file (%s)", ms->match_path);
+    yyerror2("Cannot read regex match file (%s)", ms->match_path);
     return;
   }
 
@@ -6976,7 +6976,7 @@ static void addgeneric(Port_T port, char *send, char *expect) {
     if (reg_return != 0) {
       char errbuf[STRLEN];
       regerror(reg_return, g->expect, errbuf, STRLEN);
-      yyerror2("regex parsing error:%s", errbuf);
+      yyerror2("Regex parsing error: %s", errbuf);
     }
 #else
     g->expect = expect;
@@ -7023,7 +7023,7 @@ static void addargument(char *argument) {
   command->arg[command->length] = NULL;
 
   if (command->length >= ARGMAX)
-    yyerror("exceeded maximum number of program arguments");
+    yyerror("Exceeded maximum number of program arguments");
 
 }
 
@@ -7074,7 +7074,7 @@ static void  seturlrequest(int operator, char *regex) {
     if (reg_return != 0) {
       char errbuf[STRLEN];
       regerror(reg_return, urlrequest->regex, errbuf, STRLEN);
-      yyerror2("regex parsing error: %s", errbuf);
+      yyerror2("Regex parsing error: %s", errbuf);
     }
   }
 #else
@@ -7096,7 +7096,7 @@ static void addmmonit(URL_T url, int timeout, int sslversion, char *certmd5) {
   c->url = url;
   if (!strcmp(c->url->protocol, "https")) {
     if (!have_ssl()) {
-      yyerror("ssl check cannot be activated. SSL is not supported");
+      yyerror("SSL check cannot be activated. SSL is not supported");
     } else {
       c->ssl.use_ssl = TRUE;
       c->ssl.version = (sslversion == SSL_VERSION_NONE) ? SSL_VERSION_AUTO : sslversion;
@@ -7164,14 +7164,14 @@ static uid_t get_uid(char *user, uid_t uid) {
     pwd = getpwnam(user);
 
     if (pwd == NULL) {
-      yyerror2("requested user not found on the system");
+      yyerror2("Requested user not found on the system");
       return(0);
     }
 
   } else {
 
     if ( (pwd = getpwuid(uid)) == NULL ) {
-      yyerror2("requested uid not found on the system");
+      yyerror2("Requested uid not found on the system");
       return(0);
     }
   }
@@ -7193,14 +7193,14 @@ static gid_t get_gid(char *group, gid_t gid) {
     grd = getgrnam(group);
 
     if (grd == NULL) {
-      yyerror2("requested group not found on the system");
+      yyerror2("Requested group not found on the system");
       return(0);
     }
 
   } else {
 
     if ( (grd = getgrgid(gid)) == NULL ) {
-      yyerror2("requested gid not found on the system");
+      yyerror2("Requested gid not found on the system");
       return(0);
     }
 
@@ -7219,7 +7219,7 @@ static void addeuid(uid_t uid) {
     command->has_uid = TRUE;
     command->uid = uid;
   } else
-    yyerror("uid statement requires root privileges");
+    yyerror("UID statement requires root privileges");
 }
 
 
@@ -7231,7 +7231,7 @@ static void addegid(gid_t gid) {
     command->has_gid = TRUE;
     command->gid = gid;
   } else
-    yyerror("gid statement requires root privileges");
+    yyerror("GID statement requires root privileges");
 }
 
 
@@ -7281,9 +7281,9 @@ static void addhtpasswdentry(char *filename, char *username, int dtype) {
         
         if ( handle == NULL ) {
                 if (username != NULL)
-                yyerror2("cannot read htpasswd (%s)", filename);
+                yyerror2("Cannot read htpasswd (%s)", filename);
                 else
-                yyerror2("cannot read htpasswd", filename);
+                yyerror2("Cannot read htpasswd", filename);
                 return;
         }
         
@@ -7364,7 +7364,7 @@ static void addpamauth(char* groupname, int readonly) {
   c->digesttype  = DIGEST_PAM;
   c->is_readonly = readonly;
 
-  DEBUG("%s: Adding PAM group '%s'.\n", prog, groupname);
+  DEBUG("Adding PAM group '%s'\n", groupname);
 
   return;
 }
@@ -7386,7 +7386,7 @@ static int addcredentials(char *uname, char *passwd, int dtype, int readonly) {
   } else {
 
     if (Util_getUserCredentials(uname) != NULL) {
-      yywarning2("credentials for user %s were already added, entry ignored", uname);
+      yywarning2("Credentials for user %s were already added, entry ignored", uname);
       FREE(uname);
       FREE(passwd);
       return FALSE;
@@ -7409,7 +7409,7 @@ static int addcredentials(char *uname, char *passwd, int dtype, int readonly) {
   c->digesttype  = dtype;
   c->is_readonly = readonly;
 
-  DEBUG("%s: Debug: Adding credentials for user '%s'.\n", prog, uname);
+  DEBUG("Adding credentials for user '%s'\n", uname);
 
   return TRUE;
 
@@ -7448,7 +7448,7 @@ static void setsyslog(char *facility) {
     else if (IS(facility, "log_daemon"))
       Run.facility = LOG_DAEMON;
     else
-      yyerror2("invalid syslog facility");
+      yyerror2("Invalid syslog facility");
   } else {
     Run.facility = LOG_USER;
   }
@@ -7639,9 +7639,9 @@ static void check_name(char *name) {
   ASSERT(name);
 
   if (Util_existService(name) || (current && IS(name, current->name)))
-    yyerror2("service name conflict, %s already defined", name);
+    yyerror2("Service name conflict, %s already defined", name);
   if (name && *name == '/')
-          yyerror2("service name '%s' must not start with '/' -- ", name);
+          yyerror2("Service name '%s' must not start with '/' -- ", name);
 }
 
 
@@ -7658,7 +7658,7 @@ static int check_perm(int perm) {
   result = (int)strtol(buf, &status, 8);
 
   if ( *status != '\0' || result < 0 || result > 07777 )
-    yyerror2("permission statements must have an octal value between 0 and 7777");
+    yyerror2("Permission statements must have an octal value between 0 and 7777");
 
   return result;
 }
@@ -7672,7 +7672,7 @@ static void check_hostname(char *hostname) {
   ASSERT(hostname);
 
   if (!check_host(hostname))
-    yywarning2("hostname did not resolve");
+    yywarning2("Hostname did not resolve");
 }
 
 /*
@@ -7700,7 +7700,7 @@ static void check_depend() {
       for (d = s->dependantlist; d; d = d->next) {
         Service_T dp = Util_getService(d->dependant);
         if (!dp) {
-          LogError("%s: Error: Depend service '%s' is not defined in the control file\n", prog, d->dependant);
+          LogError("Depend service '%s' is not defined in the control file\n", d->dependant);
           exit(1);
         }
         if (!dp->visited) {
@@ -7719,7 +7719,7 @@ static void check_depend() {
 
   if (!done) {
         ASSERT(depends_on);
-        LogError("%s: Error: Found a depend loop in the control file involving the service '%s'\n", prog, depends_on->name);
+        LogError("Found a depend loop in the control file involving the service '%s'\n", depends_on->name);
         exit(1);
    }
 

@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "March 27. 2014" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "May 12. 2014" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1201,9 +1201,9 @@ Each service can have \fIstart\fR, \fIstop\fR and \fIrestart\fR methods
 which allow Monit to perform corresponding action with the service.
 .PP
 Syntax:
-.ie n .IP "<\s-1START\s0 | \s-1STOP\s0 | \s-1RESTART\s0> [\s-1PROGRAM\s0] = ""program"" [[\s-1AS\s0] \s-1UID\s0 <number | string>] [[\s-1AS\s0] \s-1GID\s0 <number | string>]" 4
-.el .IP "<\s-1START\s0 | \s-1STOP\s0 | \s-1RESTART\s0> [\s-1PROGRAM\s0] = ``program'' [[\s-1AS\s0] \s-1UID\s0 <number | string>] [[\s-1AS\s0] \s-1GID\s0 <number | string>]" 4
-.IX Item "<START | STOP | RESTART> [PROGRAM] = program [[AS] UID <number | string>] [[AS] GID <number | string>]"
+.ie n .IP "<\s-1START\s0 | \s-1STOP\s0 | \s-1RESTART\s0> [\s-1PROGRAM\s0] = ""program"" [[\s-1AS\s0] \s-1UID\s0 <number | string>] [[\s-1AS\s0] \s-1GID\s0 <number | string>] [[\s-1WITH\s0] \s-1TIMEOUT\s0 <number> \s-1SECOND\s0(S)]" 4
+.el .IP "<\s-1START\s0 | \s-1STOP\s0 | \s-1RESTART\s0> [\s-1PROGRAM\s0] = ``program'' [[\s-1AS\s0] \s-1UID\s0 <number | string>] [[\s-1AS\s0] \s-1GID\s0 <number | string>] [[\s-1WITH\s0] \s-1TIMEOUT\s0 <number> \s-1SECOND\s0(S)]" 4
+.IX Item "<START | STOP | RESTART> [PROGRAM] = program [[AS] UID <number | string>] [[AS] GID <number | string>] [[WITH] TIMEOUT <number> SECOND(S)]"
 .PP
 If the \fIprogram\fR is shell script it must begin with \f(CW\*(C`#!\*(C'\fR and
 the remainder of the first line must specify an interpreter for
@@ -1228,6 +1228,18 @@ Example:
 \& check process mmonit with pidfile /usr/local/mmonit/mmonit/logs/mmonit.pid
 \&   start program = "/usr/local/mmonit/bin/mmonit \-d" as uid "mmonit" and gid "mmonit"
 \&   stop program = "/usr/local/mmonit/bin/mmonit stop" as uid "mmonit" and gid "mmonit"
+.Ve
+.PP
+In the case of process check, Monit waits up to 30 seconds for the
+start/stop action to finish by checking the process table. You can
+override the action timeout using the \fI\s-1TIMEOUT\s0\fR option.
+.PP
+Example:
+.PP
+.Vb 3
+\& check process foobar with pidfile /var/run/foobar.pid
+\&   start program = "/etc/init.d/foobar start" with timeout 60 seconds
+\&   start program = "/etc/init.d/foobar stop"
 .Ve
 .SH "SERVICE POLL TIME"
 .IX Header "SERVICE POLL TIME"
