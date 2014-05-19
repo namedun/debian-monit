@@ -1,3 +1,12 @@
+monit (1:5.8.1-1) unstable; urgency=low
+
+  * Imported Upstream version 5.8.1
+  * Refresh patches
+  * Fix HURD build, broken by upstream
+  * Install CONTRIBUTORS file
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 19 May 2014 13:33:44 +0400
+
 monit (1:5.8-1) unstable; urgency=low
 
   [ Sergey B Kirpichev ]
