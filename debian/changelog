@@ -1,3 +1,9 @@
+monit (1:5.8.1-2) unstable; urgency=low
+
+  * Fix FTBFS on kFreeBSD
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 20 May 2014 02:01:48 +0400
+
 monit (1:5.8.1-1) unstable; urgency=low
 
   * Imported Upstream version 5.8.1
