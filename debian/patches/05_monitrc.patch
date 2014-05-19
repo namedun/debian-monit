@@ -57,9 +57,9 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -119,13 +121,13 @@
- ## services monitored and manage services from a web interface. See the
- ## Monit Wiki if you want to enable SSL for the web server. 
+@@ -125,13 +127,13 @@
+ ## commands to a running Monit daemon. See the Monit Wiki if you want to 
+ ## enable SSL for the web server. 
  #
 -set httpd port 2812 and
 -    use address localhost  # only accept connection from localhost
@@ -78,7 +78,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -248,5 +250,5 @@
+@@ -254,5 +256,5 @@
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #

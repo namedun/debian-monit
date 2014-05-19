@@ -44,7 +44,7 @@ Forwarded: no
  (465 for \s-1SSL\s0, or 25 for \s-1TLS\s0 and non secure connection).
  .PP
  Monit supports \s-1AUTH\s0 \s-1PLAIN\s0 and \s-1AUTH\s0 \s-1LOGIN\s0 for \s-1SMTP\s0 authentication.
-@@ -1662,7 +1662,7 @@
+@@ -1674,7 +1674,7 @@
  \& then alert
  .Ve
  .PP
@@ -53,7 +53,7 @@ Forwarded: no
  still catch excessive problems, where the service is flapping between error and
  success states frequently.
  .PP
-@@ -1785,7 +1785,7 @@
+@@ -1797,7 +1797,7 @@
  .SS "\s-1FILE\s0 \s-1CHECKSUM\s0 \s-1TESTING\s0"
  .IX Subsection "FILE CHECKSUM TESTING"
  The checksum statement may only be used in a file service
@@ -62,7 +62,7 @@ Forwarded: no
  .PP
  Check specific checksum:
  .IP "\s-1IF\s0 \s-1FAILED\s0 [MD5|SHA1] \s-1CHECKSUM\s0 [\s-1EXPECT\s0 checksum] \s-1THEN\s0 action" 4
-@@ -1898,7 +1898,7 @@
+@@ -1910,7 +1910,7 @@
  .Ve
  .SS "\s-1FILE\s0 \s-1CONTENT\s0 \s-1TESTING\s0"
  .IX Subsection "FILE CONTENT TESTING"
@@ -71,7 +71,7 @@ Forwarded: no
  text file by using regular expressions.
  .PP
  Syntax:
-@@ -2550,7 +2550,7 @@
+@@ -2562,7 +2562,7 @@
  APACHE-STATUS
  .IX Subsection "APACHE-STATUS"
  .PP

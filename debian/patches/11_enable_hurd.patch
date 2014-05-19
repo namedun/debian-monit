@@ -18,7 +18,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure
 +++ b/configure
-@@ -13674,7 +13674,11 @@
+@@ -13675,7 +13675,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
