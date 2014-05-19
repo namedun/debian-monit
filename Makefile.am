@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign no-dependencies subdir-objects
 ACLOCAL_AMFLAGS	 = -I m4
 
-EXTRA_DIST	= README CHANGES COPYING CONTRIBUTORS bootstrap doc src config monitrc system libmonit monit.1
+EXTRA_DIST	= README COPYING CONTRIBUTORS bootstrap doc src config monitrc system libmonit monit.1
 
 SUBDIRS		= libmonit
 
@@ -92,7 +92,7 @@ man_MANS 	= monit.1
 
 BUILT_SOURCES   = src/lex.yy.c src/y.tab.c src/tokens.h
 
-CLEANFILES	= 
+CLEANFILES	= src/y.output
 DISTCLEANFILES	= *~ $(BUILT_SOURCES)
 
 
@@ -121,15 +121,14 @@ clean-local:
 	-rm -f `find . -name "*.o" -o -name "*.lo" -o -name "*.loT" -o -name "*~"`
 
 distclean-local:
-	-rm -rf autom4te.cache/ \
-		src/y.output \
-		monit-[0-9].*tar.gz
-	-rm -rf lib include
-
+	-rm -rf autom4te.cache/
+	-rm -f monit-[0-9].*tar.gz
 
 cleanall: clean distclean
-	-rm -f Makefile.in configure aclocal.m4 autom4te.cache src/config.h.in monit.1 config/config.*
-	-rm -rf m4
+	-rm -f libmonit/Makefile.in libmonit/configure libmonit/aclocal.m4 libmonit/src/xconfig.h.in 
+	-rm -f Makefile.in configure aclocal.m4 autom4te.cache src/config.h.in monit.1 
+	-rm -rf libmonit/m4 libmonit/config
+	-rm -rf m4 config
 		
 monit.1: doc/monit.pod
 	$(POD2MAN) $(POD2MANFLAGS) $< > $@
@@ -140,8 +139,8 @@ monit.1: doc/monit.pod
 # Grammar rules
 # -------------
 
-src/y.tab.c src/tokens.h : src/p.y
-	$(YACC) $(YACCFLAGS) $< -o src/y.tab.c
+src/y.tab.c src/tokens.h: src/p.y
+	$(YACC) $(YACCFLAGS) -o src/y.tab.c $<
 	-echo "#include <config.h>" > src/.y.tab.c
 	-cat src/y.tab.c >> src/.y.tab.c
 	-mv src/.y.tab.c src/y.tab.c

@@ -293,13 +293,13 @@ void LogInfo(const char *s, ...) {
  * @param s A formated (printf-style) string to log
  */
 void LogDebug(const char *s, ...) {
-  va_list ap;
-
-  ASSERT(s);
-
-  va_start(ap, s);
-  log_log(LOG_DEBUG, s, ap);
-  va_end(ap);
+        ASSERT(s);
+        if (Run.debug) {
+                va_list ap;
+                va_start(ap, s);
+                log_log(LOG_DEBUG, s, ap);
+                va_end(ap);
+        }
 }
 
 
@@ -313,7 +313,7 @@ void log_close() {
   }
 
   if (LOG  && (0 != fclose(LOG))) {
-    LogError("%s: Error closing the log file -- %s\n",        prog, STRERROR);
+    LogError("Error closing the log file -- %s\n", STRERROR);
   }
 
   LOG = NULL;
@@ -346,7 +346,7 @@ static int open_log() {
   } else {
     umask(LOGMASK);
     if ((LOG = fopen(Run.logfile,"a+")) == (FILE *)NULL) {
-      LogError("%s: Error opening the log file '%s' for writing -- %s\n", prog, Run.logfile, STRERROR);
+      LogError("Error opening the log file '%s' for writing -- %s\n", Run.logfile, STRERROR);
       return(FALSE);
     }
     /* Set logger in unbuffered mode */

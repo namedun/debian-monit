@@ -122,9 +122,8 @@ static Process_Status wait_process(Service_T s, Process_Status expect) {
  * This is a post- fix recursive function for starting every service
  * that s depends on before starting s.
  * @param s A Service_T object
- * @param flag A Custom flag
  */
-static void do_start(Service_T s, int flag) {
+static void do_start(Service_T s) {
         ASSERT(s);
         if (s->visited)
                 return;
@@ -134,15 +133,19 @@ static void do_start(Service_T s, int flag) {
                 for (d = s->dependantlist; d; d = d->next ) {
                         Service_T parent = Util_getService(d->dependant);
                         ASSERT(parent);
-                        do_start(parent, flag);
+                        do_start(parent);
                 }
         }
-        if (s->start && (s->type != TYPE_PROCESS || !Util_isProcessRunning(s, FALSE))) {
-                LogInfo("'%s' start: %s\n", s->name, s->start->arg[0]);
-                spawn(s, s->start, NULL);
-                /* We only wait for a process type, other service types does not have a pid file to watch */
-                if (s->type == TYPE_PROCESS)
-                        wait_process(s, Process_Started);
+        if (s->start) {
+                if (s->type != TYPE_PROCESS || ! Util_isProcessRunning(s, FALSE)) {
+                        LogInfo("'%s' start: %s\n", s->name, s->start->arg[0]);
+                        spawn(s, s->start, NULL);
+                        /* We only wait for a process type, other service types does not have a pid file to watch */
+                        if (s->type == TYPE_PROCESS)
+                                wait_process(s, Process_Started);
+                }
+        } else {
+                LogDebug("'%s' start skipped -- method not defined\n", s->name);
         }
         Util_monitorSet(s);
 }
@@ -161,10 +164,14 @@ static int do_stop(Service_T s, int flag) {
                 return rv;
         s->depend_visited = TRUE;
         if (s->stop) {
-                LogInfo("'%s' stop: %s\n", s->name, s->stop->arg[0]);
-                spawn(s, s->stop, NULL);
-                if (s->type == TYPE_PROCESS && (wait_process(s, Process_Stopped) != Process_Stopped)) // Only wait for process service types stop
-                        rv = FALSE;
+                if (s->type != TYPE_PROCESS || Util_isProcessRunning(s, FALSE)) {
+                        LogInfo("'%s' stop: %s\n", s->name, s->stop->arg[0]);
+                        spawn(s, s->stop, NULL);
+                        if (s->type == TYPE_PROCESS && (wait_process(s, Process_Stopped) != Process_Stopped)) // Only wait for process service types stop
+                                rv = FALSE;
+                }
+        } else {
+                LogDebug("'%s' stop skipped -- method not defined\n", s->name);
         }
         if (flag)
                 Util_monitorUnset(s);
@@ -186,6 +193,8 @@ static void do_restart(Service_T s) {
                 /* We only wait for a process type, other service types does not have a pid file to watch */
                 if (s->type == TYPE_PROCESS)
                         wait_process(s, Process_Started);
+        } else {
+                LogDebug("'%s' restart skipped -- method not defined\n", s->name);
         }
         Util_monitorSet(s);
 }
@@ -247,7 +256,7 @@ static void do_depend(Service_T s, int action, int flag) {
                         for (d = child->dependantlist; d; d = d->next) {
                                 if (IS(d->dependant, s->name)) {
                                         if (action == ACTION_START)
-                                                do_start(child, flag);
+                                                do_start(child);
                                         else if (action == ACTION_MONITOR)
                                                 do_monitor(child, flag);
                                         do_depend(child, action, flag);
@@ -283,13 +292,13 @@ int control_service_daemon(const char *S, const char *action) {
         ASSERT(S);
         ASSERT(action);
         if (Util_getAction(action) == ACTION_IGNORE) {
-                LogError("%s: Cannot %s service '%s' -- invalid action %s\n", prog, action, S, action);
+                LogError("Cannot %s service '%s' -- invalid action %s\n", action, S, action);
                 return FALSE;
         }
         socket = socket_create_t(Run.bind_addr ? Run.bind_addr : "localhost", Run.httpdport, SOCKET_TCP,
                             (Ssl_T){.use_ssl = Run.httpdssl, .clientpemfile = Run.httpsslclientpem}, NET_TIMEOUT);
         if (! socket) {
-                LogError("%s: Cannot connect to the monit daemon. Did you start it with http support?\n", prog);
+                LogError("Cannot connect to the monit daemon. Did you start it with http support?\n");
                 return FALSE;
         }
 
@@ -307,18 +316,18 @@ int control_service_daemon(const char *S, const char *action) {
                 auth ? auth : "",
                 action) < 0)
         {
-                LogError("%s: Cannot send the command '%s' to the monit daemon -- %s", prog, action ? action : "null", STRERROR);
+                LogError("Cannot send the command '%s' to the monit daemon -- %s", action ? action : "null", STRERROR);
                 goto err1;
         }
 
         /* Process response */
         if (! socket_readln(socket, buf, STRLEN)) {
-                LogError("%s: error receiving data -- %s\n", prog, STRERROR);
+                LogError("Error receiving data -- %s\n", STRERROR);
                 goto err1;
         }
         Str_chomp(buf);
         if (! sscanf(buf, "%*s %d", &status)) {
-                LogError("%s: cannot parse status in response: %s\n", prog, buf);
+                LogError("Cannot parse status in response: %s\n", buf);
                 goto err1;
         }
         if (status >= 300) {
@@ -344,7 +353,7 @@ int control_service_daemon(const char *S, const char *action) {
                                 *p = 0;
                 }
 err2:
-                LogError("%s: action failed -- %s\n", prog, message ? message : "unable to parse response");
+                LogError("Action failed -- %s\n", message ? message : "unable to parse response");
                 FREE(message);
         } else
                 rv = TRUE;
@@ -366,7 +375,7 @@ int control_service_string(const char *S, const char *A) {
         ASSERT(S);
         ASSERT(A);
         if ((a = Util_getAction(A)) == ACTION_IGNORE) {
-                LogError("%s: service '%s' -- invalid action %s\n", prog, S, A);
+                LogError("Service '%s' -- invalid action %s\n", S, A);
                 return FALSE;
         }
         return control_service(S, a);
@@ -383,44 +392,22 @@ int control_service(const char *S, int A) {
         Service_T s = NULL;
         ASSERT(S);
         if (! (s = Util_getService(S))) {
-                LogError("%s: service '%s' -- doesn't exist\n", prog, S);
+                LogError("Service '%s' -- doesn't exist\n", S);
                 return FALSE;
         }
         switch(A) {
                 case ACTION_START:
-                        if (s->type == TYPE_PROCESS) {
-                                if (Util_isProcessRunning(s, FALSE)) {
-                                        DEBUG("%s: Process already running -- process %s\n", prog, S);
-                                        Util_monitorSet(s);
-                                        return TRUE;
-                                }
-                                if (!s->start) {
-                                        LogDebug("%s: Start method not defined -- process %s\n", prog, S);
-                                        Util_monitorSet(s);
-                                        return FALSE;
-                                }
-                        }
                         do_depend(s, ACTION_STOP, FALSE);
-                        do_start(s, 0);
+                        do_start(s);
                         do_depend(s, ACTION_START, 0);
                         break;
 
                 case ACTION_STOP:
-                        if (s->type == TYPE_PROCESS && !s->stop) {
-                                LogDebug("%s: Stop method not defined -- process %s\n", prog, S);
-                                Util_monitorUnset(s);
-                                return FALSE;
-                        }
                         do_depend(s, ACTION_STOP, TRUE);
                         do_stop(s, TRUE);
                         break;
 
                 case ACTION_RESTART:
-                        if (! (s->type == TYPE_PROCESS && ((s->start && s->stop) || s->restart))) {
-                                LogDebug("%s: Start, stop or restart method not defined for process check '%s'\n", prog, S);
-                                Util_monitorSet(s);
-                                return FALSE;
-                        }
                         LogInfo("'%s' trying to restart\n", s->name);
                         do_depend(s, ACTION_STOP, FALSE);
                         if (s->restart) {
@@ -429,7 +416,7 @@ int control_service(const char *S, int A) {
                         } else {
                                 if (do_stop(s, FALSE)) {
                                         /* Only start if stop succeeded */
-                                        do_start(s, 0);
+                                        do_start(s);
                                         do_depend(s, ACTION_START, 0);
                                 } else {
                                         /* enable monitoring of this service again to allow the restart retry in the next cycle up to timeout limit */
@@ -450,7 +437,7 @@ int control_service(const char *S, int A) {
                         break;
 
                 default:
-                        LogError("%s: service '%s' -- invalid action %s\n", prog, S, A);
+                        LogError("Service '%s' -- invalid action %s\n", S, A);
                         return FALSE;
         }
         return TRUE;

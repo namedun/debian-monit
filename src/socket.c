@@ -249,16 +249,21 @@ ssl_error:
 void socket_free(Socket_T *S) {
         ASSERT(S && *S);
 #ifdef HAVE_OPENSSL
-        if ((*S)->ssl && (*S)->ssl->handler) {
+        if ((*S)->ssl && (*S)->ssl->handler)
+        {
                 if ((*S)->connection_type == TYPE_LOCAL) {
                         close_ssl_socket((*S)->ssl);
                         delete_ssl_socket((*S)->ssl);
                 } else if ((*S)->connection_type == TYPE_ACCEPT && (*S)->sslserver) {
                         close_accepted_ssl_socket((*S)->sslserver, (*S)->ssl);
                 }
-        } else
+        }
+        else
 #endif
+        {
+                Net_shutdown((*S)->socket, SHUT_RDWR);
                 Net_close((*S)->socket);
+        }
         FREE((*S)->host);
         FREE(*S);
 }
@@ -296,6 +301,12 @@ int socket_is_ready(Socket_T S) {
 int socket_is_secure(Socket_T S) {
         ASSERT(S);
         return (S->ssl != NULL);
+}
+
+
+int socket_is_udp(Socket_T S) {
+        ASSERT(S);
+        return (S->type == SOCK_DGRAM);
 }
 
 
