@@ -13,8 +13,9 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  libmonit/configure.ac     |    4 ++++
  libmonit/src/Config.h     |    6 ++++++
  src/device/sysdep_HURD.c  |    1 +
+ src/monit.h               |    5 +++++
  src/process/sysdep_HURD.c |   20 ++++++++++++++++++++
- 7 files changed, 45 insertions(+), 1 deletion(-)
+ 8 files changed, 50 insertions(+), 1 deletion(-)
 
 --- a/configure
 +++ b/configure
@@ -113,4 +114,18 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +#endif
  
  #endif
+ 
+--- a/src/monit.h
++++ b/src/monit.h
+@@ -246,6 +246,11 @@
+ #define SIG_ERR ((Sigfunc *)-1)
+ #endif
+ 
++/* For systems without PATH_MAX define it with a resonable value */
++
++#ifndef PATH_MAX
++#define PATH_MAX 1024
++#endif
+ 
+ /** ------------------------------------------------- General purpose macros */
  
