@@ -1,3 +1,9 @@
+monit (1:5.8.1-3) unstable; urgency=medium
+
+  * Add lintian override for init.d-script-depends-on-all-virtual-facility
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 30 Aug 2014 15:55:51 +0400
+
 monit (1:5.8.1-2) unstable; urgency=low
 
   * Fix FTBFS on kFreeBSD
