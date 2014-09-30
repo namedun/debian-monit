@@ -8,7 +8,7 @@ Forwarded: no
 
 --- a/monit.1
 +++ b/monit.1
-@@ -659,7 +659,7 @@
+@@ -670,7 +670,7 @@
  \&\fI\s-1PORT\s0\fR option sets the port where Monit should listen. Monit uses
  usually port 2812.
  .PP
@@ -17,7 +17,7 @@ Forwarded: no
  only. For example if you \fBdon't\fR want to expose Monit web interface
  on external network, bind it to localhost only. Monit will accept
  connections on any address by default (if \s-1ADDRESS\s0 option is missing).
-@@ -673,7 +673,7 @@
+@@ -684,7 +684,7 @@
  \&     allow myuser:mypassword
  .Ve
  .PP
@@ -25,8 +25,8 @@ Forwarded: no
 +\&\fI\s-1SSL\s0\fR, \fI\s-1PEMFILE\s0\fR allows one to enable \s-1SSL\s0 for Monit web interface. The
  pemfile holds both the server's private key and certificate. This file
  should be stored in a safe place on the filesystem and should have
- strict permissions, no more than 0700. Please see \s-1README\s0.SSL file
-@@ -1072,7 +1072,7 @@
+ strict permissions, no more than 0700. Please see \s-1README.SSL\s0 file
+@@ -1104,7 +1104,7 @@
  .PP
  The \fIreply-to:\fR option can be used to set the reply-to mail header.
  .PP
@@ -35,16 +35,16 @@ Forwarded: no
  only \fIone\fR line.
  .PP
  The \fImessage:\fR option sets the mail body. This option should always
-@@ -1139,7 +1139,7 @@
+@@ -1171,7 +1171,7 @@
  Monit cannot connect to the first server, it will try the next in
  the list.
  .PP
 -The port statement allows to override the default \s-1SMTP\s0 port
 +The port statement allows one to override the default \s-1SMTP\s0 port
- (465 for \s-1SSL\s0, or 25 for \s-1TLS\s0 and non secure connection).
+ (465 for \s-1SSL,\s0 or 25 for \s-1TLS\s0 and non secure connection).
  .PP
- Monit supports \s-1AUTH\s0 \s-1PLAIN\s0 and \s-1AUTH\s0 \s-1LOGIN\s0 for \s-1SMTP\s0 authentication.
-@@ -1674,7 +1674,7 @@
+ Monit supports \s-1AUTH PLAIN\s0 and \s-1AUTH LOGIN\s0 for \s-1SMTP\s0 authentication.
+@@ -1706,7 +1706,7 @@
  \& then alert
  .Ve
  .PP
@@ -53,25 +53,25 @@ Forwarded: no
  still catch excessive problems, where the service is flapping between error and
  success states frequently.
  .PP
-@@ -1797,7 +1797,7 @@
- .SS "\s-1FILE\s0 \s-1CHECKSUM\s0 \s-1TESTING\s0"
+@@ -1829,7 +1829,7 @@
+ .SS "\s-1FILE CHECKSUM TESTING\s0"
  .IX Subsection "FILE CHECKSUM TESTING"
  The checksum statement may only be used in a file service
 -entry and allows to check \s-1MD5\s0 or \s-1SHA1\s0 checksum.
 +entry and allows one to check \s-1MD5\s0 or \s-1SHA1\s0 checksum.
  .PP
  Check specific checksum:
- .IP "\s-1IF\s0 \s-1FAILED\s0 [MD5|SHA1] \s-1CHECKSUM\s0 [\s-1EXPECT\s0 checksum] \s-1THEN\s0 action" 4
-@@ -1910,7 +1910,7 @@
+ .IP "\s-1IF FAILED\s0 [MD5|SHA1] \s-1CHECKSUM\s0 [\s-1EXPECT\s0 checksum] \s-1THEN\s0 action" 4
+@@ -1942,7 +1942,7 @@
  .Ve
- .SS "\s-1FILE\s0 \s-1CONTENT\s0 \s-1TESTING\s0"
+ .SS "\s-1FILE CONTENT TESTING\s0"
  .IX Subsection "FILE CONTENT TESTING"
 -The match statement allows to incrementally test the content of a
 +The match statement allows one to incrementally test the content of a
  text file by using regular expressions.
  .PP
  Syntax:
-@@ -2562,7 +2562,7 @@
+@@ -2652,7 +2652,7 @@
  APACHE-STATUS
  .IX Subsection "APACHE-STATUS"
  .PP
