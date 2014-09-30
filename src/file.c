@@ -112,20 +112,10 @@ void file_init() {
 
 
 /**
- * Finalize and remove temporary files and make sure Monit id file exist
+ * Finalize and remove temporary files
  */
 void file_finalize() {
   unlink(Run.pidfile);
-  // Make sure that Monit id file exist
-  if (! file_exist(Run.idfile)) {
-    FILE *f =  fopen(Run.idfile,"w");
-    if (! f) {
-      LogError("Error opening Monit id file '%s' for writing -- %s\n", Run.idfile, STRERROR);
-    } else {
-      fprintf(f, "%s\n", Run.id);
-      fclose(f);
-    }
-  }
 }
 
 
@@ -436,7 +426,7 @@ int file_writeQueue(FILE *file, void *data, size_t size) {
     if (feof(file) || ferror(file))
       LogError("Queued event file: unable to write event size -- %s\n", feof(file) ? "end of file" : "stream error");
     else
-      LogError("Queued event file: unable to write event size -- read returned %d bytes\n", rv);
+      LogError("Queued event file: unable to write event size -- read returned %lu bytes\n", (unsigned long)rv);
     return FALSE;
   }
 
@@ -446,7 +436,7 @@ int file_writeQueue(FILE *file, void *data, size_t size) {
       if (feof(file) || ferror(file))
         LogError("Queued event file: unable to write event size -- %s\n", feof(file) ? "end of file" : "stream error");
       else
-        LogError("Queued event file: unable to write event size -- read returned %d bytes\n", rv);
+        LogError("Queued event file: unable to write event size -- read returned %lu bytes\n", (unsigned long)rv);
       return FALSE;
     }
   }
@@ -473,7 +463,7 @@ void *file_readQueue(FILE *file, size_t *size) {
     if (feof(file) || ferror(file))
       LogError("Queued event file: unable to read event size -- %s\n", feof(file) ? "end of file" : "stream error");
     else
-      LogError("Queued event file: unable to read event size -- read returned %d bytes\n", rv);
+      LogError("Queued event file: unable to read event size -- read returned %lu bytes\n", (unsigned long)rv);
     return NULL;
   }
 
@@ -485,7 +475,7 @@ void *file_readQueue(FILE *file, size_t *size) {
       if (feof(file) || ferror(file))
         LogError("Queued event file: unable to read event data -- %s\n", feof(file) ? "end of file" : "stream error");
       else
-        LogError("Queued event file: unable to read event data -- read returned %d bytes\n", rv);
+        LogError("Queued event file: unable to read event data -- read returned %lu bytes\n", (unsigned long)rv);
       return NULL;
     }
   }
