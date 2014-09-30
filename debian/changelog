@@ -1,3 +1,9 @@
+monit (1:5.9-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.9
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 30 Sep 2014 13:55:49 +0400
+
 monit (1:5.8.1-3) unstable; urgency=medium
 
   * Add lintian override for init.d-script-depends-on-all-virtual-facility
