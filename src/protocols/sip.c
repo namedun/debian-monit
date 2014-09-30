@@ -109,16 +109,16 @@ int check_sip(Socket_T socket) {
 
   if(socket_print(socket,
     "OPTIONS %s:%s SIP/2.0\r\n"
-    "Via: SIP/2.0/%s %s:%d;branch=z9hG4bKh%u%s\r\n"
+    "Via: SIP/2.0/%s %s:%d;branch=z9hG4bKh%ld%s\r\n"
     "Max-Forwards: %d\r\n"
     "To: <%s:%s>\r\n"
-    "From: monit <%s:monit@%s>;tag=%d\r\n"
-    "Call-ID: %u\r\n"
+    "From: monit <%s:monit@%s>;tag=%ld\r\n"
+    "Call-ID: %ld\r\n"
     "CSeq: 63104 OPTIONS\r\n"
     "Contact: <%s:%s:%d>\r\n"
     "Accept: application/sdp\r\n"
     "Content-Length: 0\r\n"
-    "User-Agent: %s/%s\r\n\r\n",
+    "User-Agent: Monit/%s\r\n\r\n",
     proto,            // protocol
     request,          // to
     transport,        // via transport udp|tcp
@@ -136,7 +136,7 @@ int check_sip(Socket_T socket) {
     proto,            // protocol
     myip,             // contact host
     port,             // contact port
-    prog, VERSION     // user agent
+    VERSION           // user agent
     ) < 0) {
     socket_setError(socket, "SIP: error sending data -- %s", STRERROR);
     return FALSE;

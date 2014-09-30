@@ -189,7 +189,7 @@ int embed_ssl_socket(ssl_connection *ssl, int socket) {
         }
 
         if (SSL_CTX_set_cipher_list(ssl->ctx, CIPHER_LIST) != 1) {
-                LogError("Error setting cipher list '%s' (no valid ciphers)", CIPHER_LIST);
+                LogError("Error setting cipher list '%s' (no valid ciphers)\n", CIPHER_LIST);
                 goto sslerror;
         }
 
@@ -300,7 +300,7 @@ void delete_ssl_socket(ssl_connection *ssl) {
  * @return An ssl connection, or NULL if an error occured.
  */
 ssl_server_connection *init_ssl_server(char *pemfile, char *clientpemfile) {
-        SSL_METHOD *server_method = NULL;
+        const SSL_METHOD *server_method = NULL;
         ssl_server_connection *ssl_server;
         ASSERT(pemfile);
         if (!ssl_initialized)
@@ -334,7 +334,7 @@ ssl_server_connection *init_ssl_server(char *pemfile, char *clientpemfile) {
                 goto sslerror;
         }
         if (SSL_CTX_set_cipher_list(ssl_server->ctx, CIPHER_LIST) != 1) {
-                LogError("Error setting cipher list '%s' (no valid ciphers)", CIPHER_LIST);
+                LogError("Error setting cipher list '%s' (no valid ciphers)\n", CIPHER_LIST);
                 goto sslerror;
         }
         /* Disable session cache */
@@ -540,7 +540,7 @@ int send_ssl_socket(ssl_connection *ssl, void *buffer, size_t len, int timeout) 
  * @param ssl ssl connection
  * @param buffer array to hold the data
  * @param len size of the data container
- * @param timeout Seconds to wait for data to be available
+ * @param timeout milliseconds to wait for data to be available
  * @return number of bytes transmitted, -1 in case of an error
  */
 int recv_ssl_socket(ssl_connection *ssl, void *buffer, int len, int timeout) {
@@ -610,12 +610,12 @@ ssl_connection *new_ssl_connection(char *clientpemfile, int sslversion) {
 
                 case SSL_VERSION_SSLV2:
 #ifdef OPENSSL_NO_SSL2
-                        LogError("SSLv2 is not allowed - use either SSLv3 or TLSv1");
+                        LogError("SSLv2 is not allowed - use either SSLv3 or TLSv1\n");
                         goto sslerror;
 #else
 #ifdef OPENSSL_FIPS
                         if (FIPS_mode()) {
-                                LogError("SSLv2 is not allowed in FIPS mode - use TLSv1");
+                                LogError("SSLv2 is not allowed in FIPS mode - use TLSv1\n");
                                 goto sslerror;
                         } else
 #endif
@@ -626,7 +626,7 @@ ssl_connection *new_ssl_connection(char *clientpemfile, int sslversion) {
                 case SSL_VERSION_SSLV3:
 #ifdef OPENSSL_FIPS
                         if (FIPS_mode()) {
-                                LogError("SSLv3 is not allowed in FIPS mode - use TLSv1");
+                                LogError("SSLv3 is not allowed in FIPS mode - use TLSv1\n");
                                 goto sslerror;
                         } else
 #endif
@@ -831,6 +831,9 @@ static int handle_error(int code, ssl_connection *ssl) {
 
         switch (ssl_error) {
 
+                case SSL_ERROR_NONE:
+                        return TRUE;
+
                 case SSL_ERROR_WANT_READ:
                         if (can_read(ssl->socket, SSL_TIMEOUT))
                                 return TRUE;
@@ -838,7 +841,7 @@ static int handle_error(int code, ssl_connection *ssl) {
                         break;
 
                 case SSL_ERROR_WANT_WRITE:
-                        if (can_read(ssl->socket, SSL_TIMEOUT))
+                        if (can_write(ssl->socket, SSL_TIMEOUT))
                                 return TRUE;
                         LogError("SSL write timeout error\n");
                         break;

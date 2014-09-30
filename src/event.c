@@ -82,7 +82,7 @@ EventTable_T Event_Table[] = {
   {Event_Fsflag,     "Filesystem flags failed", "Filesystem flags succeeded", "Filesystem flags changed", "Filesystem flags not changed"},
   {Event_Gid,        "GID failed",              "GID succeeded",              "GID changed",              "GID not changed"},
   {Event_Heartbeat,  "Heartbeat failed",        "Heartbeat succeeded",        "Heartbeat changed",        "Heartbeat not changed"},
-  {Event_Icmp,       "ICMP failed",             "ICMP succeeded",             "ICMP changed",             "ICMP not changed"},
+  {Event_Icmp,       "Ping failed",             "Ping succeeded",             "Ping changed",             "Ping not changed"},
   {Event_Instance,   "Monit instance failed",   "Monit instance succeeded",   "Monit instance changed",   "Monit instance not changed"},
   {Event_Invalid,    "Invalid type",            "Type succeeded",             "Type changed",             "Type not changed"},
   {Event_Nonexist,   "Does not exist",          "Exists",                     "Existence changed",        "Existence not changed"},
@@ -325,8 +325,10 @@ short Event_check_state(Event_T E, short S) {
   }
 
   /* the internal instance and action events are handled as changed any time since we need to deliver alert whenever it occurs */
-  if (E->id == Event_Instance || E->id == Event_Action || (count >= action->count && (S != E->state || S == STATE_CHANGED)))
+  if (E->id == Event_Instance || E->id == Event_Action || (count >= action->count && (S != E->state || S == STATE_CHANGED))) {
+    memset(&(E->state_map), state, sizeof(E->state_map)); // Restart state map on state change, so we'll not flicker on multiple-failures condition (next state change requires full number of cycles to pass)
     return TRUE;
+  }
 
   return FALSE;
 }
@@ -497,7 +499,7 @@ void Event_queue_process() {
         goto error2;
       }
       if (size != sizeof(int)) {
-        LogError("Aborting queued event %s - invalid size %d\n", file_name, size);
+        LogError("Aborting queued event %s - invalid size %lu\n", file_name, (unsigned long)size);
         goto error3;
       }
       if (*version != EVENT_VERSION) {

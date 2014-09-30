@@ -1,20 +1,20 @@
 #include <config.h>
-/* A Bison parser, made by GNU Bison 2.5.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
-   
-      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
-   
+
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -27,7 +27,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-   
+
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -45,7 +45,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.5"
+#define YYBISON_VERSION "3.0.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -59,15 +59,11 @@
 /* Pull parsers.  */
 #define YYPULL 1
 
-/* Using locations.  */
-#define YYLSP_NEEDED 0
 
 
 
 /* Copy the first part of user declarations.  */
-
-/* Line 268 of yacc.c  */
-#line 26 "src/p.y"
+#line 26 "src/p.y" /* yacc.c:339  */
 
 
 /*
@@ -301,14 +297,15 @@
   static int verifyMaxForward(int);
 
 
+#line 300 "src/y.tab.c" /* yacc.c:339  */
 
-/* Line 268 of yacc.c  */
-#line 306 "src/y.tab.c"
-
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
-#endif
+# ifndef YY_NULLPTR
+#  if defined __cplusplus && 201103L <= __cplusplus
+#   define YY_NULLPTR nullptr
+#  else
+#   define YY_NULLPTR 0
+#  endif
+# endif
 
 /* Enabling verbose error messages.  */
 #ifdef YYERROR_VERBOSE
@@ -318,224 +315,233 @@
 # define YYERROR_VERBOSE 0
 #endif
 
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
+/* In a future release of Bison, this section will be replaced
+   by #include "y.tab.h".  */
+#ifndef YY_YY_SRC_Y_TAB_H_INCLUDED
+# define YY_YY_SRC_Y_TAB_H_INCLUDED
+/* Debug traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 1
+#endif
+#if YYDEBUG
+extern int yydebug;
 #endif
 
-
-/* Tokens.  */
+/* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     IF = 258,
-     ELSE = 259,
-     THEN = 260,
-     OR = 261,
-     FAILED = 262,
-     SET = 263,
-     LOGFILE = 264,
-     FACILITY = 265,
-     DAEMON = 266,
-     SYSLOG = 267,
-     MAILSERVER = 268,
-     HTTPD = 269,
-     ALLOW = 270,
-     ADDRESS = 271,
-     INIT = 272,
-     READONLY = 273,
-     CLEARTEXT = 274,
-     MD5HASH = 275,
-     SHA1HASH = 276,
-     CRYPT = 277,
-     DELAY = 278,
-     PEMFILE = 279,
-     ENABLE = 280,
-     DISABLE = 281,
-     HTTPDSSL = 282,
-     CLIENTPEMFILE = 283,
-     ALLOWSELFCERTIFICATION = 284,
-     IDFILE = 285,
-     STATEFILE = 286,
-     SEND = 287,
-     EXPECT = 288,
-     EXPECTBUFFER = 289,
-     CYCLE = 290,
-     COUNT = 291,
-     REMINDER = 292,
-     PIDFILE = 293,
-     START = 294,
-     STOP = 295,
-     PATHTOK = 296,
-     HOST = 297,
-     HOSTNAME = 298,
-     PORT = 299,
-     TYPE = 300,
-     UDP = 301,
-     TCP = 302,
-     TCPSSL = 303,
-     PROTOCOL = 304,
-     CONNECTION = 305,
-     ALERT = 306,
-     NOALERT = 307,
-     MAILFORMAT = 308,
-     UNIXSOCKET = 309,
-     SIGNATURE = 310,
-     TIMEOUT = 311,
-     RETRY = 312,
-     RESTART = 313,
-     CHECKSUM = 314,
-     EVERY = 315,
-     NOTEVERY = 316,
-     DEFAULT = 317,
-     HTTP = 318,
-     APACHESTATUS = 319,
-     FTP = 320,
-     SMTP = 321,
-     POP = 322,
-     IMAP = 323,
-     CLAMAV = 324,
-     NNTP = 325,
-     NTP3 = 326,
-     MYSQL = 327,
-     DNS = 328,
-     WEBSOCKET = 329,
-     SSH = 330,
-     DWP = 331,
-     LDAP2 = 332,
-     LDAP3 = 333,
-     RDATE = 334,
-     RSYNC = 335,
-     TNS = 336,
-     PGSQL = 337,
-     POSTFIXPOLICY = 338,
-     SIP = 339,
-     LMTP = 340,
-     GPS = 341,
-     RADIUS = 342,
-     MEMCACHE = 343,
-     STRING = 344,
-     PATH = 345,
-     MAILADDR = 346,
-     MAILFROM = 347,
-     MAILREPLYTO = 348,
-     MAILSUBJECT = 349,
-     MAILBODY = 350,
-     SERVICENAME = 351,
-     STRINGNAME = 352,
-     NUMBER = 353,
-     PERCENT = 354,
-     LOGLIMIT = 355,
-     CLOSELIMIT = 356,
-     DNSLIMIT = 357,
-     KEEPALIVELIMIT = 358,
-     REPLYLIMIT = 359,
-     REQUESTLIMIT = 360,
-     STARTLIMIT = 361,
-     WAITLIMIT = 362,
-     GRACEFULLIMIT = 363,
-     CLEANUPLIMIT = 364,
-     REAL = 365,
-     CHECKPROC = 366,
-     CHECKFILESYS = 367,
-     CHECKFILE = 368,
-     CHECKDIR = 369,
-     CHECKHOST = 370,
-     CHECKSYSTEM = 371,
-     CHECKFIFO = 372,
-     CHECKPROGRAM = 373,
-     CHILDREN = 374,
-     SYSTEM = 375,
-     STATUS = 376,
-     ORIGIN = 377,
-     VERSIONOPT = 378,
-     RESOURCE = 379,
-     MEMORY = 380,
-     TOTALMEMORY = 381,
-     LOADAVG1 = 382,
-     LOADAVG5 = 383,
-     LOADAVG15 = 384,
-     SWAP = 385,
-     MODE = 386,
-     ACTIVE = 387,
-     PASSIVE = 388,
-     MANUAL = 389,
-     CPU = 390,
-     TOTALCPU = 391,
-     CPUUSER = 392,
-     CPUSYSTEM = 393,
-     CPUWAIT = 394,
-     GROUP = 395,
-     REQUEST = 396,
-     DEPENDS = 397,
-     BASEDIR = 398,
-     SLOT = 399,
-     EVENTQUEUE = 400,
-     SECRET = 401,
-     HOSTHEADER = 402,
-     UID = 403,
-     EUID = 404,
-     GID = 405,
-     MMONIT = 406,
-     INSTANCE = 407,
-     USERNAME = 408,
-     PASSWORD = 409,
-     TIMESTAMP = 410,
-     CHANGED = 411,
-     SECOND = 412,
-     MINUTE = 413,
-     HOUR = 414,
-     DAY = 415,
-     SSLAUTO = 416,
-     SSLV2 = 417,
-     SSLV3 = 418,
-     TLSV1 = 419,
-     TLSV11 = 420,
-     TLSV12 = 421,
-     CERTMD5 = 422,
-     BYTE = 423,
-     KILOBYTE = 424,
-     MEGABYTE = 425,
-     GIGABYTE = 426,
-     INODE = 427,
-     SPACE = 428,
-     PERMISSION = 429,
-     SIZE = 430,
-     MATCH = 431,
-     NOT = 432,
-     IGNORE = 433,
-     ACTION = 434,
-     UPTIME = 435,
-     EXEC = 436,
-     UNMONITOR = 437,
-     ICMP = 438,
-     ICMPECHO = 439,
-     NONEXIST = 440,
-     EXIST = 441,
-     INVALID = 442,
-     DATA = 443,
-     RECOVERED = 444,
-     PASSED = 445,
-     SUCCEEDED = 446,
-     URL = 447,
-     CONTENT = 448,
-     PID = 449,
-     PPID = 450,
-     FSFLAG = 451,
-     REGISTER = 452,
-     CREDENTIALS = 453,
-     URLOBJECT = 454,
-     TARGET = 455,
-     TIMESPEC = 456,
-     MAXFORWARD = 457,
-     FIPS = 458,
-     NOTEQUAL = 459,
-     EQUAL = 460,
-     LESS = 461,
-     GREATER = 462
-   };
+  enum yytokentype
+  {
+    IF = 258,
+    ELSE = 259,
+    THEN = 260,
+    OR = 261,
+    FAILED = 262,
+    SET = 263,
+    LOGFILE = 264,
+    FACILITY = 265,
+    DAEMON = 266,
+    SYSLOG = 267,
+    MAILSERVER = 268,
+    HTTPD = 269,
+    ALLOW = 270,
+    ADDRESS = 271,
+    INIT = 272,
+    READONLY = 273,
+    CLEARTEXT = 274,
+    MD5HASH = 275,
+    SHA1HASH = 276,
+    CRYPT = 277,
+    DELAY = 278,
+    PEMFILE = 279,
+    ENABLE = 280,
+    DISABLE = 281,
+    HTTPDSSL = 282,
+    CLIENTPEMFILE = 283,
+    ALLOWSELFCERTIFICATION = 284,
+    IDFILE = 285,
+    STATEFILE = 286,
+    SEND = 287,
+    EXPECT = 288,
+    EXPECTBUFFER = 289,
+    CYCLE = 290,
+    COUNT = 291,
+    REMINDER = 292,
+    PIDFILE = 293,
+    START = 294,
+    STOP = 295,
+    PATHTOK = 296,
+    HOST = 297,
+    HOSTNAME = 298,
+    PORT = 299,
+    TYPE = 300,
+    UDP = 301,
+    TCP = 302,
+    TCPSSL = 303,
+    PROTOCOL = 304,
+    CONNECTION = 305,
+    ALERT = 306,
+    NOALERT = 307,
+    MAILFORMAT = 308,
+    UNIXSOCKET = 309,
+    SIGNATURE = 310,
+    TIMEOUT = 311,
+    RETRY = 312,
+    RESTART = 313,
+    CHECKSUM = 314,
+    EVERY = 315,
+    NOTEVERY = 316,
+    DEFAULT = 317,
+    HTTP = 318,
+    HTTPS = 319,
+    APACHESTATUS = 320,
+    FTP = 321,
+    SMTP = 322,
+    SMTPS = 323,
+    POP = 324,
+    IMAP = 325,
+    CLAMAV = 326,
+    NNTP = 327,
+    NTP3 = 328,
+    MYSQL = 329,
+    DNS = 330,
+    WEBSOCKET = 331,
+    SSH = 332,
+    DWP = 333,
+    LDAP2 = 334,
+    LDAP3 = 335,
+    RDATE = 336,
+    RSYNC = 337,
+    TNS = 338,
+    PGSQL = 339,
+    POSTFIXPOLICY = 340,
+    SIP = 341,
+    LMTP = 342,
+    GPS = 343,
+    RADIUS = 344,
+    MEMCACHE = 345,
+    STRING = 346,
+    PATH = 347,
+    MAILADDR = 348,
+    MAILFROM = 349,
+    MAILREPLYTO = 350,
+    MAILSUBJECT = 351,
+    MAILBODY = 352,
+    SERVICENAME = 353,
+    STRINGNAME = 354,
+    NUMBER = 355,
+    PERCENT = 356,
+    LOGLIMIT = 357,
+    CLOSELIMIT = 358,
+    DNSLIMIT = 359,
+    KEEPALIVELIMIT = 360,
+    REPLYLIMIT = 361,
+    REQUESTLIMIT = 362,
+    STARTLIMIT = 363,
+    WAITLIMIT = 364,
+    GRACEFULLIMIT = 365,
+    CLEANUPLIMIT = 366,
+    REAL = 367,
+    CHECKPROC = 368,
+    CHECKFILESYS = 369,
+    CHECKFILE = 370,
+    CHECKDIR = 371,
+    CHECKHOST = 372,
+    CHECKSYSTEM = 373,
+    CHECKFIFO = 374,
+    CHECKPROGRAM = 375,
+    CHILDREN = 376,
+    SYSTEM = 377,
+    STATUS = 378,
+    ORIGIN = 379,
+    VERSIONOPT = 380,
+    RESOURCE = 381,
+    MEMORY = 382,
+    TOTALMEMORY = 383,
+    LOADAVG1 = 384,
+    LOADAVG5 = 385,
+    LOADAVG15 = 386,
+    SWAP = 387,
+    MODE = 388,
+    ACTIVE = 389,
+    PASSIVE = 390,
+    MANUAL = 391,
+    CPU = 392,
+    TOTALCPU = 393,
+    CPUUSER = 394,
+    CPUSYSTEM = 395,
+    CPUWAIT = 396,
+    GROUP = 397,
+    REQUEST = 398,
+    DEPENDS = 399,
+    BASEDIR = 400,
+    SLOT = 401,
+    EVENTQUEUE = 402,
+    SECRET = 403,
+    HOSTHEADER = 404,
+    UID = 405,
+    EUID = 406,
+    GID = 407,
+    MMONIT = 408,
+    INSTANCE = 409,
+    USERNAME = 410,
+    PASSWORD = 411,
+    TIMESTAMP = 412,
+    CHANGED = 413,
+    SECOND = 414,
+    MINUTE = 415,
+    HOUR = 416,
+    DAY = 417,
+    SSLAUTO = 418,
+    SSLV2 = 419,
+    SSLV3 = 420,
+    TLSV1 = 421,
+    TLSV11 = 422,
+    TLSV12 = 423,
+    CERTMD5 = 424,
+    BYTE = 425,
+    KILOBYTE = 426,
+    MEGABYTE = 427,
+    GIGABYTE = 428,
+    INODE = 429,
+    SPACE = 430,
+    PERMISSION = 431,
+    SIZE = 432,
+    MATCH = 433,
+    NOT = 434,
+    IGNORE = 435,
+    ACTION = 436,
+    UPTIME = 437,
+    EXEC = 438,
+    UNMONITOR = 439,
+    PING = 440,
+    ICMP = 441,
+    ICMPECHO = 442,
+    NONEXIST = 443,
+    EXIST = 444,
+    INVALID = 445,
+    DATA = 446,
+    RECOVERED = 447,
+    PASSED = 448,
+    SUCCEEDED = 449,
+    URL = 450,
+    CONTENT = 451,
+    PID = 452,
+    PPID = 453,
+    FSFLAG = 454,
+    REGISTER = 455,
+    CREDENTIALS = 456,
+    URLOBJECT = 457,
+    TARGET = 458,
+    TIMESPEC = 459,
+    HTTPHEADER = 460,
+    MAXFORWARD = 461,
+    FIPS = 462,
+    GREATER = 463,
+    LESS = 464,
+    EQUAL = 465,
+    NOTEQUAL = 466
+  };
 #endif
 /* Tokens.  */
 #define IF 258
@@ -599,182 +605,183 @@
 #define NOTEVERY 316
 #define DEFAULT 317
 #define HTTP 318
-#define APACHESTATUS 319
-#define FTP 320
-#define SMTP 321
-#define POP 322
-#define IMAP 323
-#define CLAMAV 324
-#define NNTP 325
-#define NTP3 326
-#define MYSQL 327
-#define DNS 328
-#define WEBSOCKET 329
-#define SSH 330
-#define DWP 331
-#define LDAP2 332
-#define LDAP3 333
-#define RDATE 334
-#define RSYNC 335
-#define TNS 336
-#define PGSQL 337
-#define POSTFIXPOLICY 338
-#define SIP 339
-#define LMTP 340
-#define GPS 341
-#define RADIUS 342
-#define MEMCACHE 343
-#define STRING 344
-#define PATH 345
-#define MAILADDR 346
-#define MAILFROM 347
-#define MAILREPLYTO 348
-#define MAILSUBJECT 349
-#define MAILBODY 350
-#define SERVICENAME 351
-#define STRINGNAME 352
-#define NUMBER 353
-#define PERCENT 354
-#define LOGLIMIT 355
-#define CLOSELIMIT 356
-#define DNSLIMIT 357
-#define KEEPALIVELIMIT 358
-#define REPLYLIMIT 359
-#define REQUESTLIMIT 360
-#define STARTLIMIT 361
-#define WAITLIMIT 362
-#define GRACEFULLIMIT 363
-#define CLEANUPLIMIT 364
-#define REAL 365
-#define CHECKPROC 366
-#define CHECKFILESYS 367
-#define CHECKFILE 368
-#define CHECKDIR 369
-#define CHECKHOST 370
-#define CHECKSYSTEM 371
-#define CHECKFIFO 372
-#define CHECKPROGRAM 373
-#define CHILDREN 374
-#define SYSTEM 375
-#define STATUS 376
-#define ORIGIN 377
-#define VERSIONOPT 378
-#define RESOURCE 379
-#define MEMORY 380
-#define TOTALMEMORY 381
-#define LOADAVG1 382
-#define LOADAVG5 383
-#define LOADAVG15 384
-#define SWAP 385
-#define MODE 386
-#define ACTIVE 387
-#define PASSIVE 388
-#define MANUAL 389
-#define CPU 390
-#define TOTALCPU 391
-#define CPUUSER 392
-#define CPUSYSTEM 393
-#define CPUWAIT 394
-#define GROUP 395
-#define REQUEST 396
-#define DEPENDS 397
-#define BASEDIR 398
-#define SLOT 399
-#define EVENTQUEUE 400
-#define SECRET 401
-#define HOSTHEADER 402
-#define UID 403
-#define EUID 404
-#define GID 405
-#define MMONIT 406
-#define INSTANCE 407
-#define USERNAME 408
-#define PASSWORD 409
-#define TIMESTAMP 410
-#define CHANGED 411
-#define SECOND 412
-#define MINUTE 413
-#define HOUR 414
-#define DAY 415
-#define SSLAUTO 416
-#define SSLV2 417
-#define SSLV3 418
-#define TLSV1 419
-#define TLSV11 420
-#define TLSV12 421
-#define CERTMD5 422
-#define BYTE 423
-#define KILOBYTE 424
-#define MEGABYTE 425
-#define GIGABYTE 426
-#define INODE 427
-#define SPACE 428
-#define PERMISSION 429
-#define SIZE 430
-#define MATCH 431
-#define NOT 432
-#define IGNORE 433
-#define ACTION 434
-#define UPTIME 435
-#define EXEC 436
-#define UNMONITOR 437
-#define ICMP 438
-#define ICMPECHO 439
-#define NONEXIST 440
-#define EXIST 441
-#define INVALID 442
-#define DATA 443
-#define RECOVERED 444
-#define PASSED 445
-#define SUCCEEDED 446
-#define URL 447
-#define CONTENT 448
-#define PID 449
-#define PPID 450
-#define FSFLAG 451
-#define REGISTER 452
-#define CREDENTIALS 453
-#define URLOBJECT 454
-#define TARGET 455
-#define TIMESPEC 456
-#define MAXFORWARD 457
-#define FIPS 458
-#define NOTEQUAL 459
-#define EQUAL 460
-#define LESS 461
-#define GREATER 462
+#define HTTPS 319
+#define APACHESTATUS 320
+#define FTP 321
+#define SMTP 322
+#define SMTPS 323
+#define POP 324
+#define IMAP 325
+#define CLAMAV 326
+#define NNTP 327
+#define NTP3 328
+#define MYSQL 329
+#define DNS 330
+#define WEBSOCKET 331
+#define SSH 332
+#define DWP 333
+#define LDAP2 334
+#define LDAP3 335
+#define RDATE 336
+#define RSYNC 337
+#define TNS 338
+#define PGSQL 339
+#define POSTFIXPOLICY 340
+#define SIP 341
+#define LMTP 342
+#define GPS 343
+#define RADIUS 344
+#define MEMCACHE 345
+#define STRING 346
+#define PATH 347
+#define MAILADDR 348
+#define MAILFROM 349
+#define MAILREPLYTO 350
+#define MAILSUBJECT 351
+#define MAILBODY 352
+#define SERVICENAME 353
+#define STRINGNAME 354
+#define NUMBER 355
+#define PERCENT 356
+#define LOGLIMIT 357
+#define CLOSELIMIT 358
+#define DNSLIMIT 359
+#define KEEPALIVELIMIT 360
+#define REPLYLIMIT 361
+#define REQUESTLIMIT 362
+#define STARTLIMIT 363
+#define WAITLIMIT 364
+#define GRACEFULLIMIT 365
+#define CLEANUPLIMIT 366
+#define REAL 367
+#define CHECKPROC 368
+#define CHECKFILESYS 369
+#define CHECKFILE 370
+#define CHECKDIR 371
+#define CHECKHOST 372
+#define CHECKSYSTEM 373
+#define CHECKFIFO 374
+#define CHECKPROGRAM 375
+#define CHILDREN 376
+#define SYSTEM 377
+#define STATUS 378
+#define ORIGIN 379
+#define VERSIONOPT 380
+#define RESOURCE 381
+#define MEMORY 382
+#define TOTALMEMORY 383
+#define LOADAVG1 384
+#define LOADAVG5 385
+#define LOADAVG15 386
+#define SWAP 387
+#define MODE 388
+#define ACTIVE 389
+#define PASSIVE 390
+#define MANUAL 391
+#define CPU 392
+#define TOTALCPU 393
+#define CPUUSER 394
+#define CPUSYSTEM 395
+#define CPUWAIT 396
+#define GROUP 397
+#define REQUEST 398
+#define DEPENDS 399
+#define BASEDIR 400
+#define SLOT 401
+#define EVENTQUEUE 402
+#define SECRET 403
+#define HOSTHEADER 404
+#define UID 405
+#define EUID 406
+#define GID 407
+#define MMONIT 408
+#define INSTANCE 409
+#define USERNAME 410
+#define PASSWORD 411
+#define TIMESTAMP 412
+#define CHANGED 413
+#define SECOND 414
+#define MINUTE 415
+#define HOUR 416
+#define DAY 417
+#define SSLAUTO 418
+#define SSLV2 419
+#define SSLV3 420
+#define TLSV1 421
+#define TLSV11 422
+#define TLSV12 423
+#define CERTMD5 424
+#define BYTE 425
+#define KILOBYTE 426
+#define MEGABYTE 427
+#define GIGABYTE 428
+#define INODE 429
+#define SPACE 430
+#define PERMISSION 431
+#define SIZE 432
+#define MATCH 433
+#define NOT 434
+#define IGNORE 435
+#define ACTION 436
+#define UPTIME 437
+#define EXEC 438
+#define UNMONITOR 439
+#define PING 440
+#define ICMP 441
+#define ICMPECHO 442
+#define NONEXIST 443
+#define EXIST 444
+#define INVALID 445
+#define DATA 446
+#define RECOVERED 447
+#define PASSED 448
+#define SUCCEEDED 449
+#define URL 450
+#define CONTENT 451
+#define PID 452
+#define PPID 453
+#define FSFLAG 454
+#define REGISTER 455
+#define CREDENTIALS 456
+#define URLOBJECT 457
+#define TARGET 458
+#define TIMESPEC 459
+#define HTTPHEADER 460
+#define MAXFORWARD 461
+#define FIPS 462
+#define GREATER 463
+#define LESS 464
+#define EQUAL 465
+#define NOTEQUAL 466
 
-
-
-
+/* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
 {
-
-/* Line 293 of yacc.c  */
-#line 260 "src/p.y"
+#line 260 "src/p.y" /* yacc.c:355  */
 
   URL_T url;
   float real;
   int   number;
   char *string;
 
-
-
-/* Line 293 of yacc.c  */
-#line 765 "src/y.tab.c"
-} YYSTYPE;
+#line 769 "src/y.tab.c" /* yacc.c:355  */
+};
 # define YYSTYPE_IS_TRIVIAL 1
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
 
+extern YYSTYPE yylval;
+
+int yyparse (void);
+
+#endif /* !YY_YY_SRC_Y_TAB_H_INCLUDED  */
+
 /* Copy the second part of user declarations.  */
 
-
-/* Line 343 of yacc.c  */
-#line 777 "src/y.tab.c"
+#line 784 "src/y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -788,11 +795,8 @@ typedef unsigned char yytype_uint8;
 
 #ifdef YYTYPE_INT8
 typedef YYTYPE_INT8 yytype_int8;
-#elif (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
-typedef signed char yytype_int8;
 #else
-typedef short int yytype_int8;
+typedef signed char yytype_int8;
 #endif
 
 #ifdef YYTYPE_UINT16
@@ -812,8 +816,7 @@ typedef short int yytype_int16;
 #  define YYSIZE_T __SIZE_TYPE__
 # elif defined size_t
 #  define YYSIZE_T size_t
-# elif ! defined YYSIZE_T && (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
+# elif ! defined YYSIZE_T
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
@@ -827,38 +830,67 @@ typedef short int yytype_int16;
 # if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
-#   define YY_(msgid) dgettext ("bison-runtime", msgid)
+#   define YY_(Msgid) dgettext ("bison-runtime", Msgid)
 #  endif
 # endif
 # ifndef YY_
-#  define YY_(msgid) msgid
+#  define YY_(Msgid) Msgid
+# endif
+#endif
+
+#ifndef YY_ATTRIBUTE
+# if (defined __GNUC__                                               \
+      && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
+     || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
+#  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
+# else
+#  define YY_ATTRIBUTE(Spec) /* empty */
+# endif
+#endif
+
+#ifndef YY_ATTRIBUTE_PURE
+# define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE ((__pure__))
+#endif
+
+#ifndef YY_ATTRIBUTE_UNUSED
+# define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
+#endif
+
+#if !defined _Noreturn \
+     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
+# if defined _MSC_VER && 1200 <= _MSC_VER
+#  define _Noreturn __declspec (noreturn)
+# else
+#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
 # endif
 #endif
 
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YYUSE(e) ((void) (e))
+# define YYUSE(E) ((void) (E))
 #else
-# define YYUSE(e) /* empty */
+# define YYUSE(E) /* empty */
 #endif
 
-/* Identity function, used to suppress warnings about constant conditions.  */
-#ifndef lint
-# define YYID(n) (n)
+#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+/* Suppress an incorrect diagnostic about yylval being uninitialized.  */
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
+    _Pragma ("GCC diagnostic push") \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
+    _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END \
+    _Pragma ("GCC diagnostic pop")
 #else
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
-static int
-YYID (int yyi)
-#else
-static int
-YYID (yyi)
-    int yyi;
+# define YY_INITIAL_VALUE(Value) Value
 #endif
-{
-  return yyi;
-}
+#ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END
 #endif
+#ifndef YY_INITIAL_VALUE
+# define YY_INITIAL_VALUE(Value) /* Nothing. */
+#endif
+
 
 #if ! defined yyoverflow || YYERROR_VERBOSE
 
@@ -877,9 +909,9 @@ YYID (yyi)
 #    define alloca _alloca
 #   else
 #    define YYSTACK_ALLOC alloca
-#    if ! defined _ALLOCA_H && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
+#    if ! defined _ALLOCA_H && ! defined EXIT_SUCCESS
 #     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
+      /* Use EXIT_SUCCESS as a witness for stdlib.h.  */
 #     ifndef EXIT_SUCCESS
 #      define EXIT_SUCCESS 0
 #     endif
@@ -889,8 +921,8 @@ YYID (yyi)
 # endif
 
 # ifdef YYSTACK_ALLOC
-   /* Pacify GCC's `empty if-body' warning.  */
-#  define YYSTACK_FREE(Ptr) do { /* empty */; } while (YYID (0))
+   /* Pacify GCC's 'empty if-body' warning.  */
+#  define YYSTACK_FREE(Ptr) do { /* empty */; } while (0)
 #  ifndef YYSTACK_ALLOC_MAXIMUM
     /* The OS might guarantee only one guard page at the bottom of the stack,
        and a page size can be as small as 4096 bytes.  So we cannot safely
@@ -906,7 +938,7 @@ YYID (yyi)
 #  endif
 #  if (defined __cplusplus && ! defined EXIT_SUCCESS \
        && ! ((defined YYMALLOC || defined malloc) \
-	     && (defined YYFREE || defined free)))
+             && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   ifndef EXIT_SUCCESS
 #    define EXIT_SUCCESS 0
@@ -914,15 +946,13 @@ YYID (yyi)
 #  endif
 #  ifndef YYMALLOC
 #   define YYMALLOC malloc
-#   if ! defined malloc && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
+#   if ! defined malloc && ! defined EXIT_SUCCESS
 void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 #  ifndef YYFREE
 #   define YYFREE free
-#   if ! defined free && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
+#   if ! defined free && ! defined EXIT_SUCCESS
 void free (void *); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
@@ -932,7 +962,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-	 || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -957,35 +987,35 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack_alloc, Stack)				\
-    do									\
-      {									\
-	YYSIZE_T yynewbytes;						\
-	YYCOPY (&yyptr->Stack_alloc, Stack, yysize);			\
-	Stack = &yyptr->Stack_alloc;					\
-	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
-	yyptr += yynewbytes / sizeof (*yyptr);				\
-      }									\
-    while (YYID (0))
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)                           \
+    do                                                                  \
+      {                                                                 \
+        YYSIZE_T yynewbytes;                                            \
+        YYCOPY (&yyptr->Stack_alloc, Stack, yysize);                    \
+        Stack = &yyptr->Stack_alloc;                                    \
+        yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
+        yyptr += yynewbytes / sizeof (*yyptr);                          \
+      }                                                                 \
+    while (0)
 
 #endif
 
 #if defined YYCOPY_NEEDED && YYCOPY_NEEDED
-/* Copy COUNT objects from FROM to TO.  The source and destination do
+/* Copy COUNT objects from SRC to DST.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
 #  if defined __GNUC__ && 1 < __GNUC__
-#   define YYCOPY(To, From, Count) \
-      __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
+#   define YYCOPY(Dst, Src, Count) \
+      __builtin_memcpy (Dst, Src, (Count) * sizeof (*(Src)))
 #  else
-#   define YYCOPY(To, From, Count)		\
-      do					\
-	{					\
-	  YYSIZE_T yyi;				\
-	  for (yyi = 0; yyi < (Count); yyi++)	\
-	    (To)[yyi] = (From)[yyi];		\
-	}					\
-      while (YYID (0))
+#   define YYCOPY(Dst, Src, Count)              \
+      do                                        \
+        {                                       \
+          YYSIZE_T yyi;                         \
+          for (yyi = 0; yyi < (Count); yyi++)   \
+            (Dst)[yyi] = (Src)[yyi];            \
+        }                                       \
+      while (0)
 #  endif
 # endif
 #endif /* !YYCOPY_NEEDED */
@@ -993,25 +1023,27 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  58
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   1035
+#define YYLAST   1062
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  212
+#define YYNTOKENS  218
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  171
+#define YYNNTS  172
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  524
-/* YYNRULES -- Number of states.  */
-#define YYNSTATES  924
+#define YYNRULES  533
+/* YYNSTATES -- Number of states.  */
+#define YYNSTATES  946
 
-/* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
+/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
+   by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   462
+#define YYMAXUTOK   466
 
-#define YYTRANSLATE(YYX)						\
+#define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
-/* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
+/* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
+   as returned by yylex, without out-of-bounds checking.  */
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1019,14 +1051,14 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,   210,     2,
-       2,     2,     2,     2,   211,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,   214,     2,
+       2,     2,     2,     2,   215,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,   216,     2,   217,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,   208,     2,   209,     2,     2,     2,     2,
+       2,     2,     2,   212,     2,   213,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1060,240 +1092,11 @@ static const yytype_uint8 yytranslate[] =
      175,   176,   177,   178,   179,   180,   181,   182,   183,   184,
      185,   186,   187,   188,   189,   190,   191,   192,   193,   194,
      195,   196,   197,   198,   199,   200,   201,   202,   203,   204,
-     205,   206,   207
+     205,   206,   207,   208,   209,   210,   211
 };
 
 #if YYDEBUG
-/* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
-   YYRHS.  */
-static const yytype_uint16 yyprhs[] =
-{
-       0,     0,     3,     4,     6,     8,    11,    13,    15,    17,
-      19,    21,    23,    25,    27,    29,    31,    33,    35,    37,
-      39,    42,    45,    48,    51,    54,    57,    60,    63,    64,
-      67,    69,    71,    73,    75,    77,    79,    81,    83,    85,
-      87,    89,    91,    93,    95,    97,    99,   101,   103,   105,
-     106,   109,   111,   113,   115,   117,   119,   121,   123,   125,
-     127,   129,   131,   133,   135,   137,   139,   141,   143,   144,
-     147,   149,   151,   153,   155,   157,   159,   161,   163,   165,
-     167,   169,   171,   173,   175,   177,   179,   180,   183,   185,
-     187,   189,   191,   193,   195,   197,   199,   201,   203,   205,
-     207,   209,   211,   213,   216,   218,   220,   222,   224,   226,
-     228,   230,   232,   234,   236,   238,   240,   241,   244,   246,
-     248,   250,   252,   254,   256,   258,   260,   262,   263,   266,
-     268,   270,   272,   274,   276,   278,   280,   282,   284,   286,
-     288,   290,   292,   294,   295,   298,   300,   302,   304,   306,
-     308,   310,   312,   314,   316,   318,   323,   331,   340,   345,
-     346,   350,   355,   358,   361,   365,   369,   375,   380,   387,
-     392,   396,   400,   404,   408,   411,   415,   420,   421,   424,
-     430,   436,   442,   444,   447,   453,   461,   462,   465,   467,
-     469,   471,   473,   476,   479,   480,   483,   485,   487,   489,
-     492,   495,   498,   501,   503,   505,   508,   511,   514,   517,
-     520,   523,   526,   528,   534,   539,   542,   546,   550,   554,
-     555,   560,   561,   567,   568,   574,   575,   581,   584,   586,
-     589,   591,   592,   594,   599,   604,   609,   614,   619,   624,
-     629,   634,   637,   642,   648,   652,   657,   661,   666,   670,
-     675,   677,   680,   682,   685,   687,   689,   692,   695,   698,
-     701,   702,   705,   708,   709,   712,   713,   716,   730,   742,
-     754,   765,   766,   769,   772,   775,   776,   779,   784,   787,
-     788,   791,   792,   794,   796,   798,   800,   802,   804,   805,
-     809,   812,   815,   818,   821,   825,   828,   831,   834,   837,
-     840,   845,   848,   851,   854,   857,   860,   863,   866,   869,
-     872,   875,   878,   881,   885,   888,   892,   894,   896,   899,
-     902,   905,   907,   910,   913,   916,   919,   922,   923,   926,
-     929,   930,   933,   934,   937,   939,   941,   943,   945,   949,
-     952,   955,   958,   961,   963,   967,   972,   977,   982,   987,
-     992,   997,  1002,  1007,  1012,  1017,  1025,  1032,  1039,  1049,
-    1050,  1053,  1054,  1058,  1059,  1063,  1064,  1068,  1069,  1072,
-    1080,  1088,  1089,  1093,  1095,  1097,  1101,  1108,  1116,  1118,
-    1121,  1124,  1126,  1129,  1131,  1133,  1135,  1137,  1139,  1141,
-    1143,  1145,  1147,  1149,  1151,  1153,  1155,  1157,  1159,  1161,
-    1163,  1165,  1167,  1169,  1171,  1173,  1174,  1179,  1181,  1184,
-    1186,  1188,  1190,  1192,  1196,  1199,  1202,  1205,  1208,  1211,
-    1214,  1217,  1219,  1222,  1224,  1233,  1240,  1242,  1245,  1247,
-    1249,  1251,  1253,  1260,  1262,  1265,  1267,  1269,  1271,  1273,
-    1278,  1283,  1288,  1290,  1292,  1294,  1299,  1304,  1309,  1314,
-    1319,  1324,  1328,  1332,  1334,  1336,  1338,  1340,  1342,  1352,
-    1359,  1360,  1362,  1364,  1366,  1368,  1370,  1371,  1373,  1375,
-    1377,  1379,  1381,  1384,  1388,  1390,  1392,  1394,  1396,  1398,
-    1400,  1401,  1404,  1408,  1409,  1412,  1416,  1417,  1424,  1431,
-    1438,  1447,  1458,  1466,  1467,  1469,  1471,  1480,  1490,  1500,
-    1510,  1517,  1518,  1520,  1522,  1524,  1526,  1535,  1543,  1551,
-    1556,  1561,  1562,  1564,  1574,  1581,  1590,  1599,  1608,  1617,
-    1626,  1635,  1638,  1639,  1642
-};
-
-/* YYRHS -- A `-1'-separated list of the rules' RHS.  */
-static const yytype_int16 yyrhs[] =
-{
-     213,     0,    -1,    -1,   214,    -1,   215,    -1,   214,   215,
-      -1,   232,    -1,   233,    -1,   238,    -1,   239,    -1,   243,
-      -1,   247,    -1,   248,    -1,   249,    -1,   242,    -1,   240,
-      -1,   241,    -1,   235,    -1,   236,    -1,   237,    -1,   274,
-     216,    -1,   275,   218,    -1,   276,   220,    -1,   277,   222,
-      -1,   278,   224,    -1,   279,   226,    -1,   280,   228,    -1,
-     281,   230,    -1,    -1,   216,   217,    -1,   282,    -1,   283,
-      -1,   284,    -1,   317,    -1,   318,    -1,   319,    -1,   378,
-      -1,   379,    -1,   380,    -1,   320,    -1,   292,    -1,   293,
-      -1,   326,    -1,   329,    -1,   337,    -1,   338,    -1,   339,
-      -1,   340,    -1,   344,    -1,    -1,   218,   219,    -1,   282,
-      -1,   283,    -1,   284,    -1,   317,    -1,   359,    -1,   326,
-      -1,   337,    -1,   329,    -1,   374,    -1,   378,    -1,   380,
-      -1,   368,    -1,   377,    -1,   375,    -1,   338,    -1,   339,
-      -1,   340,    -1,    -1,   220,   221,    -1,   282,    -1,   283,
-      -1,   284,    -1,   317,    -1,   326,    -1,   337,    -1,   329,
-      -1,   374,    -1,   378,    -1,   380,    -1,   338,    -1,   339,
-      -1,   340,    -1,   370,    -1,   371,    -1,   372,    -1,    -1,
-     222,   223,    -1,   282,    -1,   283,    -1,   284,    -1,   317,
-      -1,   359,    -1,   326,    -1,   337,    -1,   329,    -1,   374,
-      -1,   378,    -1,   380,    -1,   338,    -1,   339,    -1,   340,
-      -1,   225,    -1,   224,   225,    -1,   282,    -1,   283,    -1,
-     284,    -1,   317,    -1,   292,    -1,   294,    -1,   326,    -1,
-     329,    -1,   337,    -1,   338,    -1,   339,    -1,   340,    -1,
-      -1,   226,   227,    -1,   282,    -1,   283,    -1,   284,    -1,
-     326,    -1,   329,    -1,   337,    -1,   339,    -1,   340,    -1,
-     347,    -1,    -1,   228,   229,    -1,   282,    -1,   283,    -1,
-     284,    -1,   317,    -1,   359,    -1,   326,    -1,   337,    -1,
-     329,    -1,   374,    -1,   378,    -1,   380,    -1,   338,    -1,
-     339,    -1,   340,    -1,    -1,   230,   231,    -1,   282,    -1,
-     283,    -1,   284,    -1,   326,    -1,   317,    -1,   329,    -1,
-     337,    -1,   339,    -1,   340,    -1,   343,    -1,     8,   330,
-     334,   382,    -1,     8,   330,   208,   332,   209,   334,   382,
-      -1,     8,   330,   177,   208,   332,   209,   334,   382,    -1,
-       8,    11,    98,   234,    -1,    -1,    39,    23,    98,    -1,
-       8,    34,    98,   373,    -1,     8,    17,    -1,     8,   203,
-      -1,     8,     9,    90,    -1,     8,     9,    12,    -1,     8,
-       9,    12,    10,    89,    -1,     8,   145,   143,    90,    -1,
-       8,   145,   143,    90,   144,    98,    -1,     8,   145,   144,
-      98,    -1,     8,    30,    90,    -1,     8,    31,    90,    -1,
-       8,    38,    90,    -1,     8,   151,   244,    -1,   245,   246,
-      -1,   244,   245,   246,    -1,   199,   324,   300,   299,    -1,
-      -1,   197,   198,    -1,     8,    13,   250,   324,   291,    -1,
-       8,    53,   208,   335,   209,    -1,     8,    14,    44,    98,
-     252,    -1,   251,    -1,   250,   251,    -1,    89,   289,   290,
-     300,   299,    -1,    89,    44,    98,   289,   290,   300,   299,
-      -1,    -1,   252,   253,    -1,   254,    -1,   259,    -1,   262,
-      -1,   266,    -1,   258,   255,    -1,   257,   255,    -1,    -1,
-     255,   256,    -1,   263,    -1,   264,    -1,   265,    -1,    27,
-      25,    -1,    25,    27,    -1,    27,    26,    -1,    26,    27,
-      -1,   260,    -1,   261,    -1,    55,    25,    -1,    25,    55,
-      -1,    55,    26,    -1,    26,    55,    -1,    16,    89,    -1,
-      24,    90,    -1,    28,    90,    -1,    29,    -1,    15,    89,
-     210,    89,   273,    -1,    15,   211,    89,   273,    -1,    15,
-      90,    -1,    15,    19,    90,    -1,    15,    20,    90,    -1,
-      15,    22,    90,    -1,    -1,    15,    90,   267,   271,    -1,
-      -1,    15,    19,    90,   268,   271,    -1,    -1,    15,    20,
-      90,   269,   271,    -1,    -1,    15,    22,    90,   270,   271,
-      -1,    15,    89,    -1,   272,    -1,   271,   272,    -1,    89,
-      -1,    -1,    18,    -1,   111,    96,    38,    90,    -1,   111,
-      96,    41,    90,    -1,   111,    96,   176,    89,    -1,   111,
-      96,   176,    90,    -1,   113,    96,    41,    90,    -1,   112,
-      96,    41,    90,    -1,   114,    96,    41,    90,    -1,   115,
-      96,    16,    89,    -1,   116,    96,    -1,   117,    96,    41,
-      90,    -1,   118,    96,    41,   285,   323,    -1,    39,   285,
-     322,    -1,    39,   285,   286,   322,    -1,    40,   285,   322,
-      -1,    40,   285,   286,   322,    -1,    58,   285,   322,    -1,
-      58,   285,   286,   322,    -1,   287,    -1,   285,   287,    -1,
-     288,    -1,   286,   288,    -1,    89,    -1,    90,    -1,   148,
-      89,    -1,   150,    89,    -1,   148,    98,    -1,   150,    98,
-      -1,    -1,   153,    91,    -1,   153,    89,    -1,    -1,   154,
-      89,    -1,    -1,    43,    89,    -1,     3,     7,   295,   296,
-     298,   301,   327,   324,   325,   365,     5,   363,   367,    -1,
-       3,     7,   192,   199,   327,   324,   325,   365,     5,   363,
-     367,    -1,     3,     7,   297,   298,   301,   324,   325,   365,
-       5,   363,   367,    -1,     3,     7,   183,   381,   321,   324,
-     365,     5,   363,   367,    -1,    -1,    42,    89,    -1,    44,
-      98,    -1,    54,    90,    -1,    -1,    45,    47,    -1,    45,
-      48,   300,   299,    -1,    45,    46,    -1,    -1,   167,    89,
-      -1,    -1,   162,    -1,   163,    -1,   164,    -1,   165,    -1,
-     166,    -1,   161,    -1,    -1,    49,    64,   315,    -1,    49,
-      62,    -1,    49,    73,    -1,    49,    76,    -1,    49,    65,
-      -1,    49,    63,   308,    -1,    49,    68,    -1,    49,    69,
-      -1,    49,    77,    -1,    49,    78,    -1,    49,    72,    -1,
-      49,    84,   306,   307,    -1,    49,    70,    -1,    49,    71,
-      -1,    49,    83,    -1,    49,    67,    -1,    49,    66,    -1,
-      49,    75,    -1,    49,    79,    -1,    49,    80,    -1,    49,
-      81,    -1,    49,    82,    -1,    49,    85,    -1,    49,    86,
-      -1,    49,    87,   314,    -1,    49,    88,    -1,    49,    74,
-     304,    -1,   302,    -1,   303,    -1,   302,   303,    -1,    32,
-      89,    -1,    33,    89,    -1,   305,    -1,   304,   305,    -1,
-     122,    89,    -1,   141,    90,    -1,    42,    89,    -1,   123,
-      98,    -1,    -1,   200,    91,    -1,   200,    89,    -1,    -1,
-     202,    98,    -1,    -1,   308,   309,    -1,   311,    -1,   312,
-      -1,   310,    -1,   313,    -1,   121,   360,    98,    -1,   141,
-      90,    -1,    59,    89,    -1,   147,    89,    -1,   146,    89,
-      -1,   316,    -1,   315,     6,   316,    -1,   100,   360,    98,
-      99,    -1,   101,   360,    98,    99,    -1,   102,   360,    98,
-      99,    -1,   103,   360,    98,    99,    -1,   104,   360,    98,
-      99,    -1,   105,   360,    98,    99,    -1,   106,   360,    98,
-      99,    -1,   107,   360,    98,    99,    -1,   108,   360,    98,
-      99,    -1,   109,   360,    98,    99,    -1,     3,   177,   186,
-     365,     5,   363,   367,    -1,     3,   156,   194,   365,     5,
-     363,    -1,     3,   156,   195,   365,     5,   363,    -1,     3,
-     180,   360,    98,   361,   365,     5,   363,   367,    -1,    -1,
-      36,    98,    -1,    -1,    56,    98,   157,    -1,    -1,    56,
-      98,   157,    -1,    -1,    56,    98,   157,    -1,    -1,    57,
-      98,    -1,     3,    98,    58,    98,    35,     5,   363,    -1,
-       3,    98,    58,    98,    35,     5,    56,    -1,    -1,   193,
-     328,    89,    -1,   205,    -1,   204,    -1,   330,   334,   382,
-      -1,   330,   208,   332,   209,   334,   382,    -1,   330,   177,
-     208,   332,   209,   334,   382,    -1,   331,    -1,    51,    91,
-      -1,    52,    91,    -1,   333,    -1,   332,   333,    -1,   179,
-      -1,    59,    -1,    50,    -1,   193,    -1,   188,    -1,   181,
-      -1,   196,    -1,   150,    -1,   183,    -1,   152,    -1,   187,
-      -1,   185,    -1,   174,    -1,   194,    -1,   195,    -1,   124,
-      -1,   175,    -1,   121,    -1,    56,    -1,   155,    -1,   148,
-      -1,   180,    -1,    -1,    53,   208,   335,   209,    -1,   336,
-      -1,   335,   336,    -1,    92,    -1,    93,    -1,    94,    -1,
-      95,    -1,    60,    98,    35,    -1,    60,   201,    -1,    61,
-     201,    -1,   131,   132,    -1,   131,   133,    -1,   131,   134,
-      -1,   140,    97,    -1,   142,   341,    -1,   342,    -1,   341,
-     342,    -1,    96,    -1,     3,   121,   360,    98,   365,     5,
-     363,   367,    -1,     3,   345,   365,     5,   363,   367,    -1,
-     346,    -1,   345,   346,    -1,   350,    -1,   353,    -1,   355,
-      -1,   356,    -1,     3,   348,   365,     5,   363,   367,    -1,
-     349,    -1,   348,   349,    -1,   356,    -1,   353,    -1,   354,
-      -1,   351,    -1,   135,   360,    98,    99,    -1,   136,   360,
-      98,    99,    -1,   352,   360,    98,    99,    -1,   137,    -1,
-     138,    -1,   139,    -1,   125,   360,   358,   373,    -1,   125,
-     360,    98,    99,    -1,   126,   360,   358,   373,    -1,   126,
-     360,    98,    99,    -1,   130,   360,   358,   373,    -1,   130,
-     360,    98,    99,    -1,   119,   360,    98,    -1,   357,   360,
-     358,    -1,   127,    -1,   128,    -1,   129,    -1,   110,    -1,
-      98,    -1,     3,   155,   360,    98,   361,   365,     5,   363,
-     367,    -1,     3,   156,   155,   365,     5,   363,    -1,    -1,
-     207,    -1,   206,    -1,   205,    -1,   204,    -1,   156,    -1,
-      -1,   157,    -1,   158,    -1,   159,    -1,   160,    -1,    51,
-      -1,   181,   285,    -1,   181,   285,   286,    -1,    58,    -1,
-      39,    -1,    40,    -1,   182,    -1,   362,    -1,   362,    -1,
-      -1,    98,    35,    -1,    98,    98,    35,    -1,    -1,    98,
-      35,    -1,    98,    98,    35,    -1,    -1,     4,     3,   189,
-     366,     5,   364,    -1,     4,     3,   190,   366,     5,   364,
-      -1,     4,     3,   191,   366,     5,   364,    -1,     3,     7,
-     369,    59,   365,     5,   363,   367,    -1,     3,     7,   369,
-      59,    33,    89,   365,     5,   363,   367,    -1,     3,   156,
-     369,    59,   365,     5,   363,    -1,    -1,    20,    -1,    21,
-      -1,     3,   172,   360,    98,   365,     5,   363,   367,    -1,
-       3,   172,   360,    98,    99,   365,     5,   363,   367,    -1,
-       3,   173,   360,   358,   373,   365,     5,   363,   367,    -1,
-       3,   173,   360,    98,    99,   365,     5,   363,   367,    -1,
-       3,   156,   196,   365,     5,   363,    -1,    -1,   168,    -1,
-     169,    -1,   170,    -1,   171,    -1,     3,     7,   174,    98,
-     365,     5,   363,   367,    -1,     3,   376,   176,    90,   365,
-       5,   363,    -1,     3,   376,   176,    89,   365,     5,   363,
-      -1,   178,   376,   176,    90,    -1,   178,   376,   176,    89,
-      -1,    -1,   177,    -1,     3,   175,   360,    98,   373,   365,
-       5,   363,   367,    -1,     3,   156,   175,   365,     5,   363,
-      -1,     3,     7,   148,    89,   365,     5,   363,   367,    -1,
-       3,     7,   148,    98,   365,     5,   363,   367,    -1,     3,
-       7,   149,    89,   365,     5,   363,   367,    -1,     3,     7,
-     149,    98,   365,     5,   363,   367,    -1,     3,     7,   150,
-      89,   365,     5,   363,   367,    -1,     3,     7,   150,    98,
-     365,     5,   363,   367,    -1,    45,   184,    -1,    -1,    37,
-      98,    -1,    37,    98,    35,    -1
-};
-
-/* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
+  /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
        0,   306,   306,   307,   310,   311,   314,   315,   316,   317,
@@ -1312,47 +1115,48 @@ static const yytype_uint16 yyrline[] =
      466,   467,   468,   469,   470,   471,   472,   473,   474,   475,
      476,   477,   478,   481,   482,   485,   486,   487,   488,   489,
      490,   491,   492,   493,   494,   497,   501,   504,   510,   520,
-     521,   524,   529,   534,   541,   549,   552,   557,   560,   564,
-     570,   575,   580,   588,   591,   592,   595,   601,   602,   607,
-     614,   623,   629,   630,   633,   651,   670,   671,   674,   675,
-     676,   677,   680,   683,   694,   695,   698,   699,   700,   703,
-     704,   707,   708,   711,   712,   715,   716,   719,   720,   723,
-     726,   731,   739,   744,   747,   755,   759,   763,   767,   771,
-     771,   778,   778,   785,   785,   792,   792,   799,   807,   808,
-     811,   815,   816,   819,   822,   825,   832,   841,   846,   851,
-     856,   862,   874,   879,   887,   890,   895,   898,   904,   907,
-     912,   913,   916,   917,   920,   921,   924,   925,   926,   927,
-     930,   931,   932,   935,   936,   939,   940,   943,   955,   965,
-     974,   984,   990,   993,   996,  1001,  1004,  1007,  1015,  1020,
-    1021,  1024,  1025,  1026,  1027,  1028,  1035,  1042,  1045,  1048,
-    1051,  1054,  1057,  1060,  1063,  1066,  1069,  1072,  1075,  1078,
-    1081,  1084,  1087,  1091,  1094,  1097,  1100,  1103,  1106,  1109,
-    1112,  1115,  1118,  1121,  1124,  1127,  1130,  1135,  1136,  1139,
-    1142,  1147,  1148,  1151,  1154,  1157,  1160,  1165,  1166,  1169,
-    1174,  1175,  1180,  1181,  1184,  1185,  1186,  1187,  1190,  1196,
-    1202,  1207,  1212,  1217,  1218,  1221,  1225,  1229,  1233,  1237,
-    1241,  1245,  1249,  1253,  1257,  1263,  1269,  1274,  1279,  1286,
-    1289,  1294,  1297,  1302,  1305,  1310,  1313,  1318,  1321,  1326,
-    1332,  1340,  1341,  1347,  1348,  1351,  1355,  1358,  1362,  1367,
-    1370,  1373,  1374,  1377,  1378,  1379,  1380,  1381,  1382,  1383,
-    1384,  1385,  1386,  1387,  1388,  1389,  1390,  1391,  1392,  1393,
-    1394,  1395,  1396,  1397,  1398,  1401,  1402,  1405,  1406,  1409,
-    1410,  1411,  1412,  1415,  1419,  1423,  1429,  1432,  1435,  1441,
-    1445,  1448,  1449,  1452,  1455,  1463,  1469,  1470,  1473,  1474,
-    1475,  1476,  1479,  1485,  1486,  1489,  1490,  1491,  1492,  1495,
-    1500,  1507,  1514,  1515,  1516,  1519,  1524,  1529,  1534,  1541,
-    1546,  1553,  1560,  1567,  1568,  1569,  1572,  1573,  1576,  1582,
-    1589,  1590,  1591,  1592,  1593,  1594,  1597,  1598,  1599,  1600,
-    1601,  1604,  1605,  1606,  1607,  1608,  1609,  1610,  1613,  1622,
-    1631,  1632,  1638,  1648,  1649,  1655,  1665,  1668,  1671,  1674,
-    1679,  1683,  1690,  1696,  1697,  1698,  1701,  1708,  1717,  1726,
-    1735,  1740,  1741,  1742,  1743,  1744,  1747,  1754,  1761,  1767,
-    1774,  1782,  1785,  1791,  1797,  1804,  1810,  1817,  1823,  1830,
-    1836,  1843,  1846,  1847,  1848
+     521,   524,   531,   536,   543,   551,   554,   559,   562,   566,
+     572,   577,   582,   590,   593,   594,   597,   603,   604,   609,
+     616,   625,   631,   632,   635,   653,   672,   673,   676,   677,
+     678,   679,   682,   685,   696,   697,   700,   701,   702,   705,
+     706,   709,   710,   713,   714,   717,   718,   721,   722,   725,
+     728,   733,   741,   746,   749,   757,   761,   765,   769,   773,
+     773,   780,   780,   787,   787,   794,   794,   801,   809,   810,
+     813,   817,   818,   821,   824,   827,   834,   843,   848,   851,
+     856,   861,   867,   879,   884,   891,   900,   903,   908,   911,
+     917,   920,   925,   926,   929,   930,   933,   934,   937,   938,
+     939,   940,   943,   944,   945,   948,   949,   952,   953,   956,
+     968,   978,   987,   994,  1003,  1009,  1012,  1015,  1020,  1023,
+    1026,  1034,  1039,  1040,  1043,  1044,  1045,  1046,  1047,  1054,
+    1061,  1064,  1067,  1070,  1073,  1076,  1079,  1082,  1085,  1091,
+    1094,  1097,  1100,  1103,  1106,  1109,  1112,  1116,  1119,  1122,
+    1125,  1131,  1134,  1137,  1140,  1143,  1146,  1149,  1152,  1155,
+    1158,  1161,  1166,  1167,  1170,  1173,  1178,  1179,  1182,  1185,
+    1188,  1191,  1196,  1197,  1200,  1205,  1206,  1211,  1212,  1215,
+    1216,  1217,  1218,  1219,  1222,  1228,  1234,  1239,  1244,  1245,
+    1253,  1258,  1259,  1262,  1266,  1270,  1274,  1278,  1282,  1286,
+    1290,  1294,  1298,  1304,  1310,  1315,  1320,  1327,  1330,  1335,
+    1338,  1343,  1346,  1351,  1354,  1359,  1362,  1367,  1373,  1381,
+    1382,  1388,  1389,  1392,  1396,  1399,  1403,  1408,  1411,  1414,
+    1415,  1418,  1419,  1420,  1421,  1422,  1423,  1424,  1425,  1426,
+    1427,  1428,  1429,  1430,  1431,  1432,  1433,  1434,  1435,  1436,
+    1437,  1438,  1439,  1442,  1443,  1446,  1447,  1450,  1451,  1452,
+    1453,  1456,  1460,  1464,  1470,  1473,  1476,  1482,  1486,  1489,
+    1490,  1493,  1496,  1503,  1512,  1518,  1519,  1522,  1523,  1524,
+    1525,  1528,  1534,  1535,  1538,  1539,  1540,  1541,  1544,  1549,
+    1556,  1563,  1564,  1565,  1568,  1573,  1578,  1583,  1590,  1595,
+    1602,  1609,  1616,  1617,  1618,  1621,  1622,  1625,  1631,  1638,
+    1639,  1640,  1641,  1642,  1643,  1646,  1647,  1648,  1649,  1650,
+    1653,  1654,  1655,  1656,  1657,  1658,  1659,  1662,  1671,  1680,
+    1681,  1687,  1697,  1698,  1704,  1714,  1717,  1720,  1723,  1728,
+    1732,  1739,  1745,  1746,  1747,  1750,  1757,  1766,  1775,  1784,
+    1789,  1790,  1791,  1792,  1793,  1796,  1803,  1810,  1816,  1823,
+    1831,  1834,  1840,  1846,  1853,  1859,  1866,  1872,  1879,  1885,
+    1892,  1895,  1896,  1897
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
+#if YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -1366,69 +1170,70 @@ static const char *const yytname[] =
   "START", "STOP", "PATHTOK", "HOST", "HOSTNAME", "PORT", "TYPE", "UDP",
   "TCP", "TCPSSL", "PROTOCOL", "CONNECTION", "ALERT", "NOALERT",
   "MAILFORMAT", "UNIXSOCKET", "SIGNATURE", "TIMEOUT", "RETRY", "RESTART",
-  "CHECKSUM", "EVERY", "NOTEVERY", "DEFAULT", "HTTP", "APACHESTATUS",
-  "FTP", "SMTP", "POP", "IMAP", "CLAMAV", "NNTP", "NTP3", "MYSQL", "DNS",
-  "WEBSOCKET", "SSH", "DWP", "LDAP2", "LDAP3", "RDATE", "RSYNC", "TNS",
-  "PGSQL", "POSTFIXPOLICY", "SIP", "LMTP", "GPS", "RADIUS", "MEMCACHE",
-  "STRING", "PATH", "MAILADDR", "MAILFROM", "MAILREPLYTO", "MAILSUBJECT",
-  "MAILBODY", "SERVICENAME", "STRINGNAME", "NUMBER", "PERCENT", "LOGLIMIT",
-  "CLOSELIMIT", "DNSLIMIT", "KEEPALIVELIMIT", "REPLYLIMIT", "REQUESTLIMIT",
-  "STARTLIMIT", "WAITLIMIT", "GRACEFULLIMIT", "CLEANUPLIMIT", "REAL",
-  "CHECKPROC", "CHECKFILESYS", "CHECKFILE", "CHECKDIR", "CHECKHOST",
-  "CHECKSYSTEM", "CHECKFIFO", "CHECKPROGRAM", "CHILDREN", "SYSTEM",
-  "STATUS", "ORIGIN", "VERSIONOPT", "RESOURCE", "MEMORY", "TOTALMEMORY",
-  "LOADAVG1", "LOADAVG5", "LOADAVG15", "SWAP", "MODE", "ACTIVE", "PASSIVE",
-  "MANUAL", "CPU", "TOTALCPU", "CPUUSER", "CPUSYSTEM", "CPUWAIT", "GROUP",
-  "REQUEST", "DEPENDS", "BASEDIR", "SLOT", "EVENTQUEUE", "SECRET",
-  "HOSTHEADER", "UID", "EUID", "GID", "MMONIT", "INSTANCE", "USERNAME",
-  "PASSWORD", "TIMESTAMP", "CHANGED", "SECOND", "MINUTE", "HOUR", "DAY",
-  "SSLAUTO", "SSLV2", "SSLV3", "TLSV1", "TLSV11", "TLSV12", "CERTMD5",
-  "BYTE", "KILOBYTE", "MEGABYTE", "GIGABYTE", "INODE", "SPACE",
-  "PERMISSION", "SIZE", "MATCH", "NOT", "IGNORE", "ACTION", "UPTIME",
-  "EXEC", "UNMONITOR", "ICMP", "ICMPECHO", "NONEXIST", "EXIST", "INVALID",
+  "CHECKSUM", "EVERY", "NOTEVERY", "DEFAULT", "HTTP", "HTTPS",
+  "APACHESTATUS", "FTP", "SMTP", "SMTPS", "POP", "IMAP", "CLAMAV", "NNTP",
+  "NTP3", "MYSQL", "DNS", "WEBSOCKET", "SSH", "DWP", "LDAP2", "LDAP3",
+  "RDATE", "RSYNC", "TNS", "PGSQL", "POSTFIXPOLICY", "SIP", "LMTP", "GPS",
+  "RADIUS", "MEMCACHE", "STRING", "PATH", "MAILADDR", "MAILFROM",
+  "MAILREPLYTO", "MAILSUBJECT", "MAILBODY", "SERVICENAME", "STRINGNAME",
+  "NUMBER", "PERCENT", "LOGLIMIT", "CLOSELIMIT", "DNSLIMIT",
+  "KEEPALIVELIMIT", "REPLYLIMIT", "REQUESTLIMIT", "STARTLIMIT",
+  "WAITLIMIT", "GRACEFULLIMIT", "CLEANUPLIMIT", "REAL", "CHECKPROC",
+  "CHECKFILESYS", "CHECKFILE", "CHECKDIR", "CHECKHOST", "CHECKSYSTEM",
+  "CHECKFIFO", "CHECKPROGRAM", "CHILDREN", "SYSTEM", "STATUS", "ORIGIN",
+  "VERSIONOPT", "RESOURCE", "MEMORY", "TOTALMEMORY", "LOADAVG1",
+  "LOADAVG5", "LOADAVG15", "SWAP", "MODE", "ACTIVE", "PASSIVE", "MANUAL",
+  "CPU", "TOTALCPU", "CPUUSER", "CPUSYSTEM", "CPUWAIT", "GROUP", "REQUEST",
+  "DEPENDS", "BASEDIR", "SLOT", "EVENTQUEUE", "SECRET", "HOSTHEADER",
+  "UID", "EUID", "GID", "MMONIT", "INSTANCE", "USERNAME", "PASSWORD",
+  "TIMESTAMP", "CHANGED", "SECOND", "MINUTE", "HOUR", "DAY", "SSLAUTO",
+  "SSLV2", "SSLV3", "TLSV1", "TLSV11", "TLSV12", "CERTMD5", "BYTE",
+  "KILOBYTE", "MEGABYTE", "GIGABYTE", "INODE", "SPACE", "PERMISSION",
+  "SIZE", "MATCH", "NOT", "IGNORE", "ACTION", "UPTIME", "EXEC",
+  "UNMONITOR", "PING", "ICMP", "ICMPECHO", "NONEXIST", "EXIST", "INVALID",
   "DATA", "RECOVERED", "PASSED", "SUCCEEDED", "URL", "CONTENT", "PID",
   "PPID", "FSFLAG", "REGISTER", "CREDENTIALS", "URLOBJECT", "TARGET",
-  "TIMESPEC", "MAXFORWARD", "FIPS", "NOTEQUAL", "EQUAL", "LESS", "GREATER",
-  "'{'", "'}'", "':'", "'@'", "$accept", "cfgfile", "statement_list",
-  "statement", "optproclist", "optproc", "optfilelist", "optfile",
-  "optfilesyslist", "optfilesys", "optdirlist", "optdir", "opthostlist",
-  "opthost", "optsystemlist", "optsystem", "optfifolist", "optfifo",
-  "optstatuslist", "optstatus", "setalert", "setdaemon", "startdelay",
-  "setexpectbuffer", "setinit", "setfips", "setlog", "seteventqueue",
-  "setidfile", "setstatefile", "setpid", "setmmonits", "mmonitlist",
-  "mmonit", "credentials", "setmailservers", "setmailformat", "sethttpd",
-  "mailserverlist", "mailserver", "httpdlist", "httpdoption", "ssl",
-  "optssllist", "optssl", "sslenable", "ssldisable", "signature",
-  "sigenable", "sigdisable", "bindaddress", "pemfile", "clientpemfile",
-  "allowselfcert", "allow", "$@1", "$@2", "$@3", "$@4", "allowuserlist",
-  "allowuser", "readonly", "checkproc", "checkfile", "checkfilesys",
-  "checkdir", "checkhost", "checksystem", "checkfifo", "checkprogram",
-  "start", "stop", "restart", "argumentlist", "useroptionlist", "argument",
-  "useroption", "username", "password", "hostname", "connection",
-  "connectionunix", "icmp", "host", "port", "unixsocket", "type",
-  "certmd5", "sslversion", "protocol", "sendexpectlist", "sendexpect",
-  "websocketlist", "websocket", "target", "maxforward", "httplist", "http",
-  "status", "request", "responsesum", "hostheader", "secret",
-  "apache_stat_list", "apache_stat", "exist", "pid", "ppid", "uptime",
-  "icmpcount", "exectimeout", "programtimeout", "nettimeout", "retry",
-  "actionrate", "urloption", "urloperator", "alert", "alertmail",
-  "noalertmail", "eventoptionlist", "eventoption", "formatlist",
-  "formatoptionlist", "formatoption", "every", "mode", "group", "depend",
-  "dependlist", "dependant", "statusvalue", "resourceprocess",
-  "resourceprocesslist", "resourceprocessopt", "resourcesystem",
-  "resourcesystemlist", "resourcesystemopt", "resourcecpuproc",
-  "resourcecpu", "resourcecpuid", "resourcemem", "resourceswap",
-  "resourcechild", "resourceload", "resourceloadavg", "value", "timestamp",
-  "operator", "time", "action", "action1", "action2", "rate1", "rate2",
-  "recovery", "checksum", "hashtype", "inode", "space", "fsflag", "unit",
-  "permission", "match", "matchflagnot", "size", "uid", "euid", "gid",
-  "icmptype", "reminder", 0
+  "TIMESPEC", "HTTPHEADER", "MAXFORWARD", "FIPS", "GREATER", "LESS",
+  "EQUAL", "NOTEQUAL", "'{'", "'}'", "':'", "'@'", "'['", "']'", "$accept",
+  "cfgfile", "statement_list", "statement", "optproclist", "optproc",
+  "optfilelist", "optfile", "optfilesyslist", "optfilesys", "optdirlist",
+  "optdir", "opthostlist", "opthost", "optsystemlist", "optsystem",
+  "optfifolist", "optfifo", "optstatuslist", "optstatus", "setalert",
+  "setdaemon", "startdelay", "setexpectbuffer", "setinit", "setfips",
+  "setlog", "seteventqueue", "setidfile", "setstatefile", "setpid",
+  "setmmonits", "mmonitlist", "mmonit", "credentials", "setmailservers",
+  "setmailformat", "sethttpd", "mailserverlist", "mailserver", "httpdlist",
+  "httpdoption", "ssl", "optssllist", "optssl", "sslenable", "ssldisable",
+  "signature", "sigenable", "sigdisable", "bindaddress", "pemfile",
+  "clientpemfile", "allowselfcert", "allow", "$@1", "$@2", "$@3", "$@4",
+  "allowuserlist", "allowuser", "readonly", "checkproc", "checkfile",
+  "checkfilesys", "checkdir", "checkhost", "checksystem", "checkfifo",
+  "checkprogram", "start", "stop", "restart", "argumentlist",
+  "useroptionlist", "argument", "useroption", "username", "password",
+  "hostname", "connection", "connectionunix", "icmp", "host", "port",
+  "unixsocket", "type", "certmd5", "sslversion", "protocol",
+  "sendexpectlist", "sendexpect", "websocketlist", "websocket", "target",
+  "maxforward", "httplist", "http", "status", "request", "responsesum",
+  "hostheader", "httpheaderlist", "secret", "apache_stat_list",
+  "apache_stat", "exist", "pid", "ppid", "uptime", "icmpcount",
+  "exectimeout", "programtimeout", "nettimeout", "retry", "actionrate",
+  "urloption", "urloperator", "alert", "alertmail", "noalertmail",
+  "eventoptionlist", "eventoption", "formatlist", "formatoptionlist",
+  "formatoption", "every", "mode", "group", "depend", "dependlist",
+  "dependant", "statusvalue", "resourceprocess", "resourceprocesslist",
+  "resourceprocessopt", "resourcesystem", "resourcesystemlist",
+  "resourcesystemopt", "resourcecpuproc", "resourcecpu", "resourcecpuid",
+  "resourcemem", "resourceswap", "resourcechild", "resourceload",
+  "resourceloadavg", "value", "timestamp", "operator", "time", "action",
+  "action1", "action2", "rate1", "rate2", "recovery", "checksum",
+  "hashtype", "inode", "space", "fsflag", "unit", "permission", "match",
+  "matchflagnot", "size", "uid", "euid", "gid", "icmptype", "reminder", YY_NULLPTR
 };
 #endif
 
 # ifdef YYPRINT
-/* YYTOKNUM[YYLEX-NUM] -- Internal token number corresponding to
-   token YYLEX-NUM.  */
+/* YYTOKNUM[NUM] -- (External) token number corresponding to the
+   (internal) symbol number NUM (which must be that of a token).  */
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
@@ -1451,70 +1256,656 @@ static const yytype_uint16 yytoknum[] =
      425,   426,   427,   428,   429,   430,   431,   432,   433,   434,
      435,   436,   437,   438,   439,   440,   441,   442,   443,   444,
      445,   446,   447,   448,   449,   450,   451,   452,   453,   454,
-     455,   456,   457,   458,   459,   460,   461,   462,   123,   125,
-      58,    64
+     455,   456,   457,   458,   459,   460,   461,   462,   463,   464,
+     465,   466,   123,   125,    58,    64,    91,    93
 };
 # endif
 
-/* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-static const yytype_uint16 yyr1[] =
+#define YYPACT_NINF -679
+
+#define yypact_value_is_default(Yystate) \
+  (!!((Yystate) == (-679)))
+
+#define YYTABLE_NINF -226
+
+#define yytable_value_is_error(Yytable_value) \
+  0
+
+  /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
+     STATE-NUM.  */
+static const yytype_int16 yypact[] =
 {
-       0,   212,   213,   213,   214,   214,   215,   215,   215,   215,
-     215,   215,   215,   215,   215,   215,   215,   215,   215,   215,
-     215,   215,   215,   215,   215,   215,   215,   215,   216,   216,
-     217,   217,   217,   217,   217,   217,   217,   217,   217,   217,
-     217,   217,   217,   217,   217,   217,   217,   217,   217,   218,
-     218,   219,   219,   219,   219,   219,   219,   219,   219,   219,
-     219,   219,   219,   219,   219,   219,   219,   219,   220,   220,
-     221,   221,   221,   221,   221,   221,   221,   221,   221,   221,
-     221,   221,   221,   221,   221,   221,   222,   222,   223,   223,
-     223,   223,   223,   223,   223,   223,   223,   223,   223,   223,
-     223,   223,   224,   224,   225,   225,   225,   225,   225,   225,
-     225,   225,   225,   225,   225,   225,   226,   226,   227,   227,
-     227,   227,   227,   227,   227,   227,   227,   228,   228,   229,
-     229,   229,   229,   229,   229,   229,   229,   229,   229,   229,
-     229,   229,   229,   230,   230,   231,   231,   231,   231,   231,
-     231,   231,   231,   231,   231,   232,   232,   232,   233,   234,
-     234,   235,   236,   237,   238,   238,   238,   239,   239,   239,
-     240,   241,   242,   243,   244,   244,   245,   246,   246,   247,
-     248,   249,   250,   250,   251,   251,   252,   252,   253,   253,
-     253,   253,   254,   254,   255,   255,   256,   256,   256,   257,
-     257,   258,   258,   259,   259,   260,   260,   261,   261,   262,
-     263,   264,   265,   266,   266,   266,   266,   266,   266,   267,
-     266,   268,   266,   269,   266,   270,   266,   266,   271,   271,
-     272,   273,   273,   274,   274,   274,   274,   275,   276,   277,
-     278,   279,   280,   281,   282,   282,   283,   283,   284,   284,
-     285,   285,   286,   286,   287,   287,   288,   288,   288,   288,
-     289,   289,   289,   290,   290,   291,   291,   292,   292,   293,
-     294,   295,   295,   296,   297,   298,   298,   298,   298,   299,
-     299,   300,   300,   300,   300,   300,   300,   300,   301,   301,
-     301,   301,   301,   301,   301,   301,   301,   301,   301,   301,
-     301,   301,   301,   301,   301,   301,   301,   301,   301,   301,
-     301,   301,   301,   301,   301,   301,   301,   302,   302,   303,
-     303,   304,   304,   305,   305,   305,   305,   306,   306,   306,
-     307,   307,   308,   308,   309,   309,   309,   309,   310,   311,
-     312,   313,   314,   315,   315,   316,   316,   316,   316,   316,
-     316,   316,   316,   316,   316,   317,   318,   319,   320,   321,
-     321,   322,   322,   323,   323,   324,   324,   325,   325,   326,
-     326,   327,   327,   328,   328,   329,   329,   329,   329,   330,
-     331,   332,   332,   333,   333,   333,   333,   333,   333,   333,
-     333,   333,   333,   333,   333,   333,   333,   333,   333,   333,
-     333,   333,   333,   333,   333,   334,   334,   335,   335,   336,
-     336,   336,   336,   337,   337,   337,   338,   338,   338,   339,
-     340,   341,   341,   342,   343,   344,   345,   345,   346,   346,
-     346,   346,   347,   348,   348,   349,   349,   349,   349,   350,
-     350,   351,   352,   352,   352,   353,   353,   353,   353,   354,
-     354,   355,   356,   357,   357,   357,   358,   358,   359,   359,
-     360,   360,   360,   360,   360,   360,   361,   361,   361,   361,
-     361,   362,   362,   362,   362,   362,   362,   362,   363,   364,
-     365,   365,   365,   366,   366,   366,   367,   367,   367,   367,
-     368,   368,   368,   369,   369,   369,   370,   370,   371,   371,
-     372,   373,   373,   373,   373,   373,   374,   375,   375,   375,
-     375,   376,   376,   377,   377,   378,   378,   379,   379,   380,
-     380,   381,   382,   382,   382
+     514,   250,   -51,   -35,   -27,   -11,     3,    42,    52,    65,
+     145,   514,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,   284,  -679,  -679,  -679,    16,    74,   107,   221,  -679,
+     176,   198,   226,   279,   292,   180,   137,   196,  -679,   -21,
+      -3,   372,   377,   393,   411,  -679,   397,   415,  -679,  -679,
+     451,    96,   700,   716,     7,   286,   286,   343,   286,   -52,
+     273,   289,   381,   391,   284,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,    37,  -679,  -679,  -679,  -679,  -679,
+     436,   716,   585,   482,  -679,   456,   -18,     0,  -679,   405,
+    -679,  -679,   260,  -679,  -679,   424,   425,   407,   475,   196,
+     349,   331,   339,   612,   530,   485,   491,   367,   379,   517,
+     519,   523,   524,   286,   237,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,    15,   443,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,    27,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,    26,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,    47,
+     559,   452,  -679,  -679,   230,  -679,   230,  -679,   230,   609,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,   391,  -679,  -679,
+     435,   612,   530,   685,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,   256,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,   558,   625,  -679,   551,   -14,   497,   555,  -679,   613,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+     -43,  -679,   513,  -679,   277,   349,   459,  -679,   424,   612,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,   356,  -679,   567,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,   236,   201,   191,   191,
+     191,  -679,  -679,  -679,   191,   191,   326,   191,   734,  -679,
+    -679,  -679,  -679,  -679,   191,   101,   191,    62,   191,   452,
+     492,  -679,   494,   231,   470,   191,   191,   516,   583,   639,
+     633,   477,   636,   584,   600,   601,   -36,   150,    -6,  -679,
+    -679,  -679,    -6,  -679,    -6,  -679,  -679,  -679,   612,   422,
+    -679,   191,  -679,  -679,  -679,   691,  -679,  -679,   191,  -679,
+    -679,  -679,   191,   579,  -679,   604,   550,  -679,  -679,   615,
+     277,   548,   617,  -679,   395,  -679,  -679,   610,  -679,  -679,
+    -679,  -679,  -679,  -679,   540,  -679,  -679,    23,   500,   661,
+    -679,   680,   620,    73,  -679,   630,   225,   240,   259,   679,
+    -679,  -679,  -679,  -679,  -679,   628,    41,    59,   637,   645,
+     600,   600,   646,    -4,  -679,   725,    87,  -679,  -679,   647,
+     677,   649,   600,   600,   694,   650,   449,   466,   600,   654,
+     166,  -679,   657,   475,   572,   639,   569,   663,   679,   735,
+     770,   619,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+     535,   661,   179,  -679,   774,   682,   683,   600,  -679,   497,
+    -679,   540,  -679,  -679,    20,   689,    33,    51,   545,   556,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+     690,  -679,  -679,   661,   530,  -679,   627,  -679,  -679,   600,
+     600,   600,   600,   600,   600,   488,    35,  -679,   686,  -679,
+     260,   695,   260,   696,   698,   779,   787,   401,  -679,   755,
+      91,  -679,  -679,   600,    28,   401,   796,   799,   600,   260,
+     600,   600,  -679,  -679,   800,   486,   705,   260,  -679,   600,
+    -679,   475,   386,   475,  -679,    35,   802,    91,  -679,   661,
+     530,   726,   260,    91,   727,   600,   824,   277,  -679,   743,
+     748,   749,   629,   763,   765,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,   380,   380,  -679,   530,  -679,  -679,
+     852,   854,   864,   865,   868,   869,  -679,  -679,   277,   788,
+     810,   858,   475,   557,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,    91,    91,  -679,  -679,  -679,  -679,   600,  -679,  -679,
+    -679,  -679,  -679,   286,  -679,  -679,   874,   897,   812,   899,
+     600,    91,    91,   900,   600,   901,   902,    91,   600,   903,
+     600,   600,   904,   600,  -679,  -679,   819,   855,   569,   290,
+     874,   530,  -679,  -679,  -679,   874,  -679,   906,    91,   540,
+     825,   859,   860,   861,   862,   931,   863,   866,  -679,  -679,
+    -679,  -679,  -679,  -679,    91,    91,    91,    91,    91,    91,
+     540,  -679,  -679,  -679,  -679,  -679,   789,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,   214,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,   751,  -679,  -679,
+     808,  -679,   855,  -679,  -679,  -679,   952,   220,   956,  -679,
+      91,   600,    91,   955,  -679,  -679,    91,   957,    91,    91,
+    -679,   958,    91,   959,   960,    91,   961,  -679,   867,   600,
+     475,  -679,  -679,  -679,  -679,  -679,    91,  -679,  -679,   862,
+     862,   862,   931,  -679,   862,  -679,  -679,  -679,  -679,  -679,
+     874,   874,   874,   874,   874,   874,  -679,   103,   103,   191,
+     191,   191,   191,   191,   191,   191,   191,   191,   191,   962,
+    -679,   870,   878,   871,   880,   214,  -679,   167,   764,   882,
+    -679,   600,    91,   239,   255,   874,   969,   874,    91,  -679,
+      91,  -679,  -679,    91,   874,    91,    91,   874,    91,  -679,
+     970,   855,   874,   862,   862,   862,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,   885,   191,   886,   888,  -679,  -679,
+    -679,  -679,  -679,  -679,   877,   881,   883,   884,   887,   889,
+     890,   891,   892,   893,   789,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,   894,  -679,  -679,   975,   874,   895,   895,   895,
+    -679,    91,  -679,   874,   874,   874,  -679,   874,   874,  -679,
+     874,    91,   600,  -679,  -679,   896,  -679,  -679,    92,   898,
+     905,   907,   908,   909,   910,   911,   912,   913,   914,  -679,
+    -679,    91,  -679,    10,   977,   980,   981,   874,  -679,  -679,
+    -679,  -679,  -679,  -679,   874,   983,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,   874,
+    -679,   963,    91,    91,    91,  -679,  -679,    91,  -679,  -679,
+    -679,  -679,  -679,  -679,   874,  -679
 };
 
-/* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
+  /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
+     Performed when YYTABLE does not specify something else to do.  Zero
+     means the default is an error.  */
+static const yytype_uint16 yydefact[] =
+{
+       2,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     3,     4,     6,     7,    17,    18,    19,     8,     9,
+      15,    16,    14,    10,    11,    12,    13,    28,    49,    68,
+      86,     0,   116,   127,   143,     0,     0,     0,     0,   162,
+       0,     0,     0,     0,     0,     0,     0,     0,   163,   413,
+       0,     0,     0,     0,     0,   242,     0,     0,     1,     5,
+      20,    21,    22,    23,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    24,   102,   104,   105,   106,   108,
+     109,   107,   110,   111,   413,   386,   112,   113,   114,   115,
+      25,    26,    27,   165,   164,   159,   262,   373,   182,     0,
+     170,   171,   510,   172,   387,     0,     0,     0,   373,   173,
+     177,     0,     0,     0,   531,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    29,    30,    31,    32,    40,
+      41,    33,    34,    35,    39,    42,    43,    44,    45,    46,
+      47,    48,    36,    37,    38,   520,   520,    50,    51,    52,
+      53,    54,    56,    58,    57,    65,    66,    67,    55,    62,
+      59,    64,    63,    60,    61,     0,    69,    70,    71,    72,
+      73,    74,    76,    75,    80,    81,    82,    83,    84,    85,
+      77,    78,    79,     0,    87,    88,    89,    90,    91,    93,
+      95,    94,    99,   100,   101,    92,    96,    97,    98,   274,
+       0,     0,   256,   257,   369,   252,   369,   388,   369,     0,
+     422,   423,   424,   425,   426,   427,   431,   428,   429,   103,
+       0,     0,   531,     0,   117,   118,   119,   120,   121,   122,
+     123,   124,   125,   126,   128,   129,   130,   131,   132,   134,
+     136,   135,   140,   141,   142,   133,   137,   138,   139,     0,
+     144,   145,   146,   147,   149,   148,   150,   151,   152,   153,
+     154,     0,     0,   158,     0,     0,   265,     0,   183,   267,
+     186,   511,   512,   513,   514,   161,   417,   418,   419,   420,
+       0,   415,   167,   169,   284,   177,     0,   174,     0,     0,
+     393,   409,   392,   408,   406,   411,   398,   400,   410,   403,
+     407,   391,   412,   396,   399,   402,   401,   395,   394,   404,
+     405,   397,     0,   389,     0,   155,   233,   234,   235,   236,
+     239,   238,   237,   240,   241,   243,   371,   274,   469,   469,
+     469,   462,   463,   464,   469,   469,     0,   469,   489,   435,
+     437,   438,   439,   440,   469,   502,   469,   502,   469,   521,
+       0,   521,     0,     0,     0,   469,   469,     0,     0,   367,
+       0,     0,     0,     0,   489,     0,     0,     0,   369,   253,
+     254,   246,   369,   248,   369,   250,   421,   430,     0,     0,
+     383,   469,   451,   452,   453,   489,   442,   447,   469,   445,
+     446,   444,   469,     0,   166,     0,   262,   264,   263,     0,
+     284,     0,     0,   179,   181,   180,   416,     0,   290,   285,
+     286,   287,   288,   289,   282,   175,   178,     0,     0,   413,
+     390,   532,     0,   371,   244,     0,     0,     0,     0,   278,
+     474,   470,   471,   472,   473,     0,     0,     0,     0,     0,
+     489,   489,     0,     0,   436,     0,     0,   503,   504,     0,
+       0,     0,   489,   489,     0,     0,     0,     0,   489,     0,
+       0,   275,     0,   373,     0,   367,   379,     0,   278,     0,
+       0,     0,   258,   260,   259,   261,   255,   247,   249,   251,
+       0,   413,     0,   443,     0,     0,     0,   489,   160,   265,
+     266,   282,   374,   268,     0,     0,     0,     0,     0,     0,
+     187,   188,   194,   194,   189,   203,   204,   190,   191,   168,
+       0,   176,   414,   413,   531,   533,     0,   245,   277,   489,
+     489,   489,   489,   489,   489,     0,   291,   460,   466,   465,
+     510,   466,   510,     0,     0,     0,     0,   475,   490,     0,
+       0,   466,   461,   489,   489,   475,     0,     0,   489,   510,
+     489,   489,   519,   518,     0,   489,   466,   510,   368,   489,
+     530,   373,     0,   373,   276,   291,     0,     0,   370,   413,
+     531,   466,   510,     0,     0,   489,     0,   284,   184,     0,
+       0,     0,   227,   215,     0,   209,   200,   206,   202,   208,
+     199,   201,   205,   207,   193,   192,   283,   531,   156,   372,
+       0,     0,     0,     0,     0,     0,   281,   279,   284,     0,
+       0,     0,   373,   321,   322,   455,   454,   457,   456,   448,
+     449,     0,     0,   476,   477,   478,   479,   489,   491,   484,
+     485,   480,   483,     0,   486,   487,   495,     0,     0,     0,
+     489,     0,     0,     0,   489,     0,     0,     0,   489,     0,
+     489,   489,     0,   489,   381,   382,     0,   375,   379,     0,
+     495,   531,   384,   459,   458,   495,   450,     0,     0,   282,
+     216,   217,   218,     0,     0,   231,     0,     0,   212,   195,
+     196,   197,   198,   157,     0,     0,     0,     0,     0,     0,
+     282,   324,   325,   293,   337,   337,     0,   296,   309,   310,
+     308,   299,   300,   305,   306,   303,   294,     0,   311,   295,
+     301,   302,   312,   313,   314,   315,   307,   332,   316,   317,
+       0,   319,   375,   323,   364,   365,     0,   481,     0,   434,
+       0,   489,     0,     0,   468,   523,     0,     0,     0,     0,
+     509,     0,     0,     0,     0,     0,     0,   380,     0,   489,
+     373,   378,   377,   363,   385,   441,     0,   433,   185,     0,
+       0,     0,   231,   230,   220,   228,   232,   214,   210,   211,
+     495,   495,   495,   495,   495,   495,   280,   297,   298,   469,
+     469,   469,   469,   469,   469,   469,   469,   469,   469,   292,
+     351,     0,     0,     0,     0,   320,   326,     0,   335,     0,
+     318,   489,     0,   482,     0,   495,     0,   495,     0,   501,
+       0,   517,   516,     0,   495,     0,     0,   495,     0,   376,
+       0,   375,   495,   222,   224,   226,   213,   229,   524,   525,
+     526,   527,   528,   529,     0,   469,     0,     0,   348,   338,
+     341,   339,   340,   342,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,   330,   328,   331,   329,   327,
+     334,   333,     0,   304,   350,     0,   495,   492,   492,   492,
+     515,     0,   499,   495,   495,   495,   505,   495,   495,   273,
+     495,     0,   489,   432,   346,     0,   345,   347,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,   352,
+     336,     0,   366,     0,     0,     0,     0,   495,   467,   522,
+     506,   508,   507,   272,   495,     0,   344,   349,   343,   353,
+     354,   355,   356,   357,   358,   359,   360,   361,   362,   495,
+     493,     0,     0,     0,     0,   500,   270,     0,   271,   494,
+     488,   496,   497,   498,   495,   269
+};
+
+  /* YYPGOTO[NTERM-NUM].  */
+static const yytype_int16 yypgoto[] =
+{
+    -679,  -679,  -679,   986,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,   926,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,   915,   717,  -679,  -679,  -679,  -679,   919,
+    -679,  -679,  -679,   498,  -679,  -679,  -679,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -195,
+    -491,   241,  -679,  -679,  -679,  -679,  -679,  -679,  -679,  -679,
+     438,   603,   681,   -65,  -201,  -202,  -351,   608,   518,  -679,
+     945,  -679,  -679,  -679,  -679,  -679,   549,  -472,  -387,   453,
+    -679,   406,  -679,   227,  -679,  -679,   325,  -679,  -679,  -679,
+    -679,  -679,  -679,  -679,  -679,   169,   423,  -679,  -679,  -679,
+     560,  -165,   598,  -108,  -678,   776,   368,  -679,   785,  1026,
+    -679,  -151,  -263,   -76,   740,  -256,   790,    32,   823,   827,
+    -679,   813,  -679,  -679,  -679,   693,  -679,  -679,   644,  -679,
+    -679,  -679,  -203,  -679,  -679,  -177,  -679,  -380,    18,  -319,
+     487,  -294,  -508,  -332,  -355,  -262,  -560,  -679,   687,  -679,
+    -679,  -679,    43,   299,  -679,   916,  -679,    13,  -679,   208,
+    -679,  -210
+};
+
+  /* YYDEFGOTO[NTERM-NUM].  */
+static const yytype_int16 yydefgoto[] =
+{
+      -1,    10,    11,    12,    60,   125,    61,   147,    62,   166,
+      63,   184,    74,    75,    90,   224,    91,   234,    92,   250,
+      13,    14,   263,    15,    16,    17,    18,    19,    20,    21,
+      22,    23,   109,   110,   287,    24,    25,    26,    97,    98,
+     404,   500,   501,   594,   679,   502,   503,   504,   505,   506,
+     507,   680,   681,   682,   508,   674,   759,   760,   761,   764,
+     765,   767,    27,    28,    29,    30,    31,    32,    33,    34,
+      76,    77,    78,   204,   368,   205,   370,   266,   400,   403,
+      79,   130,    80,   362,   468,   429,   526,   511,   414,   612,
+     613,   614,   795,   796,   798,   863,   777,   839,   840,   841,
+     842,   843,   888,   800,   789,   790,    81,   132,   133,   134,
+     463,   371,   424,   269,   749,    82,   563,   656,    83,    84,
+      85,   312,   313,   114,   280,   281,    86,    87,    88,    89,
+     217,   218,   260,   141,   338,   339,   233,   385,   386,   340,
+     387,   388,   341,   390,   342,   343,   344,   530,   158,   435,
+     627,   635,   636,   941,   445,   904,   729,   159,   450,   177,
+     178,   179,   275,   160,   161,   350,   162,   142,   143,   144,
+     465,   315
+};
+
+  /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
+     positive, shift that token.  If negative, reduce the rule whose
+     number is the opposite.  If YYTABLE_NINF, syntax error.  */
+static const yytype_int16 yytable[] =
+{
+     284,   206,   369,   208,   369,   372,   369,   374,   222,   470,
+     436,   437,   380,   491,   199,   438,   439,   476,   442,   578,
+     389,   476,   345,   476,   406,   446,   264,   451,    93,   455,
+     484,   538,   111,   353,   353,   115,   459,   460,   116,   579,
+     580,   373,   581,   375,   801,   930,   391,    50,   209,   420,
+     365,   276,   277,   278,   279,   472,   267,   532,   326,   660,
+     586,   638,   482,    51,   473,   665,   542,   609,   610,   485,
+     379,    52,   476,   486,   163,   181,   197,   397,   588,   398,
+     557,   195,   447,   448,   611,   535,   536,    53,   587,   358,
+     111,    96,   138,   155,   174,   192,   539,   546,   547,   145,
+     753,    54,   572,   554,   247,   755,   589,   200,    94,   245,
+     931,   582,   583,   724,   725,   200,   420,   276,   277,   278,
+     279,   447,   448,   242,   369,   423,   200,   200,   443,   422,
+     629,   630,   576,   734,   735,    65,    66,   265,   418,   740,
+      55,   528,   631,   882,   366,    58,   367,    44,    67,   632,
+      56,   752,   210,   529,    68,   420,    69,    70,   112,   531,
+     757,   406,   834,    57,   600,   601,   602,   603,   604,   605,
+     405,   529,   346,   347,    95,   117,   770,   771,   772,   773,
+     774,   775,   389,   346,   357,   354,   201,   541,   637,   639,
+     669,   113,   348,   643,   349,   645,   646,   758,    96,   529,
+     649,   355,   356,   477,   652,   201,   201,   478,   391,   479,
+     828,   829,   830,   831,   832,   833,   220,   420,   776,   452,
+     667,   690,   805,   366,   807,   367,   835,   480,   809,    71,
+     811,   812,   359,   360,   814,   584,   512,   817,    72,   453,
+      73,   474,   361,   358,   327,   870,   836,   872,   822,   221,
+     475,   426,   837,   428,   876,   425,   791,   879,   860,    35,
+     861,    36,   883,    37,    38,    99,   556,    39,   100,   164,
+     182,   198,   726,   827,   633,   634,   146,   449,   529,   571,
+      40,    41,   106,   107,    42,   733,   365,    64,    43,   737,
+     101,   529,   422,   741,   866,   743,   744,   917,   746,   248,
+     873,    44,   874,    45,   598,   875,   902,   877,   878,   918,
+     880,   202,   203,   908,   909,   910,   519,   911,   912,   838,
+     913,   202,   203,    65,    66,   520,   102,   202,   203,   629,
+     630,   521,   827,   827,   827,    44,    67,   200,   792,   793,
+     522,   631,    68,   514,    69,    70,   751,   935,   632,   430,
+     523,   426,   427,   428,   936,   559,   200,   794,   328,   524,
+     662,   180,   196,   907,   329,   330,   331,   332,   333,   938,
+     366,   103,   367,   914,   334,   335,   806,   202,   203,   392,
+     366,   426,   367,   428,   945,   104,   366,   683,   367,   366,
+     246,   367,   105,   929,   820,   336,   361,    46,   108,   431,
+     432,   433,   434,    47,   676,   570,   290,   449,   677,   678,
+     494,   495,   291,   118,   393,   292,   201,    71,   119,   337,
+     496,   497,   498,   212,   213,   214,    72,   121,    73,   944,
+     271,   272,   273,   274,   120,   201,   207,   597,   122,   223,
+     408,   409,   410,   411,   412,   413,   865,   867,   868,   869,
+     499,   754,   476,   653,   124,   657,   123,    48,   318,   319,
+     844,   845,   846,   847,   848,   849,   850,   851,   852,   853,
+     320,   321,   290,   633,   634,    65,    66,   211,   291,   293,
+     215,   292,   294,   131,   151,   170,   188,    44,    67,   216,
+      65,    66,   261,   661,    68,   262,    69,    70,   126,   148,
+     167,   185,    44,    67,   722,   270,   295,   283,   296,    68,
+     297,    69,    70,   298,   238,   254,   885,   282,   276,   277,
+     278,   279,     1,   440,   441,   369,   803,   915,   225,   235,
+     251,   267,   299,   300,   606,   607,   608,   301,   302,   303,
+     550,   551,   304,   288,   305,   293,   306,   307,   294,   286,
+     290,   289,   308,   309,   310,   311,   291,   552,   553,   292,
+     623,   624,   625,   626,   823,   824,   825,   314,   727,   419,
+     590,   591,   295,   616,   296,   618,   297,   316,    72,   298,
+      73,   592,   593,   317,    71,   290,   443,   648,   249,   609,
+     610,   291,   644,    72,   292,    73,   654,   655,   299,   300,
+     651,   942,   943,   301,   302,   303,   905,   906,   304,   322,
+     305,   323,   306,   307,   324,   664,   325,   363,   308,   309,
+     310,   311,   351,   293,    65,    66,   294,     2,     3,     4,
+       5,     6,     7,     8,     9,   481,    44,    67,   940,   940,
+     940,   364,   821,    68,   376,    69,    70,   378,   395,   394,
+     295,   396,   296,   399,   297,   401,   402,   298,   293,   407,
+     416,   294,   290,   127,   149,   168,   186,   421,   291,   458,
+     456,   292,   457,   452,   461,   462,   299,   300,   464,   466,
+     467,   301,   302,   303,   469,   295,   304,   296,   305,   297,
+     306,   307,   298,   226,   236,   252,   308,   309,   310,   311,
+     443,   471,   487,   165,   488,   265,   490,   492,   493,   510,
+     509,   299,   300,   513,   111,   515,   301,   302,   303,   183,
+     516,   304,   518,   305,   525,   306,   307,    72,   527,    73,
+     540,   308,   309,   310,   311,   293,   544,   533,   294,    65,
+      66,   128,   150,   169,   187,   534,   537,   543,   569,   545,
+     549,    44,    67,   548,   555,    65,    66,   558,    68,   560,
+      69,    70,   295,   564,   296,   562,   297,    44,    67,   298,
+     566,   227,   237,   253,    68,   567,    69,    70,   568,   573,
+     585,   596,   574,   575,   621,   200,   599,   615,   299,   300,
+     628,   443,   622,   301,   302,   303,   617,   619,   304,   620,
+     305,   641,   306,   307,   642,   647,   650,   659,   308,   309,
+     310,   311,   329,   330,   331,   332,   333,   381,   329,   330,
+     331,   332,   333,   381,   382,   383,   384,   663,   666,   668,
+     382,   383,   384,    71,   443,   670,   135,   152,   171,   189,
+     671,   672,    72,   673,    73,   136,   153,   172,   190,    71,
+     137,   154,   173,   191,  -219,   328,   675,   684,    72,   685,
+      73,   329,   330,   331,   332,   333,   228,   239,   255,   686,
+     687,   334,   335,   688,   689,   229,   240,   256,   728,   691,
+     230,   241,   257,   139,   156,   175,   193,   140,   157,   176,
+     194,   779,   780,   781,   782,   783,   784,   785,   786,   787,
+     788,   692,   730,   731,   732,   736,   738,   739,   742,   745,
+     747,   756,   748,   231,   243,   258,  -221,   232,   244,   259,
+     693,   694,   695,   696,   697,   698,   699,   700,   701,   702,
+     703,   704,   705,   706,   707,   708,   709,   710,   711,   712,
+     713,   714,   715,   716,   717,   718,   719,   720,   721,   766,
+    -223,  -225,   762,   763,   797,   768,   799,   802,   769,   804,
+     808,   855,   810,   813,   815,   816,   818,   819,   854,   856,
+     862,   857,   858,   864,   871,   881,   884,   889,   886,   887,
+     901,   890,   932,   891,   892,   933,   934,   893,   937,   894,
+     895,   896,   897,   898,   900,   903,   916,    59,   939,   919,
+     219,   595,   415,   826,   489,   129,   920,   577,   921,   922,
+     923,   924,   925,   926,   927,   928,   268,   565,   658,   723,
+     778,   517,   859,   899,   285,   561,   750,    49,   417,   483,
+     377,   444,   640,     0,   454,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,   352
+};
+
+static const yytype_int16 yycheck[] =
+{
+     108,    66,   204,    68,   206,   206,   208,   208,    84,   364,
+     329,   330,   222,   400,     7,   334,   335,   368,   337,   491,
+     223,   372,     7,   374,   280,   344,    44,   346,    12,   348,
+     385,    35,    53,     7,     7,    38,   355,   356,    41,    19,
+      20,   206,    22,   208,   722,    35,   223,    98,   100,   312,
+      56,    94,    95,    96,    97,    91,    56,   437,   123,   567,
+      27,    33,   381,    98,   100,   573,   446,    32,    33,   388,
+     221,    98,   423,   392,    61,    62,    63,    91,    27,    93,
+     460,    63,    20,    21,    49,   440,   441,    98,    55,    42,
+      53,    91,    60,    61,    62,    63,   100,   452,   453,     3,
+     660,    98,   482,   458,    91,   665,    55,   100,    92,    91,
+     100,    91,    92,   621,   622,   100,   379,    94,    95,    96,
+      97,    20,    21,    91,   326,   326,   100,   100,   100,    56,
+      39,    40,   487,   641,   642,    39,    40,   155,   289,   647,
+      98,   100,    51,   821,   150,     0,   152,    51,    52,    58,
+      98,   659,   204,   112,    58,   418,    60,    61,   179,   100,
+     668,   417,    59,    98,   519,   520,   521,   522,   523,   524,
+     213,   112,   157,   158,   100,   178,   684,   685,   686,   687,
+     688,   689,   385,   157,   158,   158,   179,   100,   543,   544,
+     577,   212,   177,   548,   179,   550,   551,   669,    91,   112,
+     555,   174,   175,   368,   559,   179,   179,   372,   385,   374,
+     770,   771,   772,   773,   774,   775,   179,   480,   690,   157,
+     575,   608,   730,   150,   732,   152,   123,   378,   736,   133,
+     738,   739,   185,   186,   742,   215,   213,   745,   142,   177,
+     144,    91,   195,    42,     7,   805,   143,   807,   756,   212,
+     100,   150,   149,   152,   814,    54,    42,   817,    91,     9,
+      93,    11,   822,    13,    14,    44,   100,    17,    92,    61,
+      62,    63,   627,   764,   183,   184,   180,   176,   112,   100,
+      30,    31,   145,   146,    34,   640,    56,     3,    38,   644,
+      92,   112,    56,   648,   802,   650,   651,   205,   653,    91,
+     808,    51,   810,    53,   514,   813,   866,   815,   816,   217,
+     818,    91,    92,   873,   874,   875,    91,   877,   878,   216,
+     880,    91,    92,    39,    40,   100,   100,    91,    92,    39,
+      40,    91,   823,   824,   825,    51,    52,   100,   124,   125,
+     100,    51,    58,   419,    60,    61,    56,   907,    58,   158,
+      91,   150,   151,   152,   914,   463,   100,   143,   121,   100,
+     570,    62,    63,   871,   127,   128,   129,   130,   131,   929,
+     150,    92,   152,   881,   137,   138,   731,    91,    92,   123,
+     150,   150,   152,   152,   944,    93,   150,   597,   152,   150,
+      91,   152,   212,   901,   749,   158,   195,   147,   202,   208,
+     209,   210,   211,   153,    24,   481,    50,   176,    28,    29,
+      15,    16,    56,    41,   158,    59,   179,   133,    41,   182,
+      25,    26,    27,   134,   135,   136,   142,    16,   144,   937,
+     170,   171,   172,   173,    41,   179,    93,   513,    41,     3,
+     163,   164,   165,   166,   167,   168,   801,   192,   193,   194,
+      55,   661,   803,   561,     3,   563,    41,   207,    91,    92,
+     779,   780,   781,   782,   783,   784,   785,   786,   787,   788,
+      91,    92,    50,   183,   184,    39,    40,   204,    56,   123,
+      99,    59,   126,    60,    61,    62,    63,    51,    52,    98,
+      39,    40,    10,   569,    58,    39,    60,    61,    60,    61,
+      62,    63,    51,    52,   612,   100,   150,   100,   152,    58,
+     154,    60,    61,   157,    91,    92,   835,    92,    94,    95,
+      96,    97,     8,   197,   198,   727,   727,   882,    90,    91,
+      92,    56,   176,   177,    46,    47,    48,   181,   182,   183,
+      91,    92,   186,   212,   188,   123,   190,   191,   126,   200,
+      50,   212,   196,   197,   198,   199,    56,    91,    92,    59,
+     159,   160,   161,   162,   759,   760,   761,    37,   633,   213,
+      25,    26,   150,   530,   152,   532,   154,    92,   142,   157,
+     144,    25,    26,    92,   133,    50,   100,   101,     3,    32,
+      33,    56,   549,   142,    59,   144,   210,   211,   176,   177,
+     557,   933,   934,   181,   182,   183,   868,   869,   186,    92,
+     188,    92,   190,   191,    91,   572,    92,    58,   196,   197,
+     198,   199,   179,   123,    39,    40,   126,   113,   114,   115,
+     116,   117,   118,   119,   120,   213,    51,    52,   932,   933,
+     934,   189,   750,    58,    35,    60,    61,   212,    23,    91,
+     150,   100,   152,   156,   154,   100,    43,   157,   123,   146,
+     201,   126,    50,    60,    61,    62,    63,   100,    56,   199,
+     178,    59,   178,   157,    91,    36,   176,   177,    45,   202,
+      44,   181,   182,   183,   100,   150,   186,   152,   188,   154,
+     190,   191,   157,    90,    91,    92,   196,   197,   198,   199,
+     100,   100,   123,     3,   100,   155,    91,   159,    91,   169,
+     100,   176,   177,   213,    53,    35,   181,   182,   183,     3,
+     100,   186,    92,   188,    45,   190,   191,   142,   100,   144,
+       5,   196,   197,   198,   199,   123,    59,   100,   126,    39,
+      40,    60,    61,    62,    63,   100,   100,   100,   213,   100,
+     100,    51,    52,    59,   100,    39,    40,   100,    58,   187,
+      60,    61,   150,   100,   152,   196,   154,    51,    52,   157,
+      35,    90,    91,    92,    58,     5,    60,    61,   159,     5,
+      91,    91,   100,   100,     5,   100,   159,   101,   176,   177,
+      35,   100,     5,   181,   182,   183,   101,   101,   186,   101,
+     188,     5,   190,   191,     5,     5,   101,     5,   196,   197,
+     198,   199,   127,   128,   129,   130,   131,   132,   127,   128,
+     129,   130,   131,   132,   139,   140,   141,   101,   101,     5,
+     139,   140,   141,   133,   100,    92,    60,    61,    62,    63,
+      92,    92,   142,   214,   144,    60,    61,    62,    63,   133,
+      60,    61,    62,    63,    91,   121,    91,     5,   142,     5,
+     144,   127,   128,   129,   130,   131,    90,    91,    92,     5,
+       5,   137,   138,     5,     5,    90,    91,    92,     4,    91,
+      90,    91,    92,    60,    61,    62,    63,    60,    61,    62,
+      63,   102,   103,   104,   105,   106,   107,   108,   109,   110,
+     111,    91,     5,    91,     5,     5,     5,     5,     5,     5,
+      91,     5,    57,    90,    91,    92,    91,    90,    91,    92,
+      62,    63,    64,    65,    66,    67,    68,    69,    70,    71,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    83,    84,    85,    86,    87,    88,    89,    90,    18,
+      91,    91,    91,    91,   203,    92,   148,     5,    92,     3,
+       5,    91,     5,     5,     5,     5,     5,   100,     6,    91,
+     206,   100,    92,    91,     5,     5,    91,   100,    92,    91,
+       5,   100,     5,   100,   100,     5,     5,   100,     5,   100,
+     100,   100,   100,   100,   100,   100,   100,    11,    35,   101,
+      74,   503,   285,   762,   396,    60,   101,   489,   101,   101,
+     101,   101,   101,   101,   101,   101,    97,   468,   565,   613,
+     695,   423,   795,   854,   109,   465,   658,     1,   288,   385,
+     217,   338,   545,    -1,   347,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,   146
+};
+
+  /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
+     symbol of state STATE-NUM.  */
+static const yytype_uint16 yystos[] =
+{
+       0,     8,   113,   114,   115,   116,   117,   118,   119,   120,
+     219,   220,   221,   238,   239,   241,   242,   243,   244,   245,
+     246,   247,   248,   249,   253,   254,   255,   280,   281,   282,
+     283,   284,   285,   286,   287,     9,    11,    13,    14,    17,
+      30,    31,    34,    38,    51,    53,   147,   153,   207,   337,
+      98,    98,    98,    98,    98,    98,    98,    98,     0,   221,
+     222,   224,   226,   228,     3,    39,    40,    52,    58,    60,
+      61,   133,   142,   144,   230,   231,   288,   289,   290,   298,
+     300,   324,   333,   336,   337,   338,   344,   345,   346,   347,
+     232,   234,   236,    12,    92,   100,    91,   256,   257,    44,
+      92,    92,   100,    92,    93,   212,   145,   146,   202,   250,
+     251,    53,   179,   212,   341,    38,    41,   178,    41,    41,
+      41,    16,    41,    41,     3,   223,   288,   289,   290,   298,
+     299,   324,   325,   326,   327,   333,   336,   344,   345,   346,
+     347,   351,   385,   386,   387,     3,   180,   225,   288,   289,
+     290,   324,   333,   336,   344,   345,   346,   347,   366,   375,
+     381,   382,   384,   385,   387,     3,   227,   288,   289,   290,
+     324,   333,   336,   344,   345,   346,   347,   377,   378,   379,
+     381,   385,   387,     3,   229,   288,   289,   290,   324,   333,
+     336,   344,   345,   346,   347,   366,   381,   385,   387,     7,
+     100,   179,    91,    92,   291,   293,   291,    93,   291,   100,
+     204,   204,   134,   135,   136,    99,    98,   348,   349,   231,
+     179,   212,   341,     3,   233,   288,   289,   290,   333,   336,
+     344,   346,   347,   354,   235,   288,   289,   290,   324,   333,
+     336,   344,   345,   346,   347,   366,   381,   385,   387,     3,
+     237,   288,   289,   290,   324,   333,   336,   344,   346,   347,
+     350,    10,    39,   240,    44,   155,   295,    56,   257,   331,
+     100,   170,   171,   172,   173,   380,    94,    95,    96,    97,
+     342,   343,    92,   100,   331,   251,   200,   252,   212,   212,
+      50,    56,    59,   123,   126,   150,   152,   154,   157,   176,
+     177,   181,   182,   183,   186,   188,   190,   191,   196,   197,
+     198,   199,   339,   340,    37,   389,    92,    92,    91,    92,
+      91,    92,    92,    92,    91,    92,   291,     7,   121,   127,
+     128,   129,   130,   131,   137,   138,   158,   182,   352,   353,
+     357,   360,   362,   363,   364,     7,   157,   158,   177,   179,
+     383,   179,   383,     7,   158,   174,   175,   158,    42,   185,
+     186,   195,   301,    58,   189,    56,   150,   152,   292,   293,
+     294,   329,   292,   329,   292,   329,    35,   349,   212,   339,
+     389,   132,   139,   140,   141,   355,   356,   358,   359,   360,
+     361,   363,   123,   158,    91,    23,   100,    91,    93,   156,
+     296,   100,    43,   297,   258,   213,   343,   146,   163,   164,
+     165,   166,   167,   168,   306,   252,   201,   342,   339,   213,
+     340,   100,    56,   292,   330,    54,   150,   151,   152,   303,
+     158,   208,   209,   210,   211,   367,   367,   367,   367,   367,
+     197,   198,   367,   100,   353,   372,   367,    20,    21,   176,
+     376,   367,   157,   177,   376,   367,   178,   178,   199,   367,
+     367,    91,    36,   328,    45,   388,   202,    44,   302,   100,
+     372,   100,    91,   100,    91,   100,   294,   329,   329,   329,
+     339,   213,   367,   356,   372,   367,   367,   123,   100,   295,
+      91,   306,   159,    91,    15,    16,    25,    26,    27,    55,
+     259,   260,   263,   264,   265,   266,   267,   268,   272,   100,
+     169,   305,   213,   213,   341,    35,   100,   330,    92,    91,
+     100,    91,   100,    91,   100,    45,   304,   100,   100,   112,
+     365,   100,   365,   100,   100,   372,   372,   100,    35,   100,
+       5,   100,   365,   100,    59,   100,   372,   372,    59,   100,
+      91,    92,    91,    92,   372,   100,   100,   365,   100,   331,
+     187,   328,   196,   334,   100,   304,    35,     5,   159,   213,
+     341,   100,   365,     5,   100,   100,   372,   296,   305,    19,
+      20,    22,    91,    92,   215,    91,    27,    55,    27,    55,
+      25,    26,    25,    26,   261,   261,    91,   341,   389,   159,
+     372,   372,   372,   372,   372,   372,    46,    47,    48,    32,
+      33,    49,   307,   308,   309,   101,   380,   101,   380,   101,
+     101,     5,     5,   159,   160,   161,   162,   368,    35,    39,
+      40,    51,    58,   183,   184,   369,   370,   372,    33,   372,
+     368,     5,     5,   372,   380,   372,   372,     5,   101,   372,
+     101,   380,   372,   331,   210,   211,   335,   331,   307,     5,
+     370,   341,   389,   101,   380,   370,   101,   372,     5,   306,
+      92,    92,    92,   214,   273,    91,    24,    28,    29,   262,
+     269,   270,   271,   389,     5,     5,     5,     5,     5,     5,
+     306,    91,    91,    62,    63,    64,    65,    66,    67,    68,
+      69,    70,    71,    72,    73,    74,    75,    76,    77,    78,
+      79,    80,    81,    82,    83,    84,    85,    86,    87,    88,
+      89,    90,   331,   309,   370,   370,   372,   291,     4,   374,
+       5,    91,     5,   372,   370,   370,     5,   372,     5,     5,
+     370,   372,     5,   372,   372,     5,   372,    91,    57,   332,
+     334,    56,   370,   374,   389,   374,     5,   370,   305,   274,
+     275,   276,    91,    91,   277,   278,    18,   279,    92,    92,
+     370,   370,   370,   370,   370,   370,   305,   314,   314,   102,
+     103,   104,   105,   106,   107,   108,   109,   110,   111,   322,
+     323,    42,   124,   125,   143,   310,   311,   203,   312,   148,
+     321,   332,     5,   292,     3,   370,   372,   370,     5,   370,
+       5,   370,   370,     5,   370,     5,     5,   370,     5,   100,
+     372,   331,   370,   277,   277,   277,   279,   278,   374,   374,
+     374,   374,   374,   374,    59,   123,   143,   149,   216,   315,
+     316,   317,   318,   319,   367,   367,   367,   367,   367,   367,
+     367,   367,   367,   367,     6,    91,    91,   100,    92,   311,
+      91,    93,   206,   313,    91,   372,   370,   192,   193,   194,
+     374,     5,   374,   370,   370,   370,   374,   370,   370,   374,
+     370,     5,   332,   374,    91,   367,    92,    91,   320,   100,
+     100,   100,   100,   100,   100,   100,   100,   100,   100,   323,
+     100,     5,   374,   100,   373,   373,   373,   370,   374,   374,
+     374,   374,   374,   374,   370,   372,   100,   205,   217,   101,
+     101,   101,   101,   101,   101,   101,   101,   101,   101,   370,
+      35,   100,     5,     5,     5,   374,   374,     5,   374,    35,
+     369,   371,   371,   371,   370,   374
+};
+
+  /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
+static const yytype_uint16 yyr1[] =
+{
+       0,   218,   219,   219,   220,   220,   221,   221,   221,   221,
+     221,   221,   221,   221,   221,   221,   221,   221,   221,   221,
+     221,   221,   221,   221,   221,   221,   221,   221,   222,   222,
+     223,   223,   223,   223,   223,   223,   223,   223,   223,   223,
+     223,   223,   223,   223,   223,   223,   223,   223,   223,   224,
+     224,   225,   225,   225,   225,   225,   225,   225,   225,   225,
+     225,   225,   225,   225,   225,   225,   225,   225,   226,   226,
+     227,   227,   227,   227,   227,   227,   227,   227,   227,   227,
+     227,   227,   227,   227,   227,   227,   228,   228,   229,   229,
+     229,   229,   229,   229,   229,   229,   229,   229,   229,   229,
+     229,   229,   230,   230,   231,   231,   231,   231,   231,   231,
+     231,   231,   231,   231,   231,   231,   232,   232,   233,   233,
+     233,   233,   233,   233,   233,   233,   233,   234,   234,   235,
+     235,   235,   235,   235,   235,   235,   235,   235,   235,   235,
+     235,   235,   235,   236,   236,   237,   237,   237,   237,   237,
+     237,   237,   237,   237,   237,   238,   238,   238,   239,   240,
+     240,   241,   242,   243,   244,   244,   244,   245,   245,   245,
+     246,   247,   248,   249,   250,   250,   251,   252,   252,   253,
+     254,   255,   256,   256,   257,   257,   258,   258,   259,   259,
+     259,   259,   260,   260,   261,   261,   262,   262,   262,   263,
+     263,   264,   264,   265,   265,   266,   266,   267,   267,   268,
+     269,   270,   271,   272,   272,   272,   272,   272,   272,   273,
+     272,   274,   272,   275,   272,   276,   272,   272,   277,   277,
+     278,   279,   279,   280,   280,   280,   280,   281,   282,   282,
+     283,   284,   285,   286,   287,   287,   288,   288,   289,   289,
+     290,   290,   291,   291,   292,   292,   293,   293,   294,   294,
+     294,   294,   295,   295,   295,   296,   296,   297,   297,   298,
+     298,   299,   300,   300,   301,   301,   302,   303,   304,   304,
+     304,   304,   305,   305,   306,   306,   306,   306,   306,   306,
+     306,   307,   307,   307,   307,   307,   307,   307,   307,   307,
+     307,   307,   307,   307,   307,   307,   307,   307,   307,   307,
+     307,   307,   307,   307,   307,   307,   307,   307,   307,   307,
+     307,   307,   308,   308,   309,   309,   310,   310,   311,   311,
+     311,   311,   312,   312,   312,   313,   313,   314,   314,   315,
+     315,   315,   315,   315,   316,   317,   318,   319,   320,   320,
+     321,   322,   322,   323,   323,   323,   323,   323,   323,   323,
+     323,   323,   323,   324,   325,   326,   327,   328,   328,   329,
+     329,   330,   330,   331,   331,   332,   332,   333,   333,   334,
+     334,   335,   335,   336,   336,   336,   336,   337,   338,   339,
+     339,   340,   340,   340,   340,   340,   340,   340,   340,   340,
+     340,   340,   340,   340,   340,   340,   340,   340,   340,   340,
+     340,   340,   340,   341,   341,   342,   342,   343,   343,   343,
+     343,   344,   344,   344,   345,   345,   345,   346,   347,   348,
+     348,   349,   350,   350,   351,   352,   352,   353,   353,   353,
+     353,   354,   355,   355,   356,   356,   356,   356,   357,   357,
+     358,   359,   359,   359,   360,   360,   360,   360,   361,   361,
+     362,   363,   364,   364,   364,   365,   365,   366,   366,   367,
+     367,   367,   367,   367,   367,   368,   368,   368,   368,   368,
+     369,   369,   369,   369,   369,   369,   369,   370,   371,   372,
+     372,   372,   373,   373,   373,   374,   374,   374,   374,   375,
+     375,   375,   376,   376,   376,   377,   377,   378,   378,   379,
+     380,   380,   380,   380,   380,   381,   382,   382,   382,   382,
+     383,   383,   384,   384,   385,   385,   386,   386,   387,   387,
+     388,   389,   389,   389
+};
+
+  /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     0,     1,     1,     2,     1,     1,     1,     1,
@@ -1541,696 +1932,73 @@ static const yytype_uint8 yyr2[] =
        2,     2,     1,     5,     4,     2,     3,     3,     3,     0,
        4,     0,     5,     0,     5,     0,     5,     2,     1,     2,
        1,     0,     1,     4,     4,     4,     4,     4,     4,     4,
-       4,     2,     4,     5,     3,     4,     3,     4,     3,     4,
-       1,     2,     1,     2,     1,     1,     2,     2,     2,     2,
-       0,     2,     2,     0,     2,     0,     2,    13,    11,    11,
-      10,     0,     2,     2,     2,     0,     2,     4,     2,     0,
-       2,     0,     1,     1,     1,     1,     1,     1,     0,     3,
-       2,     2,     2,     2,     3,     2,     2,     2,     2,     2,
-       4,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     3,     2,     3,     1,     1,     2,     2,
-       2,     1,     2,     2,     2,     2,     2,     0,     2,     2,
-       0,     2,     0,     2,     1,     1,     1,     1,     3,     2,
-       2,     2,     2,     1,     3,     4,     4,     4,     4,     4,
-       4,     4,     4,     4,     4,     7,     6,     6,     9,     0,
-       2,     0,     3,     0,     3,     0,     3,     0,     2,     7,
-       7,     0,     3,     1,     1,     3,     6,     7,     1,     2,
-       2,     1,     2,     1,     1,     1,     1,     1,     1,     1,
+       4,     4,     2,     4,     5,     6,     3,     4,     3,     4,
+       3,     4,     1,     2,     1,     2,     1,     1,     2,     2,
+       2,     2,     0,     2,     2,     0,     2,     0,     2,    13,
+      11,    11,    10,     9,     0,     2,     2,     2,     0,     2,
+       4,     2,     0,     2,     0,     1,     1,     1,     1,     1,
+       1,     0,     3,     2,     2,     2,     2,     3,     3,     2,
+       2,     2,     2,     2,     4,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     3,     2,
+       3,     1,     1,     2,     2,     2,     1,     2,     2,     2,
+       2,     2,     0,     2,     2,     0,     2,     0,     2,     1,
+       1,     1,     1,     3,     3,     2,     2,     2,     0,     2,
+       2,     1,     3,     4,     4,     4,     4,     4,     4,     4,
+       4,     4,     4,     7,     6,     6,     9,     0,     2,     0,
+       3,     0,     3,     0,     3,     0,     2,     7,     7,     0,
+       3,     1,     1,     3,     6,     7,     1,     2,     2,     1,
+       2,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     0,     4,     1,     2,     1,
-       1,     1,     1,     3,     2,     2,     2,     2,     2,     2,
-       2,     1,     2,     1,     8,     6,     1,     2,     1,     1,
-       1,     1,     6,     1,     2,     1,     1,     1,     1,     4,
-       4,     4,     1,     1,     1,     4,     4,     4,     4,     4,
-       4,     3,     3,     1,     1,     1,     1,     1,     9,     6,
-       0,     1,     1,     1,     1,     1,     0,     1,     1,     1,
-       1,     1,     2,     3,     1,     1,     1,     1,     1,     1,
-       0,     2,     3,     0,     2,     3,     0,     6,     6,     6,
-       8,    10,     7,     0,     1,     1,     8,     9,     9,     9,
-       6,     0,     1,     1,     1,     1,     8,     7,     7,     4,
-       4,     0,     1,     9,     6,     8,     8,     8,     8,     8,
-       8,     2,     0,     2,     3
+       1,     1,     1,     0,     4,     1,     2,     1,     1,     1,
+       1,     3,     2,     2,     2,     2,     2,     2,     2,     1,
+       2,     1,     8,     6,     6,     1,     2,     1,     1,     1,
+       1,     6,     1,     2,     1,     1,     1,     1,     4,     4,
+       4,     1,     1,     1,     4,     4,     4,     4,     4,     4,
+       3,     3,     1,     1,     1,     1,     1,     9,     6,     0,
+       1,     1,     1,     1,     1,     0,     1,     1,     1,     1,
+       1,     2,     3,     1,     1,     1,     1,     1,     1,     0,
+       2,     3,     0,     2,     3,     0,     6,     6,     6,     8,
+      10,     7,     0,     1,     1,     8,     9,     9,     9,     6,
+       0,     1,     1,     1,     1,     8,     7,     7,     4,     4,
+       0,     1,     9,     6,     8,     8,     8,     8,     8,     8,
+       2,     0,     2,     3
 };
 
-/* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
-   Performed when YYTABLE doesn't specify something else to do.  Zero
-   means the default is an error.  */
-static const yytype_uint16 yydefact[] =
-{
-       2,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     3,     4,     6,     7,    17,    18,    19,     8,     9,
-      15,    16,    14,    10,    11,    12,    13,    28,    49,    68,
-      86,     0,   116,   127,   143,     0,     0,     0,     0,   162,
-       0,     0,     0,     0,     0,     0,     0,     0,   163,   405,
-       0,     0,     0,     0,     0,   241,     0,     0,     1,     5,
-      20,    21,    22,    23,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    24,   102,   104,   105,   106,   108,
-     109,   107,   110,   111,   405,   378,   112,   113,   114,   115,
-      25,    26,    27,   165,   164,   159,   260,   365,   182,     0,
-     170,   171,   501,   172,   379,     0,     0,     0,   365,   173,
-     177,     0,     0,     0,   522,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    29,    30,    31,    32,    40,
-      41,    33,    34,    35,    39,    42,    43,    44,    45,    46,
-      47,    48,    36,    37,    38,   511,   511,    50,    51,    52,
-      53,    54,    56,    58,    57,    65,    66,    67,    55,    62,
-      59,    64,    63,    60,    61,     0,    69,    70,    71,    72,
-      73,    74,    76,    75,    80,    81,    82,    83,    84,    85,
-      77,    78,    79,     0,    87,    88,    89,    90,    91,    93,
-      95,    94,    99,   100,   101,    92,    96,    97,    98,   271,
-       0,     0,   254,   255,   361,   250,   361,   380,   361,     0,
-     414,   415,   416,   417,   418,   419,   423,   420,   421,   103,
-       0,     0,   522,     0,   117,   118,   119,   120,   121,   122,
-     123,   124,   125,   126,   128,   129,   130,   131,   132,   134,
-     136,   135,   140,   141,   142,   133,   137,   138,   139,     0,
-     144,   145,   146,   147,   149,   148,   150,   151,   152,   153,
-     154,     0,     0,   158,     0,     0,   263,     0,   183,   265,
-     186,   502,   503,   504,   505,   161,   409,   410,   411,   412,
-       0,   407,   167,   169,   281,   177,     0,   174,     0,     0,
-     385,   401,   384,   400,   398,   403,   390,   392,   402,   395,
-     399,   383,   404,   388,   391,   394,   393,   387,   386,   396,
-     397,   389,     0,   381,     0,   155,   233,   234,   235,   236,
-     238,   237,   239,   240,   242,   363,   271,   460,   460,   460,
-     453,   454,   455,   460,   460,     0,   460,   480,   426,   428,
-     429,   430,   431,   460,   493,   460,   493,   460,   512,     0,
-     512,     0,     0,     0,   460,   460,     0,     0,     0,     0,
-       0,     0,   480,     0,     0,     0,   361,   251,   252,   244,
-     361,   246,   361,   248,   413,   422,     0,     0,   375,   460,
-     442,   443,   444,   480,   433,   438,   460,   436,   437,   435,
-     460,   166,     0,   260,   262,   261,     0,   281,     0,     0,
-     179,   181,   180,   408,     0,   287,   282,   283,   284,   285,
-     286,   279,   175,   178,     0,     0,   405,   382,   523,     0,
-     243,     0,     0,     0,     0,   275,   465,   464,   463,   462,
-     461,     0,     0,     0,     0,     0,   480,   480,     0,     0,
-     427,     0,     0,   494,   495,     0,     0,     0,   480,   480,
-       0,     0,     0,     0,   480,     0,     0,   272,     0,   359,
-     371,     0,   275,     0,     0,     0,   256,   258,   257,   259,
-     253,   245,   247,   249,     0,   405,     0,   434,     0,     0,
-       0,   160,   263,   264,   279,   366,   266,     0,     0,     0,
-       0,     0,     0,   187,   188,   194,   194,   189,   203,   204,
-     190,   191,   168,     0,   176,   406,   405,   522,   524,     0,
-     274,   480,   480,   480,   480,   480,   480,     0,   288,   451,
-     457,   456,   501,   457,   501,     0,     0,     0,     0,   466,
-     481,     0,     0,   457,   452,   480,   480,   466,     0,     0,
-     480,   501,   480,   480,   510,   509,     0,   480,   457,   501,
-     521,     0,   365,     0,   365,   273,   288,     0,     0,   362,
-     405,   522,   457,   501,     0,     0,   480,   281,   184,     0,
-       0,     0,   227,   215,     0,   209,   200,   206,   202,   208,
-     199,   201,   205,   207,   193,   192,   280,   522,   156,   364,
-       0,     0,     0,     0,     0,     0,   278,   276,   281,     0,
-       0,     0,   365,   316,   317,   446,   445,   448,   447,   439,
-     440,     0,     0,   467,   468,   469,   470,   480,   482,   475,
-     476,   471,   474,     0,   477,   478,   486,     0,     0,     0,
-     480,     0,     0,     0,   480,     0,     0,     0,   480,     0,
-     480,   480,   360,   480,   374,   373,     0,   367,   371,     0,
-     486,   522,   376,   450,   449,   486,   441,     0,   279,   216,
-     217,   218,     0,     0,   231,     0,     0,   212,   195,   196,
-     197,   198,   157,     0,     0,     0,     0,     0,     0,   279,
-     319,   320,   290,   332,     0,   293,   305,   304,   295,   296,
-     301,   302,   299,   291,     0,   306,   292,   297,   298,   307,
-     308,   309,   310,   303,   327,   311,   312,     0,   314,   367,
-     318,   356,   357,     0,   472,     0,   425,     0,   480,     0,
-       0,   459,   514,     0,     0,     0,     0,   500,     0,     0,
-       0,     0,     0,   372,     0,   480,   365,   370,   369,   355,
-     377,   432,     0,   185,     0,     0,     0,   231,   230,   220,
-     228,   232,   214,   210,   211,   486,   486,   486,   486,   486,
-     486,   277,   294,   460,   460,   460,   460,   460,   460,   460,
-     460,   460,   460,   289,   343,     0,     0,     0,     0,   315,
-     321,     0,   330,     0,   313,   480,     0,   473,     0,   486,
-       0,   486,     0,   492,     0,   508,   507,     0,   486,     0,
-       0,     0,   368,     0,   367,   486,   222,   224,   226,   213,
-     229,   515,   516,   517,   518,   519,   520,     0,   460,     0,
-       0,   333,   336,   334,   335,   337,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,   325,   323,   326,
-     324,   322,   329,   328,     0,   300,   342,     0,   486,   483,
-     483,   483,   506,     0,   490,   486,   486,   486,   496,   486,
-     486,   486,     0,   480,   424,   340,     0,   339,   341,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,   344,
-     331,     0,   358,     0,     0,     0,     0,   486,   458,   513,
-     497,   499,   498,   270,   486,     0,   338,   345,   346,   347,
-     348,   349,   350,   351,   352,   353,   354,   486,   484,     0,
-       0,     0,     0,   491,   268,     0,   269,   485,   479,   487,
-     488,   489,   486,   267
-};
 
-/* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int16 yydefgoto[] =
-{
-      -1,    10,    11,    12,    60,   125,    61,   147,    62,   166,
-      63,   184,    74,    75,    90,   224,    91,   234,    92,   250,
-      13,    14,   263,    15,    16,    17,    18,    19,    20,    21,
-      22,    23,   109,   110,   287,    24,    25,    26,    97,    98,
-     401,   493,   494,   584,   668,   495,   496,   497,   498,   499,
-     500,   669,   670,   671,   501,   663,   744,   745,   746,   749,
-     750,   752,    27,    28,    29,    30,    31,    32,    33,    34,
-      76,    77,    78,   204,   366,   205,   368,   266,   397,   400,
-      79,   130,    80,   360,   462,   425,   518,   504,   411,   602,
-     603,   604,   779,   780,   782,   845,   762,   821,   822,   823,
-     824,   825,   784,   773,   774,    81,   132,   133,   134,   552,
-     369,   420,   269,   735,    82,   554,   646,    83,    84,    85,
-     312,   313,   114,   280,   281,    86,    87,    88,    89,   217,
-     218,   260,   141,   337,   338,   233,   383,   384,   339,   385,
-     386,   340,   388,   341,   342,   343,   522,   158,   431,   617,
-     625,   626,   919,   441,   884,   716,   159,   446,   177,   178,
-     179,   275,   160,   161,   349,   162,   142,   143,   144,   459,
-     315
-};
+#define yyerrok         (yyerrstatus = 0)
+#define yyclearin       (yychar = YYEMPTY)
+#define YYEMPTY         (-2)
+#define YYEOF           0
 
-/* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
-   STATE-NUM.  */
-#define YYPACT_NINF -675
-static const yytype_int16 yypact[] =
-{
-     367,   102,   -44,   -39,    -9,    16,    42,    47,    99,   121,
-     154,   367,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,   521,  -675,  -675,  -675,    37,   132,   172,   231,  -675,
-     148,   181,   192,   203,   210,   112,   -70,   126,  -675,    14,
-       0,   299,   311,   318,   355,  -675,   342,   344,  -675,  -675,
-     597,   263,   642,   673,    26,   289,   289,   298,   289,   -73,
-     199,   384,   305,   312,   521,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,    24,  -675,  -675,  -675,  -675,  -675,
-     718,   673,   735,   385,  -675,   365,   -33,    -3,  -675,   316,
-    -675,  -675,   336,  -675,  -675,   460,   326,   338,   362,   126,
-     248,   250,   254,   232,   428,   377,   381,   308,   397,   399,
-     401,   419,   403,   289,    44,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,    58,   345,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,    85,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,    10,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,   -15,
-     474,   357,  -675,  -675,   320,  -675,   320,  -675,   320,   522,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,   312,  -675,  -675,
-     333,   232,   428,   682,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,   -43,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,   461,   536,  -675,   467,   159,   413,   480,  -675,   537,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-      -4,  -675,   444,  -675,   468,   248,   391,  -675,   460,   232,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,   340,  -675,   494,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,   -20,   201,   163,   163,   163,
-    -675,  -675,  -675,   163,   163,   227,   163,   458,  -675,  -675,
-    -675,  -675,  -675,   163,    78,   163,    76,   163,   357,   422,
-    -675,   426,   191,   412,   163,   163,   459,   526,   572,   424,
-     582,   540,   541,   543,   171,   239,   -13,  -675,  -675,  -675,
-     -13,  -675,   -13,  -675,  -675,  -675,   232,   416,  -675,   163,
-    -675,  -675,  -675,   699,  -675,  -675,   163,  -675,  -675,  -675,
-     163,  -675,   545,   493,  -675,  -675,   562,   468,   496,   565,
-    -675,   408,  -675,  -675,   558,  -675,  -675,  -675,  -675,  -675,
-    -675,   495,  -675,  -675,   238,   492,   606,  -675,   625,   566,
-    -675,   575,   257,   268,   288,   629,  -675,  -675,  -675,  -675,
-    -675,   580,   -42,   -38,   585,   586,   541,   541,   592,    11,
-    -675,   686,   -17,  -675,  -675,   601,   651,   613,   541,   541,
-     655,   617,   350,   353,   541,   619,    31,  -675,   535,   690,
-     529,   631,   629,   692,   725,   578,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,   568,   606,    54,  -675,   727,   638,
-     643,  -675,   413,  -675,   495,  -675,  -675,    28,   661,    -1,
-     237,   149,   404,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,   663,  -675,  -675,   606,   428,  -675,   583,
-    -675,   541,   541,   541,   541,   541,   541,   622,    30,  -675,
-     660,  -675,   336,   666,   336,   667,   668,   749,   755,   538,
-    -675,   733,    63,  -675,  -675,   541,    33,   538,   766,   767,
-     541,   336,   541,   541,  -675,  -675,   776,   378,   684,   336,
-    -675,   687,   362,   306,   362,  -675,    30,   783,    63,  -675,
-     606,   428,   691,   336,    63,   693,   541,   468,  -675,   701,
-     704,   708,   579,   710,   716,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,   445,   445,  -675,   428,  -675,  -675,
-     809,   811,   812,   813,   817,   818,  -675,  -675,   468,   717,
-     744,   836,   362,   506,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,    63,    63,  -675,  -675,  -675,  -675,   541,  -675,  -675,
-    -675,  -675,  -675,   289,  -675,  -675,   830,   838,   746,   839,
-     541,    63,    63,   840,   541,   841,   842,    63,   541,   851,
-     541,   541,  -675,   541,  -675,  -675,   768,   802,   529,   278,
-     830,   428,  -675,  -675,  -675,   830,  -675,   867,   495,   784,
-     785,   787,   796,   797,   863,   798,   799,  -675,  -675,  -675,
-    -675,  -675,  -675,    63,    63,    63,    63,    63,    63,   495,
-    -675,  -675,  -675,  -675,   825,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,     3,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,   694,  -675,  -675,   741,  -675,   802,
-    -675,  -675,  -675,   885,   147,   932,  -675,    63,   541,    63,
-     931,  -675,  -675,    63,   933,    63,    63,  -675,   934,    63,
-     935,   936,   937,  -675,   845,   541,   362,  -675,  -675,  -675,
-    -675,  -675,    63,  -675,   797,   797,   797,   863,  -675,   797,
-    -675,  -675,  -675,  -675,  -675,   830,   830,   830,   830,   830,
-     830,  -675,   175,   163,   163,   163,   163,   163,   163,   163,
-     163,   163,   163,   938,  -675,   848,   856,   849,   858,     3,
-    -675,   194,   747,   857,  -675,   541,    63,   150,   515,   830,
-     945,   830,    63,  -675,    63,  -675,  -675,    63,   830,    63,
-      63,    63,  -675,   946,   802,   830,   797,   797,   797,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,   864,   163,   862,
-     865,  -675,  -675,  -675,  -675,  -675,   859,   860,   861,   866,
-     868,   869,   870,   871,   872,   873,   825,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,   874,  -675,  -675,   950,   830,   875,
-     875,   875,  -675,    63,  -675,   830,   830,   830,  -675,   830,
-     830,   830,    63,   541,  -675,  -675,   876,  -675,  -675,   877,
-     878,   879,   880,   881,   882,   883,   884,   886,   887,  -675,
-    -675,    63,  -675,    41,   951,   955,   956,   830,  -675,  -675,
-    -675,  -675,  -675,  -675,   830,   957,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,   830,  -675,   928,
-      63,    63,    63,  -675,  -675,    63,  -675,  -675,  -675,  -675,
-    -675,  -675,   830,  -675
-};
+#define YYACCEPT        goto yyacceptlab
+#define YYABORT         goto yyabortlab
+#define YYERROR         goto yyerrorlab
 
-/* YYPGOTO[NTERM-NUM].  */
-static const yytype_int16 yypgoto[] =
-{
-    -675,  -675,  -675,   954,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,   901,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,   888,   702,  -675,  -675,  -675,  -675,   891,
-    -675,  -675,  -675,   488,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,   -37,
-    -529,   242,  -675,  -675,  -675,  -675,  -675,  -675,  -675,  -675,
-     439,   484,   740,   -65,  -201,  -202,  -350,   598,   508,  -675,
-     939,  -675,  -675,  -675,  -675,  -675,   530,  -461,  -382,   437,
-    -675,   392,  -675,   215,  -675,  -675,  -675,  -675,  -675,  -675,
-    -675,  -675,  -675,  -675,   160,   300,  -675,  -675,  -675,  -675,
-    -147,  -675,  -108,  -674,   779,   352,  -675,   788,   997,  -675,
-    -209,  -270,   -74,   713,  -236,   792,   559,   801,   805,  -675,
-     786,  -675,  -675,  -675,   665,  -675,  -675,   621,  -675,  -675,
-    -675,  -199,  -675,  -675,  -189,  -675,  -129,   218,  -315,   469,
-    -166,  -527,  -349,  -354,  -281,  -549,  -675,   659,  -675,  -675,
-    -675,  -295,   281,  -675,   889,  -675,   435,  -675,   544,  -675,
-    -213
-};
-
-/* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
-   positive, shift that token.  If negative, reduce the rule which
-   number is the opposite.  If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -226
-static const yytype_int16 yytable[] =
-{
-     284,   206,   367,   208,   367,   370,   367,   372,   464,   378,
-     222,   264,   377,   432,   433,   484,   470,   352,   434,   435,
-     470,   438,   470,   568,   387,   209,   576,   357,   442,   478,
-     447,   650,   451,   199,   389,   785,   419,   655,   115,   455,
-     456,   116,   417,   363,   403,   775,   530,   569,   570,    93,
-     571,   326,    50,   267,   577,   200,   520,    51,   325,   371,
-     523,   373,   599,   600,   476,   344,   628,   111,   521,   202,
-     203,   479,   521,   106,   107,   480,   908,   111,   390,   601,
-     415,   533,   527,   528,   711,   712,    96,    52,   276,   277,
-     278,   279,   352,   521,   538,   539,   443,   444,   443,   444,
-     546,   739,   619,   620,   721,   722,   741,   417,   200,   531,
-     727,    35,    53,    36,   621,    37,    38,   572,   573,    39,
-     265,   622,   738,   367,   200,   776,   777,    94,   210,   548,
-     863,   439,    40,    41,   201,   364,    42,   365,    54,   909,
-      43,   521,   200,    55,   778,   417,   755,   756,   757,   758,
-     759,   760,   562,    44,    58,    45,   200,   590,   591,   592,
-     593,   594,   595,   327,   521,   345,   356,   474,   358,   328,
-     329,   330,   331,   332,   580,   581,   117,   359,   403,   333,
-     334,   627,   629,   200,   387,   658,   633,   201,   635,   636,
-     789,   112,   791,   639,   389,    56,   793,   743,   795,   796,
-     335,   220,   798,   201,   417,   402,   811,   812,   813,   814,
-     815,   816,   657,   345,   346,   805,   679,    57,   761,   471,
-     810,   201,   113,   472,   336,   473,   422,   606,   424,   608,
-      95,   448,   221,   347,   817,   348,   202,   203,   100,   574,
-     852,   353,   854,   357,   623,   624,   634,    46,   394,   858,
-     395,   449,   445,    47,   641,   421,   864,   354,   355,   848,
-     466,    96,   201,   713,   578,   855,   145,   856,   654,   467,
-     857,   101,   859,   860,   861,    99,   720,   810,   810,   810,
-     724,   195,   290,   842,   728,   843,   730,   731,   291,   732,
-     102,   292,   579,   103,   588,   364,   818,   365,   364,   882,
-     365,   104,    65,    66,   524,    48,   888,   889,   890,   245,
-     891,   892,   893,   534,    44,    67,   819,   619,   620,   426,
-     105,    68,   820,    69,    70,   108,   887,   549,   468,   621,
-     276,   277,   278,   279,   737,   894,   622,   469,   913,   422,
-     118,   424,   507,   180,   196,   914,   511,   563,   652,   422,
-     423,   424,   119,   293,   907,   512,   294,   513,   916,   120,
-     131,   151,   170,   188,   790,   445,   514,   427,   428,   429,
-     430,   121,   246,   923,   672,     1,   363,   515,   202,   203,
-     295,   803,   296,   122,   297,   123,   516,   298,   922,   207,
-     290,   238,   254,   359,    71,   261,   291,   318,   319,   292,
-     211,   561,   215,    72,   262,    73,   299,   300,   216,   202,
-     203,   301,   302,   303,   270,   304,   282,   305,   267,   306,
-     307,   436,   437,   487,   488,   308,   309,   310,   311,   582,
-     583,   847,   587,   489,   490,   491,   283,   470,   740,   542,
-     543,   146,   544,   545,   643,   286,   647,   505,   826,   827,
-     828,   829,   830,   831,   832,   833,   834,   835,   288,   623,
-     624,   293,   289,   492,   294,   314,   290,   316,   364,   665,
-     365,   317,   291,   666,   667,   292,   439,   638,     2,     3,
-       4,     5,     6,     7,     8,     9,   651,   320,   295,   321,
-     296,   322,   297,   324,   709,   298,   163,   181,   197,   126,
-     148,   167,   185,   866,   271,   272,   273,   274,   323,   895,
-     644,   645,   367,   787,   299,   300,   212,   213,   214,   301,
-     302,   303,   350,   304,    64,   305,   247,   306,   307,   225,
-     235,   251,   361,   308,   309,   310,   311,   293,   599,   600,
-     294,   376,   290,   362,   127,   149,   168,   186,   291,   416,
-     391,   292,   276,   277,   278,   279,   439,   374,   714,   392,
-      65,    66,   920,   921,   295,   393,   296,   396,   297,   885,
-     886,   298,    44,    67,   226,   236,   252,   327,   398,    68,
-     399,    69,    70,   328,   329,   330,   331,   332,   404,   413,
-     299,   300,   418,   333,   334,   301,   302,   303,   452,   304,
-     124,   305,   453,   306,   307,   164,   182,   198,   454,   308,
-     309,   310,   311,   293,   448,   457,   294,   458,   290,   138,
-     155,   174,   192,   460,   291,   475,   461,   292,   804,   405,
-     406,   407,   408,   409,   410,   248,    65,    66,   463,   439,
-     295,   465,   296,   481,   297,   165,   265,   298,    44,    67,
-     242,   483,    71,   485,   486,    68,   502,    69,    70,   111,
-     508,    72,   503,    73,   509,   510,   299,   300,   596,   597,
-     598,   301,   302,   303,   517,   304,   183,   305,   519,   306,
-     307,    65,    66,   525,   526,   308,   309,   310,   311,   293,
-     529,   532,   294,    44,    67,   613,   614,   615,   616,   535,
-      68,   506,    69,    70,   849,   850,   851,   806,   807,   808,
-     536,   537,    65,    66,   540,   541,   295,   547,   296,   550,
-     297,   223,   553,   298,    44,    67,   551,   557,    71,   555,
-     558,    68,   564,    69,    70,   559,   565,    72,   249,    73,
-     589,   566,   299,   300,   918,   918,   918,   301,   302,   303,
-     575,   304,   586,   305,   611,   306,   307,    65,    66,   605,
-     612,   308,   309,   310,   311,   607,   609,   610,   618,    44,
-      67,   631,   632,    71,    65,    66,    68,   560,    69,    70,
-     200,   637,    72,   640,    73,   642,    44,    67,   649,   662,
-     653,   659,   656,    68,   660,    69,    70,   439,   661,  -219,
-     128,   150,   169,   187,    71,   664,   680,   328,   329,   330,
-     331,   332,   379,    72,   673,    73,   674,   675,   676,   380,
-     381,   382,   677,   678,   328,   329,   330,   331,   332,   379,
-     227,   237,   253,   681,   715,   718,   380,   381,   382,   135,
-     152,   171,   189,   717,   719,   723,   725,   726,   136,   153,
-     172,   190,   137,   154,   173,   191,   729,   733,    72,   734,
-      73,   139,   156,   175,   193,   140,   157,   176,   194,   228,
-     239,   255,   742,  -221,  -223,    72,  -225,    73,   229,   240,
-     256,   751,   230,   241,   257,   747,   748,   783,   753,   754,
-     786,   231,   243,   258,   781,   232,   244,   259,   682,   683,
-     684,   685,   686,   687,   688,   689,   690,   691,   692,   693,
-     694,   695,   696,   697,   698,   699,   700,   701,   702,   703,
-     704,   705,   706,   707,   708,   763,   764,   765,   766,   767,
-     768,   769,   770,   771,   772,   788,   792,   837,   794,   797,
-     799,   800,   801,   802,   836,   838,   846,   839,   840,   844,
-     853,   862,   867,   865,   868,   881,   910,   869,   870,   871,
-     911,   912,   915,   917,   872,    59,   873,   874,   875,   876,
-     877,   878,   880,   883,   896,   219,   897,   898,   899,   900,
-     901,   902,   903,   904,   585,   905,   906,   412,   268,   809,
-     567,   482,   556,   648,   841,   710,   879,   285,    49,   129,
-     736,   414,   440,   375,   477,   450,   630,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,   351
-};
-
-#define yypact_value_is_default(yystate) \
-  ((yystate) == (-675))
-
-#define yytable_value_is_error(yytable_value) \
-  YYID (0)
-
-static const yytype_int16 yycheck[] =
-{
-     108,    66,   204,    68,   206,   206,   208,   208,   362,   222,
-      84,    44,   221,   328,   329,   397,   366,     7,   333,   334,
-     370,   336,   372,   484,   223,    98,    27,    42,   343,   383,
-     345,   558,   347,     7,   223,   709,    56,   564,    38,   354,
-     355,    41,   312,    56,   280,    42,    35,    19,    20,    12,
-      22,     7,    96,    56,    55,    98,    98,    96,   123,   206,
-      98,   208,    32,    33,   379,     7,    33,    53,   110,    89,
-      90,   386,   110,   143,   144,   390,    35,    53,   121,    49,
-     289,    98,   436,   437,   611,   612,    89,    96,    92,    93,
-      94,    95,     7,   110,   448,   449,    20,    21,    20,    21,
-     454,   650,    39,    40,   631,   632,   655,   377,    98,    98,
-     637,     9,    96,    11,    51,    13,    14,    89,    90,    17,
-     153,    58,   649,   325,    98,   122,   123,    90,   201,    98,
-     804,    98,    30,    31,   177,   148,    34,   150,    96,    98,
-      38,   110,    98,    96,   141,   415,   673,   674,   675,   676,
-     677,   678,    98,    51,     0,    53,    98,   511,   512,   513,
-     514,   515,   516,   119,   110,   155,   156,   376,   183,   125,
-     126,   127,   128,   129,    25,    26,   176,   192,   414,   135,
-     136,   535,   536,    98,   383,   567,   540,   177,   542,   543,
-     717,   177,   719,   547,   383,    96,   723,   658,   725,   726,
-     156,   177,   729,   177,   474,   209,   755,   756,   757,   758,
-     759,   760,   566,   155,   156,   742,   598,    96,   679,   366,
-     749,   177,   208,   370,   180,   372,   148,   522,   150,   524,
-      98,   155,   208,   175,    59,   177,    89,    90,    90,   211,
-     789,   156,   791,    42,   181,   182,   541,   145,    89,   798,
-      91,   175,   174,   151,   549,    54,   805,   172,   173,   786,
-      89,    89,   177,   617,    27,   792,     3,   794,   563,    98,
-     797,    90,   799,   800,   801,    44,   630,   806,   807,   808,
-     634,    63,    50,    89,   638,    91,   640,   641,    56,   643,
-      98,    59,    55,    90,   507,   148,   121,   150,   148,   848,
-     150,    91,    39,    40,   433,   203,   855,   856,   857,    91,
-     859,   860,   861,   442,    51,    52,   141,    39,    40,   156,
-     208,    58,   147,    60,    61,   199,   853,   456,    89,    51,
-      92,    93,    94,    95,    56,   862,    58,    98,   887,   148,
-      41,   150,   416,    62,    63,   894,    89,   476,   561,   148,
-     149,   150,    41,   121,   881,    98,   124,    89,   907,    41,
-      60,    61,    62,    63,   718,   174,    98,   204,   205,   206,
-     207,    16,    91,   922,   587,     8,    56,    89,    89,    90,
-     148,   735,   150,    41,   152,    41,    98,   155,   915,    91,
-      50,    91,    92,   192,   131,    10,    56,    89,    90,    59,
-     201,   475,    97,   140,    39,   142,   174,   175,    96,    89,
-      90,   179,   180,   181,    98,   183,    90,   185,    56,   187,
-     188,   194,   195,    15,    16,   193,   194,   195,   196,    25,
-      26,   785,   506,    25,    26,    27,    98,   787,   651,    89,
-      90,   178,    89,    90,   552,   197,   554,   209,   763,   764,
-     765,   766,   767,   768,   769,   770,   771,   772,   208,   181,
-     182,   121,   208,    55,   124,    37,    50,    90,   148,    24,
-     150,    90,    56,    28,    29,    59,    98,    99,   111,   112,
-     113,   114,   115,   116,   117,   118,   560,    90,   148,    90,
-     150,    90,   152,    90,   602,   155,    61,    62,    63,    60,
-      61,    62,    63,   818,   168,   169,   170,   171,    89,   863,
-     204,   205,   714,   714,   174,   175,   132,   133,   134,   179,
-     180,   181,   177,   183,     3,   185,    91,   187,   188,    90,
-      91,    92,    58,   193,   194,   195,   196,   121,    32,    33,
-     124,   208,    50,   186,    60,    61,    62,    63,    56,   209,
-      89,    59,    92,    93,    94,    95,    98,    35,   623,    23,
-      39,    40,   911,   912,   148,    98,   150,   154,   152,   850,
-     851,   155,    51,    52,    90,    91,    92,   119,    98,    58,
-      43,    60,    61,   125,   126,   127,   128,   129,   144,   198,
-     174,   175,    98,   135,   136,   179,   180,   181,   176,   183,
-       3,   185,   176,   187,   188,    61,    62,    63,   196,   193,
-     194,   195,   196,   121,   155,    89,   124,    45,    50,    60,
-      61,    62,    63,   199,    56,   209,    44,    59,   736,   161,
-     162,   163,   164,   165,   166,    91,    39,    40,    98,    98,
-     148,    98,   150,    98,   152,     3,   153,   155,    51,    52,
-      91,    89,   131,   157,    89,    58,    98,    60,    61,    53,
-      35,   140,   167,   142,    98,    90,   174,   175,    46,    47,
-      48,   179,   180,   181,    45,   183,     3,   185,    98,   187,
-     188,    39,    40,    98,    98,   193,   194,   195,   196,   121,
-      98,     5,   124,    51,    52,   157,   158,   159,   160,    98,
-      58,   209,    60,    61,   189,   190,   191,   744,   745,   746,
-      59,    98,    39,    40,    59,    98,   148,    98,   150,   184,
-     152,     3,   193,   155,    51,    52,    36,    35,   131,    98,
-       5,    58,     5,    60,    61,   157,    98,   140,     3,   142,
-     157,    98,   174,   175,   910,   911,   912,   179,   180,   181,
-      89,   183,    89,   185,     5,   187,   188,    39,    40,    99,
-       5,   193,   194,   195,   196,    99,    99,    99,    35,    51,
-      52,     5,     5,   131,    39,    40,    58,   209,    60,    61,
-      98,     5,   140,    99,   142,    98,    51,    52,     5,   210,
-      99,    90,    99,    58,    90,    60,    61,    98,    90,    89,
-      60,    61,    62,    63,   131,    89,    89,   125,   126,   127,
-     128,   129,   130,   140,     5,   142,     5,     5,     5,   137,
-     138,   139,     5,     5,   125,   126,   127,   128,   129,   130,
-      90,    91,    92,    89,     4,    89,   137,   138,   139,    60,
-      61,    62,    63,     5,     5,     5,     5,     5,    60,    61,
-      62,    63,    60,    61,    62,    63,     5,    89,   140,    57,
-     142,    60,    61,    62,    63,    60,    61,    62,    63,    90,
-      91,    92,     5,    89,    89,   140,    89,   142,    90,    91,
-      92,    18,    90,    91,    92,    89,    89,   146,    90,    90,
-       5,    90,    91,    92,   200,    90,    91,    92,    62,    63,
-      64,    65,    66,    67,    68,    69,    70,    71,    72,    73,
-      74,    75,    76,    77,    78,    79,    80,    81,    82,    83,
-      84,    85,    86,    87,    88,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,     3,     5,    89,     5,     5,
-       5,     5,     5,    98,     6,    89,    89,    98,    90,   202,
-       5,     5,    90,    89,    89,     5,     5,    98,    98,    98,
-       5,     5,     5,    35,    98,    11,    98,    98,    98,    98,
-      98,    98,    98,    98,    98,    74,    99,    99,    99,    99,
-      99,    99,    99,    99,   496,    99,    99,   285,    97,   747,
-     482,   393,   462,   556,   779,   603,   836,   109,     1,    60,
-     648,   288,   337,   217,   383,   346,   537,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,   146
-};
-
-/* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
-   symbol of state STATE-NUM.  */
-static const yytype_uint16 yystos[] =
-{
-       0,     8,   111,   112,   113,   114,   115,   116,   117,   118,
-     213,   214,   215,   232,   233,   235,   236,   237,   238,   239,
-     240,   241,   242,   243,   247,   248,   249,   274,   275,   276,
-     277,   278,   279,   280,   281,     9,    11,    13,    14,    17,
-      30,    31,    34,    38,    51,    53,   145,   151,   203,   330,
-      96,    96,    96,    96,    96,    96,    96,    96,     0,   215,
-     216,   218,   220,   222,     3,    39,    40,    52,    58,    60,
-      61,   131,   140,   142,   224,   225,   282,   283,   284,   292,
-     294,   317,   326,   329,   330,   331,   337,   338,   339,   340,
-     226,   228,   230,    12,    90,    98,    89,   250,   251,    44,
-      90,    90,    98,    90,    91,   208,   143,   144,   199,   244,
-     245,    53,   177,   208,   334,    38,    41,   176,    41,    41,
-      41,    16,    41,    41,     3,   217,   282,   283,   284,   292,
-     293,   317,   318,   319,   320,   326,   329,   337,   338,   339,
-     340,   344,   378,   379,   380,     3,   178,   219,   282,   283,
-     284,   317,   326,   329,   337,   338,   339,   340,   359,   368,
-     374,   375,   377,   378,   380,     3,   221,   282,   283,   284,
-     317,   326,   329,   337,   338,   339,   340,   370,   371,   372,
-     374,   378,   380,     3,   223,   282,   283,   284,   317,   326,
-     329,   337,   338,   339,   340,   359,   374,   378,   380,     7,
-      98,   177,    89,    90,   285,   287,   285,    91,   285,    98,
-     201,   201,   132,   133,   134,    97,    96,   341,   342,   225,
-     177,   208,   334,     3,   227,   282,   283,   284,   326,   329,
-     337,   339,   340,   347,   229,   282,   283,   284,   317,   326,
-     329,   337,   338,   339,   340,   359,   374,   378,   380,     3,
-     231,   282,   283,   284,   317,   326,   329,   337,   339,   340,
-     343,    10,    39,   234,    44,   153,   289,    56,   251,   324,
-      98,   168,   169,   170,   171,   373,    92,    93,    94,    95,
-     335,   336,    90,    98,   324,   245,   197,   246,   208,   208,
-      50,    56,    59,   121,   124,   148,   150,   152,   155,   174,
-     175,   179,   180,   181,   183,   185,   187,   188,   193,   194,
-     195,   196,   332,   333,    37,   382,    90,    90,    89,    90,
-      90,    90,    90,    89,    90,   285,     7,   119,   125,   126,
-     127,   128,   129,   135,   136,   156,   180,   345,   346,   350,
-     353,   355,   356,   357,     7,   155,   156,   175,   177,   376,
-     177,   376,     7,   156,   172,   173,   156,    42,   183,   192,
-     295,    58,   186,    56,   148,   150,   286,   287,   288,   322,
-     286,   322,   286,   322,    35,   342,   208,   332,   382,   130,
-     137,   138,   139,   348,   349,   351,   352,   353,   354,   356,
-     121,    89,    23,    98,    89,    91,   154,   290,    98,    43,
-     291,   252,   209,   336,   144,   161,   162,   163,   164,   165,
-     166,   300,   246,   198,   335,   332,   209,   333,    98,    56,
-     323,    54,   148,   149,   150,   297,   156,   204,   205,   206,
-     207,   360,   360,   360,   360,   360,   194,   195,   360,    98,
-     346,   365,   360,    20,    21,   174,   369,   360,   155,   175,
-     369,   360,   176,   176,   196,   360,   360,    89,    45,   381,
-     199,    44,   296,    98,   365,    98,    89,    98,    89,    98,
-     288,   322,   322,   322,   332,   209,   360,   349,   365,   360,
-     360,    98,   289,    89,   300,   157,    89,    15,    16,    25,
-      26,    27,    55,   253,   254,   257,   258,   259,   260,   261,
-     262,   266,    98,   167,   299,   209,   209,   334,    35,    98,
-      90,    89,    98,    89,    98,    89,    98,    45,   298,    98,
-      98,   110,   358,    98,   358,    98,    98,   365,   365,    98,
-      35,    98,     5,    98,   358,    98,    59,    98,   365,   365,
-      59,    98,    89,    90,    89,    90,   365,    98,    98,   358,
-     184,    36,   321,   193,   327,    98,   298,    35,     5,   157,
-     209,   334,    98,   358,     5,    98,    98,   290,   299,    19,
-      20,    22,    89,    90,   211,    89,    27,    55,    27,    55,
-      25,    26,    25,    26,   255,   255,    89,   334,   382,   157,
-     365,   365,   365,   365,   365,   365,    46,    47,    48,    32,
-      33,    49,   301,   302,   303,    99,   373,    99,   373,    99,
-      99,     5,     5,   157,   158,   159,   160,   361,    35,    39,
-      40,    51,    58,   181,   182,   362,   363,   365,    33,   365,
-     361,     5,     5,   365,   373,   365,   365,     5,    99,   365,
-      99,   373,    98,   324,   204,   205,   328,   324,   301,     5,
-     363,   334,   382,    99,   373,   363,    99,   365,   300,    90,
-      90,    90,   210,   267,    89,    24,    28,    29,   256,   263,
-     264,   265,   382,     5,     5,     5,     5,     5,     5,   300,
-      89,    89,    62,    63,    64,    65,    66,    67,    68,    69,
-      70,    71,    72,    73,    74,    75,    76,    77,    78,    79,
-      80,    81,    82,    83,    84,    85,    86,    87,    88,   324,
-     303,   363,   363,   365,   285,     4,   367,     5,    89,     5,
-     365,   363,   363,     5,   365,     5,     5,   363,   365,     5,
-     365,   365,   365,    89,    57,   325,   327,    56,   363,   367,
-     382,   367,     5,   299,   268,   269,   270,    89,    89,   271,
-     272,    18,   273,    90,    90,   363,   363,   363,   363,   363,
-     363,   299,   308,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   315,   316,    42,   122,   123,   141,   304,
-     305,   200,   306,   146,   314,   325,     5,   286,     3,   363,
-     365,   363,     5,   363,     5,   363,   363,     5,   363,     5,
-       5,     5,    98,   365,   324,   363,   271,   271,   271,   273,
-     272,   367,   367,   367,   367,   367,   367,    59,   121,   141,
-     147,   309,   310,   311,   312,   313,   360,   360,   360,   360,
-     360,   360,   360,   360,   360,   360,     6,    89,    89,    98,
-      90,   305,    89,    91,   202,   307,    89,   365,   363,   189,
-     190,   191,   367,     5,   367,   363,   363,   363,   367,   363,
-     363,   363,     5,   325,   367,    89,   360,    90,    89,    98,
-      98,    98,    98,    98,    98,    98,    98,    98,    98,   316,
-      98,     5,   367,    98,   366,   366,   366,   363,   367,   367,
-     367,   367,   367,   367,   363,   365,    98,    99,    99,    99,
-      99,    99,    99,    99,    99,    99,    99,   363,    35,    98,
-       5,     5,     5,   367,   367,     5,   367,    35,   362,   364,
-     364,   364,   363,   367
-};
-
-#define yyerrok		(yyerrstatus = 0)
-#define yyclearin	(yychar = YYEMPTY)
-#define YYEMPTY		(-2)
-#define YYEOF		0
-
-#define YYACCEPT	goto yyacceptlab
-#define YYABORT		goto yyabortlab
-#define YYERROR		goto yyerrorlab
-
-
-/* Like YYERROR except do call yyerror.  This remains here temporarily
-   to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  However,
-   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
-   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
-   discussed.  */
-
-#define YYFAIL		goto yyerrlab
-#if defined YYFAIL
-  /* This is here to suppress warnings from the GCC cpp's
-     -Wunused-macros.  Normally we don't worry about that warning, but
-     some users do, and we want to make it easy for users to remove
-     YYFAIL uses, which will produce warnings from Bison 2.5.  */
-#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)					\
-do								\
-  if (yychar == YYEMPTY && yylen == 1)				\
-    {								\
-      yychar = (Token);						\
-      yylval = (Value);						\
-      YYPOPSTACK (1);						\
-      goto yybackup;						\
-    }								\
-  else								\
-    {								\
+#define YYBACKUP(Token, Value)                                  \
+do                                                              \
+  if (yychar == YYEMPTY)                                        \
+    {                                                           \
+      yychar = (Token);                                         \
+      yylval = (Value);                                         \
+      YYPOPSTACK (yylen);                                       \
+      yystate = *yyssp;                                         \
+      goto yybackup;                                            \
+    }                                                           \
+  else                                                          \
+    {                                                           \
       yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;							\
-    }								\
-while (YYID (0))
+      YYERROR;                                                  \
+    }                                                           \
+while (0)
+
+/* Error token number */
+#define YYTERROR        1
+#define YYERRCODE       256
 
 
-#define YYTERROR	1
-#define YYERRCODE	256
-
-
-/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
-   the previous symbol: RHS[0] (always defined).  */
-
-#define YYRHSLOC(Rhs, K) ((Rhs)[K])
-#ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)				\
-    do									\
-      if (YYID (N))                                                    \
-	{								\
-	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
-	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
-	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
-	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
-	}								\
-      else								\
-	{								\
-	  (Current).first_line   = (Current).last_line   =		\
-	    YYRHSLOC (Rhs, 0).last_line;				\
-	  (Current).first_column = (Current).last_column =		\
-	    YYRHSLOC (Rhs, 0).last_column;				\
-	}								\
-    while (YYID (0))
-#endif
-
-
-/* This macro is provided for backward compatibility. */
-
-#ifndef YY_LOCATION_PRINT
-# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
-#endif
-
-
-/* YYLEX -- calling `yylex' with the right arguments.  */
-
-#ifdef YYLEX_PARAM
-# define YYLEX yylex (YYLEX_PARAM)
-#else
-# define YYLEX yylex ()
-#endif
 
 /* Enable debugging if requested.  */
 #if YYDEBUG
@@ -2240,54 +2008,46 @@ while (YYID (0))
 #  define YYFPRINTF fprintf
 # endif
 
-# define YYDPRINTF(Args)			\
-do {						\
-  if (yydebug)					\
-    YYFPRINTF Args;				\
-} while (YYID (0))
+# define YYDPRINTF(Args)                        \
+do {                                            \
+  if (yydebug)                                  \
+    YYFPRINTF Args;                             \
+} while (0)
 
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)			  \
-do {									  \
-  if (yydebug)								  \
-    {									  \
-      YYFPRINTF (stderr, "%s ", Title);					  \
-      yy_symbol_print (stderr,						  \
-		  Type, Value); \
-      YYFPRINTF (stderr, "\n");						  \
-    }									  \
-} while (YYID (0))
+/* This macro is provided for backward compatibility. */
+#ifndef YY_LOCATION_PRINT
+# define YY_LOCATION_PRINT(File, Loc) ((void) 0)
+#endif
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)                    \
+do {                                                                      \
+  if (yydebug)                                                            \
+    {                                                                     \
+      YYFPRINTF (stderr, "%s ", Title);                                   \
+      yy_symbol_print (stderr,                                            \
+                  Type, Value); \
+      YYFPRINTF (stderr, "\n");                                           \
+    }                                                                     \
+} while (0)
 
-/*ARGSUSED*/
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
+
+/*----------------------------------------.
+| Print this symbol's value on YYOUTPUT.  |
+`----------------------------------------*/
+
 static void
 yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
-#else
-static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep)
-    FILE *yyoutput;
-    int yytype;
-    YYSTYPE const * const yyvaluep;
-#endif
 {
+  FILE *yyo = yyoutput;
+  YYUSE (yyo);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
     YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
-# else
-  YYUSE (yyoutput);
 # endif
-  switch (yytype)
-    {
-      default:
-	break;
-    }
+  YYUSE (yytype);
 }
 
 
@@ -2295,22 +2055,11 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
 | Print this symbol on YYOUTPUT.  |
 `--------------------------------*/
 
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 static void
 yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
-#else
-static void
-yy_symbol_print (yyoutput, yytype, yyvaluep)
-    FILE *yyoutput;
-    int yytype;
-    YYSTYPE const * const yyvaluep;
-#endif
 {
-  if (yytype < YYNTOKENS)
-    YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
-  else
-    YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
+  YYFPRINTF (yyoutput, "%s %s (",
+             yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
   yy_symbol_value_print (yyoutput, yytype, yyvaluep);
   YYFPRINTF (yyoutput, ")");
@@ -2321,16 +2070,8 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
 | TOP (included).                                                   |
 `------------------------------------------------------------------*/
 
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 static void
 yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
-#else
-static void
-yy_stack_print (yybottom, yytop)
-    yytype_int16 *yybottom;
-    yytype_int16 *yytop;
-#endif
 {
   YYFPRINTF (stderr, "Stack now");
   for (; yybottom <= yytop; yybottom++)
@@ -2341,49 +2082,42 @@ yy_stack_print (yybottom, yytop)
   YYFPRINTF (stderr, "\n");
 }
 
-# define YY_STACK_PRINT(Bottom, Top)				\
-do {								\
-  if (yydebug)							\
-    yy_stack_print ((Bottom), (Top));				\
-} while (YYID (0))
+# define YY_STACK_PRINT(Bottom, Top)                            \
+do {                                                            \
+  if (yydebug)                                                  \
+    yy_stack_print ((Bottom), (Top));                           \
+} while (0)
 
 
 /*------------------------------------------------.
 | Report that the YYRULE is going to be reduced.  |
 `------------------------------------------------*/
 
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, int yyrule)
-#else
-static void
-yy_reduce_print (yyvsp, yyrule)
-    YYSTYPE *yyvsp;
-    int yyrule;
-#endif
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
 {
+  unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
-  unsigned long int yylno = yyrline[yyrule];
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
-	     yyrule - 1, yylno);
+             yyrule - 1, yylno);
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
-      yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
-		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       		       );
+      yy_symbol_print (stderr,
+                       yystos[yyssp[yyi + 1 - yynrhs]],
+                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                                              );
       YYFPRINTF (stderr, "\n");
     }
 }
 
-# define YY_REDUCE_PRINT(Rule)		\
-do {					\
-  if (yydebug)				\
-    yy_reduce_print (yyvsp, Rule); \
-} while (YYID (0))
+# define YY_REDUCE_PRINT(Rule)          \
+do {                                    \
+  if (yydebug)                          \
+    yy_reduce_print (yyssp, yyvsp, Rule); \
+} while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
@@ -2397,7 +2131,7 @@ int yydebug;
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
-#ifndef	YYINITDEPTH
+#ifndef YYINITDEPTH
 # define YYINITDEPTH 200
 #endif
 
@@ -2420,15 +2154,8 @@ int yydebug;
 #   define yystrlen strlen
 #  else
 /* Return the length of YYSTR.  */
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 static YYSIZE_T
 yystrlen (const char *yystr)
-#else
-static YYSIZE_T
-yystrlen (yystr)
-    const char *yystr;
-#endif
 {
   YYSIZE_T yylen;
   for (yylen = 0; yystr[yylen]; yylen++)
@@ -2444,16 +2171,8 @@ yystrlen (yystr)
 #  else
 /* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
    YYDEST.  */
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 static char *
 yystpcpy (char *yydest, const char *yysrc)
-#else
-static char *
-yystpcpy (yydest, yysrc)
-    char *yydest;
-    const char *yysrc;
-#endif
 {
   char *yyd = yydest;
   const char *yys = yysrc;
@@ -2483,27 +2202,27 @@ yytnamerr (char *yyres, const char *yystr)
       char const *yyp = yystr;
 
       for (;;)
-	switch (*++yyp)
-	  {
-	  case '\'':
-	  case ',':
-	    goto do_not_strip_quotes;
+        switch (*++yyp)
+          {
+          case '\'':
+          case ',':
+            goto do_not_strip_quotes;
 
-	  case '\\':
-	    if (*++yyp != '\\')
-	      goto do_not_strip_quotes;
-	    /* Fall through.  */
-	  default:
-	    if (yyres)
-	      yyres[yyn] = *yyp;
-	    yyn++;
-	    break;
+          case '\\':
+            if (*++yyp != '\\')
+              goto do_not_strip_quotes;
+            /* Fall through.  */
+          default:
+            if (yyres)
+              yyres[yyn] = *yyp;
+            yyn++;
+            break;
 
-	  case '"':
-	    if (yyres)
-	      yyres[yyn] = '\0';
-	    return yyn;
-	  }
+          case '"':
+            if (yyres)
+              yyres[yyn] = '\0';
+            return yyn;
+          }
     do_not_strip_quotes: ;
     }
 
@@ -2526,12 +2245,11 @@ static int
 yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                 yytype_int16 *yyssp, int yytoken)
 {
-  YYSIZE_T yysize0 = yytnamerr (0, yytname[yytoken]);
+  YYSIZE_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
   YYSIZE_T yysize = yysize0;
-  YYSIZE_T yysize1;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
-  const char *yyformat = 0;
+  const char *yyformat = YY_NULLPTR;
   /* Arguments of yyformat. */
   char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
   /* Number of reported tokens (one for the "unexpected", one per
@@ -2539,10 +2257,6 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
   int yycount = 0;
 
   /* There are many possibilities here to consider:
-     - Assume YYFAIL is not used.  It's too flawed to consider.  See
-       <http://lists.gnu.org/archive/html/bison-patches/2009-12/msg00024.html>
-       for details.  YYERROR is fine as it does not invoke this
-       function.
      - If this state is a consistent state with a default action, then
        the only way this function was invoked is if the default action
        is an error action.  In that case, don't check for expected
@@ -2591,11 +2305,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                     break;
                   }
                 yyarg[yycount++] = yytname[yyx];
-                yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-                if (! (yysize <= yysize1
-                       && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-                  return 2;
-                yysize = yysize1;
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
               }
         }
     }
@@ -2615,10 +2331,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 # undef YYCASE_
     }
 
-  yysize1 = yysize + yystrlen (yyformat);
-  if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-    return 2;
-  yysize = yysize1;
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
 
   if (*yymsg_alloc < yysize)
     {
@@ -2655,48 +2373,20 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 | Release the memory associated to this symbol.  |
 `-----------------------------------------------*/
 
-/*ARGSUSED*/
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 static void
 yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
-#else
-static void
-yydestruct (yymsg, yytype, yyvaluep)
-    const char *yymsg;
-    int yytype;
-    YYSTYPE *yyvaluep;
-#endif
 {
   YYUSE (yyvaluep);
-
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
 
-  switch (yytype)
-    {
-
-      default:
-	break;
-    }
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+  YYUSE (yytype);
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 
 
-/* Prevent warnings from -Wmissing-prototypes.  */
-#ifdef YYPARSE_PARAM
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void *YYPARSE_PARAM);
-#else
-int yyparse ();
-#endif
-#else /* ! YYPARSE_PARAM */
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void);
-#else
-int yyparse ();
-#endif
-#endif /* ! YYPARSE_PARAM */
 
 
 /* The lookahead symbol.  */
@@ -2704,7 +2394,6 @@ int yychar;
 
 /* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
-
 /* Number of syntax errors so far.  */
 int yynerrs;
 
@@ -2713,37 +2402,18 @@ int yynerrs;
 | yyparse.  |
 `----------*/
 
-#ifdef YYPARSE_PARAM
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
-int
-yyparse (void *YYPARSE_PARAM)
-#else
-int
-yyparse (YYPARSE_PARAM)
-    void *YYPARSE_PARAM;
-#endif
-#else /* ! YYPARSE_PARAM */
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
 int
 yyparse (void)
-#else
-int
-yyparse ()
-
-#endif
-#endif
 {
     int yystate;
     /* Number of tokens to shift before error messages enabled.  */
     int yyerrstatus;
 
     /* The stacks and their tools:
-       `yyss': related to states.
-       `yyvs': related to semantic values.
+       'yyss': related to states.
+       'yyvs': related to semantic values.
 
-       Refer to the stacks thru separate pointers, to allow yyoverflow
+       Refer to the stacks through separate pointers, to allow yyoverflow
        to reallocate them elsewhere.  */
 
     /* The state stack.  */
@@ -2761,7 +2431,7 @@ yyparse ()
   int yyn;
   int yyresult;
   /* Lookahead token as an internal (translated) token number.  */
-  int yytoken;
+  int yytoken = 0;
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
@@ -2779,9 +2449,8 @@ yyparse ()
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
 
-  yytoken = 0;
-  yyss = yyssa;
-  yyvs = yyvsa;
+  yyssp = yyss = yyssa;
+  yyvsp = yyvs = yyvsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -2790,14 +2459,6 @@ yyparse ()
   yyerrstatus = 0;
   yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
-
-  /* Initialize stack pointers.
-     Waste one element of value and location stack
-     so that they stay on the same level as the state stack.
-     The wasted elements are never initialized.  */
-  yyssp = yyss;
-  yyvsp = yyvs;
-
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -2818,23 +2479,23 @@ yyparse ()
 
 #ifdef yyoverflow
       {
-	/* Give user a chance to reallocate the stack.  Use copies of
-	   these so that the &'s don't force the real ones into
-	   memory.  */
-	YYSTYPE *yyvs1 = yyvs;
-	yytype_int16 *yyss1 = yyss;
+        /* Give user a chance to reallocate the stack.  Use copies of
+           these so that the &'s don't force the real ones into
+           memory.  */
+        YYSTYPE *yyvs1 = yyvs;
+        yytype_int16 *yyss1 = yyss;
 
-	/* Each stack pointer address is followed by the size of the
-	   data in use in that stack, in bytes.  This used to be a
-	   conditional around just the two extra args, but that might
-	   be undefined if yyoverflow is a macro.  */
-	yyoverflow (YY_("memory exhausted"),
-		    &yyss1, yysize * sizeof (*yyssp),
-		    &yyvs1, yysize * sizeof (*yyvsp),
-		    &yystacksize);
+        /* Each stack pointer address is followed by the size of the
+           data in use in that stack, in bytes.  This used to be a
+           conditional around just the two extra args, but that might
+           be undefined if yyoverflow is a macro.  */
+        yyoverflow (YY_("memory exhausted"),
+                    &yyss1, yysize * sizeof (*yyssp),
+                    &yyvs1, yysize * sizeof (*yyvsp),
+                    &yystacksize);
 
-	yyss = yyss1;
-	yyvs = yyvs1;
+        yyss = yyss1;
+        yyvs = yyvs1;
       }
 #else /* no yyoverflow */
 # ifndef YYSTACK_RELOCATE
@@ -2842,22 +2503,22 @@ yyparse ()
 # else
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
-	goto yyexhaustedlab;
+        goto yyexhaustedlab;
       yystacksize *= 2;
       if (YYMAXDEPTH < yystacksize)
-	yystacksize = YYMAXDEPTH;
+        yystacksize = YYMAXDEPTH;
 
       {
-	yytype_int16 *yyss1 = yyss;
-	union yyalloc *yyptr =
-	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
-	if (! yyptr)
-	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss_alloc, yyss);
-	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
+        yytype_int16 *yyss1 = yyss;
+        union yyalloc *yyptr =
+          (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
+        if (! yyptr)
+          goto yyexhaustedlab;
+        YYSTACK_RELOCATE (yyss_alloc, yyss);
+        YYSTACK_RELOCATE (yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
-	if (yyss1 != yyssa)
-	  YYSTACK_FREE (yyss1);
+        if (yyss1 != yyssa)
+          YYSTACK_FREE (yyss1);
       }
 # endif
 #endif /* no yyoverflow */
@@ -2866,10 +2527,10 @@ yyparse ()
       yyvsp = yyvs + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-		  (unsigned long int) yystacksize));
+                  (unsigned long int) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
-	YYABORT;
+        YYABORT;
     }
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
@@ -2898,7 +2559,7 @@ yybackup:
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
-      yychar = YYLEX;
+      yychar = yylex ();
     }
 
   if (yychar <= YYEOF)
@@ -2938,7 +2599,9 @@ yybackup:
   yychar = YYEMPTY;
 
   yystate = yyn;
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
   goto yynewstate;
 
@@ -2961,7 +2624,7 @@ yyreduce:
   yylen = yyr2[yyn];
 
   /* If YYLEN is nonzero, implement the default value of the action:
-     `$$ = $1'.
+     '$$ = $1'.
 
      Otherwise, the following line sets YYVAL to garbage.
      This behavior is undocumented and Bison
@@ -2975,216 +2638,195 @@ yyreduce:
   switch (yyn)
     {
         case 155:
-
-/* Line 1806 of yacc.c  */
-#line 497 "src/p.y"
+#line 497 "src/p.y" /* yacc.c:1646  */
     {
                    mailset.events = Event_All;
-                    addmail((yyvsp[(2) - (4)].string), &mailset, &Run.maillist);
+                    addmail((yyvsp[-2].string), &mailset, &Run.maillist);
                   }
+#line 2646 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 156:
-
-/* Line 1806 of yacc.c  */
-#line 501 "src/p.y"
+#line 501 "src/p.y" /* yacc.c:1646  */
     {
-                    addmail((yyvsp[(2) - (7)].string), &mailset, &Run.maillist);
+                    addmail((yyvsp[-5].string), &mailset, &Run.maillist);
                   }
+#line 2654 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 157:
-
-/* Line 1806 of yacc.c  */
-#line 504 "src/p.y"
+#line 504 "src/p.y" /* yacc.c:1646  */
     {
                    mailset.events = ~mailset.events;
-                   addmail((yyvsp[(2) - (8)].string), &mailset, &Run.maillist);
+                   addmail((yyvsp[-6].string), &mailset, &Run.maillist);
                   }
+#line 2663 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 158:
-
-/* Line 1806 of yacc.c  */
-#line 510 "src/p.y"
+#line 510 "src/p.y" /* yacc.c:1646  */
     {
                     if (!Run.isdaemon || ihp.daemon) {
                       ihp.daemon     = TRUE;
                       Run.isdaemon   = TRUE;
-                      Run.polltime   = (yyvsp[(3) - (4)].number);
-                      Run.startdelay = (yyvsp[(4) - (4)].number);
+                      Run.polltime   = (yyvsp[-1].number);
+                      Run.startdelay = (yyvsp[0].number);
                     }
                   }
+#line 2676 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 159:
-
-/* Line 1806 of yacc.c  */
-#line 520 "src/p.y"
+#line 520 "src/p.y" /* yacc.c:1646  */
     { (yyval.number) = START_DELAY; }
+#line 2682 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 160:
-
-/* Line 1806 of yacc.c  */
-#line 521 "src/p.y"
-    { (yyval.number) = (yyvsp[(3) - (3)].number); }
+#line 521 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = (yyvsp[0].number); }
+#line 2688 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 161:
-
-/* Line 1806 of yacc.c  */
-#line 524 "src/p.y"
+#line 524 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.expectbuffer = (yyvsp[(3) - (4)].number) * (yyvsp[(4) - (4)].number);
+                    Run.expectbuffer = (yyvsp[-1].number) * (yyvsp[0].number);
+                    if (Run.expectbuffer > EXPECT_BUFFER_MAX)
+                        yyerror("Maximum value for expect buffer is 100 KB");
                   }
+#line 2698 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 162:
-
-/* Line 1806 of yacc.c  */
-#line 529 "src/p.y"
+#line 531 "src/p.y" /* yacc.c:1646  */
     {
                     Run.init = TRUE;
                   }
+#line 2706 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 163:
-
-/* Line 1806 of yacc.c  */
-#line 534 "src/p.y"
+#line 536 "src/p.y" /* yacc.c:1646  */
     {
                   #ifdef OPENSSL_FIPS
                     Run.fipsEnabled = TRUE;
                   #endif
                   }
+#line 2716 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 164:
-
-/* Line 1806 of yacc.c  */
-#line 541 "src/p.y"
+#line 543 "src/p.y" /* yacc.c:1646  */
     {
                    if (!Run.logfile || ihp.logfile) {
                      ihp.logfile = TRUE;
-                     setlogfile((yyvsp[(3) - (3)].string));
+                     setlogfile((yyvsp[0].string));
                      Run.use_syslog = FALSE;
                      Run.dolog =TRUE;
                    }
                   }
+#line 2729 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 165:
-
-/* Line 1806 of yacc.c  */
-#line 549 "src/p.y"
+#line 551 "src/p.y" /* yacc.c:1646  */
     {
                     setsyslog(NULL);
                   }
+#line 2737 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 166:
-
-/* Line 1806 of yacc.c  */
-#line 552 "src/p.y"
+#line 554 "src/p.y" /* yacc.c:1646  */
     {
-                    setsyslog((yyvsp[(5) - (5)].string)); FREE((yyvsp[(5) - (5)].string));
+                    setsyslog((yyvsp[0].string)); FREE((yyvsp[0].string));
                   }
+#line 2745 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 167:
-
-/* Line 1806 of yacc.c  */
-#line 557 "src/p.y"
+#line 559 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.eventlist_dir = (yyvsp[(4) - (4)].string);
+                    Run.eventlist_dir = (yyvsp[0].string);
                   }
+#line 2753 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 168:
-
-/* Line 1806 of yacc.c  */
-#line 560 "src/p.y"
+#line 562 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.eventlist_dir = (yyvsp[(4) - (6)].string);
-                    Run.eventlist_slots = (yyvsp[(6) - (6)].number);
+                    Run.eventlist_dir = (yyvsp[-2].string);
+                    Run.eventlist_slots = (yyvsp[0].number);
                   }
+#line 2762 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 169:
-
-/* Line 1806 of yacc.c  */
-#line 564 "src/p.y"
+#line 566 "src/p.y" /* yacc.c:1646  */
     {
                     Run.eventlist_dir = Str_dup(MYEVENTLISTBASE);
-                    Run.eventlist_slots = (yyvsp[(4) - (4)].number);
+                    Run.eventlist_slots = (yyvsp[0].number);
                   }
+#line 2771 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 170:
-
-/* Line 1806 of yacc.c  */
-#line 570 "src/p.y"
+#line 572 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.idfile = (yyvsp[(3) - (3)].string);
+                    Run.idfile = (yyvsp[0].string);
                   }
+#line 2779 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 171:
-
-/* Line 1806 of yacc.c  */
-#line 575 "src/p.y"
+#line 577 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.statefile = (yyvsp[(3) - (3)].string);
+                    Run.statefile = (yyvsp[0].string);
                   }
+#line 2787 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 172:
-
-/* Line 1806 of yacc.c  */
-#line 580 "src/p.y"
+#line 582 "src/p.y" /* yacc.c:1646  */
     {
                    if (!Run.pidfile || ihp.pidfile) {
                      ihp.pidfile = TRUE;
-                     setpidfile((yyvsp[(3) - (3)].string));
+                     setpidfile((yyvsp[0].string));
                    }
                  }
+#line 2798 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 176:
-
-/* Line 1806 of yacc.c  */
-#line 595 "src/p.y"
+#line 597 "src/p.y" /* yacc.c:1646  */
     {
-                    check_hostname(((yyvsp[(1) - (4)].url))->hostname);
-                    addmmonit((yyvsp[(1) - (4)].url), (yyvsp[(2) - (4)].number), (yyvsp[(3) - (4)].number), (yyvsp[(4) - (4)].string));
+                    check_hostname(((yyvsp[-3].url))->hostname);
+                    addmmonit((yyvsp[-3].url), (yyvsp[-2].number), (yyvsp[-1].number), (yyvsp[0].string));
                   }
+#line 2807 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 178:
-
-/* Line 1806 of yacc.c  */
-#line 602 "src/p.y"
+#line 604 "src/p.y" /* yacc.c:1646  */
     {
                     Run.dommonitcredentials = FALSE;
                   }
+#line 2815 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 179:
-
-/* Line 1806 of yacc.c  */
-#line 607 "src/p.y"
+#line 609 "src/p.y" /* yacc.c:1646  */
     {
-                   if (((yyvsp[(4) - (5)].number)) > SMTP_TIMEOUT)
-                     Run.mailserver_timeout = (yyvsp[(4) - (5)].number);
-                   Run.mail_hostname = (yyvsp[(5) - (5)].string);
+                   if (((yyvsp[-1].number)) > SMTP_TIMEOUT)
+                     Run.mailserver_timeout = (yyvsp[-1].number);
+                   Run.mail_hostname = (yyvsp[0].string);
                   }
+#line 2825 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 180:
-
-/* Line 1806 of yacc.c  */
-#line 614 "src/p.y"
+#line 616 "src/p.y" /* yacc.c:1646  */
     {
                    Run.MailFormat.from    = mailset.from    ?  mailset.from    : Str_dup(ALERT_FROM);
                    Run.MailFormat.replyto = mailset.replyto ?  mailset.replyto : NULL;
@@ -3192,78 +2834,73 @@ yyreduce:
                    Run.MailFormat.message = mailset.message ?  mailset.message : Str_dup(ALERT_MESSAGE);
                    reset_mailset();
                  }
+#line 2837 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 181:
-
-/* Line 1806 of yacc.c  */
-#line 623 "src/p.y"
+#line 625 "src/p.y" /* yacc.c:1646  */
     {
                    Run.dohttpd = TRUE;
-                   Run.httpdport = (yyvsp[(4) - (5)].number);
+                   Run.httpdport = (yyvsp[-1].number);
                  }
+#line 2846 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 184:
-
-/* Line 1806 of yacc.c  */
-#line 633 "src/p.y"
+#line 635 "src/p.y" /* yacc.c:1646  */
     {
                     /* Restore the current text overriden by lookahead */
                     FREE(argyytext);
-                    argyytext = Str_dup((yyvsp[(1) - (5)].string));
+                    argyytext = Str_dup((yyvsp[-4].string));
 
-                    check_hostname((yyvsp[(1) - (5)].string));
-                    mailserverset.host = (yyvsp[(1) - (5)].string);
-                    mailserverset.username = (yyvsp[(2) - (5)].string);
-                    mailserverset.password = (yyvsp[(3) - (5)].string);
-                    mailserverset.ssl.version = (yyvsp[(4) - (5)].number);
+                    check_hostname((yyvsp[-4].string));
+                    mailserverset.host = (yyvsp[-4].string);
+                    mailserverset.username = (yyvsp[-3].string);
+                    mailserverset.password = (yyvsp[-2].string);
+                    mailserverset.ssl.version = (yyvsp[-1].number);
                     if (mailserverset.ssl.version != SSL_VERSION_NONE) {
                       mailserverset.ssl.use_ssl = TRUE;
                       if (mailserverset.ssl.version == SSL_VERSION_SSLV2 || mailserverset.ssl.version == SSL_VERSION_SSLV3)
                          mailserverset.port = PORT_SMTPS;
-                      mailserverset.ssl.certmd5 = (yyvsp[(5) - (5)].string);
+                      mailserverset.ssl.certmd5 = (yyvsp[0].string);
                     }
                     addmailserver(&mailserverset);
                   }
+#line 2869 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 185:
-
-/* Line 1806 of yacc.c  */
-#line 651 "src/p.y"
+#line 653 "src/p.y" /* yacc.c:1646  */
     {
                     /* Restore the current text overriden by lookahead */
                     FREE(argyytext);
-                    argyytext = Str_dup((yyvsp[(1) - (7)].string));
+                    argyytext = Str_dup((yyvsp[-6].string));
 
-                    check_hostname((yyvsp[(1) - (7)].string));
-                    mailserverset.host = (yyvsp[(1) - (7)].string);
-                    mailserverset.port = (yyvsp[(3) - (7)].number);
-                    mailserverset.username = (yyvsp[(4) - (7)].string);
-                    mailserverset.password = (yyvsp[(5) - (7)].string);
-                    mailserverset.ssl.version = (yyvsp[(6) - (7)].number);
+                    check_hostname((yyvsp[-6].string));
+                    mailserverset.host = (yyvsp[-6].string);
+                    mailserverset.port = (yyvsp[-4].number);
+                    mailserverset.username = (yyvsp[-3].string);
+                    mailserverset.password = (yyvsp[-2].string);
+                    mailserverset.ssl.version = (yyvsp[-1].number);
                     if (mailserverset.ssl.version != SSL_VERSION_NONE) {
                       mailserverset.ssl.use_ssl = TRUE;
-                      mailserverset.ssl.certmd5 = (yyvsp[(7) - (7)].string);
+                      mailserverset.ssl.certmd5 = (yyvsp[0].string);
                     }
                     addmailserver(&mailserverset);
                   }
+#line 2891 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 192:
-
-/* Line 1806 of yacc.c  */
-#line 680 "src/p.y"
+#line 682 "src/p.y" /* yacc.c:1646  */
     {
                     Run.httpdssl = FALSE;
                   }
+#line 2899 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 193:
-
-/* Line 1806 of yacc.c  */
-#line 683 "src/p.y"
+#line 685 "src/p.y" /* yacc.c:1646  */
     {
                     Run.httpdssl = TRUE;
                     if (! have_ssl())
@@ -3273,2499 +2910,2303 @@ yyreduce:
                     else if (! file_checkStat(Run.httpsslpem, "SSL server PEM file", S_IRWXU))
                       yyerror("SSL server PEM file permissions check failed");
                   }
+#line 2913 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 203:
-
-/* Line 1806 of yacc.c  */
-#line 711 "src/p.y"
+#line 713 "src/p.y" /* yacc.c:1646  */
     { Run.httpdsig = TRUE; }
+#line 2919 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 204:
-
-/* Line 1806 of yacc.c  */
-#line 712 "src/p.y"
+#line 714 "src/p.y" /* yacc.c:1646  */
     { Run.httpdsig = FALSE; }
+#line 2925 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 209:
-
-/* Line 1806 of yacc.c  */
-#line 723 "src/p.y"
-    { Run.bind_addr = (yyvsp[(2) - (2)].string); }
+#line 725 "src/p.y" /* yacc.c:1646  */
+    { Run.bind_addr = (yyvsp[0].string); }
+#line 2931 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 210:
-
-/* Line 1806 of yacc.c  */
-#line 726 "src/p.y"
+#line 728 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.httpsslpem = (yyvsp[(2) - (2)].string);
+                    Run.httpsslpem = (yyvsp[0].string);
                   }
+#line 2939 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 211:
-
-/* Line 1806 of yacc.c  */
-#line 731 "src/p.y"
+#line 733 "src/p.y" /* yacc.c:1646  */
     {
-                    Run.httpsslclientpem = (yyvsp[(2) - (2)].string);
+                    Run.httpsslclientpem = (yyvsp[0].string);
                     Run.clientssl = TRUE;
                     if (!file_checkStat(Run.httpsslclientpem, "SSL client PEM file", S_IRWXU | S_IRGRP | S_IROTH))
                       yyerror2("SSL client PEM file has too loose permissions");
                   }
+#line 2950 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 212:
-
-/* Line 1806 of yacc.c  */
-#line 739 "src/p.y"
+#line 741 "src/p.y" /* yacc.c:1646  */
     {
                     Run.allowselfcert = TRUE;
                   }
+#line 2958 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 213:
-
-/* Line 1806 of yacc.c  */
-#line 744 "src/p.y"
+#line 746 "src/p.y" /* yacc.c:1646  */
     {
-                    addcredentials((yyvsp[(2) - (5)].string),(yyvsp[(4) - (5)].string), DIGEST_CLEARTEXT, (yyvsp[(5) - (5)].number));
+                    addcredentials((yyvsp[-3].string),(yyvsp[-1].string), DIGEST_CLEARTEXT, (yyvsp[0].number));
                   }
+#line 2966 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 214:
-
-/* Line 1806 of yacc.c  */
-#line 747 "src/p.y"
+#line 749 "src/p.y" /* yacc.c:1646  */
     {
 #ifdef HAVE_LIBPAM
-                    addpamauth((yyvsp[(3) - (4)].string), (yyvsp[(4) - (4)].number));
+                    addpamauth((yyvsp[-1].string), (yyvsp[0].number));
 #else
                     yyerror("PAM is not supported");
-                    FREE((yyvsp[(3) - (4)].string));
+                    FREE((yyvsp[-1].string));
 #endif
                   }
+#line 2979 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 215:
-
-/* Line 1806 of yacc.c  */
-#line 755 "src/p.y"
+#line 757 "src/p.y" /* yacc.c:1646  */
     {
-                    addhtpasswdentry((yyvsp[(2) - (2)].string), NULL, DIGEST_CLEARTEXT);
-                    FREE((yyvsp[(2) - (2)].string));
+                    addhtpasswdentry((yyvsp[0].string), NULL, DIGEST_CLEARTEXT);
+                    FREE((yyvsp[0].string));
                   }
+#line 2988 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 216:
-
-/* Line 1806 of yacc.c  */
-#line 759 "src/p.y"
+#line 761 "src/p.y" /* yacc.c:1646  */
     {
-                    addhtpasswdentry((yyvsp[(3) - (3)].string), NULL, DIGEST_CLEARTEXT);
-                    FREE((yyvsp[(3) - (3)].string));
+                    addhtpasswdentry((yyvsp[0].string), NULL, DIGEST_CLEARTEXT);
+                    FREE((yyvsp[0].string));
                   }
+#line 2997 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 217:
-
-/* Line 1806 of yacc.c  */
-#line 763 "src/p.y"
+#line 765 "src/p.y" /* yacc.c:1646  */
     {
-                    addhtpasswdentry((yyvsp[(3) - (3)].string), NULL, DIGEST_MD5);
-                    FREE((yyvsp[(3) - (3)].string));
+                    addhtpasswdentry((yyvsp[0].string), NULL, DIGEST_MD5);
+                    FREE((yyvsp[0].string));
                   }
+#line 3006 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 218:
-
-/* Line 1806 of yacc.c  */
-#line 767 "src/p.y"
+#line 769 "src/p.y" /* yacc.c:1646  */
     {
-                    addhtpasswdentry((yyvsp[(3) - (3)].string), NULL, DIGEST_CRYPT);
-                    FREE((yyvsp[(3) - (3)].string));
+                    addhtpasswdentry((yyvsp[0].string), NULL, DIGEST_CRYPT);
+                    FREE((yyvsp[0].string));
                   }
+#line 3015 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 219:
-
-/* Line 1806 of yacc.c  */
-#line 771 "src/p.y"
+#line 773 "src/p.y" /* yacc.c:1646  */
     {
-                    htpasswd_file = (yyvsp[(2) - (2)].string);
+                    htpasswd_file = (yyvsp[0].string);
                     digesttype = CLEARTEXT;
                   }
+#line 3024 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 220:
-
-/* Line 1806 of yacc.c  */
-#line 775 "src/p.y"
+#line 777 "src/p.y" /* yacc.c:1646  */
     {
                     FREE(htpasswd_file);
                   }
+#line 3032 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 221:
-
-/* Line 1806 of yacc.c  */
-#line 778 "src/p.y"
+#line 780 "src/p.y" /* yacc.c:1646  */
     {
-                    htpasswd_file = (yyvsp[(3) - (3)].string);
+                    htpasswd_file = (yyvsp[0].string);
                     digesttype = DIGEST_CLEARTEXT;
                   }
+#line 3041 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 222:
-
-/* Line 1806 of yacc.c  */
-#line 782 "src/p.y"
+#line 784 "src/p.y" /* yacc.c:1646  */
     {
                     FREE(htpasswd_file);
                   }
+#line 3049 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 223:
-
-/* Line 1806 of yacc.c  */
-#line 785 "src/p.y"
+#line 787 "src/p.y" /* yacc.c:1646  */
     {
-                    htpasswd_file = (yyvsp[(3) - (3)].string);
+                    htpasswd_file = (yyvsp[0].string);
                     digesttype = DIGEST_MD5;
                   }
+#line 3058 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 224:
-
-/* Line 1806 of yacc.c  */
-#line 789 "src/p.y"
+#line 791 "src/p.y" /* yacc.c:1646  */
     {
                     FREE(htpasswd_file);
                   }
+#line 3066 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 225:
-
-/* Line 1806 of yacc.c  */
-#line 792 "src/p.y"
+#line 794 "src/p.y" /* yacc.c:1646  */
     {
-                    htpasswd_file = (yyvsp[(3) - (3)].string);
+                    htpasswd_file = (yyvsp[0].string);
                     digesttype = DIGEST_CRYPT;
                   }
+#line 3075 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 226:
-
-/* Line 1806 of yacc.c  */
-#line 796 "src/p.y"
+#line 798 "src/p.y" /* yacc.c:1646  */
     {
                     FREE(htpasswd_file);
                   }
+#line 3083 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 227:
-
-/* Line 1806 of yacc.c  */
-#line 799 "src/p.y"
+#line 801 "src/p.y" /* yacc.c:1646  */
     {
-                    if (! (add_net_allow((yyvsp[(2) - (2)].string)) || add_host_allow((yyvsp[(2) - (2)].string)))) {
-                      yyerror2("Erroneous network or host identifier %s", (yyvsp[(2) - (2)].string));
+                    if (! (add_net_allow((yyvsp[0].string)) || add_host_allow((yyvsp[0].string)))) {
+                      yyerror2("Erroneous network or host identifier %s", (yyvsp[0].string));
                     }
-                    FREE((yyvsp[(2) - (2)].string));
+                    FREE((yyvsp[0].string));
                   }
+#line 3094 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 230:
-
-/* Line 1806 of yacc.c  */
-#line 811 "src/p.y"
-    { addhtpasswdentry(htpasswd_file, (yyvsp[(1) - (1)].string), digesttype);
-                           FREE((yyvsp[(1) - (1)].string)); }
+#line 813 "src/p.y" /* yacc.c:1646  */
+    { addhtpasswdentry(htpasswd_file, (yyvsp[0].string), digesttype);
+                           FREE((yyvsp[0].string)); }
+#line 3101 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 231:
-
-/* Line 1806 of yacc.c  */
-#line 815 "src/p.y"
+#line 817 "src/p.y" /* yacc.c:1646  */
     { (yyval.number) = FALSE; }
+#line 3107 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 232:
-
-/* Line 1806 of yacc.c  */
-#line 816 "src/p.y"
+#line 818 "src/p.y" /* yacc.c:1646  */
     { (yyval.number) = TRUE; }
+#line 3113 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 233:
-
-/* Line 1806 of yacc.c  */
-#line 819 "src/p.y"
+#line 821 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_PROCESS, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_process);
+                    createservice(TYPE_PROCESS, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                   }
+#line 3121 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 234:
-
-/* Line 1806 of yacc.c  */
-#line 822 "src/p.y"
+#line 824 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_PROCESS, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_process);
+                    createservice(TYPE_PROCESS, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                   }
+#line 3129 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 235:
-
-/* Line 1806 of yacc.c  */
-#line 825 "src/p.y"
+#line 827 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_PROCESS, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_process);
+                    createservice(TYPE_PROCESS, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                     matchset.ignore = FALSE;
                     matchset.match_path = NULL;
-                    matchset.match_string = Str_dup((yyvsp[(4) - (4)].string));
+                    matchset.match_string = Str_dup((yyvsp[0].string));
                     addmatch(&matchset, ACTION_IGNORE, 0);
                   }
+#line 3141 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 236:
-
-/* Line 1806 of yacc.c  */
-#line 832 "src/p.y"
+#line 834 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_PROCESS, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_process);
+                    createservice(TYPE_PROCESS, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                     matchset.ignore = FALSE;
                     matchset.match_path = NULL;
-                    matchset.match_string = Str_dup((yyvsp[(4) - (4)].string));
+                    matchset.match_string = Str_dup((yyvsp[0].string));
                     addmatch(&matchset, ACTION_IGNORE, 0);
                   }
+#line 3153 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 237:
-
-/* Line 1806 of yacc.c  */
-#line 841 "src/p.y"
+#line 843 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_FILE, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_file);
+                    createservice(TYPE_FILE, (yyvsp[-2].string), (yyvsp[0].string), check_file);
                   }
+#line 3161 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 238:
-
-/* Line 1806 of yacc.c  */
-#line 846 "src/p.y"
+#line 848 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_FILESYSTEM, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_filesystem);
+                    createservice(TYPE_FILESYSTEM, (yyvsp[-2].string), (yyvsp[0].string), check_filesystem);
                   }
+#line 3169 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 239:
-
-/* Line 1806 of yacc.c  */
-#line 851 "src/p.y"
+#line 851 "src/p.y" /* yacc.c:1646  */
     {
-                    createservice(TYPE_DIRECTORY, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_directory);
+                    createservice(TYPE_FILESYSTEM, (yyvsp[-2].string), (yyvsp[0].string), check_filesystem);
                   }
+#line 3177 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 240:
-
-/* Line 1806 of yacc.c  */
-#line 856 "src/p.y"
+#line 856 "src/p.y" /* yacc.c:1646  */
     {
-                    check_hostname((yyvsp[(4) - (4)].string));
-                    createservice(TYPE_HOST, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_remote_host);
+                    createservice(TYPE_DIRECTORY, (yyvsp[-2].string), (yyvsp[0].string), check_directory);
                   }
+#line 3185 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 241:
+#line 861 "src/p.y" /* yacc.c:1646  */
+    {
+                    check_hostname((yyvsp[0].string));
+                    createservice(TYPE_HOST, (yyvsp[-2].string), (yyvsp[0].string), check_remote_host);
+                  }
+#line 3194 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 862 "src/p.y"
+  case 242:
+#line 867 "src/p.y" /* yacc.c:1646  */
     {
                     char hostname[STRLEN];
                     if (Util_getfqdnhostname(hostname, sizeof(hostname))) {
                       LogError("Cannot get system hostname\n");
                       cfg_errflag++;
                     }
-                    char *servicename = (yyvsp[(2) - (2)].string);
+                    char *servicename = (yyvsp[0].string);
                     Util_replaceString(&servicename, "$HOST", hostname);
                     Run.system = createservice(TYPE_SYSTEM, servicename, Str_dup(""), check_system); // The name given in the 'check system' statement overrides system hostname
                   }
-    break;
-
-  case 242:
-
-/* Line 1806 of yacc.c  */
-#line 874 "src/p.y"
-    {
-                    createservice(TYPE_FIFO, (yyvsp[(2) - (4)].string), (yyvsp[(4) - (4)].string), check_fifo);
-                  }
+#line 3209 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 243:
-
-/* Line 1806 of yacc.c  */
-#line 879 "src/p.y"
+#line 879 "src/p.y" /* yacc.c:1646  */
     {
-                        command_t c = command; // Current command
-                        check_exec(c->arg[0]);
-                        createservice(TYPE_PROGRAM, (yyvsp[(2) - (5)].string), Str_dup(c->arg[0]), check_program);
-                        current->program->timeout = (yyvsp[(5) - (5)].number);
+                    createservice(TYPE_FIFO, (yyvsp[-2].string), (yyvsp[0].string), check_fifo);
                   }
+#line 3217 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 244:
-
-/* Line 1806 of yacc.c  */
-#line 887 "src/p.y"
+#line 884 "src/p.y" /* yacc.c:1646  */
     {
-                    addcommand(START, (yyvsp[(3) - (3)].number));
-                  }
+                        command_t c = command; // Current command
+                        check_exec(c->arg[0]);
+                        createservice(TYPE_PROGRAM, (yyvsp[-3].string), Str_dup(c->arg[0]), check_program);
+                        current->program->timeout = (yyvsp[0].number);
+                        current->program->output = StringBuffer_create(64);
+                 }
+#line 3229 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 245:
-
-/* Line 1806 of yacc.c  */
-#line 890 "src/p.y"
+#line 891 "src/p.y" /* yacc.c:1646  */
     {
-                    addcommand(START, (yyvsp[(4) - (4)].number));
-                  }
+                        command_t c = command; // Current command
+                        check_exec(c->arg[0]);
+                        createservice(TYPE_PROGRAM, (yyvsp[-4].string), Str_dup(c->arg[0]), check_program);
+                        current->program->timeout = (yyvsp[-1].number);
+                        current->program->output = StringBuffer_create(64);
+                 }
+#line 3241 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 246:
-
-/* Line 1806 of yacc.c  */
-#line 895 "src/p.y"
+#line 900 "src/p.y" /* yacc.c:1646  */
     {
-                    addcommand(STOP, (yyvsp[(3) - (3)].number));
+                    addcommand(START, (yyvsp[0].number));
                   }
+#line 3249 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 247:
-
-/* Line 1806 of yacc.c  */
-#line 898 "src/p.y"
+#line 903 "src/p.y" /* yacc.c:1646  */
     {
-                    addcommand(STOP, (yyvsp[(4) - (4)].number));
+                    addcommand(START, (yyvsp[0].number));
                   }
+#line 3257 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 248:
-
-/* Line 1806 of yacc.c  */
-#line 904 "src/p.y"
+#line 908 "src/p.y" /* yacc.c:1646  */
     {
-                    addcommand(RESTART, (yyvsp[(3) - (3)].number));
+                    addcommand(STOP, (yyvsp[0].number));
                   }
+#line 3265 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 249:
-
-/* Line 1806 of yacc.c  */
-#line 907 "src/p.y"
+#line 911 "src/p.y" /* yacc.c:1646  */
     {
-                    addcommand(RESTART, (yyvsp[(4) - (4)].number));
+                    addcommand(STOP, (yyvsp[0].number));
                   }
+#line 3273 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 254:
-
-/* Line 1806 of yacc.c  */
-#line 920 "src/p.y"
-    { addargument((yyvsp[(1) - (1)].string)); }
+  case 250:
+#line 917 "src/p.y" /* yacc.c:1646  */
+    {
+                    addcommand(RESTART, (yyvsp[0].number));
+                  }
+#line 3281 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 255:
-
-/* Line 1806 of yacc.c  */
-#line 921 "src/p.y"
-    { addargument((yyvsp[(1) - (1)].string)); }
+  case 251:
+#line 920 "src/p.y" /* yacc.c:1646  */
+    {
+                    addcommand(RESTART, (yyvsp[0].number));
+                  }
+#line 3289 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 256:
-
-/* Line 1806 of yacc.c  */
-#line 924 "src/p.y"
-    { addeuid( get_uid((yyvsp[(2) - (2)].string), 0) ); FREE((yyvsp[(2) - (2)].string)); }
+#line 933 "src/p.y" /* yacc.c:1646  */
+    { addargument((yyvsp[0].string)); }
+#line 3295 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 257:
-
-/* Line 1806 of yacc.c  */
-#line 925 "src/p.y"
-    { addegid( get_gid((yyvsp[(2) - (2)].string), 0) ); FREE((yyvsp[(2) - (2)].string)); }
+#line 934 "src/p.y" /* yacc.c:1646  */
+    { addargument((yyvsp[0].string)); }
+#line 3301 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 258:
-
-/* Line 1806 of yacc.c  */
-#line 926 "src/p.y"
-    { addeuid( get_uid(NULL, (yyvsp[(2) - (2)].number)) ); }
+#line 937 "src/p.y" /* yacc.c:1646  */
+    { addeuid( get_uid((yyvsp[0].string), 0) ); FREE((yyvsp[0].string)); }
+#line 3307 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 259:
-
-/* Line 1806 of yacc.c  */
-#line 927 "src/p.y"
-    { addegid( get_gid(NULL, (yyvsp[(2) - (2)].number)) ); }
+#line 938 "src/p.y" /* yacc.c:1646  */
+    { addegid( get_gid((yyvsp[0].string), 0) ); FREE((yyvsp[0].string)); }
+#line 3313 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 260:
-
-/* Line 1806 of yacc.c  */
-#line 930 "src/p.y"
-    { (yyval.string) = NULL; }
+#line 939 "src/p.y" /* yacc.c:1646  */
+    { addeuid( get_uid(NULL, (yyvsp[0].number)) ); }
+#line 3319 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 261:
-
-/* Line 1806 of yacc.c  */
-#line 931 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+#line 940 "src/p.y" /* yacc.c:1646  */
+    { addegid( get_gid(NULL, (yyvsp[0].number)) ); }
+#line 3325 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 262:
-
-/* Line 1806 of yacc.c  */
-#line 932 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+#line 943 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = NULL; }
+#line 3331 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 263:
-
-/* Line 1806 of yacc.c  */
-#line 935 "src/p.y"
-    { (yyval.string) = NULL; }
+#line 944 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 3337 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 264:
-
-/* Line 1806 of yacc.c  */
-#line 936 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+#line 945 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 3343 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 265:
-
-/* Line 1806 of yacc.c  */
-#line 939 "src/p.y"
+#line 948 "src/p.y" /* yacc.c:1646  */
     { (yyval.string) = NULL; }
+#line 3349 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 266:
-
-/* Line 1806 of yacc.c  */
-#line 940 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+#line 949 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 3355 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 267:
+#line 952 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = NULL; }
+#line 3361 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 944 "src/p.y"
+  case 268:
+#line 953 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 3367 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 269:
+#line 957 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.timeout = (yyvsp[(8) - (13)].number);
-                    portset.retry = (yyvsp[(9) - (13)].number);
+                    portset.timeout = (yyvsp[-5].number);
+                    portset.retry = (yyvsp[-4].number);
                     /* This is a workaround to support content match without having to create
                      an URL object. 'urloption' creates the Request_T object we need minus the
                      URL object, but with enough information to perform content test. 
                      TODO: Parser is in need of refactoring */
                     portset.url_request = urlrequest;
-                    addeventaction(&(portset).action, (yyvsp[(12) - (13)].number), (yyvsp[(13) - (13)].number));
+                    addeventaction(&(portset).action, (yyvsp[-1].number), (yyvsp[0].number));
                     addport(&portset);
                   }
-    break;
-
-  case 268:
-
-/* Line 1806 of yacc.c  */
-#line 956 "src/p.y"
-    {
-                    prepare_urlrequest((yyvsp[(4) - (11)].url));
-                    portset.timeout = (yyvsp[(6) - (11)].number);
-                    portset.retry = (yyvsp[(7) - (11)].number);
-                    addeventaction(&(portset).action, (yyvsp[(10) - (11)].number), (yyvsp[(11) - (11)].number));
-                    addport(&portset);
-                  }
-    break;
-
-  case 269:
-
-/* Line 1806 of yacc.c  */
-#line 966 "src/p.y"
-    {
-                   portset.timeout = (yyvsp[(6) - (11)].number);
-                   portset.retry = (yyvsp[(7) - (11)].number);
-                   addeventaction(&(portset).action, (yyvsp[(10) - (11)].number), (yyvsp[(11) - (11)].number));
-                   addport(&portset);
-                  }
+#line 3383 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 270:
-
-/* Line 1806 of yacc.c  */
-#line 975 "src/p.y"
+#line 969 "src/p.y" /* yacc.c:1646  */
     {
-                   icmpset.type = (yyvsp[(4) - (10)].number);
-                   icmpset.count = (yyvsp[(5) - (10)].number);
-                   icmpset.timeout = (yyvsp[(6) - (10)].number);
-                   addeventaction(&(icmpset).action, (yyvsp[(9) - (10)].number), (yyvsp[(10) - (10)].number));
-                   addicmp(&icmpset);
+                    prepare_urlrequest((yyvsp[-7].url));
+                    portset.timeout = (yyvsp[-5].number);
+                    portset.retry = (yyvsp[-4].number);
+                    addeventaction(&(portset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addport(&portset);
                   }
+#line 3395 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 271:
+#line 979 "src/p.y" /* yacc.c:1646  */
+    {
+                   portset.timeout = (yyvsp[-5].number);
+                   portset.retry = (yyvsp[-4].number);
+                   addeventaction(&(portset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                   addport(&portset);
+                  }
+#line 3406 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 984 "src/p.y"
+  case 272:
+#line 987 "src/p.y" /* yacc.c:1646  */
+    {
+                   icmpset.type = (yyvsp[-6].number);
+                   icmpset.count = (yyvsp[-5].number);
+                   icmpset.timeout = (yyvsp[-4].number);
+                   addeventaction(&(icmpset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                   addicmp(&icmpset);
+                  }
+#line 3418 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 273:
+#line 994 "src/p.y" /* yacc.c:1646  */
+    {
+                        icmpset.type = ICMP_ECHO;
+                        icmpset.count = (yyvsp[-5].number);
+                        icmpset.timeout = (yyvsp[-4].number);
+                        addeventaction(&(icmpset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                        addicmp(&icmpset);
+                 }
+#line 3430 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 274:
+#line 1003 "src/p.y" /* yacc.c:1646  */
     {
                     if (current->type == TYPE_HOST)
                       portset.hostname = Str_dup(current->path);
                     else
                       portset.hostname = Str_dup(LOCALHOST);
                   }
-    break;
-
-  case 272:
-
-/* Line 1806 of yacc.c  */
-#line 990 "src/p.y"
-    { check_hostname((yyvsp[(2) - (2)].string)); portset.hostname = (yyvsp[(2) - (2)].string); }
-    break;
-
-  case 273:
-
-/* Line 1806 of yacc.c  */
-#line 993 "src/p.y"
-    { portset.port = (yyvsp[(2) - (2)].number); portset.family = AF_INET; }
-    break;
-
-  case 274:
-
-/* Line 1806 of yacc.c  */
-#line 996 "src/p.y"
-    {
-                    portset.pathname = (yyvsp[(2) - (2)].string); portset.family = AF_UNIX;
-                  }
+#line 3441 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 275:
-
-/* Line 1806 of yacc.c  */
-#line 1001 "src/p.y"
-    {
-                    portset.type = SOCK_STREAM;
-                  }
+#line 1009 "src/p.y" /* yacc.c:1646  */
+    { check_hostname((yyvsp[0].string)); portset.hostname = (yyvsp[0].string); }
+#line 3447 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 276:
-
-/* Line 1806 of yacc.c  */
-#line 1004 "src/p.y"
-    {
-                    portset.type = SOCK_STREAM;
-                  }
+#line 1012 "src/p.y" /* yacc.c:1646  */
+    { portset.port = (yyvsp[0].number); portset.family = AF_INET; }
+#line 3453 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 277:
-
-/* Line 1806 of yacc.c  */
-#line 1007 "src/p.y"
+#line 1015 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.type = SOCK_STREAM;
-                    portset.SSL.use_ssl = TRUE;
-                    portset.SSL.version = (yyvsp[(3) - (4)].number);
-                    if (portset.SSL.version == SSL_VERSION_NONE)
-                      portset.SSL.version = SSL_VERSION_AUTO;
-                    portset.SSL.certmd5 = (yyvsp[(4) - (4)].string);
+                    portset.pathname = (yyvsp[0].string); portset.family = AF_UNIX;
                   }
+#line 3461 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 278:
-
-/* Line 1806 of yacc.c  */
-#line 1015 "src/p.y"
+#line 1020 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.type = SOCK_DGRAM;
+                    portset.type = SOCK_STREAM;
                   }
+#line 3469 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 279:
-
-/* Line 1806 of yacc.c  */
-#line 1020 "src/p.y"
-    { (yyval.string) = NULL; }
+#line 1023 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.type = SOCK_STREAM;
+                  }
+#line 3477 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 280:
-
-/* Line 1806 of yacc.c  */
-#line 1021 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+#line 1026 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.type = SOCK_STREAM;
+                    portset.SSL.use_ssl = TRUE;
+                    portset.SSL.version = (yyvsp[-1].number);
+                    if (portset.SSL.version == SSL_VERSION_NONE)
+                      portset.SSL.version = SSL_VERSION_AUTO;
+                    portset.SSL.certmd5 = (yyvsp[0].string);
+                  }
+#line 3490 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 281:
-
-/* Line 1806 of yacc.c  */
-#line 1024 "src/p.y"
-    { (yyval.number) = SSL_VERSION_NONE; }
+#line 1034 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.type = SOCK_DGRAM;
+                  }
+#line 3498 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 282:
-
-/* Line 1806 of yacc.c  */
-#line 1025 "src/p.y"
-    { (yyval.number) = SSL_VERSION_SSLV2; }
+#line 1039 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = NULL; }
+#line 3504 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 283:
-
-/* Line 1806 of yacc.c  */
-#line 1026 "src/p.y"
-    { (yyval.number) = SSL_VERSION_SSLV3; }
+#line 1040 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 3510 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 284:
-
-/* Line 1806 of yacc.c  */
-#line 1027 "src/p.y"
-    { (yyval.number) = SSL_VERSION_TLSV1; }
+#line 1043 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = SSL_VERSION_NONE; }
+#line 3516 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 285:
+#line 1044 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = SSL_VERSION_SSLV2; }
+#line 3522 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1029 "src/p.y"
+  case 286:
+#line 1045 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = SSL_VERSION_SSLV3; }
+#line 3528 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 287:
+#line 1046 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = SSL_VERSION_TLSV1; }
+#line 3534 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 288:
+#line 1048 "src/p.y" /* yacc.c:1646  */
     {
 #ifndef HAVE_TLSV1_1_CLIENT_METHOD
                         yyerror("Your SSL Library does not support TLS version 1.1");
 #endif
                         (yyval.number) = SSL_VERSION_TLSV11;
                 }
+#line 3545 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 286:
-
-/* Line 1806 of yacc.c  */
-#line 1036 "src/p.y"
+  case 289:
+#line 1055 "src/p.y" /* yacc.c:1646  */
     {
 #ifndef HAVE_TLSV1_1_CLIENT_METHOD
                         yyerror("Your SSL Library does not support TLS version 1.2");
 #endif
                         (yyval.number) = SSL_VERSION_TLSV12;
                 }
-    break;
-
-  case 287:
-
-/* Line 1806 of yacc.c  */
-#line 1042 "src/p.y"
-    { (yyval.number) = SSL_VERSION_AUTO; }
-    break;
-
-  case 288:
-
-/* Line 1806 of yacc.c  */
-#line 1045 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_DEFAULT);
-                  }
-    break;
-
-  case 289:
-
-/* Line 1806 of yacc.c  */
-#line 1048 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_APACHESTATUS);
-                  }
+#line 3556 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 290:
-
-/* Line 1806 of yacc.c  */
-#line 1051 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_DEFAULT);
-                  }
+#line 1061 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = SSL_VERSION_AUTO; }
+#line 3562 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 291:
-
-/* Line 1806 of yacc.c  */
-#line 1054 "src/p.y"
+#line 1064 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_DNS);
+                    portset.protocol = Protocol_get(Protocol_DEFAULT);
                   }
+#line 3570 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 292:
-
-/* Line 1806 of yacc.c  */
-#line 1057 "src/p.y"
+#line 1067 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_DWP);
+                    portset.protocol = Protocol_get(Protocol_APACHESTATUS);
                   }
+#line 3578 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 293:
-
-/* Line 1806 of yacc.c  */
-#line 1060 "src/p.y"
+#line 1070 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_FTP);
+                    portset.protocol = Protocol_get(Protocol_DEFAULT);
                   }
+#line 3586 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 294:
-
-/* Line 1806 of yacc.c  */
-#line 1063 "src/p.y"
+#line 1073 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_HTTP);
+                    portset.protocol = Protocol_get(Protocol_DNS);
                   }
+#line 3594 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 295:
-
-/* Line 1806 of yacc.c  */
-#line 1066 "src/p.y"
+#line 1076 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_IMAP);
+                    portset.protocol = Protocol_get(Protocol_DWP);
                   }
+#line 3602 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 296:
-
-/* Line 1806 of yacc.c  */
-#line 1069 "src/p.y"
+#line 1079 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_CLAMAV);
+                    portset.protocol = Protocol_get(Protocol_FTP);
                   }
+#line 3610 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 297:
-
-/* Line 1806 of yacc.c  */
-#line 1072 "src/p.y"
+#line 1082 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_LDAP2);
+                        portset.protocol = Protocol_get(Protocol_HTTP);
                   }
+#line 3618 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 298:
-
-/* Line 1806 of yacc.c  */
-#line 1075 "src/p.y"
+#line 1085 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_LDAP3);
-                  }
+                        portset.type = SOCK_STREAM;
+                        portset.SSL.use_ssl = TRUE;
+                        portset.SSL.version = SSL_VERSION_AUTO;
+                        portset.protocol = Protocol_get(Protocol_HTTP);
+                 }
+#line 3629 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 299:
-
-/* Line 1806 of yacc.c  */
-#line 1078 "src/p.y"
+#line 1091 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_MYSQL);
+                    portset.protocol = Protocol_get(Protocol_IMAP);
                   }
+#line 3637 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 300:
-
-/* Line 1806 of yacc.c  */
-#line 1081 "src/p.y"
+#line 1094 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_SIP);
+                    portset.protocol = Protocol_get(Protocol_CLAMAV);
                   }
+#line 3645 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 301:
-
-/* Line 1806 of yacc.c  */
-#line 1084 "src/p.y"
+#line 1097 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_NNTP);
+                    portset.protocol = Protocol_get(Protocol_LDAP2);
                   }
+#line 3653 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 302:
+#line 1100 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.protocol = Protocol_get(Protocol_LDAP3);
+                  }
+#line 3661 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1087 "src/p.y"
+  case 303:
+#line 1103 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.protocol = Protocol_get(Protocol_MYSQL);
+                  }
+#line 3669 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 304:
+#line 1106 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.protocol = Protocol_get(Protocol_SIP);
+                  }
+#line 3677 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 305:
+#line 1109 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.protocol = Protocol_get(Protocol_NNTP);
+                  }
+#line 3685 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 306:
+#line 1112 "src/p.y" /* yacc.c:1646  */
     {
                     portset.protocol = Protocol_get(Protocol_NTP3);
                     portset.type = SOCK_DGRAM;
                   }
-    break;
-
-  case 303:
-
-/* Line 1806 of yacc.c  */
-#line 1091 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_POSTFIXPOLICY);
-                  }
-    break;
-
-  case 304:
-
-/* Line 1806 of yacc.c  */
-#line 1094 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_POP);
-                  }
-    break;
-
-  case 305:
-
-/* Line 1806 of yacc.c  */
-#line 1097 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_SMTP);
-                  }
-    break;
-
-  case 306:
-
-/* Line 1806 of yacc.c  */
-#line 1100 "src/p.y"
-    {
-                    portset.protocol = Protocol_get(Protocol_SSH);
-                  }
+#line 3694 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 307:
-
-/* Line 1806 of yacc.c  */
-#line 1103 "src/p.y"
+#line 1116 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_RDATE);
+                    portset.protocol = Protocol_get(Protocol_POSTFIXPOLICY);
                   }
+#line 3702 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 308:
-
-/* Line 1806 of yacc.c  */
-#line 1106 "src/p.y"
+#line 1119 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_RSYNC);
+                    portset.protocol = Protocol_get(Protocol_POP);
                   }
+#line 3710 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 309:
-
-/* Line 1806 of yacc.c  */
-#line 1109 "src/p.y"
+#line 1122 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_TNS);
+                    portset.protocol = Protocol_get(Protocol_SMTP);
                   }
+#line 3718 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 310:
-
-/* Line 1806 of yacc.c  */
-#line 1112 "src/p.y"
+#line 1125 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_PGSQL);
-                  }
+                        portset.type = SOCK_STREAM;
+                        portset.SSL.use_ssl = TRUE;
+                        portset.SSL.version = SSL_VERSION_AUTO;
+                        portset.protocol = Protocol_get(Protocol_SMTP);
+                 }
+#line 3729 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 311:
-
-/* Line 1806 of yacc.c  */
-#line 1115 "src/p.y"
+#line 1131 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_LMTP);
+                    portset.protocol = Protocol_get(Protocol_SSH);
                   }
+#line 3737 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 312:
-
-/* Line 1806 of yacc.c  */
-#line 1118 "src/p.y"
+#line 1134 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_GPS);
+                    portset.protocol = Protocol_get(Protocol_RDATE);
                   }
+#line 3745 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 313:
-
-/* Line 1806 of yacc.c  */
-#line 1121 "src/p.y"
+#line 1137 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_RADIUS);
+                    portset.protocol = Protocol_get(Protocol_RSYNC);
                   }
+#line 3753 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 314:
-
-/* Line 1806 of yacc.c  */
-#line 1124 "src/p.y"
+#line 1140 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_MEMCACHE);
+                    portset.protocol = Protocol_get(Protocol_TNS);
                   }
+#line 3761 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 315:
-
-/* Line 1806 of yacc.c  */
-#line 1127 "src/p.y"
+#line 1143 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_WEBSOCKET);
+                    portset.protocol = Protocol_get(Protocol_PGSQL);
                   }
+#line 3769 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 316:
-
-/* Line 1806 of yacc.c  */
-#line 1130 "src/p.y"
+#line 1146 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.protocol = Protocol_get(Protocol_GENERIC);
+                    portset.protocol = Protocol_get(Protocol_LMTP);
                   }
+#line 3777 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 317:
+#line 1149 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.protocol = Protocol_get(Protocol_GPS);
+                  }
+#line 3785 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 318:
+#line 1152 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.protocol = Protocol_get(Protocol_RADIUS);
+                  }
+#line 3793 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 319:
-
-/* Line 1806 of yacc.c  */
-#line 1139 "src/p.y"
+#line 1155 "src/p.y" /* yacc.c:1646  */
     {
-                    addgeneric(&portset, (yyvsp[(2) - (2)].string), NULL);
+                    portset.protocol = Protocol_get(Protocol_MEMCACHE);
                   }
+#line 3801 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 320:
-
-/* Line 1806 of yacc.c  */
-#line 1142 "src/p.y"
+#line 1158 "src/p.y" /* yacc.c:1646  */
     {
-                    addgeneric(&portset, NULL, (yyvsp[(2) - (2)].string));
+                    portset.protocol = Protocol_get(Protocol_WEBSOCKET);
                   }
+#line 3809 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 323:
-
-/* Line 1806 of yacc.c  */
-#line 1151 "src/p.y"
+  case 321:
+#line 1161 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.pathname = (yyvsp[(2) - (2)].string);
+                    portset.protocol = Protocol_get(Protocol_GENERIC);
                   }
+#line 3817 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 324:
-
-/* Line 1806 of yacc.c  */
-#line 1154 "src/p.y"
+#line 1170 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.request = (yyvsp[(2) - (2)].string);
+                    addgeneric(&portset, (yyvsp[0].string), NULL);
                   }
+#line 3825 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 325:
-
-/* Line 1806 of yacc.c  */
-#line 1157 "src/p.y"
+#line 1173 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.request_hostheader = (yyvsp[(2) - (2)].string);
+                    addgeneric(&portset, NULL, (yyvsp[0].string));
                   }
-    break;
-
-  case 326:
-
-/* Line 1806 of yacc.c  */
-#line 1160 "src/p.y"
-    {
-                    portset.version = (yyvsp[(2) - (2)].number);
-                  }
+#line 3833 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 328:
-
-/* Line 1806 of yacc.c  */
-#line 1166 "src/p.y"
+#line 1182 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.request = (yyvsp[(2) - (2)].string);
+                    portset.pathname = (yyvsp[0].string);
                   }
+#line 3841 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 329:
-
-/* Line 1806 of yacc.c  */
-#line 1169 "src/p.y"
+#line 1185 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.request = (yyvsp[(2) - (2)].string);
+                    portset.request = (yyvsp[0].string);
                   }
+#line 3849 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 330:
+#line 1188 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.request_hostheader = (yyvsp[0].string);
+                  }
+#line 3857 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 331:
-
-/* Line 1806 of yacc.c  */
-#line 1175 "src/p.y"
+#line 1191 "src/p.y" /* yacc.c:1646  */
     {
-                     portset.maxforward = verifyMaxForward((yyvsp[(2) - (2)].number));
+                    portset.version = (yyvsp[0].number);
+                  }
+#line 3865 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 333:
+#line 1197 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.request = (yyvsp[0].string);
+                  }
+#line 3873 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 334:
+#line 1200 "src/p.y" /* yacc.c:1646  */
+    {
+                    portset.request = (yyvsp[0].string);
+                  }
+#line 3881 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 336:
+#line 1206 "src/p.y" /* yacc.c:1646  */
+    {
+                     portset.maxforward = verifyMaxForward((yyvsp[0].number));
                    }
+#line 3889 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 338:
-
-/* Line 1806 of yacc.c  */
-#line 1190 "src/p.y"
+  case 344:
+#line 1222 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.operator = (yyvsp[(2) - (3)].number);
-                    portset.status = (yyvsp[(3) - (3)].number);
+                    portset.operator = (yyvsp[-1].number);
+                    portset.status = (yyvsp[0].number);
                   }
-    break;
-
-  case 339:
-
-/* Line 1806 of yacc.c  */
-#line 1196 "src/p.y"
-    {
-                    portset.request = Util_urlEncode((yyvsp[(2) - (2)].string));
-                    FREE((yyvsp[(2) - (2)].string));
-                  }
-    break;
-
-  case 340:
-
-/* Line 1806 of yacc.c  */
-#line 1202 "src/p.y"
-    {
-                    portset.request_checksum = (yyvsp[(2) - (2)].string);
-                  }
-    break;
-
-  case 341:
-
-/* Line 1806 of yacc.c  */
-#line 1207 "src/p.y"
-    {
-                    portset.request_hostheader = (yyvsp[(2) - (2)].string);
-                  }
-    break;
-
-  case 342:
-
-/* Line 1806 of yacc.c  */
-#line 1212 "src/p.y"
-    {
-                    portset.request = (yyvsp[(2) - (2)].string);
-                  }
+#line 3898 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 345:
-
-/* Line 1806 of yacc.c  */
-#line 1221 "src/p.y"
+#line 1228 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.loglimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.loglimit = (yyvsp[(3) - (4)].number);
+                    portset.request = Util_urlEncode((yyvsp[0].string));
+                    FREE((yyvsp[0].string));
                   }
+#line 3907 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 346:
-
-/* Line 1806 of yacc.c  */
-#line 1225 "src/p.y"
+#line 1234 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.closelimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.closelimit = (yyvsp[(3) - (4)].number);
+                    portset.request_checksum = (yyvsp[0].string);
                   }
+#line 3915 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 347:
-
-/* Line 1806 of yacc.c  */
-#line 1229 "src/p.y"
+#line 1239 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.dnslimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.dnslimit = (yyvsp[(3) - (4)].number);
+                    portset.request_hostheader = (yyvsp[0].string);
                   }
-    break;
-
-  case 348:
-
-/* Line 1806 of yacc.c  */
-#line 1233 "src/p.y"
-    {
-                    portset.ApacheStatus.keepalivelimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.keepalivelimit = (yyvsp[(3) - (4)].number);
-                  }
+#line 3923 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 349:
-
-/* Line 1806 of yacc.c  */
-#line 1237 "src/p.y"
+#line 1245 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.replylimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.replylimit = (yyvsp[(3) - (4)].number);
-                  }
+                        if (! portset.http_headers) {
+                                portset.http_headers = List_new();
+                        }
+                        List_append(portset.http_headers, (yyvsp[0].string));
+                 }
+#line 3934 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 350:
-
-/* Line 1806 of yacc.c  */
-#line 1241 "src/p.y"
+#line 1253 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.requestlimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.requestlimit = (yyvsp[(3) - (4)].number);
+                    portset.request = (yyvsp[0].string);
                   }
-    break;
-
-  case 351:
-
-/* Line 1806 of yacc.c  */
-#line 1245 "src/p.y"
-    {
-                    portset.ApacheStatus.startlimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.startlimit = (yyvsp[(3) - (4)].number);
-                  }
-    break;
-
-  case 352:
-
-/* Line 1806 of yacc.c  */
-#line 1249 "src/p.y"
-    {
-                    portset.ApacheStatus.waitlimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.waitlimit = (yyvsp[(3) - (4)].number);
-                  }
+#line 3942 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 353:
-
-/* Line 1806 of yacc.c  */
-#line 1253 "src/p.y"
+#line 1262 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.gracefullimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.gracefullimit = (yyvsp[(3) - (4)].number);
+                    portset.ApacheStatus.loglimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.loglimit = (yyvsp[-1].number);
                   }
+#line 3951 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 354:
-
-/* Line 1806 of yacc.c  */
-#line 1257 "src/p.y"
+#line 1266 "src/p.y" /* yacc.c:1646  */
     {
-                    portset.ApacheStatus.cleanuplimitOP = (yyvsp[(2) - (4)].number);
-                    portset.ApacheStatus.cleanuplimit = (yyvsp[(3) - (4)].number);
+                    portset.ApacheStatus.closelimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.closelimit = (yyvsp[-1].number);
                   }
+#line 3960 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 355:
-
-/* Line 1806 of yacc.c  */
-#line 1263 "src/p.y"
+#line 1270 "src/p.y" /* yacc.c:1646  */
     {
-                    seteventaction(&(current)->action_NONEXIST, (yyvsp[(6) - (7)].number), (yyvsp[(7) - (7)].number));
+                    portset.ApacheStatus.dnslimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.dnslimit = (yyvsp[-1].number);
                   }
+#line 3969 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 356:
-
-/* Line 1806 of yacc.c  */
-#line 1269 "src/p.y"
+#line 1274 "src/p.y" /* yacc.c:1646  */
     {
-                    seteventaction(&(current)->action_PID, (yyvsp[(6) - (6)].number), ACTION_IGNORE);
+                    portset.ApacheStatus.keepalivelimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.keepalivelimit = (yyvsp[-1].number);
                   }
+#line 3978 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 357:
-
-/* Line 1806 of yacc.c  */
-#line 1274 "src/p.y"
+#line 1278 "src/p.y" /* yacc.c:1646  */
     {
-                    seteventaction(&(current)->action_PPID, (yyvsp[(6) - (6)].number), ACTION_IGNORE);
+                    portset.ApacheStatus.replylimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.replylimit = (yyvsp[-1].number);
                   }
+#line 3987 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 358:
-
-/* Line 1806 of yacc.c  */
-#line 1279 "src/p.y"
+#line 1282 "src/p.y" /* yacc.c:1646  */
     {
-                    uptimeset.operator = (yyvsp[(3) - (9)].number);
-                    uptimeset.uptime = ((unsigned long long)(yyvsp[(4) - (9)].number) * (yyvsp[(5) - (9)].number));
-                    addeventaction(&(uptimeset).action, (yyvsp[(8) - (9)].number), (yyvsp[(9) - (9)].number));
-                    adduptime(&uptimeset);
+                    portset.ApacheStatus.requestlimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.requestlimit = (yyvsp[-1].number);
                   }
+#line 3996 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 359:
-
-/* Line 1806 of yacc.c  */
-#line 1286 "src/p.y"
+#line 1286 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = ICMP_ATTEMPT_COUNT;
+                    portset.ApacheStatus.startlimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.startlimit = (yyvsp[-1].number);
                   }
+#line 4005 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 360:
-
-/* Line 1806 of yacc.c  */
-#line 1289 "src/p.y"
+#line 1290 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = (yyvsp[(2) - (2)].number);
+                    portset.ApacheStatus.waitlimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.waitlimit = (yyvsp[-1].number);
                   }
+#line 4014 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 361:
-
-/* Line 1806 of yacc.c  */
-#line 1294 "src/p.y"
+#line 1294 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = EXEC_TIMEOUT;
+                    portset.ApacheStatus.gracefullimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.gracefullimit = (yyvsp[-1].number);
                   }
+#line 4023 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 362:
-
-/* Line 1806 of yacc.c  */
-#line 1297 "src/p.y"
+#line 1298 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = (yyvsp[(2) - (3)].number);
+                    portset.ApacheStatus.cleanuplimitOP = (yyvsp[-2].number);
+                    portset.ApacheStatus.cleanuplimit = (yyvsp[-1].number);
                   }
+#line 4032 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 363:
-
-/* Line 1806 of yacc.c  */
-#line 1302 "src/p.y"
+#line 1304 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = PROGRAM_TIMEOUT; // Default program status check timeout is 5 min
+                    seteventaction(&(current)->action_NONEXIST, (yyvsp[-1].number), (yyvsp[0].number));
                   }
+#line 4040 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 364:
-
-/* Line 1806 of yacc.c  */
-#line 1305 "src/p.y"
+#line 1310 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = (yyvsp[(2) - (3)].number);
+                    seteventaction(&(current)->action_PID, (yyvsp[0].number), ACTION_IGNORE);
                   }
+#line 4048 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 365:
-
-/* Line 1806 of yacc.c  */
-#line 1310 "src/p.y"
+#line 1315 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = NET_TIMEOUT;
+                    seteventaction(&(current)->action_PPID, (yyvsp[0].number), ACTION_IGNORE);
                   }
+#line 4056 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 366:
-
-/* Line 1806 of yacc.c  */
-#line 1313 "src/p.y"
+#line 1320 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = (yyvsp[(2) - (3)].number);
+                    uptimeset.operator = (yyvsp[-6].number);
+                    uptimeset.uptime = ((unsigned long long)(yyvsp[-5].number) * (yyvsp[-4].number));
+                    addeventaction(&(uptimeset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    adduptime(&uptimeset);
                   }
+#line 4067 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 367:
-
-/* Line 1806 of yacc.c  */
-#line 1318 "src/p.y"
+#line 1327 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = 1;
+                   (yyval.number) = ICMP_ATTEMPT_COUNT;
                   }
+#line 4075 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 368:
-
-/* Line 1806 of yacc.c  */
-#line 1321 "src/p.y"
+#line 1330 "src/p.y" /* yacc.c:1646  */
     {
-                   (yyval.number) = (yyvsp[(2) - (2)].number);
-                  }
+                        (yyval.number) = (yyvsp[0].number);
+                 }
+#line 4083 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 369:
-
-/* Line 1806 of yacc.c  */
-#line 1326 "src/p.y"
+#line 1335 "src/p.y" /* yacc.c:1646  */
     {
-                   actionrateset.count = (yyvsp[(2) - (7)].number);
-                   actionrateset.cycle = (yyvsp[(4) - (7)].number);
-                   addeventaction(&(actionrateset).action, (yyvsp[(7) - (7)].number), ACTION_ALERT);
-                   addactionrate(&actionrateset);
-                 }
+                   (yyval.number) = EXEC_TIMEOUT;
+                  }
+#line 4091 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 370:
-
-/* Line 1806 of yacc.c  */
-#line 1332 "src/p.y"
+#line 1338 "src/p.y" /* yacc.c:1646  */
     {
-                   actionrateset.count = (yyvsp[(2) - (7)].number);
-                   actionrateset.cycle = (yyvsp[(4) - (7)].number);
-                   addeventaction(&(actionrateset).action, ACTION_UNMONITOR, ACTION_ALERT);
-                   addactionrate(&actionrateset);
-                 }
+                   (yyval.number) = (yyvsp[-1].number);
+                  }
+#line 4099 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 371:
+#line 1343 "src/p.y" /* yacc.c:1646  */
+    {
+                   (yyval.number) = PROGRAM_TIMEOUT; // Default program status check timeout is 5 min
+                  }
+#line 4107 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 372:
-
-/* Line 1806 of yacc.c  */
-#line 1341 "src/p.y"
+#line 1346 "src/p.y" /* yacc.c:1646  */
     {
-                    seturlrequest((yyvsp[(2) - (3)].number), (yyvsp[(3) - (3)].string));
-                    FREE((yyvsp[(3) - (3)].string));
+                   (yyval.number) = (yyvsp[-1].number);
                   }
+#line 4115 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 373:
-
-/* Line 1806 of yacc.c  */
-#line 1347 "src/p.y"
-    { (yyval.number) = Operator_Equal; }
+#line 1351 "src/p.y" /* yacc.c:1646  */
+    {
+                   (yyval.number) = NET_TIMEOUT; // timeout is in milliseconds
+                  }
+#line 4123 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 374:
-
-/* Line 1806 of yacc.c  */
-#line 1348 "src/p.y"
-    { (yyval.number) = Operator_NotEqual; }
+#line 1354 "src/p.y" /* yacc.c:1646  */
+    {
+                   (yyval.number) = (yyvsp[-1].number) * 1000; // net timeout is in milliseconds internally
+                  }
+#line 4131 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 375:
-
-/* Line 1806 of yacc.c  */
-#line 1351 "src/p.y"
+#line 1359 "src/p.y" /* yacc.c:1646  */
     {
-                   mailset.events = Event_All;
-                   addmail((yyvsp[(1) - (3)].string), &mailset, &current->maillist);
+                   (yyval.number) = 1;
                   }
+#line 4139 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 376:
-
-/* Line 1806 of yacc.c  */
-#line 1355 "src/p.y"
+#line 1362 "src/p.y" /* yacc.c:1646  */
     {
-                   addmail((yyvsp[(1) - (6)].string), &mailset, &current->maillist);
+                   (yyval.number) = (yyvsp[0].number);
                   }
+#line 4147 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 377:
-
-/* Line 1806 of yacc.c  */
-#line 1358 "src/p.y"
+#line 1367 "src/p.y" /* yacc.c:1646  */
     {
-                   mailset.events = ~mailset.events;
-                   addmail((yyvsp[(1) - (7)].string), &mailset, &current->maillist);
-                  }
+                   actionrateset.count = (yyvsp[-5].number);
+                   actionrateset.cycle = (yyvsp[-3].number);
+                   addeventaction(&(actionrateset).action, (yyvsp[0].number), ACTION_ALERT);
+                   addactionrate(&actionrateset);
+                 }
+#line 4158 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 378:
-
-/* Line 1806 of yacc.c  */
-#line 1362 "src/p.y"
+#line 1373 "src/p.y" /* yacc.c:1646  */
     {
-                   addmail((yyvsp[(1) - (1)].string), &mailset, &current->maillist);
-                  }
-    break;
-
-  case 379:
-
-/* Line 1806 of yacc.c  */
-#line 1367 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+                   actionrateset.count = (yyvsp[-5].number);
+                   actionrateset.cycle = (yyvsp[-3].number);
+                   addeventaction(&(actionrateset).action, ACTION_UNMONITOR, ACTION_ALERT);
+                   addactionrate(&actionrateset);
+                 }
+#line 4169 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 380:
+#line 1382 "src/p.y" /* yacc.c:1646  */
+    {
+                    seturlrequest((yyvsp[-1].number), (yyvsp[0].string));
+                    FREE((yyvsp[0].string));
+                  }
+#line 4178 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1370 "src/p.y"
-    { (yyval.string) = (yyvsp[(2) - (2)].string); }
+  case 381:
+#line 1388 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_Equal; }
+#line 4184 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 382:
+#line 1389 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_NotEqual; }
+#line 4190 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 383:
-
-/* Line 1806 of yacc.c  */
-#line 1377 "src/p.y"
-    { mailset.events |= Event_Action; }
+#line 1392 "src/p.y" /* yacc.c:1646  */
+    {
+                   mailset.events = Event_All;
+                   addmail((yyvsp[-2].string), &mailset, &current->maillist);
+                  }
+#line 4199 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 384:
-
-/* Line 1806 of yacc.c  */
-#line 1378 "src/p.y"
-    { mailset.events |= Event_Checksum; }
+#line 1396 "src/p.y" /* yacc.c:1646  */
+    {
+                   addmail((yyvsp[-5].string), &mailset, &current->maillist);
+                  }
+#line 4207 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 385:
-
-/* Line 1806 of yacc.c  */
-#line 1379 "src/p.y"
-    { mailset.events |= Event_Connection; }
+#line 1399 "src/p.y" /* yacc.c:1646  */
+    {
+                   mailset.events = ~mailset.events;
+                   addmail((yyvsp[-6].string), &mailset, &current->maillist);
+                  }
+#line 4216 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 386:
-
-/* Line 1806 of yacc.c  */
-#line 1380 "src/p.y"
-    { mailset.events |= Event_Content; }
+#line 1403 "src/p.y" /* yacc.c:1646  */
+    {
+                   addmail((yyvsp[0].string), &mailset, &current->maillist);
+                  }
+#line 4224 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 387:
-
-/* Line 1806 of yacc.c  */
-#line 1381 "src/p.y"
-    { mailset.events |= Event_Data; }
+#line 1408 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 4230 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 388:
-
-/* Line 1806 of yacc.c  */
-#line 1382 "src/p.y"
-    { mailset.events |= Event_Exec; }
-    break;
-
-  case 389:
-
-/* Line 1806 of yacc.c  */
-#line 1383 "src/p.y"
-    { mailset.events |= Event_Fsflag; }
-    break;
-
-  case 390:
-
-/* Line 1806 of yacc.c  */
-#line 1384 "src/p.y"
-    { mailset.events |= Event_Gid; }
+#line 1411 "src/p.y" /* yacc.c:1646  */
+    { (yyval.string) = (yyvsp[0].string); }
+#line 4236 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 391:
-
-/* Line 1806 of yacc.c  */
-#line 1385 "src/p.y"
-    { mailset.events |= Event_Icmp; }
+#line 1418 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Action; }
+#line 4242 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 392:
-
-/* Line 1806 of yacc.c  */
-#line 1386 "src/p.y"
-    { mailset.events |= Event_Instance; }
+#line 1419 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Checksum; }
+#line 4248 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 393:
-
-/* Line 1806 of yacc.c  */
-#line 1387 "src/p.y"
-    { mailset.events |= Event_Invalid; }
+#line 1420 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Connection; }
+#line 4254 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 394:
-
-/* Line 1806 of yacc.c  */
-#line 1388 "src/p.y"
-    { mailset.events |= Event_Nonexist; }
+#line 1421 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Content; }
+#line 4260 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 395:
-
-/* Line 1806 of yacc.c  */
-#line 1389 "src/p.y"
-    { mailset.events |= Event_Permission; }
+#line 1422 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Data; }
+#line 4266 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 396:
-
-/* Line 1806 of yacc.c  */
-#line 1390 "src/p.y"
-    { mailset.events |= Event_Pid; }
+#line 1423 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Exec; }
+#line 4272 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 397:
-
-/* Line 1806 of yacc.c  */
-#line 1391 "src/p.y"
-    { mailset.events |= Event_PPid; }
+#line 1424 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Fsflag; }
+#line 4278 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 398:
-
-/* Line 1806 of yacc.c  */
-#line 1392 "src/p.y"
-    { mailset.events |= Event_Resource; }
+#line 1425 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Gid; }
+#line 4284 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 399:
-
-/* Line 1806 of yacc.c  */
-#line 1393 "src/p.y"
-    { mailset.events |= Event_Size; }
+#line 1426 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Icmp; }
+#line 4290 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 400:
-
-/* Line 1806 of yacc.c  */
-#line 1394 "src/p.y"
-    { mailset.events |= Event_Status; }
+#line 1427 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Instance; }
+#line 4296 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 401:
-
-/* Line 1806 of yacc.c  */
-#line 1395 "src/p.y"
-    { mailset.events |= Event_Timeout; }
+#line 1428 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Invalid; }
+#line 4302 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 402:
-
-/* Line 1806 of yacc.c  */
-#line 1396 "src/p.y"
-    { mailset.events |= Event_Timestamp; }
+#line 1429 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Nonexist; }
+#line 4308 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 403:
-
-/* Line 1806 of yacc.c  */
-#line 1397 "src/p.y"
-    { mailset.events |= Event_Uid; }
+#line 1430 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Permission; }
+#line 4314 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 404:
+#line 1431 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Pid; }
+#line 4320 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1398 "src/p.y"
-    { mailset.events |= Event_Uptime; }
+  case 405:
+#line 1432 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_PPid; }
+#line 4326 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 406:
+#line 1433 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Resource; }
+#line 4332 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 407:
+#line 1434 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Size; }
+#line 4338 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 408:
+#line 1435 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Status; }
+#line 4344 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 409:
-
-/* Line 1806 of yacc.c  */
-#line 1409 "src/p.y"
-    { mailset.from = (yyvsp[(1) - (1)].string); }
+#line 1436 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Timeout; }
+#line 4350 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 410:
-
-/* Line 1806 of yacc.c  */
-#line 1410 "src/p.y"
-    { mailset.replyto = (yyvsp[(1) - (1)].string); }
+#line 1437 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Timestamp; }
+#line 4356 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 411:
-
-/* Line 1806 of yacc.c  */
-#line 1411 "src/p.y"
-    { mailset.subject = (yyvsp[(1) - (1)].string); }
+#line 1438 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Uid; }
+#line 4362 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 412:
-
-/* Line 1806 of yacc.c  */
-#line 1412 "src/p.y"
-    { mailset.message = (yyvsp[(1) - (1)].string); }
-    break;
-
-  case 413:
-
-/* Line 1806 of yacc.c  */
-#line 1415 "src/p.y"
-    {
-                   current->every.type = EVERY_SKIPCYCLES;
-                   current->every.spec.cycle.number = (yyvsp[(2) - (3)].number);
-                 }
-    break;
-
-  case 414:
-
-/* Line 1806 of yacc.c  */
-#line 1419 "src/p.y"
-    {
-                   current->every.type = EVERY_CRON;
-                   current->every.spec.cron = (yyvsp[(2) - (2)].string);
-                 }
-    break;
-
-  case 415:
-
-/* Line 1806 of yacc.c  */
-#line 1423 "src/p.y"
-    {
-                   current->every.type = EVERY_NOTINCRON;
-                   current->every.spec.cron = (yyvsp[(2) - (2)].string);
-                 }
-    break;
-
-  case 416:
-
-/* Line 1806 of yacc.c  */
-#line 1429 "src/p.y"
-    {
-                    current->mode = MODE_ACTIVE;
-                  }
+#line 1439 "src/p.y" /* yacc.c:1646  */
+    { mailset.events |= Event_Uptime; }
+#line 4368 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 417:
-
-/* Line 1806 of yacc.c  */
-#line 1432 "src/p.y"
-    {
-                    current->mode = MODE_PASSIVE;
-                  }
+#line 1450 "src/p.y" /* yacc.c:1646  */
+    { mailset.from = (yyvsp[0].string); }
+#line 4374 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 418:
+#line 1451 "src/p.y" /* yacc.c:1646  */
+    { mailset.replyto = (yyvsp[0].string); }
+#line 4380 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1435 "src/p.y"
+  case 419:
+#line 1452 "src/p.y" /* yacc.c:1646  */
+    { mailset.subject = (yyvsp[0].string); }
+#line 4386 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 420:
+#line 1453 "src/p.y" /* yacc.c:1646  */
+    { mailset.message = (yyvsp[0].string); }
+#line 4392 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 421:
+#line 1456 "src/p.y" /* yacc.c:1646  */
+    {
+                   current->every.type = EVERY_SKIPCYCLES;
+                   current->every.spec.cycle.number = (yyvsp[-1].number);
+                 }
+#line 4401 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 422:
+#line 1460 "src/p.y" /* yacc.c:1646  */
+    {
+                   current->every.type = EVERY_CRON;
+                   current->every.spec.cron = (yyvsp[0].string);
+                 }
+#line 4410 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 423:
+#line 1464 "src/p.y" /* yacc.c:1646  */
+    {
+                   current->every.type = EVERY_NOTINCRON;
+                   current->every.spec.cron = (yyvsp[0].string);
+                 }
+#line 4419 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 424:
+#line 1470 "src/p.y" /* yacc.c:1646  */
+    {
+                    current->mode = MODE_ACTIVE;
+                  }
+#line 4427 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 425:
+#line 1473 "src/p.y" /* yacc.c:1646  */
+    {
+                    current->mode = MODE_PASSIVE;
+                  }
+#line 4435 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 426:
+#line 1476 "src/p.y" /* yacc.c:1646  */
     {
                     current->mode = MODE_MANUAL;
                     current->monitor = MONITOR_NOT;
                   }
+#line 4444 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 419:
-
-/* Line 1806 of yacc.c  */
-#line 1441 "src/p.y"
-    { addservicegroup((yyvsp[(2) - (2)].string)); FREE((yyvsp[(2) - (2)].string));}
+  case 427:
+#line 1482 "src/p.y" /* yacc.c:1646  */
+    { addservicegroup((yyvsp[0].string)); FREE((yyvsp[0].string));}
+#line 4450 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 423:
-
-/* Line 1806 of yacc.c  */
-#line 1452 "src/p.y"
-    { adddependant((yyvsp[(1) - (1)].string)); }
-    break;
-
-  case 424:
-
-/* Line 1806 of yacc.c  */
-#line 1455 "src/p.y"
-    {
-                        statusset.operator = (yyvsp[(3) - (8)].number);
-                        statusset.return_value = (yyvsp[(4) - (8)].number);
-                        addeventaction(&(statusset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                        addstatus(&statusset);
-                   }
-    break;
-
-  case 425:
-
-/* Line 1806 of yacc.c  */
-#line 1463 "src/p.y"
-    {
-                     addeventaction(&(resourceset).action, (yyvsp[(5) - (6)].number), (yyvsp[(6) - (6)].number));
-                     addresource(&resourceset);
-                   }
+  case 431:
+#line 1493 "src/p.y" /* yacc.c:1646  */
+    { adddependant((yyvsp[0].string)); }
+#line 4456 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 432:
-
-/* Line 1806 of yacc.c  */
-#line 1479 "src/p.y"
+#line 1496 "src/p.y" /* yacc.c:1646  */
     {
-                     addeventaction(&(resourceset).action, (yyvsp[(5) - (6)].number), (yyvsp[(6) - (6)].number));
+                        statusset.initialized = TRUE;
+                        statusset.operator = (yyvsp[-5].number);
+                        statusset.return_value = (yyvsp[-4].number);
+                        addeventaction(&(statusset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                        addstatus(&statusset);
+                   }
+#line 4468 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 433:
+#line 1503 "src/p.y" /* yacc.c:1646  */
+    {
+                        statusset.initialized = FALSE;
+                        statusset.operator = Operator_Changed;
+                        statusset.return_value = 0;
+                        addeventaction(&(statusset).action, (yyvsp[0].number), ACTION_IGNORE);
+                        addstatus(&statusset);
+                   }
+#line 4480 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 434:
+#line 1512 "src/p.y" /* yacc.c:1646  */
+    {
+                     addeventaction(&(resourceset).action, (yyvsp[-1].number), (yyvsp[0].number));
                      addresource(&resourceset);
                    }
-    break;
-
-  case 439:
-
-/* Line 1806 of yacc.c  */
-#line 1495 "src/p.y"
-    {
-                    resourceset.resource_id = RESOURCE_ID_CPU_PERCENT;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = ((yyvsp[(3) - (4)].number) * 10);
-                  }
-    break;
-
-  case 440:
-
-/* Line 1806 of yacc.c  */
-#line 1500 "src/p.y"
-    {
-                    resourceset.resource_id = RESOURCE_ID_TOTAL_CPU_PERCENT;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = ((yyvsp[(3) - (4)].number) * 10);
-                  }
+#line 4489 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 441:
-
-/* Line 1806 of yacc.c  */
-#line 1507 "src/p.y"
+#line 1528 "src/p.y" /* yacc.c:1646  */
     {
-                    resourceset.resource_id = (yyvsp[(1) - (4)].number);
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = ((yyvsp[(3) - (4)].number) * 10);
-                  }
-    break;
-
-  case 442:
-
-/* Line 1806 of yacc.c  */
-#line 1514 "src/p.y"
-    { (yyval.number) = RESOURCE_ID_CPUUSER; }
-    break;
-
-  case 443:
-
-/* Line 1806 of yacc.c  */
-#line 1515 "src/p.y"
-    { (yyval.number) = RESOURCE_ID_CPUSYSTEM; }
-    break;
-
-  case 444:
-
-/* Line 1806 of yacc.c  */
-#line 1516 "src/p.y"
-    { (yyval.number) = RESOURCE_ID_CPUWAIT; }
-    break;
-
-  case 445:
-
-/* Line 1806 of yacc.c  */
-#line 1519 "src/p.y"
-    {
-                    resourceset.resource_id = RESOURCE_ID_MEM_KBYTE;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = (int) ((yyvsp[(3) - (4)].real) * ((yyvsp[(4) - (4)].number) / 1024.0));
-                  }
-    break;
-
-  case 446:
-
-/* Line 1806 of yacc.c  */
-#line 1524 "src/p.y"
-    {
-                    resourceset.resource_id = RESOURCE_ID_MEM_PERCENT;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = ((yyvsp[(3) - (4)].number) * 10);
-                  }
-    break;
-
-  case 447:
-
-/* Line 1806 of yacc.c  */
-#line 1529 "src/p.y"
-    {
-                    resourceset.resource_id = RESOURCE_ID_TOTAL_MEM_KBYTE;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = (int) ((yyvsp[(3) - (4)].real) * ((yyvsp[(4) - (4)].number) / 1024.0));
-                  }
+                     addeventaction(&(resourceset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                     addresource(&resourceset);
+                   }
+#line 4498 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 448:
-
-/* Line 1806 of yacc.c  */
-#line 1534 "src/p.y"
+#line 1544 "src/p.y" /* yacc.c:1646  */
     {
-                    resourceset.resource_id = RESOURCE_ID_TOTAL_MEM_PERCENT;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = ((yyvsp[(3) - (4)].number) * 10);
+                    resourceset.resource_id = RESOURCE_ID_CPU_PERCENT;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = ((yyvsp[-1].number) * 10);
                   }
+#line 4508 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 449:
-
-/* Line 1806 of yacc.c  */
-#line 1541 "src/p.y"
+#line 1549 "src/p.y" /* yacc.c:1646  */
     {
-                    resourceset.resource_id = RESOURCE_ID_SWAP_KBYTE;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = (int) ((yyvsp[(3) - (4)].real) * ((yyvsp[(4) - (4)].number) / 1024.0));
+                    resourceset.resource_id = RESOURCE_ID_TOTAL_CPU_PERCENT;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = ((yyvsp[-1].number) * 10);
                   }
+#line 4518 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 450:
-
-/* Line 1806 of yacc.c  */
-#line 1546 "src/p.y"
+#line 1556 "src/p.y" /* yacc.c:1646  */
     {
-                    resourceset.resource_id = RESOURCE_ID_SWAP_PERCENT;
-                    resourceset.operator = (yyvsp[(2) - (4)].number);
-                    resourceset.limit = ((yyvsp[(3) - (4)].number) * 10);
+                    resourceset.resource_id = (yyvsp[-3].number);
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = ((yyvsp[-1].number) * 10);
                   }
+#line 4528 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 451:
-
-/* Line 1806 of yacc.c  */
-#line 1553 "src/p.y"
-    {
-                    resourceset.resource_id = RESOURCE_ID_CHILDREN;
-                    resourceset.operator = (yyvsp[(2) - (3)].number);
-                    resourceset.limit = (int) (yyvsp[(3) - (3)].number);
-                  }
+#line 1563 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = RESOURCE_ID_CPUUSER; }
+#line 4534 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 452:
-
-/* Line 1806 of yacc.c  */
-#line 1560 "src/p.y"
-    {
-                    resourceset.resource_id = (yyvsp[(1) - (3)].number);
-                    resourceset.operator = (yyvsp[(2) - (3)].number);
-                    resourceset.limit = (int) ((yyvsp[(3) - (3)].real) * 10.0);
-                  }
+#line 1564 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = RESOURCE_ID_CPUSYSTEM; }
+#line 4540 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 453:
-
-/* Line 1806 of yacc.c  */
-#line 1567 "src/p.y"
-    { (yyval.number) = RESOURCE_ID_LOAD1; }
+#line 1565 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = RESOURCE_ID_CPUWAIT; }
+#line 4546 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 454:
-
-/* Line 1806 of yacc.c  */
-#line 1568 "src/p.y"
-    { (yyval.number) = RESOURCE_ID_LOAD5; }
+#line 1568 "src/p.y" /* yacc.c:1646  */
+    {
+                    resourceset.resource_id = RESOURCE_ID_MEM_KBYTE;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = (int) ((yyvsp[-1].real) * ((yyvsp[0].number) / 1024.0));
+                  }
+#line 4556 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 455:
-
-/* Line 1806 of yacc.c  */
-#line 1569 "src/p.y"
-    { (yyval.number) = RESOURCE_ID_LOAD15; }
+#line 1573 "src/p.y" /* yacc.c:1646  */
+    {
+                    resourceset.resource_id = RESOURCE_ID_MEM_PERCENT;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = ((yyvsp[-1].number) * 10);
+                  }
+#line 4566 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 456:
-
-/* Line 1806 of yacc.c  */
-#line 1572 "src/p.y"
-    { (yyval.real) = (yyvsp[(1) - (1)].real); }
+#line 1578 "src/p.y" /* yacc.c:1646  */
+    {
+                    resourceset.resource_id = RESOURCE_ID_TOTAL_MEM_KBYTE;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = (int) ((yyvsp[-1].real) * ((yyvsp[0].number) / 1024.0));
+                  }
+#line 4576 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 457:
-
-/* Line 1806 of yacc.c  */
-#line 1573 "src/p.y"
-    { (yyval.real) = (float) (yyvsp[(1) - (1)].number); }
+#line 1583 "src/p.y" /* yacc.c:1646  */
+    {
+                    resourceset.resource_id = RESOURCE_ID_TOTAL_MEM_PERCENT;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = ((yyvsp[-1].number) * 10);
+                  }
+#line 4586 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 458:
-
-/* Line 1806 of yacc.c  */
-#line 1576 "src/p.y"
+#line 1590 "src/p.y" /* yacc.c:1646  */
     {
-                    timestampset.operator = (yyvsp[(3) - (9)].number);
-                    timestampset.time = ((yyvsp[(4) - (9)].number) * (yyvsp[(5) - (9)].number));
-                    addeventaction(&(timestampset).action, (yyvsp[(8) - (9)].number), (yyvsp[(9) - (9)].number));
-                    addtimestamp(&timestampset, FALSE);
+                    resourceset.resource_id = RESOURCE_ID_SWAP_KBYTE;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = (int) ((yyvsp[-1].real) * ((yyvsp[0].number) / 1024.0));
                   }
+#line 4596 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 459:
-
-/* Line 1806 of yacc.c  */
-#line 1582 "src/p.y"
+#line 1595 "src/p.y" /* yacc.c:1646  */
     {
-                    timestampset.test_changes = TRUE;
-                    addeventaction(&(timestampset).action, (yyvsp[(6) - (6)].number), ACTION_IGNORE);
-                    addtimestamp(&timestampset, TRUE);
+                    resourceset.resource_id = RESOURCE_ID_SWAP_PERCENT;
+                    resourceset.operator = (yyvsp[-2].number);
+                    resourceset.limit = ((yyvsp[-1].number) * 10);
                   }
+#line 4606 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 460:
-
-/* Line 1806 of yacc.c  */
-#line 1589 "src/p.y"
-    { (yyval.number) = Operator_Equal; }
+#line 1602 "src/p.y" /* yacc.c:1646  */
+    {
+                    resourceset.resource_id = RESOURCE_ID_CHILDREN;
+                    resourceset.operator = (yyvsp[-1].number);
+                    resourceset.limit = (int) (yyvsp[0].number);
+                  }
+#line 4616 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 461:
-
-/* Line 1806 of yacc.c  */
-#line 1590 "src/p.y"
-    { (yyval.number) = Operator_Greater; }
+#line 1609 "src/p.y" /* yacc.c:1646  */
+    {
+                    resourceset.resource_id = (yyvsp[-2].number);
+                    resourceset.operator = (yyvsp[-1].number);
+                    resourceset.limit = (int) ((yyvsp[0].real) * 10.0);
+                  }
+#line 4626 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 462:
-
-/* Line 1806 of yacc.c  */
-#line 1591 "src/p.y"
-    { (yyval.number) = Operator_Less; }
+#line 1616 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = RESOURCE_ID_LOAD1; }
+#line 4632 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 463:
-
-/* Line 1806 of yacc.c  */
-#line 1592 "src/p.y"
-    { (yyval.number) = Operator_Equal; }
+#line 1617 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = RESOURCE_ID_LOAD5; }
+#line 4638 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 464:
-
-/* Line 1806 of yacc.c  */
-#line 1593 "src/p.y"
-    { (yyval.number) = Operator_NotEqual; }
+#line 1618 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = RESOURCE_ID_LOAD15; }
+#line 4644 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 465:
-
-/* Line 1806 of yacc.c  */
-#line 1594 "src/p.y"
-    { (yyval.number) = Operator_NotEqual; }
+#line 1621 "src/p.y" /* yacc.c:1646  */
+    { (yyval.real) = (yyvsp[0].real); }
+#line 4650 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 466:
-
-/* Line 1806 of yacc.c  */
-#line 1597 "src/p.y"
-    { (yyval.number) = TIME_SECOND; }
+#line 1622 "src/p.y" /* yacc.c:1646  */
+    { (yyval.real) = (float) (yyvsp[0].number); }
+#line 4656 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 467:
-
-/* Line 1806 of yacc.c  */
-#line 1598 "src/p.y"
-    { (yyval.number) = TIME_SECOND; }
+#line 1625 "src/p.y" /* yacc.c:1646  */
+    {
+                    timestampset.operator = (yyvsp[-6].number);
+                    timestampset.time = ((yyvsp[-5].number) * (yyvsp[-4].number));
+                    addeventaction(&(timestampset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addtimestamp(&timestampset, FALSE);
+                  }
+#line 4667 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 468:
-
-/* Line 1806 of yacc.c  */
-#line 1599 "src/p.y"
-    { (yyval.number) = TIME_MINUTE; }
+#line 1631 "src/p.y" /* yacc.c:1646  */
+    {
+                    timestampset.test_changes = TRUE;
+                    addeventaction(&(timestampset).action, (yyvsp[0].number), ACTION_IGNORE);
+                    addtimestamp(&timestampset, TRUE);
+                  }
+#line 4677 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 469:
-
-/* Line 1806 of yacc.c  */
-#line 1600 "src/p.y"
-    { (yyval.number) = TIME_HOUR; }
+#line 1638 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_Equal; }
+#line 4683 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 470:
-
-/* Line 1806 of yacc.c  */
-#line 1601 "src/p.y"
-    { (yyval.number) = TIME_DAY; }
+#line 1639 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_Greater; }
+#line 4689 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 471:
-
-/* Line 1806 of yacc.c  */
-#line 1604 "src/p.y"
-    { (yyval.number) = ACTION_ALERT; }
+#line 1640 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_Less; }
+#line 4695 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 472:
-
-/* Line 1806 of yacc.c  */
-#line 1605 "src/p.y"
-    { (yyval.number) = ACTION_EXEC; }
+#line 1641 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_Equal; }
+#line 4701 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 473:
-
-/* Line 1806 of yacc.c  */
-#line 1606 "src/p.y"
-    { (yyval.number) = ACTION_EXEC; }
+#line 1642 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_NotEqual; }
+#line 4707 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 474:
-
-/* Line 1806 of yacc.c  */
-#line 1607 "src/p.y"
-    { (yyval.number) = ACTION_RESTART; }
+#line 1643 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = Operator_Changed; }
+#line 4713 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 475:
-
-/* Line 1806 of yacc.c  */
-#line 1608 "src/p.y"
-    { (yyval.number) = ACTION_START; }
+#line 1646 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = TIME_SECOND; }
+#line 4719 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 476:
-
-/* Line 1806 of yacc.c  */
-#line 1609 "src/p.y"
-    { (yyval.number) = ACTION_STOP; }
+#line 1647 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = TIME_SECOND; }
+#line 4725 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 477:
-
-/* Line 1806 of yacc.c  */
-#line 1610 "src/p.y"
-    { (yyval.number) = ACTION_UNMONITOR; }
+#line 1648 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = TIME_MINUTE; }
+#line 4731 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 478:
+#line 1649 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = TIME_HOUR; }
+#line 4737 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1613 "src/p.y"
+  case 479:
+#line 1650 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = TIME_DAY; }
+#line 4743 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 480:
+#line 1653 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_ALERT; }
+#line 4749 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 481:
+#line 1654 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_EXEC; }
+#line 4755 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 482:
+#line 1655 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_EXEC; }
+#line 4761 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 483:
+#line 1656 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_RESTART; }
+#line 4767 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 484:
+#line 1657 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_START; }
+#line 4773 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 485:
+#line 1658 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_STOP; }
+#line 4779 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 486:
+#line 1659 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ACTION_UNMONITOR; }
+#line 4785 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 487:
+#line 1662 "src/p.y" /* yacc.c:1646  */
     {
-                    (yyval.number) = (yyvsp[(1) - (1)].number);
-                    if ((yyvsp[(1) - (1)].number) == ACTION_EXEC && command) {
+                    (yyval.number) = (yyvsp[0].number);
+                    if ((yyvsp[0].number) == ACTION_EXEC && command) {
                       command1 = command;
                       command = NULL;
                     }
                   }
+#line 4797 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 479:
-
-/* Line 1806 of yacc.c  */
-#line 1622 "src/p.y"
+  case 488:
+#line 1671 "src/p.y" /* yacc.c:1646  */
     {
-                    (yyval.number) = (yyvsp[(1) - (1)].number);
-                    if ((yyvsp[(1) - (1)].number) == ACTION_EXEC && command) {
+                    (yyval.number) = (yyvsp[0].number);
+                    if ((yyvsp[0].number) == ACTION_EXEC && command) {
                       command2 = command;
                       command = NULL;
                     }
                   }
+#line 4809 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 481:
-
-/* Line 1806 of yacc.c  */
-#line 1632 "src/p.y"
+  case 490:
+#line 1681 "src/p.y" /* yacc.c:1646  */
     {
-                    rate1.count  = (yyvsp[(1) - (2)].number);
-                    rate1.cycles = (yyvsp[(1) - (2)].number);
+                    rate1.count  = (yyvsp[-1].number);
+                    rate1.cycles = (yyvsp[-1].number);
                     if (rate1.cycles < 1 || rate1.cycles > BITMAP_MAX)
                       yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                   }
+#line 4820 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 482:
-
-/* Line 1806 of yacc.c  */
-#line 1638 "src/p.y"
+  case 491:
+#line 1687 "src/p.y" /* yacc.c:1646  */
     {
-                    rate1.count  = (yyvsp[(1) - (3)].number);
-                    rate1.cycles = (yyvsp[(2) - (3)].number);
+                    rate1.count  = (yyvsp[-2].number);
+                    rate1.cycles = (yyvsp[-1].number);
                     if (rate1.cycles < 1 || rate1.cycles > BITMAP_MAX)
                       yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                     if (rate1.count < 1 || rate1.count > rate1.cycles)
                       yyerror2("The number of events must be bigger then 0 and less than poll cycles");
                   }
+#line 4833 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 484:
-
-/* Line 1806 of yacc.c  */
-#line 1649 "src/p.y"
+  case 493:
+#line 1698 "src/p.y" /* yacc.c:1646  */
     {
-                    rate2.count  = (yyvsp[(1) - (2)].number);
-                    rate2.cycles = (yyvsp[(1) - (2)].number);
+                    rate2.count  = (yyvsp[-1].number);
+                    rate2.cycles = (yyvsp[-1].number);
                     if (rate2.cycles < 1 || rate2.cycles > BITMAP_MAX)
                       yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                   }
+#line 4844 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 485:
-
-/* Line 1806 of yacc.c  */
-#line 1655 "src/p.y"
+  case 494:
+#line 1704 "src/p.y" /* yacc.c:1646  */
     {
-                    rate2.count  = (yyvsp[(1) - (3)].number);
-                    rate2.cycles = (yyvsp[(2) - (3)].number);
+                    rate2.count  = (yyvsp[-2].number);
+                    rate2.cycles = (yyvsp[-1].number);
                     if (rate2.cycles < 1 || rate2.cycles > BITMAP_MAX)
                       yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
                     if (rate2.count < 1 || rate2.count > rate2.cycles)
                       yyerror2("The number of events must be bigger then 0 and less than poll cycles");
                   }
-    break;
-
-  case 486:
-
-/* Line 1806 of yacc.c  */
-#line 1665 "src/p.y"
-    {
-                    (yyval.number) = ACTION_ALERT;
-                  }
-    break;
-
-  case 487:
-
-/* Line 1806 of yacc.c  */
-#line 1668 "src/p.y"
-    {
-                    (yyval.number) = (yyvsp[(6) - (6)].number);
-                  }
-    break;
-
-  case 488:
-
-/* Line 1806 of yacc.c  */
-#line 1671 "src/p.y"
-    {
-                    (yyval.number) = (yyvsp[(6) - (6)].number);
-                  }
-    break;
-
-  case 489:
-
-/* Line 1806 of yacc.c  */
-#line 1674 "src/p.y"
-    {
-                    (yyval.number) = (yyvsp[(6) - (6)].number);
-                  }
-    break;
-
-  case 490:
-
-/* Line 1806 of yacc.c  */
-#line 1679 "src/p.y"
-    {
-                    addeventaction(&(checksumset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    addchecksum(&checksumset);
-                  }
-    break;
-
-  case 491:
-
-/* Line 1806 of yacc.c  */
-#line 1684 "src/p.y"
-    {
-                    snprintf(checksumset.hash, sizeof(checksumset.hash), "%s", (yyvsp[(6) - (10)].string));
-                    FREE((yyvsp[(6) - (10)].string));
-                    addeventaction(&(checksumset).action, (yyvsp[(9) - (10)].number), (yyvsp[(10) - (10)].number));
-                    addchecksum(&checksumset);
-                  }
-    break;
-
-  case 492:
-
-/* Line 1806 of yacc.c  */
-#line 1690 "src/p.y"
-    {
-                    checksumset.test_changes = TRUE;
-                    addeventaction(&(checksumset).action, (yyvsp[(7) - (7)].number), ACTION_IGNORE);
-                    addchecksum(&checksumset);
-                  }
-    break;
-
-  case 493:
-
-/* Line 1806 of yacc.c  */
-#line 1696 "src/p.y"
-    { checksumset.type = HASH_UNKNOWN; }
-    break;
-
-  case 494:
-
-/* Line 1806 of yacc.c  */
-#line 1697 "src/p.y"
-    { checksumset.type = HASH_MD5; }
+#line 4857 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 495:
-
-/* Line 1806 of yacc.c  */
-#line 1698 "src/p.y"
-    { checksumset.type = HASH_SHA1; }
+#line 1714 "src/p.y" /* yacc.c:1646  */
+    {
+                    (yyval.number) = ACTION_ALERT;
+                  }
+#line 4865 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 496:
-
-/* Line 1806 of yacc.c  */
-#line 1701 "src/p.y"
+#line 1717 "src/p.y" /* yacc.c:1646  */
     {
-                    filesystemset.resource = RESOURCE_ID_INODE;
-                    filesystemset.operator = (yyvsp[(3) - (8)].number);
-                    filesystemset.limit_absolute = (yyvsp[(4) - (8)].number);
-                    addeventaction(&(filesystemset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    addfilesystem(&filesystemset);
+                    (yyval.number) = (yyvsp[0].number);
                   }
+#line 4873 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 497:
-
-/* Line 1806 of yacc.c  */
-#line 1708 "src/p.y"
+#line 1720 "src/p.y" /* yacc.c:1646  */
     {
-                    filesystemset.resource = RESOURCE_ID_INODE;
-                    filesystemset.operator = (yyvsp[(3) - (9)].number);
-                    filesystemset.limit_percent = (int)((yyvsp[(4) - (9)].number) * 10);
-                    addeventaction(&(filesystemset).action, (yyvsp[(8) - (9)].number), (yyvsp[(9) - (9)].number));
-                    addfilesystem(&filesystemset);
+                    (yyval.number) = (yyvsp[0].number);
                   }
+#line 4881 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 498:
-
-/* Line 1806 of yacc.c  */
-#line 1717 "src/p.y"
+#line 1723 "src/p.y" /* yacc.c:1646  */
     {
-                    if (!filesystem_usage(current->inf, current->path))
-                      yyerror2("Cannot read usage of filesystem %s", current->path);
-                    filesystemset.resource = RESOURCE_ID_SPACE;
-                    filesystemset.operator = (yyvsp[(3) - (9)].number);
-                    filesystemset.limit_absolute = (int)((float)(yyvsp[(4) - (9)].real) / (float)current->inf->priv.filesystem.f_bsize * (float)(yyvsp[(5) - (9)].number));
-                    addeventaction(&(filesystemset).action, (yyvsp[(8) - (9)].number), (yyvsp[(9) - (9)].number));
-                    addfilesystem(&filesystemset);
+                    (yyval.number) = (yyvsp[0].number);
                   }
+#line 4889 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 499:
-
-/* Line 1806 of yacc.c  */
-#line 1726 "src/p.y"
+#line 1728 "src/p.y" /* yacc.c:1646  */
     {
-                    filesystemset.resource = RESOURCE_ID_SPACE;
-                    filesystemset.operator = (yyvsp[(3) - (9)].number);
-                    filesystemset.limit_percent = (int)((yyvsp[(4) - (9)].number) * 10);
-                    addeventaction(&(filesystemset).action, (yyvsp[(8) - (9)].number), (yyvsp[(9) - (9)].number));
-                    addfilesystem(&filesystemset);
+                    addeventaction(&(checksumset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addchecksum(&checksumset);
                   }
+#line 4898 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 500:
-
-/* Line 1806 of yacc.c  */
-#line 1735 "src/p.y"
+#line 1733 "src/p.y" /* yacc.c:1646  */
     {
-                    seteventaction(&(current)->action_FSFLAG, (yyvsp[(6) - (6)].number), ACTION_IGNORE);
+                    snprintf(checksumset.hash, sizeof(checksumset.hash), "%s", (yyvsp[-4].string));
+                    FREE((yyvsp[-4].string));
+                    addeventaction(&(checksumset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addchecksum(&checksumset);
                   }
+#line 4909 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 501:
-
-/* Line 1806 of yacc.c  */
-#line 1740 "src/p.y"
-    { (yyval.number) = UNIT_BYTE; }
+#line 1739 "src/p.y" /* yacc.c:1646  */
+    {
+                    checksumset.test_changes = TRUE;
+                    addeventaction(&(checksumset).action, (yyvsp[0].number), ACTION_IGNORE);
+                    addchecksum(&checksumset);
+                  }
+#line 4919 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 502:
-
-/* Line 1806 of yacc.c  */
-#line 1741 "src/p.y"
-    { (yyval.number) = UNIT_BYTE; }
+#line 1745 "src/p.y" /* yacc.c:1646  */
+    { checksumset.type = HASH_UNKNOWN; }
+#line 4925 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 503:
-
-/* Line 1806 of yacc.c  */
-#line 1742 "src/p.y"
-    { (yyval.number) = UNIT_KILOBYTE; }
+#line 1746 "src/p.y" /* yacc.c:1646  */
+    { checksumset.type = HASH_MD5; }
+#line 4931 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 504:
-
-/* Line 1806 of yacc.c  */
-#line 1743 "src/p.y"
-    { (yyval.number) = UNIT_MEGABYTE; }
+#line 1747 "src/p.y" /* yacc.c:1646  */
+    { checksumset.type = HASH_SHA1; }
+#line 4937 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 505:
-
-/* Line 1806 of yacc.c  */
-#line 1744 "src/p.y"
-    { (yyval.number) = UNIT_GIGABYTE; }
+#line 1750 "src/p.y" /* yacc.c:1646  */
+    {
+                    filesystemset.resource = RESOURCE_ID_INODE;
+                    filesystemset.operator = (yyvsp[-5].number);
+                    filesystemset.limit_absolute = (yyvsp[-4].number);
+                    addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addfilesystem(&filesystemset);
+                  }
+#line 4949 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 506:
-
-/* Line 1806 of yacc.c  */
-#line 1747 "src/p.y"
+#line 1757 "src/p.y" /* yacc.c:1646  */
     {
-                    permset.perm = check_perm((yyvsp[(4) - (8)].number));
-                    addeventaction(&(permset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    addperm(&permset);
+                    filesystemset.resource = RESOURCE_ID_INODE;
+                    filesystemset.operator = (yyvsp[-6].number);
+                    filesystemset.limit_percent = (int)((yyvsp[-5].number) * 10);
+                    addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addfilesystem(&filesystemset);
                   }
+#line 4961 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 507:
-
-/* Line 1806 of yacc.c  */
-#line 1754 "src/p.y"
+#line 1766 "src/p.y" /* yacc.c:1646  */
     {
-                    matchset.ignore = FALSE;
-                    matchset.match_path = (yyvsp[(4) - (7)].string);
-                    matchset.match_string = NULL;
-                    addmatchpath(&matchset, (yyvsp[(7) - (7)].number));
-                    FREE((yyvsp[(4) - (7)].string));
+                    if (! filesystem_usage(current))
+                      yyerror2("Cannot read usage of filesystem %s", current->path);
+                    filesystemset.resource = RESOURCE_ID_SPACE;
+                    filesystemset.operator = (yyvsp[-6].number);
+                    filesystemset.limit_absolute = (long long)((double)(yyvsp[-5].real) / (double)current->inf->priv.filesystem.f_bsize * (double)(yyvsp[-4].number));
+                    addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addfilesystem(&filesystemset);
                   }
+#line 4975 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 508:
-
-/* Line 1806 of yacc.c  */
-#line 1761 "src/p.y"
+#line 1775 "src/p.y" /* yacc.c:1646  */
     {
-                    matchset.ignore = FALSE;
-                    matchset.match_path = NULL;
-                    matchset.match_string = (yyvsp[(4) - (7)].string);
-                    addmatch(&matchset, (yyvsp[(7) - (7)].number), 0);
+                    filesystemset.resource = RESOURCE_ID_SPACE;
+                    filesystemset.operator = (yyvsp[-6].number);
+                    filesystemset.limit_percent = (int)((yyvsp[-5].number) * 10);
+                    addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addfilesystem(&filesystemset);
                   }
+#line 4987 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 509:
-
-/* Line 1806 of yacc.c  */
-#line 1767 "src/p.y"
+#line 1784 "src/p.y" /* yacc.c:1646  */
     {
-                    matchset.ignore = TRUE;
-                    matchset.match_path = (yyvsp[(4) - (4)].string);
-                    matchset.match_string = NULL;
-                    addmatchpath(&matchset, ACTION_IGNORE);
-                    FREE((yyvsp[(4) - (4)].string));
+                    seteventaction(&(current)->action_FSFLAG, (yyvsp[0].number), ACTION_IGNORE);
                   }
+#line 4995 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 510:
-
-/* Line 1806 of yacc.c  */
-#line 1774 "src/p.y"
-    {
-                    matchset.ignore = TRUE;
-                    matchset.match_path = NULL;
-                    matchset.match_string = (yyvsp[(4) - (4)].string);
-                    addmatch(&matchset, ACTION_IGNORE, 0);
-                  }
+#line 1789 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = UNIT_BYTE; }
+#line 5001 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 511:
-
-/* Line 1806 of yacc.c  */
-#line 1782 "src/p.y"
-    {
-                    matchset.not = FALSE;
-                  }
+#line 1790 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = UNIT_BYTE; }
+#line 5007 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 512:
-
-/* Line 1806 of yacc.c  */
-#line 1785 "src/p.y"
-    {
-                    matchset.not = TRUE;
-                  }
+#line 1791 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = UNIT_KILOBYTE; }
+#line 5013 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 513:
-
-/* Line 1806 of yacc.c  */
-#line 1791 "src/p.y"
-    {
-                    sizeset.operator = (yyvsp[(3) - (9)].number);
-                    sizeset.size = ((unsigned long long)(yyvsp[(4) - (9)].number) * (yyvsp[(5) - (9)].number));
-                    addeventaction(&(sizeset).action, (yyvsp[(8) - (9)].number), (yyvsp[(9) - (9)].number));
-                    addsize(&sizeset);
-                  }
+#line 1792 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = UNIT_MEGABYTE; }
+#line 5019 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 514:
-
-/* Line 1806 of yacc.c  */
-#line 1797 "src/p.y"
-    {
-                    sizeset.test_changes = TRUE;
-                    addeventaction(&(sizeset).action, (yyvsp[(6) - (6)].number), ACTION_IGNORE);
-                    addsize(&sizeset);
-                  }
+#line 1793 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = UNIT_GIGABYTE; }
+#line 5025 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 515:
-
-/* Line 1806 of yacc.c  */
-#line 1804 "src/p.y"
+#line 1796 "src/p.y" /* yacc.c:1646  */
     {
-                    uidset.uid = get_uid((yyvsp[(4) - (8)].string), 0);
-                    addeventaction(&(uidset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    current->uid = adduid(&uidset);
-                    FREE((yyvsp[(4) - (8)].string));
+                    permset.perm = check_perm((yyvsp[-4].number));
+                    addeventaction(&(permset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addperm(&permset);
                   }
+#line 5035 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 516:
-
-/* Line 1806 of yacc.c  */
-#line 1810 "src/p.y"
+#line 1803 "src/p.y" /* yacc.c:1646  */
     {
-                    uidset.uid = get_uid(NULL, (yyvsp[(4) - (8)].number));
-                    addeventaction(&(uidset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    current->uid = adduid(&uidset);
+                    matchset.ignore = FALSE;
+                    matchset.match_path = (yyvsp[-3].string);
+                    matchset.match_string = NULL;
+                    addmatchpath(&matchset, (yyvsp[0].number));
+                    FREE((yyvsp[-3].string));
                   }
+#line 5047 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 517:
-
-/* Line 1806 of yacc.c  */
-#line 1817 "src/p.y"
+#line 1810 "src/p.y" /* yacc.c:1646  */
     {
-                    uidset.uid = get_uid((yyvsp[(4) - (8)].string), 0);
-                    addeventaction(&(uidset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    current->euid = adduid(&uidset);
-                    FREE((yyvsp[(4) - (8)].string));
+                    matchset.ignore = FALSE;
+                    matchset.match_path = NULL;
+                    matchset.match_string = (yyvsp[-3].string);
+                    addmatch(&matchset, (yyvsp[0].number), 0);
                   }
+#line 5058 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 518:
-
-/* Line 1806 of yacc.c  */
-#line 1823 "src/p.y"
+#line 1816 "src/p.y" /* yacc.c:1646  */
     {
-                    uidset.uid = get_uid(NULL, (yyvsp[(4) - (8)].number));
-                    addeventaction(&(uidset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    current->euid = adduid(&uidset);
+                    matchset.ignore = TRUE;
+                    matchset.match_path = (yyvsp[0].string);
+                    matchset.match_string = NULL;
+                    addmatchpath(&matchset, ACTION_IGNORE);
+                    FREE((yyvsp[0].string));
                   }
+#line 5070 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 519:
-
-/* Line 1806 of yacc.c  */
-#line 1830 "src/p.y"
+#line 1823 "src/p.y" /* yacc.c:1646  */
     {
-                    gidset.gid = get_gid((yyvsp[(4) - (8)].string), 0);
-                    addeventaction(&(gidset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    current->gid = addgid(&gidset);
-                    FREE((yyvsp[(4) - (8)].string));
+                    matchset.ignore = TRUE;
+                    matchset.match_path = NULL;
+                    matchset.match_string = (yyvsp[0].string);
+                    addmatch(&matchset, ACTION_IGNORE, 0);
                   }
+#line 5081 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 520:
-
-/* Line 1806 of yacc.c  */
-#line 1836 "src/p.y"
+#line 1831 "src/p.y" /* yacc.c:1646  */
     {
-                    gidset.gid = get_gid(NULL, (yyvsp[(4) - (8)].number));
-                    addeventaction(&(gidset).action, (yyvsp[(7) - (8)].number), (yyvsp[(8) - (8)].number));
-                    current->gid = addgid(&gidset);
+                    matchset.not = FALSE;
                   }
+#line 5089 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 521:
-
-/* Line 1806 of yacc.c  */
-#line 1843 "src/p.y"
-    { (yyval.number) = ICMP_ECHO; }
+#line 1834 "src/p.y" /* yacc.c:1646  */
+    {
+                    matchset.not = TRUE;
+                  }
+#line 5097 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 522:
-
-/* Line 1806 of yacc.c  */
-#line 1846 "src/p.y"
-    { mailset.reminder = 0; }
+#line 1840 "src/p.y" /* yacc.c:1646  */
+    {
+                    sizeset.operator = (yyvsp[-6].number);
+                    sizeset.size = ((unsigned long long)(yyvsp[-5].number) * (yyvsp[-4].number));
+                    addeventaction(&(sizeset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    addsize(&sizeset);
+                  }
+#line 5108 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 523:
-
-/* Line 1806 of yacc.c  */
-#line 1847 "src/p.y"
-    { mailset.reminder = (yyvsp[(2) - (2)].number); }
+#line 1846 "src/p.y" /* yacc.c:1646  */
+    {
+                    sizeset.test_changes = TRUE;
+                    addeventaction(&(sizeset).action, (yyvsp[0].number), ACTION_IGNORE);
+                    addsize(&sizeset);
+                  }
+#line 5118 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
   case 524:
+#line 1853 "src/p.y" /* yacc.c:1646  */
+    {
+                    uidset.uid = get_uid((yyvsp[-4].string), 0);
+                    addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    current->uid = adduid(&uidset);
+                    FREE((yyvsp[-4].string));
+                  }
+#line 5129 "src/y.tab.c" /* yacc.c:1646  */
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 1848 "src/p.y"
-    { mailset.reminder = (yyvsp[(2) - (3)].number); }
+  case 525:
+#line 1859 "src/p.y" /* yacc.c:1646  */
+    {
+                    uidset.uid = get_uid(NULL, (yyvsp[-4].number));
+                    addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    current->uid = adduid(&uidset);
+                  }
+#line 5139 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 526:
+#line 1866 "src/p.y" /* yacc.c:1646  */
+    {
+                    uidset.uid = get_uid((yyvsp[-4].string), 0);
+                    addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    current->euid = adduid(&uidset);
+                    FREE((yyvsp[-4].string));
+                  }
+#line 5150 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 527:
+#line 1872 "src/p.y" /* yacc.c:1646  */
+    {
+                    uidset.uid = get_uid(NULL, (yyvsp[-4].number));
+                    addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    current->euid = adduid(&uidset);
+                  }
+#line 5160 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 528:
+#line 1879 "src/p.y" /* yacc.c:1646  */
+    {
+                    gidset.gid = get_gid((yyvsp[-4].string), 0);
+                    addeventaction(&(gidset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    current->gid = addgid(&gidset);
+                    FREE((yyvsp[-4].string));
+                  }
+#line 5171 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 529:
+#line 1885 "src/p.y" /* yacc.c:1646  */
+    {
+                    gidset.gid = get_gid(NULL, (yyvsp[-4].number));
+                    addeventaction(&(gidset).action, (yyvsp[-1].number), (yyvsp[0].number));
+                    current->gid = addgid(&gidset);
+                  }
+#line 5181 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 530:
+#line 1892 "src/p.y" /* yacc.c:1646  */
+    { (yyval.number) = ICMP_ECHO; }
+#line 5187 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 531:
+#line 1895 "src/p.y" /* yacc.c:1646  */
+    { mailset.reminder = 0; }
+#line 5193 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 532:
+#line 1896 "src/p.y" /* yacc.c:1646  */
+    { mailset.reminder = (yyvsp[0].number); }
+#line 5199 "src/y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 533:
+#line 1897 "src/p.y" /* yacc.c:1646  */
+    { mailset.reminder = (yyvsp[-1].number); }
+#line 5205 "src/y.tab.c" /* yacc.c:1646  */
     break;
 
 
-
-/* Line 1806 of yacc.c  */
-#line 5768 "src/y.tab.c"
+#line 5209 "src/y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -5787,7 +5228,7 @@ yyreduce:
 
   *++yyvsp = yyval;
 
-  /* Now `shift' the result of the reduction.  Determine what state
+  /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
 
@@ -5802,9 +5243,9 @@ yyreduce:
   goto yynewstate;
 
 
-/*------------------------------------.
-| yyerrlab -- here on detecting error |
-`------------------------------------*/
+/*--------------------------------------.
+| yyerrlab -- here on detecting error.  |
+`--------------------------------------*/
 yyerrlab:
   /* Make sure we have latest lookahead translation.  See comments at
      user semantic actions for why this is necessary.  */
@@ -5855,20 +5296,20 @@ yyerrlab:
   if (yyerrstatus == 3)
     {
       /* If just tried and failed to reuse lookahead token after an
-	 error, discard it.  */
+         error, discard it.  */
 
       if (yychar <= YYEOF)
-	{
-	  /* Return failure if at end of input.  */
-	  if (yychar == YYEOF)
-	    YYABORT;
-	}
+        {
+          /* Return failure if at end of input.  */
+          if (yychar == YYEOF)
+            YYABORT;
+        }
       else
-	{
-	  yydestruct ("Error: discarding",
-		      yytoken, &yylval);
-	  yychar = YYEMPTY;
-	}
+        {
+          yydestruct ("Error: discarding",
+                      yytoken, &yylval);
+          yychar = YYEMPTY;
+        }
     }
 
   /* Else will try to reuse lookahead token after shifting the error
@@ -5887,7 +5328,7 @@ yyerrorlab:
   if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
-  /* Do not reclaim the symbols of the rule which action triggered
+  /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
   yylen = 0;
@@ -5900,35 +5341,37 @@ yyerrorlab:
 | yyerrlab1 -- common code for both syntax error and YYERROR.  |
 `-------------------------------------------------------------*/
 yyerrlab1:
-  yyerrstatus = 3;	/* Each real token shifted decrements this.  */
+  yyerrstatus = 3;      /* Each real token shifted decrements this.  */
 
   for (;;)
     {
       yyn = yypact[yystate];
       if (!yypact_value_is_default (yyn))
-	{
-	  yyn += YYTERROR;
-	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
-	    {
-	      yyn = yytable[yyn];
-	      if (0 < yyn)
-		break;
-	    }
-	}
+        {
+          yyn += YYTERROR;
+          if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
+            {
+              yyn = yytable[yyn];
+              if (0 < yyn)
+                break;
+            }
+        }
 
       /* Pop the current state because it cannot handle the error token.  */
       if (yyssp == yyss)
-	YYABORT;
+        YYABORT;
 
 
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp);
+                  yystos[yystate], yyvsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
     }
 
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
 
   /* Shift the error token.  */
@@ -5952,7 +5395,7 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#if !defined(yyoverflow) || YYERROR_VERBOSE
+#if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
@@ -5971,14 +5414,14 @@ yyreturn:
       yydestruct ("Cleanup: discarding lookahead",
                   yytoken, &yylval);
     }
-  /* Do not reclaim the symbols of the rule which action triggered
+  /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
   YY_STACK_PRINT (yyss, yyssp);
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp);
+                  yystos[*yyssp], yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -5989,14 +5432,9 @@ yyreturn:
   if (yymsg != yymsgbuf)
     YYSTACK_FREE (yymsg);
 #endif
-  /* Make sure YYID is used.  */
-  return YYID (yyresult);
+  return yyresult;
 }
-
-
-
-/* Line 2067 of yacc.c  */
-#line 1851 "src/p.y"
+#line 1900 "src/p.y" /* yacc.c:1906  */
 
 
 
@@ -6239,6 +5677,12 @@ static void postparse() {
                         for (int i = 1; i < s->program->args->length; i++) {
                                 Command_appendArgument(s->program->C, s->program->args->arg[i]);
                         }
+                        if (s->program->args->has_uid) {
+                                Command_setUid(s->program->C, s->program->args->uid);
+                        }
+                        if (s->program->args->has_gid) {
+                                Command_setGid(s->program->C, s->program->args->gid);
+                        }
                 }
         }
 
@@ -6449,6 +5893,7 @@ static void addport(Port_T port) {
   p->url_request        = port->url_request;
   p->request_checksum   = port->request_checksum;
   p->request_hostheader = port->request_hostheader;
+  p->http_headers       = port->http_headers;
   p->version            = port->version;
   p->operator           = port->operator;
   p->status             = port->status;
@@ -6628,7 +6073,7 @@ static void addchecksum(Checksum_T cs) {
       cs->type = DEFAULT_HASH;
     if ( !(Util_getChecksum(current->path, cs->type, cs->hash, sizeof(cs->hash)))) {
       /* If the file doesn't exist, set dummy value */
-      snprintf(cs->hash, sizeof(cs->hash), "00000000000000000000000000000000");
+      snprintf(cs->hash, sizeof(cs->hash), "0000000000000000000000000000000000000000");
       cs->initialized = FALSE;
       yywarning2("Cannot compute a checksum for file %s", current->path);
     }
@@ -6797,6 +6242,7 @@ static void addstatus(Status_T status) {
         Status_T s;
         ASSERT(status);
         NEW(s);
+        s->initialized = status->initialized;
         s->return_value = status->return_value;
         s->operator = status->operator;
         s->action = status->action;
@@ -7570,6 +7016,7 @@ static void reset_permset() {
  * Reset the Status set to default values
  */
 static void reset_statusset() {
+        statusset.initialized = FALSE;
         statusset.return_value = 0;
         statusset.operator = Operator_Equal;
         statusset.action = NULL;
@@ -7798,5 +7245,4 @@ static command_t copycommand(command_t source) {
 
   return copy;
 }
-
 
