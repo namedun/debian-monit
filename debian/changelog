@@ -1,3 +1,9 @@
+monit (1:5.9-2) unstable; urgency=medium
+
+  * Bump up Standards-Version (to 3.9.6)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 25 Oct 2014 18:03:03 +0400
+
 monit (1:5.9-1) unstable; urgency=medium
 
   * Imported Upstream version 5.9
