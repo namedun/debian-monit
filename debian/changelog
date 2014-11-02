@@ -1,3 +1,10 @@
+monit (1:5.10-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.10
+  * Refresh patches
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 03 Nov 2014 01:54:51 +0300
+
 monit (1:5.9-2) unstable; urgency=medium
 
   * Bump up Standards-Version (to 3.9.6)
