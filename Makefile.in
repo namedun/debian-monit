@@ -130,15 +130,17 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/gps.$(OBJEXT) src/protocols/http.$(OBJEXT) \
 	src/protocols/imap.$(OBJEXT) src/protocols/ldap2.$(OBJEXT) \
 	src/protocols/ldap3.$(OBJEXT) src/protocols/lmtp.$(OBJEXT) \
-	src/protocols/memcache.$(OBJEXT) src/protocols/mysql.$(OBJEXT) \
+	src/protocols/memcache.$(OBJEXT) \
+	src/protocols/mongodb.$(OBJEXT) src/protocols/mysql.$(OBJEXT) \
 	src/protocols/nntp.$(OBJEXT) src/protocols/ntp3.$(OBJEXT) \
 	src/protocols/pgsql.$(OBJEXT) src/protocols/pop.$(OBJEXT) \
 	src/protocols/postfix_policy.$(OBJEXT) \
 	src/protocols/protocol.$(OBJEXT) \
 	src/protocols/radius.$(OBJEXT) src/protocols/rdate.$(OBJEXT) \
-	src/protocols/rsync.$(OBJEXT) src/protocols/sip.$(OBJEXT) \
-	src/protocols/smtp.$(OBJEXT) src/protocols/ssh.$(OBJEXT) \
-	src/protocols/tns.$(OBJEXT) src/protocols/websocket.$(OBJEXT) \
+	src/protocols/redis.$(OBJEXT) src/protocols/rsync.$(OBJEXT) \
+	src/protocols/sip.$(OBJEXT) src/protocols/smtp.$(OBJEXT) \
+	src/protocols/ssh.$(OBJEXT) src/protocols/tns.$(OBJEXT) \
+	src/protocols/websocket.$(OBJEXT) \
 	src/device/device_common.$(OBJEXT) \
 	src/device/sysdep_@ARCH@.$(OBJEXT) \
 	src/process/process_common.$(OBJEXT) \
@@ -477,6 +479,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/ldap3.c \
 		  src/protocols/lmtp.c \
 		  src/protocols/memcache.c \
+		  src/protocols/mongodb.c \
 		  src/protocols/mysql.c \
 		  src/protocols/nntp.c \
 		  src/protocols/ntp3.c \
@@ -486,6 +489,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/protocol.c \
 		  src/protocols/radius.c \
 		  src/protocols/rdate.c \
+		  src/protocols/redis.c \
 		  src/protocols/rsync.c \
 		  src/protocols/sip.c \
 		  src/protocols/smtp.c \
@@ -665,6 +669,7 @@ src/protocols/ldap2.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ldap3.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/lmtp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/memcache.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/mongodb.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/mysql.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/nntp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ntp3.$(OBJEXT): src/protocols/$(am__dirstamp)
@@ -674,6 +679,7 @@ src/protocols/postfix_policy.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/protocol.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/radius.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/rdate.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/redis.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/rsync.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/sip.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/smtp.$(OBJEXT): src/protocols/$(am__dirstamp)
