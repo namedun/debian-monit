@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "September 23. 2014" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "October 29. 2014" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -684,12 +684,12 @@ For example to limit the web interface to localhost only:
 \&     allow myuser:mypassword
 .Ve
 .PP
-\&\fI\s-1SSL\s0\fR, \fI\s-1PEMFILE\s0\fR allows to enable \s-1SSL\s0 for Monit web interface. The
-pemfile holds both the server's private key and certificate. This file
-should be stored in a safe place on the filesystem and should have
-strict permissions, no more than 0700. Please see \s-1README.SSL\s0 file
-accompanying the software to get more information about certificates
-and generating pem files.
+\&\fI\s-1SSL\s0\fR allows to enable \s-1SSL\s0 for Monit web interface. Only \s-1TLS\s0 methods
+are supported. The \fI\s-1PEMFILE\s0\fR option holds both the server's private key
+and certificate. This file should be stored in a safe place on the
+filesystem and should have strict permissions, no more than 0700.
+Please see \s-1README.SSL\s0 file accompanying the software to get more
+information about certificates and generating pem files.
 .PP
 For example:
 .PP
@@ -1728,6 +1728,8 @@ Example which sets multiple error levels and actions:
 \&  if space usage > 80% for 5 times within 15 cycles then alert
 \&  if space usage > 90% for 5 cycles then exec \*(Aq/try/to/free/the/space\*(Aq
 .Ve
+.PP
+Note: the maximum number of cycles option value is 64.
 .SS "\s-1EXISTENCE TESTING\s0"
 .IX Subsection "EXISTENCE TESTING"
 Monit's default action when services does not exist (for example
@@ -2404,12 +2406,18 @@ regular stream based socket, \s-1UDP\s0 is a datagram socket and \s-1TCPSSL\s0
 specifies that Monit should use a \s-1TCP\s0 socket with \s-1SSL\s0 when
 connecting to a port. The default socket type is \s-1TCP.\s0 If \s-1TCPSSL\s0
 is used you may optionally specify the \s-1SSL/TLS\s0 protocol to be
-used and the \s-1MD5\s0 checksum of the server's certificate. The \s-1TCPSSL\s0
-options are:
+used and the \s-1MD5\s0 checksum of the server's certificate.
+.PP
+The \s-1TCPSSL\s0 options are:
 .PP
 .Vb 1
 \& TCPSSL [SSLAUTO|SSLV2|SSLV3|TLSV1|TLSV11|TLSV12] [CERTMD5 md5sum]
 .Ve
+.PP
+The default mode is \fI\s-1SSLAUTO\s0\fR and it will select the method
+automatically, but note that for security reasons it supports \s-1TLS\s0
+methods only. If you need SSLv2 or SSLv3 you have to explicitly select
+that method using \fI\s-1SSLV2\s0\fR or \fI\s-1SSLV3\s0\fR option.
 .PP
 \&\fIprotocol: \s-1PROTO\s0(\s-1COL\s0) protocol\fR. Optionally specify the protocol
 Monit should speak when a connection is established. At the
@@ -2420,12 +2428,15 @@ moment Monit knows how to speak:
  \fI\s-1FTP\s0\fR
  \fI\s-1GPS\s0\fR
  \fI\s-1HTTP\s0\fR
+ \fI\s-1HTTPS\s0\fR
  \fI\s-1IMAP\s0\fR
+ \fI\s-1IMAPS\s0\fR
  \fI\s-1CLAMAV\s0\fR
  \fI\s-1LDAP2\s0\fR
  \fI\s-1LDAP3\s0\fR
  \fI\s-1LMTP\s0\fR
  \fI\s-1MEMCACHE\s0\fR
+ \fI\s-1MONGODB\s0\fR
  \fI\s-1MYSQL\s0\fR
  \fI\s-1NNTP\s0\fR
  \fI\s-1NTP3\s0\fR
@@ -2434,9 +2445,11 @@ moment Monit knows how to speak:
  \fIPOSTFIX-POLICY\fR
  \fI\s-1RADIUS\s0\fR
  \fI\s-1RDATE\s0\fR
+ \fI\s-1REDIS\s0\fR
  \fI\s-1RSYNC\s0\fR
  \fI\s-1SIP\s0\fR
  \fI\s-1SMTP\s0\fR
+ \fI\s-1SMTPS\s0\fR
  \fI\s-1SSH\s0\fR
  \fI\s-1TNS\s0\fR
  \fI\s-1WEBSOCKET\s0\fR

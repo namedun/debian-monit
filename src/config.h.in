@@ -371,10 +371,10 @@
 #undef HAVE_SYS_WAIT_H
 
 /* Define to 1 if you have openssl with TLSv1.1 */
-#undef HAVE_TLSV1_1_CLIENT_METHOD
+#undef HAVE_TLSV1_1
 
 /* Define to 1 if you have openssl with TLSv1.2 */
-#undef HAVE_TLSV1_2_CLIENT_METHOD
+#undef HAVE_TLSV1_2
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
