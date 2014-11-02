@@ -117,7 +117,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/monit.h
 +++ b/src/monit.h
-@@ -249,6 +249,11 @@
+@@ -241,6 +241,11 @@
  #define SIG_ERR ((Sigfunc *)-1)
  #endif
  
