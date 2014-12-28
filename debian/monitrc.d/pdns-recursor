@@ -16,4 +16,3 @@
  check file pdns-recursor_rc with path /etc/init.d/pdns-recursor
    group pnds-recursor
    include /etc/monit/templates/rootbin
-

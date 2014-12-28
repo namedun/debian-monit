@@ -30,4 +30,3 @@
  check file sshd_rc with path /etc/ssh/sshd_config
    group sshd
    include /etc/monit/templates/rootrc
-

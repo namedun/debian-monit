@@ -14,4 +14,3 @@
  check file smartd_rc with path "/etc/init.d/smartmontools"
    group smartd
    include /etc/monit/templates/rootbin
-

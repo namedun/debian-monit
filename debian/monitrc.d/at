@@ -14,4 +14,3 @@
  check file atd_rc with path "/etc/init.d/atd"
    group atd
    include /etc/monit/templates/rootbin
-

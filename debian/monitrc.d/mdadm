@@ -19,4 +19,3 @@
  check file mdadm_rc with path "/etc/init.d/mdadm"
    group mdadm
    include /etc/monit/templates/rootbin
-

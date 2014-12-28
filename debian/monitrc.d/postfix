@@ -42,4 +42,3 @@
  check file postfix_rc with path /etc/init.d/postfix
    group postfix
    include /etc/monit/templates/rootbin
-

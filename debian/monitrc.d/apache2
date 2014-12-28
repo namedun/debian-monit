@@ -15,4 +15,3 @@
  check file apache_rc with path /etc/init.d/apache2
    group apache
    include /etc/monit/templates/rootbin
-

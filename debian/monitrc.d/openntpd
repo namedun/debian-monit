@@ -14,4 +14,3 @@
  check file ntpd_rc with path /etc/init.d/openntpd
    group ntpd
    include /etc/monit/templates/rootbin
-
