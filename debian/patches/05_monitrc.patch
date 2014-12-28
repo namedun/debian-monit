@@ -5,8 +5,8 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: not-needed
 
 ---
- monitrc |   28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ monitrc |   24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
 --- a/monitrc
 +++ b/monitrc
@@ -57,28 +57,24 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -125,13 +127,13 @@
+@@ -125,11 +127,11 @@
  ## commands to a running Monit daemon. See the Monit Wiki if you want to 
- ## enable SSL for the web server. 
+ ## enable SSL for the HTTP interface. 
  #
 -set httpd port 2812 and
 -    use address localhost  # only accept connection from localhost
 -    allow localhost        # allow localhost to connect to the server and
 -    allow admin:monit      # require user 'admin' with password 'monit'
--    allow @monit           # allow users of group 'monit' to connect (rw)
--    allow @users readonly  # allow users of group 'users' to connect readonly
 -
 +# set httpd port 2812 and
-+#    use address localhost  # only accept connection from localhost
-+#    allow localhost        # allow localhost to connect to the server and
-+#    allow admin:monit      # require user 'admin' with password 'monit'
-+#    allow @monit           # allow users of group 'monit' to connect (rw)
-+#    allow @users readonly  # allow users of group 'users' to connect readonly
++#     use address localhost  # only accept connection from localhost
++#     allow localhost        # allow localhost to connect to the server and
++#     allow admin:monit      # require user 'admin' with password 'monit'
 +#
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -254,5 +256,5 @@
+@@ -252,5 +254,5 @@
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #

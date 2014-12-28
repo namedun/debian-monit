@@ -9,17 +9,17 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 ---
  configure                 |    6 +++++-
  configure.ac              |    5 +++++
- libmonit/configure        |    4 ++++
+ libmonit/configure        |    5 +++++
  libmonit/configure.ac     |    4 ++++
  libmonit/src/Config.h     |    6 ++++++
  src/device/sysdep_HURD.c  |    1 +
  src/monit.h               |    5 +++++
  src/process/sysdep_HURD.c |   20 ++++++++++++++++++++
- 8 files changed, 50 insertions(+), 1 deletion(-)
+ 8 files changed, 51 insertions(+), 1 deletion(-)
 
 --- a/configure
 +++ b/configure
-@@ -13864,7 +13864,11 @@
+@@ -14274,7 +14274,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -34,7 +34,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -512,6 +512,11 @@
+@@ -513,6 +513,11 @@
     # AIX v. 5.3
     LIBS="$LIBS -lperfstat"	
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
@@ -48,24 +48,24 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
     CFLAGS="$CFLAGS -D _REENTRANT"
 --- a/libmonit/configure
 +++ b/libmonit/configure
-@@ -11955,7 +11955,11 @@
-    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
- 
+@@ -12416,6 +12416,11 @@
  $as_echo "#define AIX 1" >>confdefs.h
+ 
+    LIBS="$LIBS -lcfg -lodm -lperfstat"
 +elif test "$architecture" = "GNU"
 +then
-+   CFLAGS="$CFLAGS -D _REENTRANT"
- 
++    CFLAGS="$CFLAGS -D _REENTRANT"
++
 +$as_echo "#define HURD 1" >>confdefs.h
  else
     as_fn_error $? "Architecture not supported: ${architecture}" "$LINENO" 5
  fi
 --- a/libmonit/configure.ac
 +++ b/libmonit/configure.ac
-@@ -169,6 +169,10 @@
- then
+@@ -199,6 +199,10 @@
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
+    LIBS="$LIBS -lcfg -lodm -lperfstat"
 +elif test "$architecture" = "GNU"
 +then
 +   CFLAGS="$CFLAGS -D _REENTRANT"
@@ -117,7 +117,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/monit.h
 +++ b/src/monit.h
-@@ -241,6 +241,11 @@
+@@ -244,6 +244,11 @@
  #define SIG_ERR ((Sigfunc *)-1)
  #endif
  
