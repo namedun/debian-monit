@@ -138,9 +138,9 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/protocol.$(OBJEXT) \
 	src/protocols/radius.$(OBJEXT) src/protocols/rdate.$(OBJEXT) \
 	src/protocols/redis.$(OBJEXT) src/protocols/rsync.$(OBJEXT) \
-	src/protocols/sip.$(OBJEXT) src/protocols/smtp.$(OBJEXT) \
-	src/protocols/ssh.$(OBJEXT) src/protocols/tns.$(OBJEXT) \
-	src/protocols/websocket.$(OBJEXT) \
+	src/protocols/sieve.$(OBJEXT) src/protocols/sip.$(OBJEXT) \
+	src/protocols/smtp.$(OBJEXT) src/protocols/ssh.$(OBJEXT) \
+	src/protocols/tns.$(OBJEXT) src/protocols/websocket.$(OBJEXT) \
 	src/device/device_common.$(OBJEXT) \
 	src/device/sysdep_@ARCH@.$(OBJEXT) \
 	src/process/process_common.$(OBJEXT) \
@@ -491,6 +491,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/rdate.c \
 		  src/protocols/redis.c \
 		  src/protocols/rsync.c \
+		  src/protocols/sieve.c \
 		  src/protocols/sip.c \
 		  src/protocols/smtp.c \
 		  src/protocols/ssh.c \
@@ -681,6 +682,7 @@ src/protocols/radius.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/rdate.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/redis.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/rsync.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/sieve.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/sip.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/smtp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ssh.$(OBJEXT): src/protocols/$(am__dirstamp)
