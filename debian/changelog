@@ -1,3 +1,11 @@
+monit (1:5.11-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.11
+  * Refresh patches
+  * Comment for rsyslog plugin (Closes: #771322).
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 28 Dec 2014 17:32:53 +0300
+
 monit (1:5.10-1) unstable; urgency=medium
 
   * Imported Upstream version 5.10
