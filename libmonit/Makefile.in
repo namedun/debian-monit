@@ -110,8 +110,9 @@ am_libmonit_la_OBJECTS = src/Bootstrap.lo src/exceptions/assert.lo \
 	src/exceptions/Exception.lo src/io/Dir.lo src/io/File.lo \
 	src/io/InputStream.lo src/io/OutputStream.lo src/system/Mem.lo \
 	src/system/Net.lo src/system/Time.lo src/system/Command.lo \
-	src/system/System.lo src/util/List.lo src/util/Str.lo \
-	src/util/StringBuffer.lo src/thread/Thread.lo
+	src/system/System.lo src/system/NetStatistics.lo \
+	src/util/List.lo src/util/Str.lo src/util/StringBuffer.lo \
+	src/thread/Thread.lo
 libmonit_la_OBJECTS = $(am_libmonit_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -371,6 +372,7 @@ libmonit_la_SOURCES = \
                   src/system/Time.c \
                   src/system/Command.c \
                   src/system/System.c \
+                  src/system/NetStatistics.c \
                   src/util/List.c \
                   src/util/Str.c \
                   src/util/StringBuffer.c \
@@ -464,6 +466,7 @@ src/system/Net.lo: src/system/$(am__dirstamp)
 src/system/Time.lo: src/system/$(am__dirstamp)
 src/system/Command.lo: src/system/$(am__dirstamp)
 src/system/System.lo: src/system/$(am__dirstamp)
+src/system/NetStatistics.lo: src/system/$(am__dirstamp)
 src/util/$(am__dirstamp):
 	@$(MKDIR_P) src/util
 	@: > src/util/$(am__dirstamp)
