@@ -18,6 +18,9 @@
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
+/* Define to 1 if the system has the type `boolean_t'. */
+#undef HAVE_BOOLEAN_T
+
 /* Define to 1 if you have the <cf.h> header file. */
 #undef HAVE_CF_H
 
@@ -126,6 +129,9 @@
 /* Define to 1 if you have the <machine/vmparam.h> header file. */
 #undef HAVE_MACHINE_VMPARAM_H
 
+/* Define to 1 if you have the <mach/boolean.h> header file. */
+#undef HAVE_MACH_BOOLEAN_H
+
 /* Define to 1 if you have the <mach/host_info.h> header file. */
 #undef HAVE_MACH_HOST_INFO_H
 
@@ -149,6 +155,9 @@
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
+
+/* Define to 1 if you have the <netinet/icmp6.h> header file. */
+#undef HAVE_NETINET_ICMP6_H
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
@@ -206,9 +215,6 @@
 
 /* Define to 1 if you have the <signal.h> header file. */
 #undef HAVE_SIGNAL_H
-
-/* Define to 1 if SOL_IP is defined. */
-#undef HAVE_SOL_IP
 
 /* Define to 1 if you have the `statfs' function. */
 #undef HAVE_STATFS
@@ -316,6 +322,9 @@
 /* Define to 1 if you have the <sys/resource.h> header file. */
 #undef HAVE_SYS_RESOURCE_H
 
+/* Define to 1 if you have the <sys/sched.h> header file. */
+#undef HAVE_SYS_SCHED_H
+
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #undef HAVE_SYS_SOCKET_H
 
@@ -394,6 +403,9 @@
 /* Define to 1 if you have the <uvm/uvm_object.h> header file. */
 #undef HAVE_UVM_UVM_OBJECT_H
 
+/* Define to 1 if you have the <uvm/uvm_param.h> header file. */
+#undef HAVE_UVM_UVM_PARAM_H
+
 /* Define to 1 if you have the <uvm/uvm_pmap.h> header file. */
 #undef HAVE_UVM_UVM_PMAP_H
 
@@ -430,11 +442,15 @@
 /* Define to 1 if you have the <zone.h> header file. */
 #undef HAVE_ZONE_H
 
+/* Define to 1 if the system supports IPv6 */
+#undef IPV6
+
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
-/* Define to the sub-directory where libtool stores uninstalled libraries. */
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
 #undef LT_OBJDIR
 
 /* Name of package */

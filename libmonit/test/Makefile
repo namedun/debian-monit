@@ -76,13 +76,13 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-apple-darwin14.0.0
-host_triplet = x86_64-apple-darwin14.0.0
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
 noinst_PROGRAMS = StrTest$(EXEEXT) SystemTest$(EXEEXT) \
 	ListTest$(EXEEXT) DirTest$(EXEEXT) StringBufferTest$(EXEEXT) \
 	InputStreamTest$(EXEEXT) OutputStreamTest$(EXEEXT) \
 	FileTest$(EXEEXT) ExceptionTest$(EXEEXT) NetTest$(EXEEXT) \
-	TimeTest$(EXEEXT) CommandTest$(EXEEXT)
+	LinkTest$(EXEEXT) TimeTest$(EXEEXT) CommandTest$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -121,6 +121,10 @@ am_InputStreamTest_OBJECTS = InputStreamTest.$(OBJEXT)
 InputStreamTest_OBJECTS = $(am_InputStreamTest_OBJECTS)
 InputStreamTest_LDADD = $(LDADD)
 InputStreamTest_DEPENDENCIES = ../libmonit.la
+am_LinkTest_OBJECTS = LinkTest.$(OBJEXT)
+LinkTest_OBJECTS = $(am_LinkTest_OBJECTS)
+LinkTest_LDADD = $(LDADD)
+LinkTest_DEPENDENCIES = ../libmonit.la
 am_ListTest_OBJECTS = ListTest.$(OBJEXT)
 ListTest_OBJECTS = $(am_ListTest_OBJECTS)
 ListTest_LDADD = $(LDADD)
@@ -184,16 +188,18 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(CommandTest_SOURCES) $(DirTest_SOURCES) \
 	$(ExceptionTest_SOURCES) $(FileTest_SOURCES) \
-	$(InputStreamTest_SOURCES) $(ListTest_SOURCES) \
-	$(NetTest_SOURCES) $(OutputStreamTest_SOURCES) \
-	$(StrTest_SOURCES) $(StringBufferTest_SOURCES) \
-	$(SystemTest_SOURCES) $(TimeTest_SOURCES)
+	$(InputStreamTest_SOURCES) $(LinkTest_SOURCES) \
+	$(ListTest_SOURCES) $(NetTest_SOURCES) \
+	$(OutputStreamTest_SOURCES) $(StrTest_SOURCES) \
+	$(StringBufferTest_SOURCES) $(SystemTest_SOURCES) \
+	$(TimeTest_SOURCES)
 DIST_SOURCES = $(CommandTest_SOURCES) $(DirTest_SOURCES) \
 	$(ExceptionTest_SOURCES) $(FileTest_SOURCES) \
-	$(InputStreamTest_SOURCES) $(ListTest_SOURCES) \
-	$(NetTest_SOURCES) $(OutputStreamTest_SOURCES) \
-	$(StrTest_SOURCES) $(StringBufferTest_SOURCES) \
-	$(SystemTest_SOURCES) $(TimeTest_SOURCES)
+	$(InputStreamTest_SOURCES) $(LinkTest_SOURCES) \
+	$(ListTest_SOURCES) $(NetTest_SOURCES) \
+	$(OutputStreamTest_SOURCES) $(StrTest_SOURCES) \
+	$(StringBufferTest_SOURCES) $(SystemTest_SOURCES) \
+	$(TimeTest_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -226,47 +232,47 @@ AR = ar
 AUTOCONF = ${SHELL} /tmp/monit/libmonit/config/missing autoconf
 AUTOHEADER = ${SHELL} /tmp/monit/libmonit/config/missing autoheader
 AUTOMAKE = ${SHELL} /tmp/monit/libmonit/config/missing automake-1.14
-AWK = awk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=none
-CFLAGS = -Wno-address -Wno-pointer-sign -g -O2 -DREENTRANT -Wall -Wunused -Wno-unused-label -funsigned-char -D_GNU_SOURCE -std=c99
+CFLAGS = -Wno-address -Wno-pointer-sign -g -O2 -D _REENTRANT -Wall -Wunused -Wno-unused-label -funsigned-char -D_GNU_SOURCE -std=c99
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false
-DSYMUTIL = dsymutil
+DSYMUTIL = 
 DUMPBIN = 
-ECHO_C = \c
-ECHO_N = 
+ECHO_C = 
+ECHO_N = -n
 ECHO_T = 
-EGREP = /usr/bin/grep -E
+EGREP = /bin/grep -E
 EXEEXT = 
-FGREP = /usr/bin/grep -F
-GREP = /usr/bin/grep
-INSTALL = /opt/local/bin/ginstall -c
+FGREP = /bin/grep -F
+GREP = /bin/grep
+INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+LD = /usr/bin/ld -m elf_x86_64
 LDFLAGS = 
 LIBOBJS = 
 LIBS = -lpthread 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
-LIPO = lipo
+LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /tmp/monit/libmonit/config/missing makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = /opt/local/bin/gmkdir -p
-NM = /usr/bin/nm
-NMEDIT = nmedit
-OBJDUMP = false
+MKDIR_P = /bin/mkdir -p
+NM = /usr/bin/nm -B
+NMEDIT = 
+OBJDUMP = objdump
 OBJEXT = o
-OTOOL = otool
-OTOOL64 = :
+OTOOL = 
+OTOOL64 = 
 PACKAGE = libmonit
 PACKAGE_BUGREPORT = monit-dev@tildeslash.com
 PACKAGE_NAME = libmonit
@@ -276,9 +282,9 @@ PACKAGE_URL =
 PACKAGE_VERSION = 1.0
 PATH_SEPARATOR = :
 RANLIB = ranlib
-SED = /usr/bin/sed
+SED = /bin/sed
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = strip
 VERSION = 1.0
 abs_builddir = /tmp/monit/libmonit/test
@@ -294,22 +300,22 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-apple-darwin14.0.0
+build = x86_64-unknown-linux-gnu
 build_alias = 
 build_cpu = x86_64
-build_os = darwin14.0.0
-build_vendor = apple
+build_os = linux-gnu
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-apple-darwin14.0.0
+host = x86_64-unknown-linux-gnu
 host_alias = 
 host_cpu = x86_64
-host_os = darwin14.0.0
-host_vendor = apple
+host_os = linux-gnu
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
@@ -347,6 +353,7 @@ OutputStreamTest_SOURCES = OutputStreamTest.c
 FileTest_SOURCES = FileTest.c
 ExceptionTest_SOURCES = ExceptionTest.c
 NetTest_SOURCES = NetTest.c
+LinkTest_SOURCES = LinkTest.c
 TimeTest_SOURCES = TimeTest.c
 DISTCLEANFILES = *~ 
 all: all-am
@@ -412,6 +419,10 @@ FileTest$(EXEEXT): $(FileTest_OBJECTS) $(FileTest_DEPENDENCIES) $(EXTRA_FileTest
 InputStreamTest$(EXEEXT): $(InputStreamTest_OBJECTS) $(InputStreamTest_DEPENDENCIES) $(EXTRA_InputStreamTest_DEPENDENCIES) 
 	@rm -f InputStreamTest$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(InputStreamTest_OBJECTS) $(InputStreamTest_LDADD) $(LIBS)
+
+LinkTest$(EXEEXT): $(LinkTest_OBJECTS) $(LinkTest_DEPENDENCIES) $(EXTRA_LinkTest_DEPENDENCIES) 
+	@rm -f LinkTest$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(LinkTest_OBJECTS) $(LinkTest_LDADD) $(LIBS)
 
 ListTest$(EXEEXT): $(ListTest_OBJECTS) $(ListTest_DEPENDENCIES) $(EXTRA_ListTest_DEPENDENCIES) 
 	@rm -f ListTest$(EXEEXT)

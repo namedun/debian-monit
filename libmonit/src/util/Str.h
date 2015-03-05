@@ -215,6 +215,23 @@ int Str_has(const char *charset, const char *s);
 
 
 /**
+ * Unescape all characters in <code>s</code> which are in the 
+ * <code>charset</code> and return <code>s</code> modified.
+ * Example:
+ * <pre>
+ * char s[] = "foo\'ba\"r\}baz";
+ * Str_unescape("\"'", s) -> foo'ba"r\}baz
+ * </pre>
+ * @param charset The characters to test <code>s</code> against. 
+ * A character is unescaped in <code>s</code> if it is in the 
+ * charset and is preceded with '\'.
+ * @param s The string to unescape
+ * @return A pointer to s
+ */
+char *Str_unescape(const char *charset, char *s);
+
+
+/**
  * Returns true if <i>a</i> equals <i>b</i>. The test is 
  * <i>case-insensitive</i> but depends on that all characters
  * in the two strings can be translated in the current locale.

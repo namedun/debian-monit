@@ -82,7 +82,7 @@ noinst_PROGRAMS = StrTest$(EXEEXT) SystemTest$(EXEEXT) \
 	ListTest$(EXEEXT) DirTest$(EXEEXT) StringBufferTest$(EXEEXT) \
 	InputStreamTest$(EXEEXT) OutputStreamTest$(EXEEXT) \
 	FileTest$(EXEEXT) ExceptionTest$(EXEEXT) NetTest$(EXEEXT) \
-	TimeTest$(EXEEXT) CommandTest$(EXEEXT)
+	LinkTest$(EXEEXT) TimeTest$(EXEEXT) CommandTest$(EXEEXT)
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -121,6 +121,10 @@ am_InputStreamTest_OBJECTS = InputStreamTest.$(OBJEXT)
 InputStreamTest_OBJECTS = $(am_InputStreamTest_OBJECTS)
 InputStreamTest_LDADD = $(LDADD)
 InputStreamTest_DEPENDENCIES = ../libmonit.la
+am_LinkTest_OBJECTS = LinkTest.$(OBJEXT)
+LinkTest_OBJECTS = $(am_LinkTest_OBJECTS)
+LinkTest_LDADD = $(LDADD)
+LinkTest_DEPENDENCIES = ../libmonit.la
 am_ListTest_OBJECTS = ListTest.$(OBJEXT)
 ListTest_OBJECTS = $(am_ListTest_OBJECTS)
 ListTest_LDADD = $(LDADD)
@@ -184,16 +188,18 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(CommandTest_SOURCES) $(DirTest_SOURCES) \
 	$(ExceptionTest_SOURCES) $(FileTest_SOURCES) \
-	$(InputStreamTest_SOURCES) $(ListTest_SOURCES) \
-	$(NetTest_SOURCES) $(OutputStreamTest_SOURCES) \
-	$(StrTest_SOURCES) $(StringBufferTest_SOURCES) \
-	$(SystemTest_SOURCES) $(TimeTest_SOURCES)
+	$(InputStreamTest_SOURCES) $(LinkTest_SOURCES) \
+	$(ListTest_SOURCES) $(NetTest_SOURCES) \
+	$(OutputStreamTest_SOURCES) $(StrTest_SOURCES) \
+	$(StringBufferTest_SOURCES) $(SystemTest_SOURCES) \
+	$(TimeTest_SOURCES)
 DIST_SOURCES = $(CommandTest_SOURCES) $(DirTest_SOURCES) \
 	$(ExceptionTest_SOURCES) $(FileTest_SOURCES) \
-	$(InputStreamTest_SOURCES) $(ListTest_SOURCES) \
-	$(NetTest_SOURCES) $(OutputStreamTest_SOURCES) \
-	$(StrTest_SOURCES) $(StringBufferTest_SOURCES) \
-	$(SystemTest_SOURCES) $(TimeTest_SOURCES)
+	$(InputStreamTest_SOURCES) $(LinkTest_SOURCES) \
+	$(ListTest_SOURCES) $(NetTest_SOURCES) \
+	$(OutputStreamTest_SOURCES) $(StrTest_SOURCES) \
+	$(StringBufferTest_SOURCES) $(SystemTest_SOURCES) \
+	$(TimeTest_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -347,6 +353,7 @@ OutputStreamTest_SOURCES = OutputStreamTest.c
 FileTest_SOURCES = FileTest.c
 ExceptionTest_SOURCES = ExceptionTest.c
 NetTest_SOURCES = NetTest.c
+LinkTest_SOURCES = LinkTest.c
 TimeTest_SOURCES = TimeTest.c
 DISTCLEANFILES = *~ 
 all: all-am
@@ -412,6 +419,10 @@ FileTest$(EXEEXT): $(FileTest_OBJECTS) $(FileTest_DEPENDENCIES) $(EXTRA_FileTest
 InputStreamTest$(EXEEXT): $(InputStreamTest_OBJECTS) $(InputStreamTest_DEPENDENCIES) $(EXTRA_InputStreamTest_DEPENDENCIES) 
 	@rm -f InputStreamTest$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(InputStreamTest_OBJECTS) $(InputStreamTest_LDADD) $(LIBS)
+
+LinkTest$(EXEEXT): $(LinkTest_OBJECTS) $(LinkTest_DEPENDENCIES) $(EXTRA_LinkTest_DEPENDENCIES) 
+	@rm -f LinkTest$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(LinkTest_OBJECTS) $(LinkTest_LDADD) $(LIBS)
 
 ListTest$(EXEEXT): $(ListTest_OBJECTS) $(ListTest_DEPENDENCIES) $(EXTRA_ListTest_DEPENDENCIES) 
 	@rm -f ListTest$(EXEEXT)

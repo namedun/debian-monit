@@ -52,8 +52,15 @@
 
 #define T List_T
 typedef struct T *T;
+
+
 /** @cond hide */
-typedef struct list_t {void *e; struct list_t *next;} *list_t;
+typedef struct list_t {
+        void *e;
+        struct list_t *next;
+} *list_t;
+
+
 struct T {
         int length;
         int timestamp;

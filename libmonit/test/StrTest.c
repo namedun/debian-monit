@@ -184,8 +184,7 @@ int main(void) {
         printf("=> Test12: startsWith\n");
         {
                 char *a = "mysql://localhost:3306/zild?user=root&password=swordfish";
-                printf("\tResult: starts with mysql - %s\n", 
-                       Str_startsWith(a, "mysql")?"yes":"no");
+                printf("\tResult: starts with mysql - %s\n", Str_startsWith(a, "mysql") ? "yes" : "no");
                 assert(Str_startsWith(a, "mysql"));
                 assert(!Str_startsWith(a, "sqlite"));
                 assert(Str_startsWith("sqlite", "sqlite"));
@@ -203,7 +202,7 @@ int main(void) {
         printf("=> Test13: endsWith\n");
         {
                 char *a = "mysql://localhost:3306";
-                printf("\tResult: ends with 3306 - %s\n", Str_endsWith(a, "3306")?"yes":"no");
+                printf("\tResult: ends with 3306 - %s\n", Str_endsWith(a, "3306") ? "yes" : "no");
                 assert(Str_endsWith(a, "3306"));
                 assert(!Str_endsWith(a, "sqlite"));
                 assert(Str_endsWith("sqlite", "sqlite"));
@@ -221,7 +220,7 @@ int main(void) {
         printf("=> Test14: isEqual\n");
         {
                 char *a = "mysql://localhost:3306";
-                printf("\tResult: is equal - %s\n", Str_isEqual(a, "mysql://localhost:3306")?"yes":"no");
+                printf("\tResult: is equal - %s\n", Str_isEqual(a, "mysql://localhost:3306") ? "yes" : "no");
                 assert(Str_isEqual("sqlite", "sqlite"));
                 printf("\tTesting for NULL and NUL argument\n");
                 assert(!Str_isEqual(a, NULL));
@@ -392,7 +391,7 @@ int main(void) {
         {
                 char str[10];
                 Str_bytesToSize(0, str);
-                assert(Str_isEqual(str, "0.0 B"));
+                assert(Str_isEqual(str, "0 B"));
                 Str_bytesToSize(2048, str);
                 assert(Str_isEqual(str, "2.0 KB"));
                 Str_bytesToSize(2097152, str);
@@ -408,6 +407,16 @@ int main(void) {
         }
         printf("=> Test23: OK\n\n");
 
+        printf("=> Test24: Str_unescape\n");
+        {
+                char s[] = "foo\\'ba\\`r\\}baz";
+                char t[] = "\\&gt\\;";
+                assert(Str_isEqual("foo'ba`r\\}baz", Str_unescape("`'", s)));
+                assert(Str_isEqual(s, Str_unescape("@*", s)));
+                assert(Str_isEqual(Str_unescape("&;", t), "&gt;"));
+                assert(Str_unescape("@*!#$%&/(=", NULL) == NULL);
+        }
+        printf("=> Test24: OK\n\n");
 
         printf("============> Str Tests: OK\n\n");
         return 0;
