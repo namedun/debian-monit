@@ -19,7 +19,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure
 +++ b/configure
-@@ -14274,7 +14274,11 @@
+@@ -13942,7 +13942,11 @@
     LIBS="$LIBS -lperfstat"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -34,7 +34,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -513,6 +513,11 @@
+@@ -569,6 +569,11 @@
     # AIX v. 5.3
     LIBS="$LIBS -lperfstat"	
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
@@ -48,7 +48,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
     CFLAGS="$CFLAGS -D _REENTRANT"
 --- a/libmonit/configure
 +++ b/libmonit/configure
-@@ -12416,6 +12416,11 @@
+@@ -12108,6 +12108,11 @@
  $as_echo "#define AIX 1" >>confdefs.h
  
     LIBS="$LIBS -lcfg -lodm -lperfstat"
@@ -62,7 +62,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  fi
 --- a/libmonit/configure.ac
 +++ b/libmonit/configure.ac
-@@ -199,6 +199,10 @@
+@@ -218,6 +218,10 @@
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
     LIBS="$LIBS -lcfg -lodm -lperfstat"
@@ -102,7 +102,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +#include "sysdep_LINUX.c"
 --- a/libmonit/src/Config.h
 +++ b/libmonit/src/Config.h
-@@ -111,6 +111,12 @@
+@@ -125,6 +125,12 @@
  #define true  1
  #endif
  
@@ -117,7 +117,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/monit.h
 +++ b/src/monit.h
-@@ -244,6 +244,11 @@
+@@ -338,6 +338,11 @@
  #define SIG_ERR ((Sigfunc *)-1)
  #endif
  

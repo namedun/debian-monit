@@ -8,25 +8,25 @@ Forwarded: no
 
 --- a/monit.1
 +++ b/monit.1
-@@ -1180,7 +1180,7 @@
+@@ -1222,7 +1222,7 @@
  Monit cannot connect to the first server, it will try the next in
  the list and so on.
  .PP
 -The port statement allows to override the default \s-1SMTP\s0 port
 +The port statement allows one to override the default \s-1SMTP\s0 port
- (465 for \s-1SSL\s0, or 25 for \s-1TLS\s0 and non secure connection).
+ (465 for \s-1SSL,\s0 or 25 for \s-1TLS\s0 and non secure connection).
  .PP
- Monit supports \s-1AUTH\s0 \s-1PLAIN\s0 and \s-1AUTH\s0 \s-1LOGIN\s0 for \s-1SMTP\s0 authentication.
-@@ -1727,7 +1727,7 @@
+ Monit supports \s-1AUTH PLAIN\s0 and \s-1AUTH LOGIN\s0 for \s-1SMTP\s0 authentication.
+@@ -1769,7 +1769,7 @@
  \& then alert
  .Ve
  .PP
--The second format is more advanced and allows to tolerate intermitent
-+The second format is more advanced and allows one to tolerate intermitent
+-The second format is more advanced and allows to tolerate intermittent
++The second format is more advanced and allows one to tolerate intermittent
  issues, but still catch excessive problems, where the service is
  flapping between error and success states frequently.
  .PP
-@@ -2923,7 +2923,7 @@
+@@ -2996,7 +2996,7 @@
  APACHE-STATUS
  .IX Subsection "APACHE-STATUS"
  .PP
