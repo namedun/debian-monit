@@ -7,15 +7,16 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  3. Implement src/{device,process}/sysdep_HURD.c
 
 ---
- configure                 |    6 +++++-
- configure.ac              |    5 +++++
- libmonit/configure        |    5 +++++
- libmonit/configure.ac     |    4 ++++
- libmonit/src/Config.h     |    6 ++++++
- src/device/sysdep_HURD.c  |    1 +
- src/monit.h               |    5 +++++
- src/process/sysdep_HURD.c |   20 ++++++++++++++++++++
- 8 files changed, 51 insertions(+), 1 deletion(-)
+ configure                            |    6 +++++-
+ configure.ac                         |    5 +++++
+ libmonit/configure                   |    5 +++++
+ libmonit/configure.ac                |    4 ++++
+ libmonit/src/Config.h                |    6 ++++++
+ libmonit/src/system/os/hurd/Link.inc |    1 +
+ src/device/sysdep_HURD.c             |    1 +
+ src/monit.h                          |    5 +++++
+ src/process/sysdep_HURD.c            |   20 ++++++++++++++++++++
+ 9 files changed, 52 insertions(+), 1 deletion(-)
 
 --- a/configure
 +++ b/configure
@@ -129,3 +130,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
  /** ------------------------------------------------- General purpose macros */
  
+--- /dev/null
++++ b/libmonit/src/system/os/hurd/Link.inc
+@@ -0,0 +1 @@
++#include "../linux/Link.inc"
