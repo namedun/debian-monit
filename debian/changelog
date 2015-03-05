@@ -1,3 +1,11 @@
+monit (1:5.12-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.12
+  * Refresh patches
+  * Try to add network support for HURD
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 05 Mar 2015 13:02:49 +0300
+
 monit (1:5.11-1) unstable; urgency=medium
 
   * Imported Upstream version 5.11
