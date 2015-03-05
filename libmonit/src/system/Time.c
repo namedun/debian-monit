@@ -236,7 +236,7 @@ char *Time_uptime(time_t sec, char *result) {
                                 n = snprintf(result, 24, "%lldd", (long long)r);
                                 sec -= r * 86400;
                         }
-                        if((r = sec/3600) > 0) {
+                        if ((r = sec/3600) > 0) {
                                 n += snprintf(result + n, (24 - n), "%s%lldh", n ? ", " : "", (long long)r);
                                 sec -= r * 3600;
                         }

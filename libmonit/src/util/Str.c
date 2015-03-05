@@ -53,14 +53,6 @@
  */
 
 
-/* ----------------------------------------------------------- Definitions */
-
-
-static const char *kSizeNotation[9] = {
-        "B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", NULL
-};
-
-
 /* -------------------------------------------------------- Public Methods */
 
 
@@ -199,8 +191,8 @@ int Str_startsWith(const char *a, const char *b) {
 int Str_endsWith(const char *a, const char *b) {
         if (a && b) {
                 size_t i = 0, j = 0;
-                for(i = strlen(a), j = strlen(b); (i && j); i--, j--)
-                        if(toupper(a[i]) != toupper(b[j])) return false;
+                for (i = strlen(a), j = strlen(b); (i && j); i--, j--)
+                        if (toupper(a[i]) != toupper(b[j])) return false;
                 return (i >= j);
         }
         return false;
@@ -239,8 +231,27 @@ int Str_has(const char *charset, const char *s) {
 }
 
 
+char *Str_unescape(const char *charset, char *s) {
+        if (charset && STR_DEF(s)) {
+                int x, y;
+                for (x = 0, y = 0; s[y]; x++, y++) {
+                        if ((s[x] = s[y]) == '\\')
+                                for (int i = 0; charset[i]; i++) {
+                                        if (charset[i] == s[y + 1]) {
+                                                s[x] = charset[i];
+                                                y++;
+                                                break;
+                                        }
+                                }
+                }
+                s[x] = 0;
+        }
+        return s;
+}
+
+
 int Str_isEqual(const char *a, const char *b) {
-        if (a && b) { 
+        if (a && b) {
                 while (*a && *b)
                         if (toupper(*a++) != toupper(*b++)) return false;
                 return (*a == *b);
@@ -412,12 +423,13 @@ int Str_cmp(const void *x, const void *y) {
 char *Str_bytesToSize(double bytes, char s[10]) {
         assert(s);
         assert(bytes < 1e+24);
+        static const char *kNotation[] = {"B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", NULL};
         *s = 0;
-        for (int i = 0; kSizeNotation[i]; i++) {
+        for (int i = 0; kNotation[i]; i++) {
                 if (bytes > 1024) {
                         bytes /= 1024;
                 } else {
-                        snprintf(s, 10, "%.1lf %s", bytes, kSizeNotation[i]);
+                        snprintf(s, 10, i == 0 ? "%.0lf %s" : "%.1lf %s", bytes, kNotation[i]);
                         break;
                 }
         }

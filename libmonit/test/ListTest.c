@@ -120,13 +120,13 @@ int main(void) {
                 List_append(l, "d");
                 printf("\tList before reverse: ");
                 for (p = l->head; p; p = p->next)
-                        printf("%s%s", (char*)p->e, p->next?"->":"\n");
+                        printf("%s%s", (char*)p->e, p->next ? "->" : "\n");
                 assert(Str_isEqual(l->head->e, "a"));
                 assert(Str_isEqual(l->tail->e, "d"));
                 List_reverse(l);
                 printf("\tList after reverse: ");
                 for (p = l->head; p; p = p->next)
-                        printf("%s%s", (char*)p->e, p->next?"->":"\n");
+                        printf("%s%s", (char*)p->e, p->next ? "->" : "\n");
                 assert(Str_isEqual(l->head->e, "d"));
                 assert(Str_isEqual(l->tail->e, "a"));
                 List_free(&l);

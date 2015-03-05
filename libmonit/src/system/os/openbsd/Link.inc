@@ -24,7 +24,7 @@
 
 
 /**
- * Implementation of the Network Statistics for FreeBSD.
+ * Implementation of the Network Statistics for OpenBSD.
  *
  * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
@@ -32,7 +32,7 @@
  */
 
 
-static boolean_t _update(T S, const char *interface) {
+static boolean_t _update(T L, const char *interface) {
         for (struct ifaddrs *a = _stats.addrs; a != NULL; a = a->ifa_next) {
                 if (a->ifa_addr == NULL)
                         continue;
@@ -45,36 +45,30 @@ static boolean_t _update(T S, const char *interface) {
                                 // try SIOCGIFMEDIA - if not supported, assume the interface is UP (loopback or other virtual interface)
                                 if (ioctl(s, SIOCGIFMEDIA, (caddr_t)&ifmr) >= 0) {
                                         if (ifmr.ifm_status & IFM_AVALID && ifmr.ifm_status & IFM_ACTIVE) {
-                                                S->state = 1LL;
-                                                S->duplex = ifmr.ifm_active & 0x00100000 ? 1LL : 0LL;
+                                                L->state = 1LL;
+                                                L->duplex = ifmr.ifm_active & 0x00100000 ? 1LL : 0LL;
                                         } else {
-                                                S->state = 0LL;
-                                                S->duplex = -1LL;
+                                                L->state = 0LL;
+                                                L->duplex = -1LL;
                                         }
                                 } else {
-                                        S->state = 1LL;
+                                        L->state = 1LL;
                                 }
                                 close(s);
                         } else {
-                                S->state = -1LL;
-                                S->duplex = -1LL;
+                                L->state = -1LL;
+                                L->duplex = -1LL;
                         }
                         struct if_data *data = (struct if_data *)a->ifa_data;
-                        S->timestamp.last = S->timestamp.now;
-                        S->timestamp.now = Time_milli();
-                        S->speed = data->ifi_baudrate;
-                        S->ipackets.last = S->ipackets.now;
-                        S->ipackets.now = data->ifi_ipackets;
-                        S->ibytes.last = S->ibytes.now;
-                        S->ibytes.now = data->ifi_ibytes;
-                        S->ierrors.last = S->ierrors.now;
-                        S->ierrors.now = data->ifi_ierrors;
-                        S->opackets.last = S->opackets.now;
-                        S->opackets.now = data->ifi_opackets;
-                        S->obytes.last = S->obytes.now;
-                        S->obytes.now = data->ifi_obytes;
-                        S->oerrors.last = S->oerrors.now;
-                        S->oerrors.now = data->ifi_oerrors;
+                        L->timestamp.last = L->timestamp.now;
+                        L->timestamp.now = Time_milli();
+                        L->speed = data->ifi_baudrate;
+                        _updateValue(&(L->ibytes), data->ifi_ibytes);
+                        _updateValue(&(L->ipackets), data->ifi_ipackets);
+                        _updateValue(&(L->ierrors), data->ifi_ierrors);
+                        _updateValue(&(L->obytes), data->ifi_obytes);
+                        _updateValue(&(L->opackets), data->ifi_opackets);
+                        _updateValue(&(L->oerrors), data->ifi_oerrors);
                         return true;
                 }
         }

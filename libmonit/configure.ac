@@ -94,8 +94,9 @@ AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h pthread.h setjmp.h \
                   sys/socket.h sys/time.h sys/types.h unistd.h execinfo.h \
                   sys/sendfile.h sys/dirent.h poll.h sys/poll.h sys/event.h \
                   stropts.h sys/ioctl.h sys/filio.h kstat.h ifaddrs.h \
-                  net/if_media.h netinet/in.h])
-AC_CHECK_HEADERS([net/if.h], [], [],
+                  net/if_media.h netinet/in.h sys/sysctl.h net/if_dl.h \
+                  mach/boolean.h uvm/uvm_param.h])
+AC_CHECK_HEADERS([net/if.h net/route.h], [], [],
         [
          #ifdef HAVE_SYS_TYPES_H
          #include <sys/types.h>
@@ -125,6 +126,25 @@ AC_CHECK_HEADERS([ \
         ])
 
 # ------------------------------------------------------------------------
+# Types
+# ------------------------------------------------------------------------
+
+AC_CHECK_TYPES([boolean_t], [], [],
+        [
+         #ifdef HAVE_SYS_TYPES_H
+         #include <sys/types.h>
+         #endif
+         #ifdef HAVE_MACH_BOOLEAN_H
+         #include <mach/boolean.h>
+         #endif
+         #ifdef HAVE_UVM_UVM_PARAM_H
+         #include <uvm/uvm_param.h>
+         #endif
+        ])
+AC_CHECK_TYPES([uchar_t])
+AC_CHECK_TYPES([uint32_t])
+
+# ------------------------------------------------------------------------
 # Functions 
 # ------------------------------------------------------------------------
 
@@ -148,7 +168,6 @@ AC_CACHE_CHECK([vsnprintf is c99 conformant],
                         [AC_MSG_RESULT(yes)],
                         [AC_MSG_FAILURE([vsnprintf does not conform to c99])],
                         [AC_MSG_ERROR(cross-compiling: please set 'libmonit_cv_vsnprintf_c99_conformant=[yes|no]')])])
-
 
 # ------------------------------------------------------------------------
 # Architecture/OS
@@ -227,7 +246,6 @@ if test "x$GCC" = "xyes"; then
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
 fi
 
-
 # ------------------------------------------------------------------------
 # Atomic support
 # ------------------------------------------------------------------------
@@ -279,11 +297,6 @@ AC_MSG_RESULT($ac_cv_ipv6)
 if test $ac_cv_ipv6 = yes ; then
 	AC_DEFINE([IPV6], 1, [Define to 1 if the system supports IPv6])
 fi
-
-# ---------------------------------------------------------------------------
-# Functions 
-# ---------------------------------------------------------------------------
-
 
 # ---------------------------------------------------------------------------
 # Outputs
