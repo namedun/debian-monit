@@ -125,9 +125,6 @@ struct T {
         SSL *handler;
         SSL_CTX *ctx;
         char *clientpemfile;
-
-        struct T *prev;
-        struct T *next;
 };
 
 
@@ -136,11 +133,9 @@ struct SslServer_T {
         SSL_CTX *ctx;
         char *pemfile;
         char *clientpemfile;
-        T connections; // FIXME: replace with Table + remove next/prev links in Ssl_T
 };
 
 
-static Mutex_T instanceMutex = PTHREAD_MUTEX_INITIALIZER;
 static Mutex_T *instanceMutexTable;
 
 
@@ -196,7 +191,7 @@ void Ssl_start() {
         else if (File_exist(RANDOM_DEVICE))
                 RAND_load_file(RANDOM_DEVICE, RANDOM_BYTES);
         else
-                THROW(AssertException, "SSL: cannot find %s nor %s on the system\n", URANDOM_DEVICE, RANDOM_DEVICE);
+                THROW(AssertException, "SSL: cannot find %s nor %s on the system", URANDOM_DEVICE, RANDOM_DEVICE);
         int locks = CRYPTO_num_locks();
         instanceMutexTable = CALLOC(locks, sizeof(Mutex_T));
         for (int i = 0; i < locks; i++)
@@ -226,9 +221,9 @@ void Ssl_threadCleanup() {
 void Ssl_setFipsMode(boolean_t enabled) {
 #ifdef OPENSSL_FIPS
         if (enabled && ! FIPS_mode() && ! FIPS_mode_set(1))
-                THROW(AssertException, "SSL: cannot enter FIPS mode -- %s\n", SSLERROR);
+                THROW(AssertException, "SSL: cannot enter FIPS mode -- %s", SSLERROR);
         else if (! enabled && FIPS_mode() && ! FIPS_mode_set(0))
-                THROW(AssertException, "SSL: cannot exit FIPS mode -- %s\n", SSLERROR);
+                THROW(AssertException, "SSL: cannot exit FIPS mode -- %s", SSLERROR);
 #endif
 }
 
@@ -519,11 +514,6 @@ sslerror:
 
 void SslServer_free(SslServer_T *S) {
         ASSERT(S && *S);
-        while ((*S)->connections) {
-                T C = (*S)->connections;
-                (*S)->connections = (*S)->connections->next;
-                SslServer_freeConnection(*S, &C);
-        }
         if ((*S)->ctx)
                 SSL_CTX_free((*S)->ctx);
         FREE((*S)->pemfile);
@@ -546,15 +536,6 @@ T SslServer_newConnection(SslServer_T S) {
         SSL_set_mode(C->handler, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
         if (S->clientpemfile)
                 C->clientpemfile = Str_dup(S->clientpemfile);
-        LOCK(instanceMutex)
-        {
-                if (S->connections) {
-                        C->next = S->connections;
-                        C->next->prev = C;
-                }
-                S->connections = C;
-        }
-        END_LOCK;
         return C;
 }
 
@@ -563,14 +544,6 @@ void SslServer_freeConnection(SslServer_T S, T *C) {
         ASSERT(S);
         ASSERT(C && *C);
         Ssl_close(*C);
-        LOCK(instanceMutex);
-        {
-                if ((*C)->prev)
-                        (*C)->prev->next = (*C)->next;
-                else
-                        S->connections = (*C)->next;
-        }
-        END_LOCK;
         Ssl_free(C);
 }
 

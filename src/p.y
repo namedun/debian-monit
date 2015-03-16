@@ -300,10 +300,10 @@ static int verifyMaxForward(int);
 %token INTERFACE LINK PACKET ERROR BYTEIN BYTEOUT PACKETIN PACKETOUT SPEED SATURATION UPLOAD DOWNLOAD TOTAL
 %token IDFILE STATEFILE SEND EXPECT EXPECTBUFFER CYCLE COUNT REMINDER
 %token PIDFILE START STOP PATHTOK
-%token HOST HOSTNAME PORT TYPE UDP TCP TCPSSL PROTOCOL CONNECTION
+%token HOST HOSTNAME PORT IPV4 IPV6 TYPE UDP TCP TCPSSL PROTOCOL CONNECTION
 %token ALERT NOALERT MAILFORMAT UNIXSOCKET SIGNATURE
 %token TIMEOUT RETRY RESTART CHECKSUM EVERY NOTEVERY
-%token DEFAULT HTTP HTTPS APACHESTATUS FTP SMTP SMTPS POP IMAP IMAPS CLAMAV NNTP NTP3 MYSQL DNS WEBSOCKET
+%token DEFAULT HTTP HTTPS APACHESTATUS FTP SMTP SMTPS POP POPS IMAP IMAPS CLAMAV NNTP NTP3 MYSQL DNS WEBSOCKET
 %token SSH DWP LDAP2 LDAP3 RDATE RSYNC TNS PGSQL POSTFIXPOLICY SIP LMTP GPS RADIUS MEMCACHE REDIS MONGODB SIEVE
 %token <string> STRING PATH MAILADDR MAILFROM MAILREPLYTO MAILSUBJECT
 %token <string> MAILBODY SERVICENAME STRINGNAME
@@ -321,7 +321,7 @@ static int verifyMaxForward(int);
 %token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 CERTMD5
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
 %token INODE SPACE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
-%token EXEC UNMONITOR PING ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
+%token EXEC UNMONITOR PING PING4 PING6 ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
 %token URL CONTENT PID PPID FSFLAG
 %token REGISTER CREDENTIALS
 %token <url> URLOBJECT
@@ -1032,15 +1032,13 @@ hostname        : /* EMPTY */     { $<string>$ = NULL; }
                 | HOSTNAME STRING { $<string>$ = $2; }
                 ;
 
-connection      : IF FAILED host port type protocol urloption nettimeout retry rate1 THEN action1 recovery {
-                    portset.timeout = $<number>8;
-                    portset.retry = $<number>9;
-                    /* This is a workaround to support content match without having to create
-                     an URL object. 'urloption' creates the Request_T object we need minus the
-                     URL object, but with enough information to perform content test.
+connection      : IF FAILED host port ip type protocol urloption nettimeout retry rate1 THEN action1 recovery {
+                    portset.timeout = $<number>9;
+                    portset.retry = $<number>10;
+                    /* This is a workaround to support content match without having to create an URL object. 'urloption' creates the Request_T object we need minus the URL object, but with enough information to perform content test.
                      TODO: Parser is in need of refactoring */
                     portset.url_request = urlrequest;
-                    addeventaction(&(portset).action, $<number>12, $<number>13);
+                    addeventaction(&(portset).action, $<number>13, $<number>14);
                     addport(&(current->portlist), &portset);
                   }
                 | IF FAILED URL URLOBJECT urloption nettimeout retry rate1 THEN action1 recovery {
@@ -1061,6 +1059,7 @@ connectionunix  : IF FAILED unixsocket type protocol nettimeout retry rate1 THEN
                 ;
 
 icmp            : IF FAILED ICMP icmptype icmpcount nettimeout rate1 THEN action1 recovery {
+                        icmpset.family = Socket_Ip;
                         icmpset.type = $<number>4;
                         icmpset.count = $<number>5;
                         icmpset.timeout = $<number>6;
@@ -1068,6 +1067,23 @@ icmp            : IF FAILED ICMP icmptype icmpcount nettimeout rate1 THEN action
                         addicmp(&icmpset);
                   }
                 | IF FAILED PING icmpcount nettimeout rate1 THEN action1 recovery {
+                        icmpset.family = Socket_Ip;
+                        icmpset.type = ICMP_ECHO;
+                        icmpset.count = $<number>4;
+                        icmpset.timeout = $<number>5;
+                        addeventaction(&(icmpset).action, $<number>8, $<number>9);
+                        addicmp(&icmpset);
+                 }
+                | IF FAILED PING4 icmpcount nettimeout rate1 THEN action1 recovery {
+                        icmpset.family = Socket_Ip4;
+                        icmpset.type = ICMP_ECHO;
+                        icmpset.count = $<number>4;
+                        icmpset.timeout = $<number>5;
+                        addeventaction(&(icmpset).action, $<number>8, $<number>9);
+                        addicmp(&icmpset);
+                 }
+                | IF FAILED PING6 icmpcount nettimeout rate1 THEN action1 recovery {
+                        icmpset.family = Socket_Ip6;
                         icmpset.type = ICMP_ECHO;
                         icmpset.count = $<number>4;
                         icmpset.timeout = $<number>5;
@@ -1087,7 +1103,6 @@ host            : /* EMPTY */ {
 
 port            : PORT NUMBER {
                         portset.port = $2;
-                        portset.family = Socket_Ip;
                   }
                 ;
 
@@ -1097,14 +1112,25 @@ unixsocket      : UNIXSOCKET PATH {
                   }
                 ;
 
+ip              : /* EMPTY */ {
+                    portset.family = Socket_Ip;
+                  }
+                | IPV4 {
+                    portset.family = Socket_Ip4;
+                  }
+                | IPV6 {
+                    portset.family = Socket_Ip6;
+                  }
+                ;
+
 type            : /* EMPTY */ {
-                    portset.type = SOCK_STREAM;
+                    portset.type = Socket_Tcp;
                   }
                 | TYPE TCP {
-                    portset.type = SOCK_STREAM;
+                    portset.type = Socket_Tcp;
                   }
                 | TYPE TCPSSL sslversion certmd5  {
-                    portset.type = SOCK_STREAM;
+                    portset.type = Socket_Tcp;
                     portset.SSL.use_ssl = true;
                     portset.SSL.version = $<number>3;
                     if (portset.SSL.version == SSL_Disabled)
@@ -1112,7 +1138,7 @@ type            : /* EMPTY */ {
                     portset.SSL.certmd5 = $<string>4;
                   }
                 | TYPE UDP {
-                    portset.type = SOCK_DGRAM;
+                    portset.type = Socket_Udp;
                   }
                 ;
 
@@ -1167,7 +1193,7 @@ protocol        : /* EMPTY */  {
                         portset.protocol = Protocol_get(Protocol_HTTP);
                   }
                 | PROTOCOL HTTPS httplist {
-                        portset.type = SOCK_STREAM;
+                        portset.type = Socket_Tcp;
                         portset.SSL.use_ssl = true;
                         portset.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_HTTP);
@@ -1176,7 +1202,7 @@ protocol        : /* EMPTY */  {
                         portset.protocol = Protocol_get(Protocol_IMAP);
                   }
                 | PROTOCOL IMAPS {
-                        portset.type = SOCK_STREAM;
+                        portset.type = Socket_Tcp;
                         portset.SSL.use_ssl = true;
                         portset.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_IMAP);
@@ -1204,12 +1230,18 @@ protocol        : /* EMPTY */  {
                   }
                 | PROTOCOL NTP3  {
                     portset.protocol = Protocol_get(Protocol_NTP3);
-                    portset.type = SOCK_DGRAM;
+                    portset.type = Socket_Udp;
                   }
                 | PROTOCOL POSTFIXPOLICY {
                     portset.protocol = Protocol_get(Protocol_POSTFIXPOLICY);
                   }
                 | PROTOCOL POP {
+                    portset.protocol = Protocol_get(Protocol_POP);
+                  }
+                | PROTOCOL POPS {
+                    portset.type = Socket_Tcp;
+                    portset.SSL.use_ssl = true;
+                    portset.SSL.version = SSL_Auto;
                     portset.protocol = Protocol_get(Protocol_POP);
                   }
                 | PROTOCOL SIEVE {
@@ -1219,7 +1251,7 @@ protocol        : /* EMPTY */  {
                     portset.protocol = Protocol_get(Protocol_SMTP);
                   }
                 | PROTOCOL SMTPS {
-                        portset.type = SOCK_STREAM;
+                        portset.type = Socket_Tcp;
                         portset.SSL.use_ssl = true;
                         portset.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_SMTP);
@@ -3193,6 +3225,7 @@ static void addicmp(Icmp_T is) {
         ASSERT(is);
 
         NEW(icmp);
+        icmp->family       = is->family;
         icmp->type         = is->type;
         icmp->count        = is->count;
         icmp->timeout      = is->timeout;
@@ -3338,7 +3371,7 @@ static void prepare_urlrequest(URL_T U) {
         check_hostname(portset.hostname);
         portset.port = U->port;
         portset.url_request = urlrequest;
-        portset.type = SOCK_STREAM;
+        portset.type = Socket_Tcp;
         portset.request = Str_cat("%s%s%s", U->path, U->query ? "?" : "", U->query ? U->query : "");
         /* Only the HTTP protocol is supported for URLs.
          See also the lexer if this is to be changed in
@@ -3779,7 +3812,7 @@ static void reset_mailserverset() {
 static void reset_portset() {
         memset(&portset, 0, sizeof(struct myport));
         portset.socket = -1;
-        portset.type = SOCK_STREAM;
+        portset.type = Socket_Tcp;
         portset.family = Socket_Ip;
         portset.SSL.version = SSL_Auto;
         portset.timeout = NET_TIMEOUT;

@@ -78,6 +78,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if the system supports IPv6 */
+#undef HAVE_IPV6
+
 /* Define to 1 if you have the <kstat.h> header file. */
 #undef HAVE_KSTAT_H
 
@@ -441,9 +444,6 @@
 
 /* Define to 1 if you have the <zone.h> header file. */
 #undef HAVE_ZONE_H
-
-/* Define to 1 if the system supports IPv6 */
-#undef IPV6
 
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */

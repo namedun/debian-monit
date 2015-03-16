@@ -163,6 +163,9 @@ static void _updateValue(LinkData_T *data, unsigned long long raw) {
 
 
 static void _resetData(LinkData_T *data, unsigned long long value) {
+#ifndef __LP64__
+        data->raw = value;
+#endif
         data->last = data->now = value;
         for (int i = 0; i < 60; i++)
                 data->minute[i] = value;

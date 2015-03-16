@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "February 25. 2015" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "March 08. 2015" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -697,8 +697,7 @@ Example:
 \&     allow username:password
 .Ve
 .PP
-Options:
-.IX Subsection "Options:"
+\&\fBOptions\fR:
 .PP
 \&\fB\s-1UNIXSOCKET\s0\fR set the path to the Unix Socket Monit should bind to 
 and listen on.
@@ -2622,16 +2621,23 @@ Monit can perform a network ping test by sending \s-1ICMP\s0 echo request
 datagram packets to a host and wait for the reply. This test can
 only be used within a check host statement. Monit must also run as
 the root user in order to be able to perform the ping test (because
-a ping test must use raw sockets which usually only the super user
+the ping test must use raw sockets which usually only the super user
 is allowed to).
 .PP
 Syntax:
 .PP
 .Vb 3
-\&  IF FAILED PING
+\&  IF FAILED PING[4|6]
 \&     [COUNT number] [WITH] [TIMEOUT number SECONDS]
 \&  THEN action
 .Ve
+.PP
+If a \s-1DNS\s0 host name was used in the \fIcheck host\fR statement and the host
+name resolve to several addresses (either IPv4 or IPv6), Monit will
+ping the first available address and continue with the next address
+until one connection succeed or until there are no more addresses left
+to try. You can force Monit to only ping IPv4 or IPv6 addresses by
+using the \s-1PING4\s0 or the \s-1PING6\s0 keyword instead of \s-1PING.\s0
 .PP
 The \fB\s-1COUNT\s0\fR parameter specifies how many consecutive ping requests
 will be sent to the host in one cycle. If no reply arrive within
@@ -2656,17 +2662,26 @@ Example:
 .PP
 .Vb 2
 \& check host mmonit.com with address mmonit.com
-\&       if failed ping then alert
+\&       if failed ping then alert  # IPv4 or IPv6
+\&
+\& check host mmonit.com with address 62.109.39.247
+\&       if failed ping then alert # Address is IPv4 so IPv4 is preferred
+.Ve
+.PP
+or test that the system is explicit accessible via IPv4 and IPv6:
+.PP
+.Vb 3
+\& check host mmonit.com with address mmonit.com
+\&       if failed ping4 then alert  # IPv4 only
+\&       if failed ping6 then alert  # IPv6 only
 .Ve
 .PP
 or with all parameters; Send 5 pings to mmonit.com and wait for up
 to 10 seconds for a reply
 .PP
-.Vb 4
+.Vb 2
 \&  check host mmonit.com with address mmonit.com
-\&        if failed
-\&           ping count 5 with timeout 10 seconds
-\&        then alert
+\&        if failed ping count 5 with timeout 10 seconds then alert
 .Ve
 .SS "\s-1CONNECTION TESTING\s0"
 .IX Subsection "CONNECTION TESTING"
@@ -2682,10 +2697,11 @@ I/O, Monit will execute a specified action.
 .PP
 \&\s-1TCP/UDP\s0 port test syntax:
 .PP
-.Vb 8
+.Vb 9
 \& IF FAILED
 \&    [host]
 \&    <port>
+\&    [ipversion]
 \&    [type]
 \&    [protocol | {send/expect}+]
 \&    [timeout]
@@ -2726,6 +2742,13 @@ remote host entry then the entry's remote host is assumed.
 .PP
 \&\fIunixsocket: \s-1UNIXSOCKET\s0 path\fR. Specifies the path to a Unix
 socket (local machine only).
+.PP
+\&\fIipversion: \s-1IPV4\s0 | \s-1IPV6 \s0\fR. Optionally specify the \s-1IP\s0 version Monit
+should use when trying to connect to the port. If not used, Monit will
+try to connect to the first available address (IPv4 or IPv6). If
+multiple addresses are available and connection to one address failed,
+Monit will try the next address and so on until a connection succeed or
+until there are no more addresses left to try.
 .PP
 \&\fItype: \s-1TYPE\s0 {TCP|UDP|TCPSSL}\fR. Optionally specify the socket type
 Monit should use when trying to connect to the port. The
@@ -2770,6 +2793,7 @@ moment Monit knows how to speak:
  \fI\s-1NTP3\s0\fR
  \fI\s-1PGSQL\s0\fR
  \fI\s-1POP\s0\fR
+ \fI\s-1POPS\s0\fR
  \fIPOSTFIX-POLICY\fR
  \fI\s-1RADIUS\s0\fR
  \fI\s-1RDATE\s0\fR
@@ -3007,16 +3031,19 @@ Syntax:
 .Ve
 .PP
 \&\fIlimit\fR is acronym for child status:
- o logging (loglimit)
- o closing connections (closelimit)
- o performing \s-1DNS\s0 lookups (dnslimit)
- o in keepalive with a client (keepalivelimit)
- o replying to a client (replylimit)
- o receiving a request (requestlimit)
- o initialising (startlimit)
- o waiting for incoming connections (waitlimit)
- o gracefully closing down (gracefullimit)
- o performing cleanup procedures (cleanuplimit)
+.PP
+.Vb 10
+\& (1) logging (loglimit)
+\& (2) closing connections (closelimit)
+\& (3) performing DNS lookups (dnslimit)
+\& (4) in keepalive with a client (keepalivelimit)
+\& (5) replying to a client (replylimit)
+\& (6) receiving a request (requestlimit)
+\& (7) initialising (startlimit)
+\& (8) waiting for incoming connections (waitlimit)
+\& (9) gracefully closing down (gracefullimit)
+\& (10) performing cleanup procedures (cleanuplimit)
+.Ve
 .PP
 \&\fIoperator\fR is one of \*(L"<\*(R", \*(L"=\*(R", \*(L">\*(R".
 .PP
