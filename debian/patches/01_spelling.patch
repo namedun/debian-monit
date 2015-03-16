@@ -8,7 +8,7 @@ Forwarded: no
 
 --- a/monit.1
 +++ b/monit.1
-@@ -1222,7 +1222,7 @@
+@@ -1221,7 +1221,7 @@
  Monit cannot connect to the first server, it will try the next in
  the list and so on.
  .PP
@@ -17,7 +17,7 @@ Forwarded: no
  (465 for \s-1SSL,\s0 or 25 for \s-1TLS\s0 and non secure connection).
  .PP
  Monit supports \s-1AUTH PLAIN\s0 and \s-1AUTH LOGIN\s0 for \s-1SMTP\s0 authentication.
-@@ -1769,7 +1769,7 @@
+@@ -1768,7 +1768,7 @@
  \& then alert
  .Ve
  .PP
@@ -26,7 +26,7 @@ Forwarded: no
  issues, but still catch excessive problems, where the service is
  flapping between error and success states frequently.
  .PP
-@@ -2996,7 +2996,7 @@
+@@ -3020,7 +3020,7 @@
  APACHE-STATUS
  .IX Subsection "APACHE-STATUS"
  .PP
