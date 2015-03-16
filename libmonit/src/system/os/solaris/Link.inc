@@ -73,7 +73,7 @@ static boolean_t _update(T L, const char *interface) {
                                 return true;
                         } else {
                                 kstat_close(kc);
-                                THROW(AssertException, "Cannot get kstat data -- %s\n", System_getError(errno));
+                                THROW(AssertException, "Cannot get kstat data -- %s", System_getError(errno));
                         }
                 } else {
                         /*

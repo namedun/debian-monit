@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.12], [monit-general@nongnu.org])
+AC_INIT([monit], [5.12.1], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -453,7 +453,7 @@ AC_CACHE_VAL(ac_cv_ipv6,
         ac_cv_ipv6=no))
 AC_MSG_RESULT($ac_cv_ipv6)
 if test $ac_cv_ipv6 = yes ; then
-        AC_DEFINE([IPV6], 1, [Define to 1 if the system supports IPv6])
+        AC_DEFINE([HAVE_IPV6], 1, [Define to 1 if the system supports IPv6])
 fi
 
 
