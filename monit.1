@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "March 08. 2015" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "March 20. 2015" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -2518,6 +2518,8 @@ You can check a network link upload and download bandwidth usage, current
 transfer rate and total data transferred in the last 24 hours. This test may
 only be used within a check network service entry in the Monit control file.
 .PP
+Warning: this test requires monit poll time to be at maximum 30 seconds.
+.PP
 Current upload bandwidth rate test syntax:
 .PP
 .Vb 1
@@ -2571,6 +2573,8 @@ Examples:
 You can check the network link upload and download packets count, current
 transfer rate and total data transferred in last 24 hours. This test may
 only be used within a check network service entry in the Monit control file.
+.PP
+Warning: this test requires monit poll time to be at maximum 30 seconds.
 .PP
 Current upload bandwidth rate test syntax:
 .PP

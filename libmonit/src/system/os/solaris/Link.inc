@@ -53,10 +53,16 @@ static long long _getKstatValue(kstat_t *ksp, char *value) {
 
 
 static boolean_t _update(T L, const char *interface) {
+        /*
+         * Handle IP alias
+         */
+        char name[STRLEN];
+        snprintf(name, sizeof(name), "%s", interface);
+        Str_replaceChar(name, ':', 0);
         kstat_ctl_t *kc = kstat_open();
         if (kc) {
                 kstat_t *ksp;
-                if (Str_isEqual(interface, "lo0")) {
+                if (Str_isEqual(name, "lo0")) {
                         /*
                          * Loopback interface has special module on Solaris and provides packets statistics only.
                          *
@@ -64,7 +70,7 @@ static boolean_t _update(T L, const char *interface) {
                          * lo:0:lo0:ipackets       878
                          * lo:0:lo0:opackets       878
                          */
-                        if ((ksp = kstat_lookup(kc, "lo", -1, (char *)interface)) && kstat_read(kc, ksp, NULL) != -1) {
+                        if ((ksp = kstat_lookup(kc, "lo", -1, (char *)name)) && kstat_read(kc, ksp, NULL) != -1) {
                                 _updateValue(&(L->ipackets), _getKstatValue(ksp, "ipackets"));
                                 _updateValue(&(L->opackets), _getKstatValue(ksp, "opackets"));
                                 L->timestamp.last = L->timestamp.now;
@@ -96,7 +102,7 @@ static boolean_t _update(T L, const char *interface) {
                          * link:0:net0:obytes      3227785
                          * link:0:net0:obytes64    3227785
                          */
-                        if ((ksp = kstat_lookup(kc, "link", -1, (char *)interface)) && kstat_read(kc, ksp, NULL) != -1) {
+                        if ((ksp = kstat_lookup(kc, "link", -1, (char *)name)) && kstat_read(kc, ksp, NULL) != -1) {
                                 L->state = _getKstatValue(ksp, "link_state") ? 1LL : 0LL;
                                 L->speed = _getKstatValue(ksp, "ifspeed");
                                 L->duplex = _getKstatValue(ksp, "link_duplex") == 2 ? 1LL : 0LL;
