@@ -355,54 +355,82 @@ boolean_t Ssl_connect(T C, int socket) {
 
 int Ssl_write(T C, void *b, int size, int timeout) {
         ASSERT(C);
-        int n;
-        boolean_t retry = false;
-        do {
-                switch (SSL_get_error(C->handler, (n = SSL_write(C->handler, b, size)))) {
-                        case SSL_ERROR_NONE:
-                        case SSL_ERROR_ZERO_RETURN:
-                                return n;
-                        case SSL_ERROR_WANT_READ:
-                                retry = Net_canRead(C->socket, timeout);
-                                break;
-                        case SSL_ERROR_WANT_WRITE:
-                                retry = Net_canWrite(C->socket, timeout);
-                                break;
-                        case SSL_ERROR_SYSCALL:
-                                LogError("SSL: write error -- %s\n", STRERROR);
-                                break;
-                        default:
-                                LogError("SSL: write error -- %s\n", SSLERROR);
-                                return -1;
-                }
-        } while (retry);
+        int n = 0;
+        if (size > 0) {
+                boolean_t retry = false;
+                do {
+                        switch (SSL_get_error(C->handler, (n = SSL_write(C->handler, b, size)))) {
+                                case SSL_ERROR_NONE:
+                                case SSL_ERROR_ZERO_RETURN:
+                                        return n;
+                                case SSL_ERROR_WANT_READ:
+                                        n = 0;
+                                        errno = EWOULDBLOCK;
+                                        retry = Net_canRead(C->socket, timeout);
+                                        break;
+                                case SSL_ERROR_WANT_WRITE:
+                                        n = 0;
+                                        errno = EWOULDBLOCK;
+                                        retry = Net_canWrite(C->socket, timeout);
+                                        break;
+                                case SSL_ERROR_SYSCALL:
+                                        {
+                                                int error = ERR_get_error();
+                                                if (error)
+                                                        LogError("SSL: write error -- %s\n", ERR_error_string(error, NULL));
+                                                else if (n == 0)
+                                                        LogError("SSL: write error -- EOF\n");
+                                                else if (n == -1)
+                                                        LogError("SSL: write I/O error -- %s\n", STRERROR);
+                                        }
+                                        return -1;
+                                default:
+                                        LogError("SSL: write error -- %s\n", SSLERROR);
+                                        return -1;
+                        }
+                } while (retry);
+        }
         return n;
 }
 
 
 int Ssl_read(T C, void *b, int size, int timeout) {
         ASSERT(C);
-        int n;
-        boolean_t retry = false;
-        do {
-                switch (SSL_get_error(C->handler, (n = SSL_read(C->handler, b, size)))) {
-                        case SSL_ERROR_NONE:
-                        case SSL_ERROR_ZERO_RETURN:
-                                return n;
-                        case SSL_ERROR_WANT_READ:
-                                retry = Net_canRead(C->socket, timeout);
-                                break;
-                        case SSL_ERROR_WANT_WRITE:
-                                retry = Net_canWrite(C->socket, timeout);
-                                break;
-                        case SSL_ERROR_SYSCALL:
-                                LogError("SSL: read error -- %s\n", STRERROR);
-                                break;
-                        default:
-                                LogError("SSL: read error -- %s\n", SSLERROR);
-                                return -1;
-                }
-        } while (retry);
+        int n = 0;
+        if (size > 0) {
+                boolean_t retry = false;
+                do {
+                        switch (SSL_get_error(C->handler, (n = SSL_read(C->handler, b, size)))) {
+                                case SSL_ERROR_NONE:
+                                case SSL_ERROR_ZERO_RETURN:
+                                        return n;
+                                case SSL_ERROR_WANT_READ:
+                                        n = 0;
+                                        errno = EWOULDBLOCK;
+                                        retry = Net_canRead(C->socket, timeout);
+                                        break;
+                                case SSL_ERROR_WANT_WRITE:
+                                        n = 0;
+                                        errno = EWOULDBLOCK;
+                                        retry = Net_canWrite(C->socket, timeout);
+                                        break;
+                                case SSL_ERROR_SYSCALL:
+                                        {
+                                                int error = ERR_get_error();
+                                                if (error)
+                                                        LogError("SSL: read error -- %s\n", ERR_error_string(error, NULL));
+                                                else if (n == 0)
+                                                        LogError("SSL: read error -- EOF\n");
+                                                else if (n == -1)
+                                                        LogError("SSL: read I/O error -- %s\n", STRERROR);
+                                        }
+                                        return -1;
+                                default:
+                                        LogError("SSL: read error -- %s\n", SSLERROR);
+                                        return -1;
+                        }
+                } while (retry);
+        }
         return n;
 }
 

@@ -35,12 +35,18 @@
 static boolean_t _update(T L, const char *interface) {
         char buf[STRLEN];
         char path[PATH_MAX];
+        char name[STRLEN];
+        /*
+         * Handle IP alias
+         */
+        snprintf(name, sizeof(name), "%s", interface);
+        Str_replaceChar(name, ':', 0);
         /*
          * Get interface operation state (Optional: may not be present on older kernels).
          * $ cat /sys/class/net/eth0/operstate
          * up
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/operstate", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/operstate", name);
         FILE *f = fopen(path, "r");
         if (f) {
                 if (fscanf(f, "%256s\n", buf) != 1) {
@@ -60,7 +66,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/speed
          * 4294967295
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/speed", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/speed", name);
         f = fopen(path, "r");
         if (f) {
                 if (fscanf(f, "%lld\n", &(L->speed)) == 1 && L->speed != UINT_MAX)
@@ -77,7 +83,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/duplex
          * unknown
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/duplex", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/duplex", name);
         f = fopen(path, "r");
         if (f) {
                 if (fscanf(f, "%256s\n", buf) == 1 && ! Str_isEqual(buf, "unknown"))
@@ -90,7 +96,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/statistics/rx_bytes 
          * 239426
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/rx_bytes", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/rx_bytes", name);
         f = fopen(path, "r");
         if (f) {
                 long long ibytes;
@@ -107,7 +113,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/statistics/rx_packets 
          * 2706
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/rx_packets", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/rx_packets", name);
         f = fopen(path, "r");
         if (f) {
                 long long ipackets;
@@ -124,7 +130,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/statistics/rx_errors 
          * 0
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/rx_errors", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/rx_errors", name);
         f = fopen(path, "r");
         if (f) {
                 long long ierrors;
@@ -141,7 +147,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/statistics/tx_bytes 
          * 410775
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/tx_bytes", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/tx_bytes", name);
         f = fopen(path, "r");
         if (f) {
                 long long obytes;
@@ -158,7 +164,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/statistics/tx_packets 
          * 1649
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/tx_packets", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/tx_packets", name);
         f = fopen(path, "r");
         if (f) {
                 long long opackets;
@@ -175,7 +181,7 @@ static boolean_t _update(T L, const char *interface) {
          * $ cat /sys/class/net/eth0/statistics/tx_errors  
          * 0
          */
-        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/tx_errors", interface);
+        snprintf(path, sizeof(path), "/sys/class/net/%s/statistics/tx_errors", name);
         f = fopen(path, "r");
         if (f) {
                 long long oerrors;
