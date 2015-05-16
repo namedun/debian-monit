@@ -1,3 +1,9 @@
+monit (1:5.13-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.13
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 17 May 2015 02:01:20 +0300
+
 monit (1:5.12.2-1) unstable; urgency=medium
 
   * Imported Upstream version 5.12.2
