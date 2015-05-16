@@ -121,6 +121,7 @@
 #define T Ssl_T
 struct T {
         boolean_t accepted;
+        Ssl_Version version;
         int socket;
         SSL *handler;
         SSL_CTX *ctx;
@@ -180,6 +181,23 @@ static int _verifyCertificates(int preverify_ok, X509_STORE_CTX *ctx) {
 }
 
 
+static boolean_t _setServerNameIdentification(T C, const char *hostname) {
+#ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
+        struct sockaddr_storage addr;
+        // If the name is set and we use TLS protocol, enable the SNI extension (provided the hostname value is not an IP address)
+        if (hostname && C->version != SSL_V2 && C->version != SSL_V3 && ! inet_pton(AF_INET, hostname, &(((struct sockaddr_in *)&addr)->sin_addr)) &&
+#ifdef HAVE_IPV6
+                ! inet_pton(AF_INET6, hostname, &(((struct sockaddr_in6 *)&addr)->sin6_addr)) &&
+#endif
+                ! SSL_set_tlsext_host_name(C->handler, hostname)) {
+                        LogError("SSL: unable to set the SNI extension to %s\n", hostname);
+                        return false;
+                }
+#endif
+        return true;
+}
+
+
 /* ------------------------------------------------------------------ Public */
 
 
@@ -231,6 +249,7 @@ void Ssl_setFipsMode(boolean_t enabled) {
 T Ssl_new(char *clientpemfile, Ssl_Version version) {
         T C;
         NEW(C);
+        C->version = version;
         if (clientpemfile)
                 C->clientpemfile = Str_dup(clientpemfile);
         const SSL_METHOD *method;
@@ -282,6 +301,9 @@ T Ssl_new(char *clientpemfile, Ssl_Version version) {
         }
         if (version == SSL_Auto)
                 SSL_CTX_set_options(C->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
+#ifdef SSL_OP_NO_COMPRESSION
+        SSL_CTX_set_options(C->ctx, SSL_OP_NO_COMPRESSION);
+#endif
         if (SSL_CTX_set_cipher_list(C->ctx, CIPHER_LIST) != 1) {
                 LogError("SSL: client cipher list [%s] error -- no valid ciphers\n", CIPHER_LIST);
                 goto sslerror;
@@ -331,12 +353,13 @@ void Ssl_close(T C) {
 }
 
 
-boolean_t Ssl_connect(T C, int socket) {
+boolean_t Ssl_connect(T C, int socket, const char *name) {
         ASSERT(C);
         ASSERT(socket >= 0);
         C->socket = socket;
         SSL_set_connect_state(C->handler);
         SSL_set_fd(C->handler, C->socket);
+        _setServerNameIdentification(C, name);
         int rv = SSL_connect(C->handler);
         if (rv < 0) {
                 switch (SSL_get_error(C->handler, rv)) {
@@ -375,7 +398,7 @@ int Ssl_write(T C, void *b, int size, int timeout) {
                                         break;
                                 case SSL_ERROR_SYSCALL:
                                         {
-                                                int error = ERR_get_error();
+                                                unsigned long error = ERR_get_error();
                                                 if (error)
                                                         LogError("SSL: write error -- %s\n", ERR_error_string(error, NULL));
                                                 else if (n == 0)
@@ -416,7 +439,7 @@ int Ssl_read(T C, void *b, int size, int timeout) {
                                         break;
                                 case SSL_ERROR_SYSCALL:
                                         {
-                                                int error = ERR_get_error();
+                                                unsigned long error = ERR_get_error();
                                                 if (error)
                                                         LogError("SSL: read error -- %s\n", ERR_error_string(error, NULL));
                                                 else if (n == 0)
@@ -490,6 +513,9 @@ SslServer_T SslServer_new(char *pemfile, char *clientpemfile, int socket) {
                 goto sslerror;
         }
         SSL_CTX_set_options(S->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
+#ifdef SSL_OP_NO_COMPRESSION
+        SSL_CTX_set_options(S->ctx, SSL_OP_NO_COMPRESSION);
+#endif
         SSL_CTX_set_session_cache_mode(S->ctx, SSL_SESS_CACHE_OFF);
         if (SSL_CTX_use_certificate_chain_file(S->ctx, pemfile) != 1) {
                 LogError("SSL: server certificate chain loading failed -- %s\n", SSLERROR);

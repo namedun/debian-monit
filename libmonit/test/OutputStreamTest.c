@@ -27,7 +27,7 @@ int main(void) {
 
         printf("============> Start OutputStream Tests\n\n");
 
-        printf("=> Test0: create/destroy the file input stream\n");
+        printf("=> Test0: create/destroy the stream\n");
         {
                 out = OutputStream_new(STDOUT);
                 assert(!OutputStream_isClosed(out));

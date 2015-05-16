@@ -29,7 +29,7 @@ int main(void) {
 
         printf("============> Start InputStream Tests\n\n");
 
-        printf("=> Test0: create/destroy the file input stream\n");
+        printf("=> Test0: create/destroy the stream\n");
         {
                 in = InputStream_new(File_open(DATA, "r"));
                 assert(!InputStream_isClosed(in));
