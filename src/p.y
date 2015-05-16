@@ -276,7 +276,6 @@ static void  reset_icmpset();
 static void  reset_rateset();
 static void  check_name(char *);
 static int   check_perm(int);
-static void  check_hostname (char *);
 static void  check_exec(char *);
 static int   cleanup_hash_string(char *);
 static void  check_depend();
@@ -320,7 +319,7 @@ static int verifyMaxForward(int);
 %token TIMESTAMP CHANGED SECOND MINUTE HOUR DAY MONTH
 %token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 CERTMD5
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
-%token INODE SPACE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
+%token INODE SPACE TFREE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
 %token EXEC UNMONITOR PING PING4 PING6 ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
 %token URL CONTENT PID PPID FSFLAG
 %token REGISTER CREDENTIALS
@@ -640,7 +639,6 @@ mmonitlist      : mmonit credentials
                 ;
 
 mmonit          : URLOBJECT nettimeout sslversion certmd5 {
-                    check_hostname(($<url>1)->hostname);
                     addmmonit($<url>1, $<number>2, $<number>3, $<string>4);
                   }
                 ;
@@ -676,7 +674,6 @@ mailserver      : STRING username password sslversion certmd5 {
                     FREE(argyytext);
                     argyytext = Str_dup($1);
 
-                    check_hostname($1);
                     mailserverset.host = $1;
                     mailserverset.username = $<string>2;
                     mailserverset.password = $<string>3;
@@ -694,7 +691,6 @@ mailserver      : STRING username password sslversion certmd5 {
                     FREE(argyytext);
                     argyytext = Str_dup($1);
 
-                    check_hostname($1);
                     mailserverset.host = $1;
                     mailserverset.port = $<number>3;
                     mailserverset.username = $<string>4;
@@ -924,7 +920,6 @@ checkdir        : CHECKDIR SERVICENAME PATHTOK PATH {
                 ;
 
 checkhost       : CHECKHOST SERVICENAME ADDRESS STRING {
-                    check_hostname($4);
                     createservice(Service_Host, $<string>2, $4, check_remote_host);
                   }
                 ;
@@ -1096,7 +1091,6 @@ host            : /* EMPTY */ {
                         portset.hostname = Str_dup(current->type == Service_Host ? current->path : LOCALHOST);
                   }
                 | HOST STRING {
-                        check_hostname($2);
                         portset.hostname = $2;
                   }
                 ;
@@ -1910,6 +1904,20 @@ inode           : IF INODE operator NUMBER rate1 THEN action1 recovery {
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
+                | IF INODE TFREE operator NUMBER rate1 THEN action1 recovery {
+                    filesystemset.resource = Resource_InodeFree;
+                    filesystemset.operator = $<number>4;
+                    filesystemset.limit_absolute = $5;
+                    addeventaction(&(filesystemset).action, $<number>8, $<number>9);
+                    addfilesystem(&filesystemset);
+                  }
+                | IF INODE TFREE operator NUMBER PERCENT rate1 THEN action1 recovery {
+                    filesystemset.resource = Resource_InodeFree;
+                    filesystemset.operator = $<number>4;
+                    filesystemset.limit_percent = (int)($5 * 10);
+                    addeventaction(&(filesystemset).action, $<number>9, $<number>10);
+                    addfilesystem(&filesystemset);
+                  }
                 ;
 
 space           : IF SPACE operator value unit rate1 THEN action1 recovery {
@@ -1926,6 +1934,22 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                     filesystemset.operator = $<number>3;
                     filesystemset.limit_percent = (int)($4 * 10);
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
+                    addfilesystem(&filesystemset);
+                  }
+                | IF SPACE TFREE operator value unit rate1 THEN action1 recovery {
+                    if (! filesystem_usage(current))
+                      yyerror2("Cannot read usage of filesystem %s", current->path);
+                    filesystemset.resource = Resource_SpaceFree;
+                    filesystemset.operator = $<number>4;
+                    filesystemset.limit_absolute = (long long)((double)$<real>5 / (double)current->inf->priv.filesystem.f_bsize * (double)$<number>6);
+                    addeventaction(&(filesystemset).action, $<number>9, $<number>10);
+                    addfilesystem(&filesystemset);
+                  }
+                | IF SPACE TFREE operator NUMBER PERCENT rate1 THEN action1 recovery {
+                    filesystemset.resource = Resource_SpaceFree;
+                    filesystemset.operator = $<number>4;
+                    filesystemset.limit_percent = (int)($5 * 10);
+                    addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                     addfilesystem(&filesystemset);
                   }
                 ;
@@ -3368,7 +3392,6 @@ static void prepare_urlrequest(URL_T U) {
                 NEW(urlrequest);
         urlrequest->url = U;
         portset.hostname = Str_dup(U->hostname);
-        check_hostname(portset.hostname);
         portset.port = U->port;
         portset.url_request = urlrequest;
         portset.type = Socket_Tcp;
@@ -4055,15 +4078,6 @@ static int check_perm(int perm) {
         return result;
 }
 
-
-/*
- * Check hostname
- */
-static void check_hostname(char *hostname) {
-        ASSERT(hostname);
-        if (! check_host(hostname))
-                yywarning2("Hostname %s did not resolve", hostname);
-}
 
 /*
  * Check the dependency graph for errors

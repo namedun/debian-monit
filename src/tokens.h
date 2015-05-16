@@ -240,44 +240,45 @@ extern int yydebug;
     GIGABYTE = 450,
     INODE = 451,
     SPACE = 452,
-    PERMISSION = 453,
-    SIZE = 454,
-    MATCH = 455,
-    NOT = 456,
-    IGNORE = 457,
-    ACTION = 458,
-    UPTIME = 459,
-    EXEC = 460,
-    UNMONITOR = 461,
-    PING = 462,
-    PING4 = 463,
-    PING6 = 464,
-    ICMP = 465,
-    ICMPECHO = 466,
-    NONEXIST = 467,
-    EXIST = 468,
-    INVALID = 469,
-    DATA = 470,
-    RECOVERED = 471,
-    PASSED = 472,
-    SUCCEEDED = 473,
-    URL = 474,
-    CONTENT = 475,
-    PID = 476,
-    PPID = 477,
-    FSFLAG = 478,
-    REGISTER = 479,
-    CREDENTIALS = 480,
-    URLOBJECT = 481,
-    TARGET = 482,
-    TIMESPEC = 483,
-    HTTPHEADER = 484,
-    MAXFORWARD = 485,
-    FIPS = 486,
-    GREATER = 487,
-    LESS = 488,
-    EQUAL = 489,
-    NOTEQUAL = 490
+    TFREE = 453,
+    PERMISSION = 454,
+    SIZE = 455,
+    MATCH = 456,
+    NOT = 457,
+    IGNORE = 458,
+    ACTION = 459,
+    UPTIME = 460,
+    EXEC = 461,
+    UNMONITOR = 462,
+    PING = 463,
+    PING4 = 464,
+    PING6 = 465,
+    ICMP = 466,
+    ICMPECHO = 467,
+    NONEXIST = 468,
+    EXIST = 469,
+    INVALID = 470,
+    DATA = 471,
+    RECOVERED = 472,
+    PASSED = 473,
+    SUCCEEDED = 474,
+    URL = 475,
+    CONTENT = 476,
+    PID = 477,
+    PPID = 478,
+    FSFLAG = 479,
+    REGISTER = 480,
+    CREDENTIALS = 481,
+    URLOBJECT = 482,
+    TARGET = 483,
+    TIMESPEC = 484,
+    HTTPHEADER = 485,
+    MAXFORWARD = 486,
+    FIPS = 487,
+    GREATER = 488,
+    LESS = 489,
+    EQUAL = 490,
+    NOTEQUAL = 491
   };
 #endif
 /* Tokens.  */
@@ -476,58 +477,59 @@ extern int yydebug;
 #define GIGABYTE 450
 #define INODE 451
 #define SPACE 452
-#define PERMISSION 453
-#define SIZE 454
-#define MATCH 455
-#define NOT 456
-#define IGNORE 457
-#define ACTION 458
-#define UPTIME 459
-#define EXEC 460
-#define UNMONITOR 461
-#define PING 462
-#define PING4 463
-#define PING6 464
-#define ICMP 465
-#define ICMPECHO 466
-#define NONEXIST 467
-#define EXIST 468
-#define INVALID 469
-#define DATA 470
-#define RECOVERED 471
-#define PASSED 472
-#define SUCCEEDED 473
-#define URL 474
-#define CONTENT 475
-#define PID 476
-#define PPID 477
-#define FSFLAG 478
-#define REGISTER 479
-#define CREDENTIALS 480
-#define URLOBJECT 481
-#define TARGET 482
-#define TIMESPEC 483
-#define HTTPHEADER 484
-#define MAXFORWARD 485
-#define FIPS 486
-#define GREATER 487
-#define LESS 488
-#define EQUAL 489
-#define NOTEQUAL 490
+#define TFREE 453
+#define PERMISSION 454
+#define SIZE 455
+#define MATCH 456
+#define NOT 457
+#define IGNORE 458
+#define ACTION 459
+#define UPTIME 460
+#define EXEC 461
+#define UNMONITOR 462
+#define PING 463
+#define PING4 464
+#define PING6 465
+#define ICMP 466
+#define ICMPECHO 467
+#define NONEXIST 468
+#define EXIST 469
+#define INVALID 470
+#define DATA 471
+#define RECOVERED 472
+#define PASSED 473
+#define SUCCEEDED 474
+#define URL 475
+#define CONTENT 476
+#define PID 477
+#define PPID 478
+#define FSFLAG 479
+#define REGISTER 480
+#define CREDENTIALS 481
+#define URLOBJECT 482
+#define TARGET 483
+#define TIMESPEC 484
+#define HTTPHEADER 485
+#define MAXFORWARD 486
+#define FIPS 487
+#define GREATER 488
+#define LESS 489
+#define EQUAL 490
+#define NOTEQUAL 491
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 289 "src/p.y" /* yacc.c:1909  */
+#line 288 "src/p.y" /* yacc.c:1909  */
 
         URL_T url;
         float real;
         int   number;
         char *string;
 
-#line 531 "src/y.tab.h" /* yacc.c:1909  */
+#line 533 "src/y.tab.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

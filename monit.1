@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "March 20. 2015" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "May 04. 2015" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1474,8 +1474,13 @@ statement:
 .SH "SERVICE MONITORING MODE"
 .IX Header "SERVICE MONITORING MODE"
 Monit supports three monitoring modes per service: \fIactive\fR,
-\&\fIpassive\fR and \fImanual\fR. See also the example section below for
-usage of the mode statement.
+\&\fIpassive\fR and \fImanual\fR.
+.PP
+Syntax:
+.PP
+.Vb 1
+\&  MODE <ACTIVE | PASSIVE | MANUAL>
+.Ve
 .PP
 In \fIactive\fR mode (the default), Monit will pro-actively monitor a
 service and in case of problems raise alerts and/or restart
@@ -1506,13 +1511,13 @@ HA-services won't be started after the crashed node will boot again:
 .Vb 1
 \&  set statefile /tmp/monit.state
 .Ve
-.SH "SERVICE TIMEOUT"
-.IX Header "SERVICE TIMEOUT"
-\&\fBMonit\fR provides a service timeout mechanism for situations
+.SH "SERVICE RESTART LIMIT"
+.IX Header "SERVICE RESTART LIMIT"
+\&\fBMonit\fR provides a restart limit mechanism for situations
 where a service simply refuses to start or respond over a longer
 period.
 .PP
-The timeout mechanism is based on number of service restarts and
+The restart limit mechanism is based on number of service restarts and
 number of poll-cycles. For example, if a service had \fIx\fR
 restarts within \fIy\fR poll-cycles (where \fIx\fR <= \fIy\fR) then Monit
 will perform an action (for example unmonitor the service). If a
@@ -1525,6 +1530,9 @@ in capital):
 .Vb 1
 \& IF <number> RESTART <number> CYCLE(S) THEN <action>
 .Ve
+.PP
+The \fIaction\fR value is either one of common actions or
+\&\s-1TIMEOUT \s0(for backward compatibility, equals to \s-1UNMONITOR\s0 action).
 .PP
 Here is an example where Monit will unmonitor the service if it was
 restarted 2 times within 3 cycles:
@@ -2114,6 +2122,12 @@ Syntax:
 \& IF SPACE operator value unit THEN action
 .Ve
 .PP
+or:
+.PP
+.Vb 1
+\& IF SPACE FREE operator value unit THEN action
+.Ve
+.PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
 \&\*(L"lt\*(R", \*(L"eq\*(R", \*(L"ne\*(R" in shell sh notation and \*(L"greater\*(R", \*(L"less\*(R",
 \&\*(L"equal\*(R", \*(L"notequal\*(R" in human readable form (if not specified,
@@ -2141,6 +2155,12 @@ Syntax:
 .PP
 .Vb 1
 \& IF INODE(S) operator value [unit] THEN action
+.Ve
+.PP
+or:
+.PP
+.Vb 1
+\& IF INODE(S) FREE operator value [unit] THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -3224,12 +3244,11 @@ gid.
 In this example we use udp for connection testing to check if the
 name-server is running and also use timeout:
 .PP
-.Vb 5
+.Vb 4
 \& check process named with pidfile /var/run/named.pid
 \&       start program = "/etc/init.d/named start"
 \&       stop program  = "/etc/init.d/named stop"
 \&       if failed port 53 use type udp protocol dns then restart
-\&       if 3 restarts within 5 cycles then timeout
 .Ve
 .PP
 The following example illustrates how to check if the service
@@ -3429,7 +3448,6 @@ statement and a file check dependency:
 \&              monit
 \&      }
 \&      if failed host www.tildeslash.com  port 80 then restart
-\&      if 3 restarts within 5 cycles then timeout
 \&      depend httpd_bin
 \&      group apache
 \&
