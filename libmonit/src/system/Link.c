@@ -233,7 +233,7 @@ static const char *_findInterfaceForAddress(const char *address) {
                 else
                         continue;
                 if (s != 0)
-                        THROW(AssertException, "Cannot translate address to name -- %s", gai_strerror(s));
+                        THROW(AssertException, "Cannot translate address to interface -- %s", gai_strerror(s));
                 if (Str_isEqual(address, host))
                         return a->ifa_name;
         }

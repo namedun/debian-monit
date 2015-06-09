@@ -344,8 +344,8 @@ T Socket_create(const char *host, int port, Socket_Type type, Socket_Family fami
         ASSERT(timeout > 0);
         volatile T S = NULL;
         struct addrinfo *result = _resolve(host, port, type, family);
-        char error[STRLEN];
         if (result) {
+                char error[STRLEN];
                 // The host may resolve to multiple IPs and if at least one succeeded, we have no problem and don't have to flood the log with partial errors => log only the last error
                 for (struct addrinfo *r = result; r && S == NULL; r = r->ai_next) {
                         TRY
@@ -359,9 +359,9 @@ T Socket_create(const char *host, int port, Socket_Type type, Socket_Family fami
                         END_TRY;
                 }
                 freeaddrinfo(result);
+                if (! S)
+                        LogError("Cannot create socket to [%s]:%d -- %s\n", host, port, error);
         }
-        if (! S)
-                LogError("Cannot create socket to [%s]:%d -- %s\n", host, port, error);
         return S;
 }
 
@@ -510,15 +510,12 @@ const char *Socket_getLocalHost(T S, char *host, int hostlen) {
 
 
 static void _testUnix(Port_T p) {
-        long long start = Time_milli();
-        T S = _createUnixSocket(p->pathname, p->type, p->timeout);
+        T S = _createUnixSocket(p->target.unix.pathname, p->type, p->timeout);
         if (S) {
                 S->Port = p;
                 TRY
                 {
                         p->protocol->check(S);
-                        p->is_available = true;
-                        p->response = (Time_milli() - start) / 1000.;
                 }
                 FINALLY
                 {
@@ -526,26 +523,25 @@ static void _testUnix(Port_T p) {
                 }
                 END_TRY;
         } else {
-                THROW(IOException, "Cannot create unix socket for %s", p->pathname);
+                THROW(IOException, "Cannot create unix socket for %s", p->target.unix.pathname);
         }
 }
 
 
 static void _testIp(Port_T p) {
         char error[STRLEN];
-        struct addrinfo *result = _resolve(p->hostname, p->port, p->type, p->family);
+        boolean_t is_available = false;
+        struct addrinfo *result = _resolve(p->hostname, p->target.net.port, p->type, p->family);
         if (result) {
                 // The host may resolve to multiple IPs and if at least one succeeded, we have no problem and don't have to flood the log with partial errors => log only the last error
-                for (struct addrinfo *r = result; r && ! p->is_available; r = r->ai_next) {
+                for (struct addrinfo *r = result; r && ! is_available; r = r->ai_next) {
                         volatile T S = NULL;
                         TRY
                         {
-                                long long start = Time_milli();
-                                S = _createIpSocket(p->hostname, r->ai_addr, r->ai_addrlen, r->ai_family, r->ai_socktype, r->ai_protocol, p->SSL, p->timeout);
+                                S = _createIpSocket(p->hostname, r->ai_addr, r->ai_addrlen, r->ai_family, r->ai_socktype, r->ai_protocol, p->target.net.SSL, p->timeout);
                                 S->Port = p;
                                 p->protocol->check(S);
-                                p->is_available = true;
-                                p->response = (Time_milli() - start) / 1000.;
+                                is_available = true;
                         }
                         ELSE
                         {
@@ -560,10 +556,10 @@ static void _testIp(Port_T p) {
                         END_TRY;
                 }
                 freeaddrinfo(result);
-                if (! p->is_available)
+                if (! is_available)
                         THROW(IOException, "%s", error);
         } else {
-                THROW(IOException, "Cannot resolve [%s]:%d", p->hostname, p->port);
+                THROW(IOException, "Cannot resolve [%s]:%d", p->hostname, p->target.net.port);
         }
 }
 
@@ -574,21 +570,32 @@ static void _testIp(Port_T p) {
 void Socket_test(void *P) {
         ASSERT(P);
         Port_T p = P;
-        p->response = -1;
-        p->is_available = false;
-        switch (p->family) {
-                case Socket_Unix:
-                        _testUnix(p);
-                        break;
-                case Socket_Ip:
-                case Socket_Ip4:
-                case Socket_Ip6:
-                        _testIp(p);
-                        break;
-                default:
-                        LogError("Invalid socket family %d\n", p->family);
-                        break;
+        TRY
+        {
+                long long start = Time_milli();
+                switch (p->family) {
+                        case Socket_Unix:
+                                _testUnix(p);
+                                break;
+                        case Socket_Ip:
+                        case Socket_Ip4:
+                        case Socket_Ip6:
+                                _testIp(p);
+                                break;
+                        default:
+                                THROW(IOException, "Invalid socket family %d\n", p->family);
+                                break;
+                }
+                p->is_available = true;
+                p->response = (Time_milli() - start) / 1000.;
         }
+        ELSE
+        {
+                p->is_available = false;
+                p->response = -1;
+                RETHROW;
+        }
+        END_TRY;
 }
 
 
