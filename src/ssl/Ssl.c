@@ -259,7 +259,7 @@ T Ssl_new(char *clientpemfile, Ssl_Version version) {
                         LogError("SSL: SSLv2 not supported\n");
                         goto sslerror;
 #else
-                        if (Run.fipsEnabled) {
+                        if (Run.flags & Run_FipsEnabled) {
                                 LogError("SSL: SSLv2 is not allowed in FIPS mode -- use TLS\n");
                                 goto sslerror;
                         }
@@ -267,7 +267,7 @@ T Ssl_new(char *clientpemfile, Ssl_Version version) {
 #endif
                         break;
                 case SSL_V3:
-                        if (Run.fipsEnabled) {
+                        if (Run.flags & Run_FipsEnabled) {
                                 LogError("SSL: SSLv3 is not allowed in FIPS mode -- use TLS\n");
                                 goto sslerror;
                         }
@@ -461,7 +461,7 @@ int Ssl_read(T C, void *b, int size, int timeout) {
 boolean_t Ssl_checkCertificate(T C, char *md5sum) {
         ASSERT(C);
         ASSERT(md5sum);
-        if (! Run.fipsEnabled) {
+        if (! (Run.flags & Run_FipsEnabled)) {
                 X509 *cert = SSL_get_peer_certificate(C->handler);
                 if (! cert) {
                         LogError("SSL: cannot get peer certificate\n");
@@ -512,6 +512,23 @@ SslServer_T SslServer_new(char *pemfile, char *clientpemfile, int socket) {
                 LogError("SSL: server cipher list [%s] error -- no valid ciphers\n", CIPHER_LIST);
                 goto sslerror;
         }
+#ifdef SSL_MODE_RELEASE_BUFFERS
+        SSL_CTX_set_mode(S->ctx, SSL_MODE_RELEASE_BUFFERS);
+#endif
+#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
+        SSL_CTX_set_options(S->ctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+#endif
+#ifdef SSL_CTRL_SET_ECDH_AUTO
+        SSL_CTX_set_options(S->ctx, SSL_OP_SINGLE_ECDH_USE);
+        SSL_CTX_set_ecdh_auto(S->ctx, 1);
+#elif defined SSL_CTRL_SET_TMP_ECDH
+        SSL_CTX_set_options(S->ctx, SSL_OP_SINGLE_ECDH_USE);
+        EC_KEY *key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+        if (key) {
+                SSL_CTX_set_tmp_ecdh(S->ctx, key);
+                EC_KEY_free(key);
+        }
+#endif
         SSL_CTX_set_options(S->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
 #ifdef SSL_OP_NO_COMPRESSION
         SSL_CTX_set_options(S->ctx, SSL_OP_NO_COMPRESSION);
