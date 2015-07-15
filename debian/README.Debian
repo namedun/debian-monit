@@ -65,3 +65,20 @@ typical example looks like this:
   set daemon 120
     with start delay 240
  --8<--
+
+
+Using with Systemd
+------------------
+
+In principle, you can use this piece of ... code with Monit.  But using
+sysvinit is recommended.  Keep in mind that the default systemd's
+configuration of many packages in the Debian will conflict with the Monit.
+For example, the ssh.service uses the Restart directive like this:
+
+ --8<--
+ Restart=on-failure
+ --8<--
+
+This configuration will break any proactive actions from
+the Monit (see example configuration snippet for openssh-server in
+/etc/monit/monitrc.d/openssh-server).
