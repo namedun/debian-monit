@@ -3,8 +3,9 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: no
 
 ---
+ configure.ac                 |    9 ++++++++-
  src/process/sysdep_FREEBSD.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
 --- a/src/process/sysdep_FREEBSD.c
 +++ b/src/process/sysdep_FREEBSD.c
@@ -19,3 +20,21 @@ Forwarded: no
  #ifdef HAVE_KVM_H
  #include <kvm.h>
  #endif
+--- a/configure.ac
++++ b/configure.ac
+@@ -187,7 +187,14 @@
+         uvm/uvm_extern.h \
+         uvm/uvm_param.h \
+         vm/vm.h \
+-	])
++	],
++    [],
++    [],
++    [
++     #ifdef HAVE_VM_VM_H
++     #include <vm/vm.h>
++     #endif
++    ])
+ 
+ AC_CHECK_HEADERS([ \
+ 	libperfstat.h \
