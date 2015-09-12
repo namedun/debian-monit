@@ -1,3 +1,9 @@
+monit (1:5.9-1+deb8u1) jessie; urgency=medium
+
+  * Fix umask-related regression between 5.8.1 and 5.9 (Closes: #796989)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 12 Sep 2015 11:34:20 +0300
+
 monit (1:5.9-1) unstable; urgency=medium
 
   * Imported Upstream version 5.9
