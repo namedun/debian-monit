@@ -110,8 +110,8 @@ typedef enum {
 #endif
 
 
-#include "Ssl.h"
 #include "SslOptions.h"
+#include "Ssl.h"
 
 
 // libmonit
@@ -328,6 +328,8 @@ typedef enum {
 #define MD_SIZE 65
 
 
+#define ICMP_SIZE 64
+#define ICMP_MAXSIZE 1500
 #define ICMP_ATTEMPT_COUNT 3
 
 
@@ -566,7 +568,7 @@ typedef struct myport {
                         char *pathname;                  /**< Unix socket pathname */
                 } unix;
                 struct {
-                        SslOptions_T SSL;                      /**< SSL definition */
+                        SslOptions_T ssl;                      /**< SSL definition */
                         int port;                                 /**< Port number */
                 } net;
         } target;
@@ -642,6 +644,7 @@ typedef struct myport {
 /** Defines a ICMP/Ping object */
 typedef struct myicmp {
         int type;                                              /**< ICMP type used */
+        int size;                                     /**< ICMP echo requests size */
         int count;                                   /**< ICMP echo requests count */
         int timeout;         /**< The timeout in milliseconds to wait for response */
         boolean_t is_available;               /**< true if the server is available */
@@ -965,9 +968,8 @@ typedef struct myservice {
 
         /** Common parameters */
         char *name;                                  /**< Service descriptive name */
-        boolean_t (*check)(struct myservice *); /**< Service verification function */
-        boolean_t visited;      /**< Service visited flag, set if dependencies are used */
-        boolean_t depend_visited;/**< Depend visited flag, set if dependencies are used */
+        State_Type (*check)(struct myservice *);/**< Service verification function */
+        boolean_t visited; /**< Service visited flag, set if dependencies are used */
         Service_Type type;                             /**< Monitored service type */
         Monitor_State monitor;                             /**< Monitor state flag */
         Monitor_Mode mode;                    /**< Monitoring mode for the service */
@@ -1087,6 +1089,7 @@ struct myrun {
         } files;
         char *mygroup;                              /**< Group Name of the Service */
         MD_T id;                                              /**< Unique monit id */
+        SslOptions_T ssl;                                 /**< Default SSL options */
         int  polltime;        /**< In deamon mode, the sleeptime (sec) between run */
         int  startdelay;                    /**< the sleeptime (sec) after startup */
         int  facility;              /** The facility to use when running openlog() */
@@ -1179,9 +1182,8 @@ extern char *sslnames[];
 
 boolean_t parse(char *);
 boolean_t control_service(const char *, Action_Type);
-boolean_t control_service_string(const char *, const char *);
-boolean_t control_service_daemon(const char *, const char *);
-void  reset_depend();
+boolean_t control_service_string(List_T, const char *);
+boolean_t control_service_daemon(List_T, const char *);
 void  spawn(Service_T, command_t, Event_T);
 boolean_t status(const char *, const char *, const char *);
 boolean_t log_init();
@@ -1214,15 +1216,15 @@ void  init_env();
 void  monit_http(Httpd_Action);
 boolean_t can_http();
 void set_signal_block(sigset_t *, sigset_t *);
-boolean_t check_process(Service_T);
-boolean_t check_filesystem(Service_T);
-boolean_t check_file(Service_T);
-boolean_t check_directory(Service_T);
-boolean_t check_remote_host(Service_T);
-boolean_t check_system(Service_T);
-boolean_t check_fifo(Service_T);
-boolean_t check_program(Service_T);
-boolean_t check_net(Service_T);
+State_Type check_process(Service_T);
+State_Type check_filesystem(Service_T);
+State_Type check_file(Service_T);
+State_Type check_directory(Service_T);
+State_Type check_remote_host(Service_T);
+State_Type check_system(Service_T);
+State_Type check_fifo(Service_T);
+State_Type check_program(Service_T);
+State_Type check_net(Service_T);
 int  check_URL(Service_T s);
 void status_xml(StringBuffer_T, Event_T, Level_Type, int, const char *);
 Handler_Type handle_mmonit(Event_T);

@@ -84,7 +84,9 @@
 // libmonit
 #include "io/File.h"
 #include "system/Net.h"
+#include "system/Time.h"
 #include "exceptions/AssertException.h"
+#include "exceptions/IOException.h"
 
 
 /**
@@ -92,6 +94,7 @@
  *
  *  @file
  */
+//FIXME: refactor Ssl_connect(), Ssl_write() and Ssl_read() + SslServer_accept (and the whole network layer) to be really non-blocking
 
 
 /* ------------------------------------------------------------- Definitions */
@@ -121,11 +124,18 @@
 #define T Ssl_T
 struct T {
         boolean_t accepted;
+        boolean_t verify;
+        boolean_t allowSelfSignedCertificates;
         Ssl_Version version;
+        Hash_Type checksumType;
         int socket;
+        int minimumValidDays;
         SSL *handler;
         SSL_CTX *ctx;
+        X509 *certificate;
         char *clientpemfile;
+        MD_T checksum;
+        char error[128];
 };
 
 
@@ -138,6 +148,7 @@ struct SslServer_T {
 
 
 static Mutex_T *instanceMutexTable;
+static int session_id_context = 1;
 
 
 /* ----------------------------------------------------------------- Private */
@@ -145,6 +156,17 @@ static Mutex_T *instanceMutexTable;
 
 static unsigned long _threadID() {
         return (unsigned long)Thread_self();
+}
+
+
+static boolean_t _retry(int socket, int *timeout, int (*callback)(int socket, time_t milliseconds)) {
+        long long start = Time_milli();
+        if (callback(socket, *timeout)) {
+                long long stop = Time_milli();
+                if (stop >= start && (*timeout -= stop - start) > 0) // Reduce timeout with guard against backward clock jumps
+                        return true;
+        }
+        return false;
 }
 
 
@@ -156,25 +178,143 @@ static void _mutexLock(int mode, int n, const char *file, int line) {
 }
 
 
-static int _verifyCertificates(int preverify_ok, X509_STORE_CTX *ctx) {
-        char subject[STRLEN];
-        X509_NAME_oneline(X509_get_subject_name(ctx->current_cert), subject, STRLEN - 1);
-        if (! preverify_ok) {
-                if (ctx->error != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
-                        if (ctx->error != X509_V_ERR_INVALID_PURPOSE) {
-                                LogError("SSL: invalid certificate [%i]\n", ctx->error);
+static int _checkExpiration(T C, X509_STORE_CTX *ctx, X509 *certificate) {
+        if (C->minimumValidDays) {
+                // If we have warn-X-days-before-expire condition, check the certificate validity (already expired certificates are catched in preverify => we don't need to handle them here).
+                int deltadays = 0;
+#ifdef HAVE_ASN1_TIME_DIFF
+                int deltaseconds;
+                if (! ASN1_TIME_diff(&deltadays, &deltaseconds, NULL, X509_get_notAfter(certificate))) {
+                        X509_STORE_CTX_set_error(ctx, X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD);
+                        snprintf(C->error, sizeof(C->error), "invalid time format (in certificate's notAfter field)");
+                        return 0;
+                }
+#else
+                ASN1_GENERALIZEDTIME *t = ASN1_TIME_to_generalizedtime(X509_get_notAfter(certificate), NULL);
+                if (! t) {
+                        X509_STORE_CTX_set_error(ctx, X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD);
+                        snprintf(C->error, sizeof(C->error), "invalid time format (in certificate's notAfter field)");
+                        return 0;
+                }
+                TRY
+                {
+                        deltadays = (double)(Time_toTimestamp((const char *)t->data) - Time_now()) / 86400.;
+                }
+                ELSE
+                {
+                        X509_STORE_CTX_set_error(ctx, X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD);
+                        snprintf(C->error, sizeof(C->error), "invalid time format (in certificate's notAfter field) -- %s", t->data);
+                }
+                FINALLY
+                {
+                        ASN1_STRING_free(t);
+                }
+                END_TRY;
+#endif
+                if (deltadays < C->minimumValidDays) {
+                        X509_STORE_CTX_set_error(ctx, X509_V_ERR_APPLICATION_VERIFICATION);
+                        snprintf(C->error, sizeof(C->error), "certificate expire in %d days matches check limit [valid > %d days]", deltadays, C->minimumValidDays);
+                        return 0;
+                }
+        }
+        return 1;
+}
+
+
+static int _checkChecksum(T C, X509_STORE_CTX *ctx, X509 *certificate) {
+        if (X509_STORE_CTX_get_error_depth(ctx) == 0 && *C->checksum) {
+                unsigned int len, i = 0;
+                unsigned char checksum[EVP_MAX_MD_SIZE];
+                const EVP_MD *hash = NULL;
+                switch (C->checksumType) {
+                        case Hash_Md5:
+                                if (Run.flags & Run_FipsEnabled) {
+                                        X509_STORE_CTX_set_error(ctx, X509_V_ERR_APPLICATION_VERIFICATION);
+                                        snprintf(C->error, sizeof(C->error), "SSL certificate MD5 checksum is not supported in FIPS mode, please use SHA1");
+                                        return 0;
+                                } else {
+                                        hash = EVP_md5();
+                                }
+                                break;
+                        case Hash_Sha1:
+                                hash = EVP_sha1();
+                                break;
+                        default:
+                                X509_STORE_CTX_set_error(ctx, X509_V_ERR_APPLICATION_VERIFICATION);
+                                snprintf(C->error, sizeof(C->error), "Invalid SSL certificate checksum type (0x%x)", C->checksumType);
+                                return 0;
+                }
+                X509_digest(certificate, hash, checksum, &len);
+                while ((i < len) && (C->checksum[2 * i] != '\0') && (C->checksum[2 * i + 1] != '\0')) {
+                        unsigned char c = (C->checksum[2 * i] > 57 ? C->checksum[2 * i] - 87 : C->checksum[2 * i] - 48) * 0x10 + (C->checksum[2 * i + 1] > 57 ? C->checksum[2 * i + 1] - 87 : C->checksum[2 * i + 1] - 48);
+                        if (c != checksum[i]) {
+                                X509_STORE_CTX_set_error(ctx, X509_V_ERR_APPLICATION_VERIFICATION);
+                                snprintf(C->error, sizeof(C->error), "SSL server certificate checksum failed");
                                 return 0;
                         }
-                } else if (! (Run.httpd.flags & Httpd_AllowSelfSignedCertificates)) {
-                        LogError("SSL: self-signed certificate not allowed [%i]\n", ctx->error);
-                        return 0;
+                        i++;
+                }
+        }
+        return 1;
+}
+
+
+static int _verifyServerCertificates(int preverify_ok, X509_STORE_CTX *ctx) {
+        T C = SSL_get_app_data(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+        if (! C) {
+                LogError("SSL: cannot get application data");
+                return 0;
+        }
+        *C->error = 0;
+        if (! preverify_ok && C->verify) {
+                int error = X509_STORE_CTX_get_error(ctx);
+                switch (error) {
+                        case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+                                if (C->allowSelfSignedCertificates) {
+                                        X509_STORE_CTX_set_error(ctx, X509_V_OK);
+                                        return 1;
+                                }
+                                snprintf(C->error, sizeof(C->error), "self signed certificate is not allowed, please use a trusted certificate or use the 'selfsigned: allow' SSL option");
+                                break;
+                        default:
+                                break;
+                }
+        } else {
+                X509 *certificate = X509_STORE_CTX_get_current_cert(ctx);
+                if (certificate) {
+                        return (_checkExpiration(C, ctx, certificate) && _checkChecksum(C, ctx, certificate));
                 } else {
-                        ctx->error = 0;
+                        X509_STORE_CTX_set_error(ctx, X509_V_ERR_APPLICATION_VERIFICATION);
+                        snprintf(C->error, sizeof(C->error), "cannot get SSL server certificate");
+                        return 0;
+                }
+        }
+        return 0;
+}
+
+
+static int _verifyClientCertificates(int preverify_ok, X509_STORE_CTX *ctx) {
+        if (! preverify_ok) {
+                int error = X509_STORE_CTX_get_error(ctx);
+                switch (error) {
+                        case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+                                if (! (Run.httpd.flags & Httpd_AllowSelfSignedCertificates)) {
+                                        LogError("SSL: self-signed certificate is not allowed\n");
+                                        return 0;
+                                }
+                                X509_STORE_CTX_set_error(ctx, X509_V_OK); // Reset error if we accept self-signed certificates
+                                break;
+                        case X509_V_ERR_INVALID_PURPOSE:
+                                break;
+                        default:
+                                LogError("SSL: invalid certificate -- %s\n", X509_verify_cert_error_string(error));
+                                return 0;
                 }
         }
         X509_OBJECT found_cert;
-        if (ctx->error_depth == 0 && X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_subject_name(ctx->current_cert), &found_cert) != 1) {
+        if (X509_STORE_CTX_get_error_depth(ctx) == 0 && X509_STORE_get_by_subject(ctx, X509_LU_X509, X509_get_subject_name(X509_STORE_CTX_get_current_cert(ctx)), &found_cert) != 1) {
                 LogError("SSL: no matching certificate found -- %s\n", SSLERROR);
+                X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REJECTED);
                 return 0;
         }
         return 1;
@@ -190,10 +330,28 @@ static boolean_t _setServerNameIdentification(T C, const char *hostname) {
                 ! inet_pton(AF_INET6, hostname, &(((struct sockaddr_in6 *)&addr)->sin6_addr)) &&
 #endif
                 ! SSL_set_tlsext_host_name(C->handler, hostname)) {
-                        LogError("SSL: unable to set the SNI extension to %s\n", hostname);
+                        DEBUG("SSL: unable to set the SNI extension to %s\n", hostname);
                         return false;
                 }
 #endif
+        return true;
+}
+
+
+static boolean_t _setClientCertificate(T C, const char *file) {
+        if (SSL_CTX_use_certificate_chain_file(C->ctx, file) != 1) {
+                LogError("SSL client certificate chain loading failed: %s\n", SSLERROR);
+                return false;
+        }
+        if (SSL_CTX_use_PrivateKey_file(C->ctx, file, SSL_FILETYPE_PEM) != 1) {
+                LogError("SSL client private key loading failed: %s\n", SSLERROR);
+                return false;
+        }
+        if (SSL_CTX_check_private_key(C->ctx) != 1) {
+                LogError("SSL client private key doesn't match the certificate: %s\n", SSLERROR);
+                return false;
+        }
+        C->clientpemfile = Str_dup(file);
         return true;
 }
 
@@ -246,12 +404,10 @@ void Ssl_setFipsMode(boolean_t enabled) {
 }
 
 
-T Ssl_new(char *clientpemfile, Ssl_Version version) {
+T Ssl_new(Ssl_Version version, const char *CACertificateFile, const char *CACertificatePath, const char *clientpem) {
         T C;
         NEW(C);
         C->version = version;
-        if (clientpemfile)
-                C->clientpemfile = Str_dup(clientpemfile);
         const SSL_METHOD *method;
         switch (version) {
                 case SSL_V2:
@@ -267,11 +423,16 @@ T Ssl_new(char *clientpemfile, Ssl_Version version) {
 #endif
                         break;
                 case SSL_V3:
+#ifdef OPENSSL_NO_SSL3
+                        LogError("SSL: SSLv3 not supported\n");
+                        goto sslerror;
+#else
                         if (Run.flags & Run_FipsEnabled) {
                                 LogError("SSL: SSLv3 is not allowed in FIPS mode -- use TLS\n");
                                 goto sslerror;
                         }
                         method = SSLv3_client_method();
+#endif
                         break;
                 case SSL_TLSV1:
                         method = TLSv1_client_method();
@@ -299,6 +460,15 @@ T Ssl_new(char *clientpemfile, Ssl_Version version) {
                 LogError("SSL: client context initialization failed -- %s\n", SSLERROR);
                 goto sslerror;
         }
+        SSL_CTX_set_default_verify_paths(C->ctx);
+        if (CACertificateFile || CACertificatePath) {
+                if (! SSL_CTX_load_verify_locations(C->ctx, CACertificateFile, CACertificatePath)) {
+                        LogError("SSL: CA certificates loading failed -- %s\n", SSLERROR);
+                        goto sslerror;
+                }
+        }
+        if (clientpem && ! _setClientCertificate(C, clientpem))
+                goto sslerror;
         if (version == SSL_Auto)
                 SSL_CTX_set_options(C->ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3);
 #ifdef SSL_OP_NO_COMPRESSION
@@ -312,21 +482,9 @@ T Ssl_new(char *clientpemfile, Ssl_Version version) {
                 LogError("SSL: cannot create client handler -- %s\n", SSLERROR);
                 goto sslerror;
         }
+        SSL_set_verify(C->handler, SSL_VERIFY_PEER, _verifyServerCertificates);
         SSL_set_mode(C->handler, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-        if (C->clientpemfile) {
-                if (SSL_CTX_use_certificate_chain_file(C->ctx, C->clientpemfile) != 1) {
-                        LogError("SSL: client certificate chain loading failed -- %s\n", SSLERROR);
-                        goto sslerror;
-                }
-                if (SSL_CTX_use_PrivateKey_file(C->ctx, C->clientpemfile, SSL_FILETYPE_PEM) != 1) {
-                        LogError("SSL: client private key loading failed -- %s\n", SSLERROR);
-                        goto sslerror;
-                }
-                if (SSL_CTX_check_private_key(C->ctx) != 1) {
-                        LogError("SSL: client private key doesn't match the certificate -- %s\n", SSLERROR);
-                        goto sslerror;
-                }
-        }
+        SSL_set_app_data(C->handler, C);
         return C;
 sslerror:
         Ssl_free(&C);
@@ -353,26 +511,38 @@ void Ssl_close(T C) {
 }
 
 
-boolean_t Ssl_connect(T C, int socket, const char *name) {
+void Ssl_connect(T C, int socket, int timeout, const char *name) {
         ASSERT(C);
         ASSERT(socket >= 0);
         C->socket = socket;
         SSL_set_connect_state(C->handler);
         SSL_set_fd(C->handler, C->socket);
         _setServerNameIdentification(C, name);
-        int rv = SSL_connect(C->handler);
-        if (rv < 0) {
-                switch (SSL_get_error(C->handler, rv)) {
-                        case SSL_ERROR_NONE:
-                        case SSL_ERROR_WANT_READ:
-                        case SSL_ERROR_WANT_WRITE:
-                                break;
-                        default:
-                                LogError("SSL: connection error -- %s\n", SSLERROR);
-                                return false;
+        boolean_t retry = false;
+        do {
+                int rv = SSL_connect(C->handler);
+                if (rv < 0) {
+                        switch (SSL_get_error(C->handler, rv)) {
+                                case SSL_ERROR_NONE:
+                                        break;
+                                case SSL_ERROR_WANT_READ:
+                                        retry = _retry(C->socket, &timeout, Net_canRead);
+                                        break;
+                                case SSL_ERROR_WANT_WRITE:
+                                        retry = _retry(C->socket, &timeout, Net_canWrite);
+                                        break;
+                                default:
+					rv = (int)SSL_get_verify_result(C->handler);
+					if (rv != X509_V_OK)
+                                                THROW(IOException, "SSL server certificate verification error: %s", *C->error ? C->error : X509_verify_cert_error_string(rv));
+					else
+                                                THROW(IOException, "SSL connection error: %s", SSLERROR);
+                                        break;
+                        }
+                } else {
+                        break;
                 }
-        }
-        return true;
+        } while (retry);
 }
 
 
@@ -389,12 +559,12 @@ int Ssl_write(T C, void *b, int size, int timeout) {
                                 case SSL_ERROR_WANT_READ:
                                         n = 0;
                                         errno = EWOULDBLOCK;
-                                        retry = Net_canRead(C->socket, timeout);
+                                        retry = _retry(C->socket, &timeout, Net_canRead);
                                         break;
                                 case SSL_ERROR_WANT_WRITE:
                                         n = 0;
                                         errno = EWOULDBLOCK;
-                                        retry = Net_canWrite(C->socket, timeout);
+                                        retry = _retry(C->socket, &timeout, Net_canWrite);
                                         break;
                                 case SSL_ERROR_SYSCALL:
                                         {
@@ -430,12 +600,12 @@ int Ssl_read(T C, void *b, int size, int timeout) {
                                 case SSL_ERROR_WANT_READ:
                                         n = 0;
                                         errno = EWOULDBLOCK;
-                                        retry = Net_canRead(C->socket, timeout);
+                                        retry = _retry(C->socket, &timeout, Net_canRead);
                                         break;
                                 case SSL_ERROR_WANT_WRITE:
                                         n = 0;
                                         errno = EWOULDBLOCK;
-                                        retry = Net_canWrite(C->socket, timeout);
+                                        retry = _retry(C->socket, &timeout, Net_canWrite);
                                         break;
                                 case SSL_ERROR_SYSCALL:
                                         {
@@ -458,32 +628,56 @@ int Ssl_read(T C, void *b, int size, int timeout) {
 }
 
 
-boolean_t Ssl_checkCertificate(T C, char *md5sum) {
+void Ssl_setVerifyCertificates(T C, boolean_t verify) {
         ASSERT(C);
-        ASSERT(md5sum);
-        if (! (Run.flags & Run_FipsEnabled)) {
-                X509 *cert = SSL_get_peer_certificate(C->handler);
-                if (! cert) {
-                        LogError("SSL: cannot get peer certificate\n");
-                        return false;
-                }
-                unsigned int len, i = 0;
-                unsigned char md5[EVP_MAX_MD_SIZE];
-                X509_digest(cert, EVP_md5(), md5, &len);
-                while ((i < len) && (md5sum[2 * i] != '\0') && (md5sum[2 * i + 1] != '\0')) {
-                        unsigned char c = (md5sum[2 * i] > 57 ? md5sum[2 * i] - 87 : md5sum[2 * i] - 48) * 0x10 + (md5sum[2 * i + 1] > 57 ? md5sum[2 * i + 1] - 87 : md5sum[2 * i + 1] - 48);
-                        if (c != md5[i]) {
-                                X509_free(cert);
-                                return false;
-                        }
-                        i++;
-                }
-                X509_free(cert);
-                return true;
+        C->verify = verify;
+}
+
+
+void Ssl_setAllowSelfSignedCertificates(T C, boolean_t allow) {
+        ASSERT(C);
+        C->allowSelfSignedCertificates = allow;
+}
+
+
+void Ssl_setCertificateMinimumValidDays(T C, int days) {
+        ASSERT(C);
+        C->minimumValidDays = days;
+}
+
+
+void Ssl_setCertificateChecksum(T C, short type, const char *checksum) {
+        ASSERT(C);
+        if (checksum) {
+                C->checksumType = type;
+                snprintf(C->checksum, sizeof(C->checksum), "%s", checksum);
         } else {
-                LogError("SSL: certificate checksum error -- MD5 not supported in FIPS mode\n");
-                return false;
+                C->checksumType = Hash_Unknown;
+                *C->checksum = 0;
         }
+}
+
+
+char *Ssl_printOptions(SslOptions_T *options, char *b, int size) {
+        ASSERT(b);
+        ASSERT(size > 0);
+        *b = 0;
+        if (options->use_ssl) {
+                int count = 0;
+                if (options->version != -1)
+                        snprintf(b + strlen(b), size - strlen(b) - 1, "%sversion: %s", count++ ? ", " : "", sslnames[options->version]);
+                if (options->verify == true)
+                        snprintf(b + strlen(b), size - strlen(b) - 1, "%sverify: enable", count++ ? ", " : "");
+                if (options->allowSelfSigned == true)
+                        snprintf(b + strlen(b), size - strlen(b) - 1, "%sselfsigned: allow", count++ ? ", " : "");
+                if (options->clientpemfile)
+                        snprintf(b + strlen(b), size - strlen(b) - 1, "%sclientpemfile: %s", count ++ ? ", " : "", options->clientpemfile);
+                if (options->CACertificateFile)
+                        snprintf(b + strlen(b), size - strlen(b) - 1, "%sCACertificateFile: %s", count ++ ? ", " : "", options->CACertificateFile);
+                if (options->CACertificatePath)
+                        snprintf(b + strlen(b), size - strlen(b) - 1, "%sCACertificatePath: %s", count ++ ? ", " : "", options->CACertificatePath);
+        }
+        return b;
 }
 
 
@@ -508,6 +702,10 @@ SslServer_T SslServer_new(char *pemfile, char *clientpemfile, int socket) {
                 LogError("SSL: server context initialization failed -- %s\n", SSLERROR);
                 goto sslerror;
         }
+        if (SSL_CTX_set_session_id_context(S->ctx, (void *)&session_id_context, sizeof(session_id_context)) != 1) {
+                LogError("SSL: server session id context initialization failed -- %s\n", SSLERROR);
+                goto sslerror;
+        }
         if (SSL_CTX_set_cipher_list(S->ctx, CIPHER_LIST) != 1) {
                 LogError("SSL: server cipher list [%s] error -- no valid ciphers\n", CIPHER_LIST);
                 goto sslerror;
@@ -521,7 +719,7 @@ SslServer_T SslServer_new(char *pemfile, char *clientpemfile, int socket) {
 #ifdef SSL_CTRL_SET_ECDH_AUTO
         SSL_CTX_set_options(S->ctx, SSL_OP_SINGLE_ECDH_USE);
         SSL_CTX_set_ecdh_auto(S->ctx, 1);
-#elif defined SSL_CTRL_SET_TMP_ECDH
+#elif defined HAVE_EC_KEY
         SSL_CTX_set_options(S->ctx, SSL_OP_SINGLE_ECDH_USE);
         EC_KEY *key = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
         if (key) {
@@ -543,7 +741,7 @@ SslServer_T SslServer_new(char *pemfile, char *clientpemfile, int socket) {
                 goto sslerror;
         }
         if (SSL_CTX_check_private_key(S->ctx) != 1) {
-                LogError("SSL: server private key doesn't match the certificate -- %s\n", SSLERROR);
+                LogError("SSL: server private key do not match the certificate -- %s\n", SSLERROR);
                 goto sslerror;
         }
         if (S->clientpemfile) {
@@ -552,27 +750,20 @@ SslServer_T SslServer_new(char *pemfile, char *clientpemfile, int socket) {
                         LogError("SSL: client PEM file %s error -- %s\n", Run.httpd.socket.net.ssl.clientpem, STRERROR);
                         goto sslerror;
                 }
-                if (S_ISDIR(sb.st_mode)) {
-                        if (! SSL_CTX_load_verify_locations(S->ctx, NULL , S->clientpemfile)) {
-                                LogError("SSL: client PEM file CA certificates %s loading failed -- %s\n", Run.httpd.socket.net.ssl.clientpem, SSLERROR);
-                                goto sslerror;
-                        }
-                } else if (S_ISREG(sb.st_mode)) {
-                        if (! SSL_CTX_load_verify_locations(S->ctx, S->clientpemfile, NULL)) {
-                                LogError("SSL: client PEM file CA certificates %s loading failed -- %s\n", Run.httpd.socket.net.ssl.clientpem, SSLERROR);
-                                goto sslerror;
-                        }
-                        SSL_CTX_set_client_CA_list(S->ctx, SSL_load_client_CA_file(S->clientpemfile));
-                } else {
-                        LogError("SSL: client PEM %s is not file nor directory\n", S->clientpemfile);
+                if (! S_ISREG(sb.st_mode)) {
+                        LogError("SSL: client PEM file %s is not a file\n", S->clientpemfile);
                         goto sslerror;
                 }
-                // Load server certificate for monit CLI authentication
+                if (! SSL_CTX_load_verify_locations(S->ctx, S->clientpemfile, NULL)) {
+                        LogError("SSL: client PEM file CA certificates %s loading failed -- %s\n", Run.httpd.socket.net.ssl.clientpem, SSLERROR);
+                        goto sslerror;
+                }
+                SSL_CTX_set_client_CA_list(S->ctx, SSL_load_client_CA_file(S->clientpemfile));
                 if (! SSL_CTX_load_verify_locations(S->ctx, S->pemfile, NULL)) {
                         LogError("SSL: server certificate CA certificates %s loading failed -- %s\n", S->pemfile, SSLERROR);
                         goto sslerror;
                 }
-                SSL_CTX_set_verify(S->ctx, SSL_VERIFY_PEER, _verifyCertificates);
+                SSL_CTX_set_verify(S->ctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, _verifyClientCertificates);
         } else {
                 SSL_CTX_set_verify(S->ctx, SSL_VERIFY_NONE, NULL);
         }
@@ -619,37 +810,37 @@ void SslServer_freeConnection(SslServer_T S, T *C) {
 }
 
 
-boolean_t SslServer_accept(T C, int socket) {
+boolean_t SslServer_accept(T C, int socket, int timeout) {
         ASSERT(C);
         ASSERT(socket >= 0);
         C->socket = socket;
         SSL_set_accept_state(C->handler);
         SSL_set_fd(C->handler, C->socket);
-        int rv = SSL_accept(C->handler);
-        if (rv < 0) {
-                switch (SSL_get_error(C->handler, rv)) {
-                        case SSL_ERROR_NONE:
-                        case SSL_ERROR_WANT_READ:
-                        case SSL_ERROR_WANT_WRITE:
-                                break;
-                        default:
-                                LogError("SSL: accept error -- %s\n", SSLERROR);
-                                return false;
+        boolean_t retry = false;
+        do {
+                int rv = SSL_accept(C->handler);
+                if (rv < 0) {
+                        switch (SSL_get_error(C->handler, rv)) {
+                                case SSL_ERROR_NONE:
+                                        break;
+                                case SSL_ERROR_WANT_READ:
+                                        retry = _retry(C->socket, &timeout, Net_canRead);
+                                        break;
+                                case SSL_ERROR_WANT_WRITE:
+                                        retry = _retry(C->socket, &timeout, Net_canWrite);
+                                        break;
+                                default:
+                                        rv = (int)SSL_get_verify_result(C->handler);
+                                        if (rv != X509_V_OK)
+                                                LogError("SSL client certificate verification error: %s\n", *C->error ? C->error : X509_verify_cert_error_string(rv));
+                                        else
+                                                LogError("SSL accept error: %s\n", SSLERROR);
+                                        return false;
+                        }
+                } else {
+                        break;
                 }
-        }
-        if (C->clientpemfile) {
-                X509 *cert = SSL_get_peer_certificate(C->handler);
-                if (! cert) {
-                        LogError("SSL: client didn't send a client certificate\n");
-                        return false;
-                }
-                X509_free(cert);
-                long rv = SSL_get_verify_result(C->handler);
-                if (rv != X509_V_OK) {
-                        LogError("SSL: client certificate verification failed -- %s\n", X509_verify_cert_error_string(rv));
-                        return false;
-                }
-        }
+        } while (retry);
         return true;
 }
 

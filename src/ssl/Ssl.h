@@ -77,9 +77,13 @@ void Ssl_setFipsMode(boolean_t enabled);
 
 /**
  * Create a new SSL connection object
+ * @param version An SSL version to use
+ * @param CACertificateFile Optional path to CA certificates PEM encoded file
+ * @param CACertificatePath Optional path to CA certificates directory
+ * @param clientpem Optional path to client certificate PEM file
  * @return a new SSL connection object or NULL if failed
  */
-T Ssl_new(char *clientpemfile, Ssl_Version version);
+T Ssl_new(Ssl_Version version, const char *CACertificateFile, const char *CACertificatePath, const char *clientpem);
 
 
 /**
@@ -94,10 +98,11 @@ void Ssl_free(T *C);
  * the Server Name Indication (SNI) TLS extension is enabled.
  * @param C An SSL connection object
  * @param socket A socket
+ * @param timeout Milliseconds to wait for connection to be established
  * @param name A server name string (optional)
- * @return true if succeeded or false if failed
+ * @exception IOException or AssertException if failed
  */
-boolean_t Ssl_connect(T C, int socket, const char *name);
+void Ssl_connect(T C, int socket, int timeout, const char *name);
 
 
 /**
@@ -130,12 +135,46 @@ int Ssl_read(T C, void *b, int size, int timeout);
 
 
 /**
- * Compare a peer certificate with a given MD5 checksum
+ * Set whether SSL server certificates should be verified.
  * @param C An SSL connection object
- * @param md5sum Expected MD5 checksum in string format
- * @return true if succeeded or false if failed
+ * @param verify Boolean flag (true = verify, false = don't verify)
  */
-boolean_t Ssl_checkCertificate(T C, char *md5sum);
+void Ssl_setVerifyCertificates(T C, boolean_t verify);
+
+
+/**
+ * Set whether self-signed certificates should be allowed (rejected by default)
+ * @param C An SSL connection object
+ * @param allow Boolean flag (true = allow, false = reject)
+ */
+void Ssl_setAllowSelfSignedCertificates(T C, boolean_t allow);
+
+
+/**
+ * Set minimum days the certificate must be valid.
+ * @param C An SSL connection object
+ * @param days Minimum number of valid days
+ */
+void Ssl_setCertificateMinimumValidDays(T C, int days);
+
+
+/**
+ * Check a peer certificate with a given checksum
+ * @param C An SSL connection object
+ * @param checksum Expected checksum in string format
+ * @param type Checksum type
+ */
+void Ssl_setCertificateChecksum(T C, short type, const char *checksum);
+
+
+/**
+ * Print SSL options string representation to the given buffer.
+ * @param options SSL options object
+ * @param b A string buffer
+ * @param size The size of the buffer b
+ * @return Buffer with string represantation of SSL options
+ */
+char *Ssl_printOptions(SslOptions_T *options, char *b, int size);
 
 
 #undef T

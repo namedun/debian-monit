@@ -19,7 +19,7 @@
  * including the two.
  *
  * You must obey the GNU Affero General Public License in all respects
- * for all of the code used other than OpenSSL.  
+ * for all of the code used other than OpenSSL.
  */
 
 
@@ -28,9 +28,9 @@
 
 
 /**
- * <b>Time</b> is an abstraction of date and time. Time is stored internally 
- * as the number of seconds and microseconds since the epoch, <i>January 1, 
- * 1970 00:00 UTC</i>. 
+ * <b>Time</b> is an abstraction of date and time. Time is stored internally
+ * as the number of seconds and microseconds since the epoch, <i>January 1,
+ * 1970 00:00 UTC</i>.
  *
  * @author http://www.tildeslash.com/
  * @see http://www.mmonit.com/
@@ -39,7 +39,51 @@
 
 
 /** @name class methods */
-//@{ 
+//@{
+
+
+/**
+ * Returns a Unix timestamp representation of the parsed string in the
+ * GMT timezone. If the given string contains timezone offset the time
+ * is expected to be in local time and the offset is added to the returned
+ * timestamp to make the time UTC. If the string does not contain timezone
+ * information, the time is expected and assumed to be in the GTM timezone,
+ * i.e. in UTC. Example:
+ * <pre>
+ *  Time_toTimestamp("2013-12-15 00:12:58Z") -> 1387066378
+ *  Time_toTimestamp("2013-12-14 19:12:58-05:00") -> 1387066378
+ * </pre>
+ * @param s The Date String to parse. Time is expected to be in UTC, but
+ * local time with timezone information is also allowed.
+ * @return A UTC time representation of <code>s</code> or 0 if
+ * <code>s</code> is NULL
+ * @exception AssertException If the parameter value cannot be converted
+ * to a valid timestamp
+ */
+time_t Time_toTimestamp(const char *s);
+
+
+/**
+ * Returns a Date, Time or DateTime representation of the parsed string.
+ * Fields follows the convention of the tm structure where,
+ * tm_hour = hours since midnight [0-23], tm_min = minutes after the hour
+ * [0-59], tm_sec = seconds after the minute [0-60], tm_mday = day of the month
+ * [1-31] and tm_mon = months since January [0-11]. tm_gmtoff is set to the
+ * offset from UTC in seconds if the time string contains timezone information,
+ * otherwise tm_gmtoff is set to 0. <i>On systems without tm_gmtoff, (Solaris),
+ * the member, tm_wday is set to gmt offset instead as this property is ignored
+ * by mktime on input.</i>The exception is tm_year which contains the year
+ * literal and <i>not years since 1900</i> which is the convention. All other
+ * fields in the structure are set to zero. If the given date string
+ * <code>s</code> contains both date and time all the fields mentioned above
+ * are set, otherwise only the Date or Time fields are set.
+ * @param s The Date String to parse
+ * @param t A pointer to a tm structure
+ * @return A pointer to the tm structure representing the date of <code>s</code>
+ * @exception AssertException If the parameter value cannot be converted
+ * to a valid Date, Time or DateTime
+ */
+struct tm *Time_toDateTime(const char *s, struct tm *t);
 
 
 /**
@@ -60,7 +104,7 @@ time_t Time_build(int year, int month, int day, int hour, int min, int sec);
 
 /**
  * Returns the time since the epoch measured in seconds.
- * @return A time_t representing the systems notion of seconds since the 
+ * @return A time_t representing the systems notion of seconds since the
  * <strong>epoch</strong> (January 1, 1970, 00:00:00 GMT) in Coordinated
  * Universal Time (UTC).
  * @exception AssertException If time could not be obtained
@@ -70,8 +114,8 @@ time_t Time_now(void);
 
 /**
  * Returns the time since the epoch measured in milliseconds.
- * @return A 64 bits long representing the systems notion of milliseconds 
- * since the <strong>epoch</strong> (January 1, 1970, 00:00:00 GMT) in 
+ * @return A 64 bits long representing the systems notion of milliseconds
+ * since the <strong>epoch</strong> (January 1, 1970, 00:00:00 GMT) in
  * Coordinated Universal Time (UTC).
  * @exception AssertException If time could not be obtained
  */
@@ -79,9 +123,19 @@ long long int Time_milli(void);
 
 
 /**
+ * Returns the time since the epoch measured in microseconds.
+ * @return A 64 bits long representing the systems notion of microseconds
+ * since the <strong>epoch</strong> (January 1, 1970, 00:00:00 GMT) in
+ * Coordinated Universal Time (UTC).
+ * @exception AssertException If time could not be obtained
+ */
+long long int Time_micro(void);
+
+
+/**
  * Returns the second of the minute for time.
  * @param time Number of seconds since the EPOCH
- * @return The second of the minute (0..61) 
+ * @return The second of the minute (0..61)
  */
 int Time_seconds(time_t time);
 
@@ -89,7 +143,7 @@ int Time_seconds(time_t time);
 /**
  * Returns the minute of the hour for time.
  * @param time Number of seconds since the EPOCH
- * @return The minute of the hour (0..59)  
+ * @return The minute of the hour (0..59)
  */
 int Time_minutes(time_t time);
 
@@ -97,7 +151,7 @@ int Time_minutes(time_t time);
 /**
  * Returns the hour of the day for time.
  * @param time Number of seconds since the EPOCH
- * @return The hour of the day (0..23)  
+ * @return The hour of the day (0..23)
  */
 int Time_hour(time_t time);
 
@@ -129,7 +183,7 @@ int Time_month(time_t time);
 /**
  * Returns the year of time.
  * @param time Number of seconds since the EPOCH
- * @return The year of time in the range ~ (1970..2037) 
+ * @return The year of time in the range ~ (1970..2037)
  */
 int Time_year(time_t time);
 
@@ -150,7 +204,7 @@ char *Time_string(time_t time, char result[26]);
 
 /**
  * Returns a RFC1123 date string for the given UTC time. The returned string
- * represent the specified time in GMT timezone. The submitted result buffer 
+ * represent the specified time in GMT timezone. The submitted result buffer
  * must be large enough to hold at least 30 bytes. Example:
  * <pre>
  *  Time_gmtstring(1253052085, buf) -> "Tue, 15 Sep 2009 22:01:25 GMT"
@@ -163,8 +217,8 @@ char *Time_gmtstring(time_t time, char result[30]);
 
 
 /**
- * Returns <code>time</code> as a date string. The <code>format</code> 
- * parameter determines the format of the string. The format specifiers 
+ * Returns <code>time</code> as a date string. The <code>format</code>
+ * parameter determines the format of the string. The format specifiers
  * are the same as those used by <code>strftime(3)</code>. For instance to
  * specify a RFC822 time string on the format "Wed, 05 Feb 2003 01:16:44
  * +0100" the following format string is used:
@@ -182,10 +236,10 @@ char *Time_fmt(char *result, int size, const char *format, time_t time);
 
 /**
  * Returns a uptime formated string for the given seconds. That is, convert
- * <code>sec</code> to days, hours and minutes and return a string on the 
+ * <code>sec</code> to days, hours and minutes and return a string on the
  * form, <code>7d, 17h, 34m</code>. The submitted result buffer must be
- * large enough to hold at least 24 bytes. 
- * @param sec Number of seconds to split up into, days, hours, minutes and 
+ * large enough to hold at least 24 bytes.
+ * @param sec Number of seconds to split up into, days, hours, minutes and
  * seconds.
  * @param result The buffer to write the uptime string too
  * @return a pointer to the result buffer or NULL if <code>result</code>
@@ -233,22 +287,22 @@ char *Time_uptime(time_t sec, char result[24]);
  * </table>
  * <h3>Special characters</h3>
  * <ul>
- * <li>* The asterisk indicates that the expression will match 
- * for all values of the field; e.g., using an asterisk in the 4th 
+ * <li>* The asterisk indicates that the expression will match
+ * for all values of the field; e.g., using an asterisk in the 4th
  * field (month) would indicate every month.
- * <li>- (hyphen) Hyphens are used to define ranges. For example, 
+ * <li>- (hyphen) Hyphens are used to define ranges. For example,
  * 8-9 in the hour field indicate between 8AM and 9AM. Note that
  * range is from time1 until and including time2. That is, from 8AM
  * and until 10AM unless minutes are set. Another example, 1-5 in the
  * weekday field, specify from monday to friday (including friday).
- * <li>, (comma) Comma are used to specify a sequence. For example, 
- * 17,18 in the day field indicate the 17th and 18th day of the month. 
+ * <li>, (comma) Comma are used to specify a sequence. For example,
+ * 17,18 in the day field indicate the 17th and 18th day of the month.
  * A sequence can also include ranges. For example, using
  * 1-5,0 in the weekday field indicate monday to friday and sunday.
  * </ul>
  * <h3>Example</h3>
  * <ul>
- * <li><code>"* 9-10 * * 1-5"</code> Matches 9AM-10AM every weekday 
+ * <li><code>"* 9-10 * * 1-5"</code> Matches 9AM-10AM every weekday
  * <li><code>"* 0-5,23 * * 0,6"</code> Matches between 0AM-5AM and 11PM each saturday and sunday
  * </ul>
  * @param cron A crontab format string. e.g. "* 8-9 * * *"

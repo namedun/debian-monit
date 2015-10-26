@@ -15,6 +15,9 @@
 /* Define to 1 if you have the <asm/param.h> header file. */
 #undef HAVE_ASM_PARAM_H
 
+/* Define to 1 if you have openssl with ASN1_TIME_diff */
+#undef HAVE_ASN1_TIME_DIFF
+
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
@@ -41,6 +44,9 @@
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define to 1 if you have openssl with EC_KEY */
+#undef HAVE_EC_KEY
 
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
