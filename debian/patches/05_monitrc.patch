@@ -19,7 +19,7 @@ Forwarded: not-needed
  #   with start delay 240    # optional: delay the first check by 4-minutes (by 
  #                           # default Monit check immediately after Monit start)
  #
-@@ -24,8 +24,7 @@
+@@ -24,8 +24,7 @@ set daemon  30              # check serv
  ## Set syslog logging. If you want to log to a standalone log file instead,
  ## specify the full path to the log file
  #
@@ -29,7 +29,7 @@ Forwarded: not-needed
  #
  #
  ## Set the location of the Monit lock file which stores the process id of the
-@@ -38,6 +37,7 @@
+@@ -38,6 +37,7 @@ set logfile syslog
  ## default the file is placed in $HOME/.monit.id.
  #
  # set idfile /var/.monit.id
@@ -37,16 +37,16 @@ Forwarded: not-needed
  #
  ## Set the location of the Monit state file which saves monitoring states
  ## on each cycle. By default the file is placed in $HOME/.monit.state. If
-@@ -45,7 +45,7 @@
+@@ -45,7 +45,7 @@ set logfile syslog
  ## the monitoring state across reboots. If it is on temporary filesystem, the
  ## state will be lost on reboot which may be convenient in some situations.
  #
 -# set statefile /var/.monit.state
 +  set statefile /var/lib/monit/state
  #
- ## Set the list of mail servers for alert delivery. Multiple servers may be 
- ## specified using a comma separator. If the first mail server fails, Monit 
-@@ -64,9 +64,9 @@
+ #
+ ## Set global SSL options (just most common options showed, see manual for
+@@ -74,9 +74,9 @@ set logfile syslog
  ## by using the SLOTS option (if omitted, the queue is limited by space
  ## available in the back end filesystem).
  #
@@ -59,7 +59,7 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -125,11 +125,11 @@
+@@ -135,11 +135,11 @@ set logfile syslog
  ## commands to a running Monit daemon. See the Monit Wiki if you want to 
  ## enable SSL for the HTTP interface. 
  #
@@ -76,7 +76,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -267,5 +267,5 @@
+@@ -275,5 +275,5 @@ set httpd port 2812 and
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #
