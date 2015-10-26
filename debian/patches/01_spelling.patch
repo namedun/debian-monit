@@ -3,11 +3,20 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: no
 
 ---
- monit.1 |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ monit.1 |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 --- a/monit.1
 +++ b/monit.1
+@@ -865,7 +865,7 @@ Access to the Monit web interface is con
+ only specific clients to connect.
+ .PP
+ If the Monit command line interface is being used, at least one
+-cleartext password is necessary (see bellow), otherwise the Monit
++cleartext password is necessary (see below), otherwise the Monit
+ command line interface will not be able to connect to the Monit
+ web interface.
+ .PP
 @@ -1313,7 +1313,7 @@ Multiple mail servers can be set by usin
  Monit cannot connect to the first server, it will try the next in
  the list and so on.
