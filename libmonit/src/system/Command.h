@@ -37,7 +37,7 @@
  * or related attributes.
  *
  * Modifying a Command's attributes will affect processes subsequently created,
- * but will never affect previously created processes or the calling process
+ * but will not affect previously created processes nor the calling process
  * itself.
  *
  * @see Process.h
@@ -133,17 +133,6 @@ void Command_setGid(T C, gid_t gid);
  * gid as this process.
  */
 gid_t Command_getGid(T C);
-
-
-/**
- * Returns the Process timeout. Default is no timeout. The timeout
- * is set with Command_setOnTimeout().
- * @param C A Command object
- * @return The number of seconds to wait before the Process will be
- * destroyed. 0 means that there is no timeout.
- * @see Command_setOnTimeout()
- */
-int Command_getTimeout(T C);
 
 
 /**

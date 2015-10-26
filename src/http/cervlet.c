@@ -486,27 +486,53 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
                                     "<td>base directory %s with %d slots</td></tr>",
                                     Run.eventlist_dir, Run.eventlist_slots);
         }
+#ifdef HAVE_OPENSSL
+        {
+                const char *options = Ssl_printOptions(&(Run.ssl), (char[STRLEN]){}, STRLEN);
+                if (options && *options)
+                        StringBuffer_append(res->outputbuffer,
+                                    "<tr><td>SSL options</td><td>%s</td></tr>", options);
+        }
+#endif
         if (Run.mmonits) {
                 StringBuffer_append(res->outputbuffer, "<tr><td>M/Monit server(s)</td><td>");
                 for (Mmonit_T c = Run.mmonits; c; c = c->next)
                 {
-                        StringBuffer_append(res->outputbuffer,
-                                            "%s with timeout %d seconds%s%s%s%s</td></tr>%s",
-                                            c->url->url,
-                                            c->timeout / 1000,
-                                            c->ssl.use_ssl ? " ssl version " : "",
-                                            c->ssl.use_ssl ? sslnames[c->ssl.version] : "",
-                                            c->ssl.certmd5 ? " server cert md5 sum " : "",
-                                            c->ssl.certmd5 ? c->ssl.certmd5 : "",
-                                            c->next ? "<tr><td>&nbsp;</td><td>" : "");
+                        StringBuffer_append(res->outputbuffer, "%s with timeout %.0f seconds", c->url->url, c->timeout / 1000.);
+#ifdef HAVE_OPENSSL
+                        if (c->ssl.use_ssl) {
+                                StringBuffer_append(res->outputbuffer, " using SSL/TLS");
+                                const char *options = Ssl_printOptions(&c->ssl, (char[STRLEN]){}, STRLEN);
+                                if (options && *options)
+                                        StringBuffer_append(res->outputbuffer, " with options {%s}", options);
+                                if (c->ssl.checksum)
+                                        StringBuffer_append(res->outputbuffer, " and certificate checksum %s equal to '%s'", checksumnames[c->ssl.checksumType], c->ssl.checksum);
+                        }
+#endif
+                        if (c->url->user)
+                                StringBuffer_append(res->outputbuffer, " using credentials");
+                        if (c->next)
+                                StringBuffer_append(res->outputbuffer, "</td></tr><tr><td>&nbsp;</td><td>");
                 }
-                printf("\n");
+                StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
         if (Run.mailservers) {
                 StringBuffer_append(res->outputbuffer, "<tr><td>Mail server(s)</td><td>");
-                for (MailServer_T mta = Run.mailservers; mta; mta = mta->next)
-                        StringBuffer_append(res->outputbuffer, "%s:%d%s&nbsp;",
-                                            mta->host, mta->port, mta->ssl.use_ssl ? "(ssl)" : "");
+                for (MailServer_T mta = Run.mailservers; mta; mta = mta->next) {
+                        StringBuffer_append(res->outputbuffer, "%s:%d", mta->host, mta->port);
+#ifdef HAVE_OPENSSL
+                        if (mta->ssl.use_ssl) {
+                                StringBuffer_append(res->outputbuffer, " using SSL/TLS");
+                                const char *options = Ssl_printOptions(&mta->ssl, (char[STRLEN]){}, STRLEN);
+                                if (options && *options)
+                                        StringBuffer_append(res->outputbuffer, " with options {%s}", options);
+                                if (mta->ssl.checksum)
+                                        StringBuffer_append(res->outputbuffer, " and certificate checksum %s equal to '%s'", checksumnames[mta->ssl.checksumType], mta->ssl.checksum);
+                        }
+#endif
+                        if (mta->next)
+                                StringBuffer_append(res->outputbuffer, "</td></tr><tr><td>&nbsp;</td><td>");
+                }
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
         if (Run.MailFormat.from)
@@ -644,10 +670,6 @@ static void handle_action(HttpRequest req, HttpResponse res) {
                         send_error(req, res, SC_BAD_REQUEST, "Invalid action \"%s\"", action);
                         return;
                 }
-                if (s->doaction != Action_Ignored) {
-                        send_error(req, res, SC_SERVICE_UNAVAILABLE, "Other action already in progress -- please try again later");
-                        return;
-                }
                 s->doaction = doaction;
                 const char *token = get_parameter(req, "token");
                 if (token) {
@@ -682,10 +704,6 @@ static void handle_do_action(HttpRequest req, HttpResponse res) {
                                 s  = Util_getService(p->value);
                                 if (! s) {
                                         send_error(req, res, SC_BAD_REQUEST, "There is no service named \"%s\"", p->value ? p->value : "");
-                                        return;
-                                }
-                                if (s->doaction != Action_Ignored) {
-                                        send_error(req, res, SC_SERVICE_UNAVAILABLE, "Other action already in progress -- please try again later");
                                         return;
                                 }
                                 s->doaction = doaction;
@@ -1584,13 +1602,26 @@ static void print_service_rules_existence(HttpResponse res, Service_T s) {
 static void print_service_rules_port(HttpResponse res, Service_T s) {
         for (Port_T p = s->portlist; p; p = p->next) {
                 StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Port</td><td>");
+                StringBuffer_T buf = StringBuffer_create(64);
+                StringBuffer_append(buf, "If failed [%s]:%d%s type %s/%s protocol %s with timeout %.0f seconds",
+                        p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name, p->timeout / 1000.);
                 if (p->retry > 1)
-                        Util_printRule(res->outputbuffer, p->action, "If failed [%s]:%d%s type %s/%s protocol %s with timeout %d seconds and retry %d times", p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name, p->timeout / 1000, p->retry);
-                else
-                        Util_printRule(res->outputbuffer, p->action, "If failed [%s]:%d%s type %s/%s protocol %s with timeout %d seconds", p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name, p->timeout / 1000);
+                        StringBuffer_append(buf, " and retry %d times", p->retry);
+#ifdef HAVE_OPENSSL
+                if (p->target.net.ssl.use_ssl) {
+                        StringBuffer_append(buf, " using SSL/TLS");
+                        const char *options = Ssl_printOptions(&p->target.net.ssl, (char[STRLEN]){}, STRLEN);
+                        if (options && *options)
+                                StringBuffer_append(buf, " with options {%s}", options);
+                        if (p->target.net.ssl.minimumValidDays > 0)
+                                StringBuffer_append(buf, " and certificate expires in more than %d days", p->target.net.ssl.minimumValidDays);
+                        if (p->target.net.ssl.checksum)
+                                StringBuffer_append(buf, " and certificate checksum %s equal to '%s'", checksumnames[p->target.net.ssl.checksumType], p->target.net.ssl.checksum);
+                }
+#endif
+                Util_printRule(res->outputbuffer, p->action, "%s", StringBuffer_toString(buf));
+                StringBuffer_free(&buf);
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
-                if (p->target.net.SSL.certmd5 != NULL)
-                        StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Server certificate md5 sum</td><td>%s</td></tr>", p->target.net.SSL.certmd5);
         }
 }
 
@@ -1599,9 +1630,9 @@ static void print_service_rules_socket(HttpResponse res, Service_T s) {
         for (Port_T p = s->socketlist; p; p = p->next) {
                 StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Unix Socket</td><td>");
                 if (p->retry > 1)
-                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %d seconds and retry %d time(s)", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, p->timeout / 1000, p->retry);
+                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %.0f seconds and retry %d time(s)", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, p->timeout / 1000., p->retry);
                 else
-                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %d seconds", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, p->timeout / 1000);
+                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %.0f seconds", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, p->timeout / 1000.);
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
 }
@@ -1620,7 +1651,7 @@ static void print_service_rules_icmp(HttpResponse res, Service_T s) {
                                 StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Ping</td><td>");
                                 break;
                 }
-                Util_printRule(res->outputbuffer, i->action, "If failed [count %d with timeout %d seconds]", i->count, i->timeout / 1000);
+                Util_printRule(res->outputbuffer, i->action, "If failed [count %d size %d with timeout %.0f seconds]", i->count, i->size, i->timeout / 1000.);
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
 }
@@ -2009,9 +2040,9 @@ static void print_service_status_port(HttpResponse res, Service_T s) {
                 if (! status)
                         StringBuffer_append(res->outputbuffer, "<td>-<td>");
                 else if (! p->is_available)
-                        StringBuffer_append(res->outputbuffer, "<td class='red-text'>failed to [%s]:%d%s type %s/%s protocol %s</td>", p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name);
+                        StringBuffer_append(res->outputbuffer, "<td class='red-text'>failed to [%s]:%d%s type %s/%s %sprotocol %s</td>", p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->target.net.ssl.use_ssl ? "using SSL/TLS " : "", p->protocol->name);
                 else
-                        StringBuffer_append(res->outputbuffer, "<td>%.3fs to %s:%d%s type %s/%s protocol %s</td>", p->response, p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name);
+                        StringBuffer_append(res->outputbuffer, "<td>%.3fs to %s:%d%s type %s/%s %s protocol %s</td>", p->response, p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->target.net.ssl.use_ssl ? "using SSL/TLS " : "", p->protocol->name);
                 StringBuffer_append(res->outputbuffer, "</tr>");
         }
 }
@@ -2043,7 +2074,7 @@ static void print_service_status_icmp(HttpResponse res, Service_T s) {
                 else if (i->response < 0)
                         StringBuffer_append(res->outputbuffer, "<td class='gray-text'>N/A</td>");
                 else
-                        StringBuffer_append(res->outputbuffer, "<td>%.3fs</td>", i->response);
+                        StringBuffer_append(res->outputbuffer, "<td>%.3fms</td>", i->response * 1000.);
                 StringBuffer_append(res->outputbuffer, "</tr>");
         }
 }
@@ -2739,18 +2770,18 @@ static void status_service_txt(Service_T s, HttpResponse res, Level_Type level) 
                                                             "ping response time");
                                 else
                                         StringBuffer_append(res->outputbuffer,
-                                                            "  %-33s %.3fs\n",
-                                                            "ping response time", i->response);
+                                                            "  %-33s %.3fms\n",
+                                                            "ping response time", i->response * 1000.);
                         }
                         for (Port_T p = s->portlist; p; p = p->next) {
                                 if (p->is_available)
                                         StringBuffer_append(res->outputbuffer,
-                                                    "  %-33s %.3fs to [%s]:%d%s type %s/%s protocol %s\n",
-                                                    "port response time", p->response, p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name);
+                                                    "  %-33s %.3fs to [%s]:%d%s type %s/%s %sprotocol %s\n",
+                                                    "port response time", p->response, p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->target.net.ssl.use_ssl ? "using SSL/TLS " : "", p->protocol->name);
                                 else
                                         StringBuffer_append(res->outputbuffer,
-                                                    "  %-33s FAILED to [%s]:%d%s type %s/%s protocol %s\n",
-                                                    "port response time", p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name);
+                                                    "  %-33s FAILED to [%s]:%d%s type %s/%s %sprotocol %s\n",
+                                                    "port response time", p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), p->target.net.ssl.use_ssl ? "using SSL/TLS " : "", p->protocol->name);
                         }
                         for (Port_T p = s->socketlist; p; p = p->next) {
                                 if (p->is_available)
@@ -2836,8 +2867,7 @@ static char *get_service_status(Service_T s, char *buf, int buflen) {
                 }
         }
         if (s->doaction)
-                snprintf(buf + strlen(buf), buflen - strlen(buf), " - %s pending", actionnames[s->doaction]);
-
+                snprintf(buf + strlen(buf), buflen - strlen(buf) - 1, " - %s pending", actionnames[s->doaction]);
         return buf;
 }
 

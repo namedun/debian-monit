@@ -23,9 +23,9 @@ checksum changes or size changes.
 
 Monit is controlled via an easy to configure control file based on a
 free-format, token-oriented syntax. Monit logs to syslog or to its own
-log file and notifies you about error conditions via customizable alert
+log file and notifies you about error conditions via customisable alert
 messages. Monit can perform various TCP/IP network checks, protocol
-checks and can utilize SSL for such checks. Monit provides a http(s)
+checks and can utilise SSL for such checks. Monit provides a HTTP(S)
 interface and you may use a browser to access the Monit program.
 
 
@@ -69,7 +69,7 @@ on localhost such as overall CPU usage, Memory and System Load.
 
 =head1 GENERAL OPERATION
 
-The behavior of Monit is controlled by command-line options
+The behaviour of Monit is controlled by command-line options
 I<and> a run control file, L<monitrc|/"THE MONIT CONTROL FILE">,
 the syntax of which we describe in a later section. Command-line
 options override F<.monitrc> declarations.
@@ -192,7 +192,7 @@ a service entry name from the monitrc file.
 
 Stop all services listed in the control file and disable their
 monitoring. If the group option is set, only stop and disable
-monitoring of the services in the named group (all" is not
+monitoring of the services in the named group ("all" is not
 required in this case).
 
 =item stop name
@@ -245,7 +245,7 @@ Print a short status summary.
 
 =item reload
 
-Reinitialize a running Monit daemon, the daemon will reread its
+Reinitialise a running Monit daemon, the daemon will reread its
 configuration, close and reopen log files.
 
 =item quit
@@ -255,7 +255,7 @@ Kill the Monit daemon process
 =item validate
 
 Check all services listed in the control file. This action is
-also the default behavior when Monit runs in daemon mode.
+also the default behaviour when Monit runs in daemon mode.
 
 =item procmatch regex
 
@@ -358,7 +358,7 @@ lists all processes matching or not, the regex-pattern.
 Monit will call the entry's start method if defined, if <path> does not
 point to a regular file type (for instance a directory), Monit will
 disable monitoring of this entry. If Monit runs in passive mode or the
-start methods is not defined, Monit will just send an alert on error.
+start method is not defined, Monit will just send an alert on error.
 
 =item 3. CHECK FIFO <unique name> PATH <path>
 
@@ -366,7 +366,7 @@ start methods is not defined, Monit will just send an alert on error.
 Monit will call the entry's start method if defined, if <path> does not
 point to a fifo type (for instance a directory), Monit will disable
 monitoring of this entry. If Monit runs in passive mode or the start
-methods is not defined, Monit will just send an alert on error.
+method is not defined, Monit will just send an alert on error.
 
 =item 4. CHECK FILESYSTEM <unique name> PATH <path>
 
@@ -380,7 +380,7 @@ mount point exist.
 If the filesystem becomes unavailable, Monit will call the entry's
 start method if defined. if <path> does not point to a filesystem,
 Monit will disable monitoring of this entry. If Monit runs in passive
-mode or the start methods is not defined, Monit will just send an alert
+mode or the start method is not defined, Monit will just send an alert
 on error.
 
 =item 5. CHECK DIRECTORY <unique name> PATH <path>
@@ -519,7 +519,7 @@ start Monit on a higher run-level after system processes.
 =head1 INCLUDE FILES
 
 The Monit control file, C<monitrc>, can include additional
-configuration files. This feature helps one to organize configuration
+configuration files. This feature helps one to organise configuration
 into separate files instead of having everything in one file, if you
 like this kind of thing. Include statements can be placed at virtually
 any place in C<monitrc> though the convention is at the bottom. The
@@ -550,19 +550,102 @@ This will load any file matching the globstring. That is, all
 files in I</etc/monit.d> that ends with the prefix I<.cfg>.
 
 
+=head1 SSL OPTIONS
+
+Common SSL/TLS options can be set using the following statement and
+will apply to all SSL connections made through Monit:
+
+  SET <SSL | TLS> [OPTIONS] {
+      VERSION: <AUTO | SSLV2 | SSLV3 | TLSV1 | TLSV11 | TLSV12>
+      VERIFY: <ENABLE | DISABLE>
+      SELFSIGNED: <ALLOW | REJECT>
+      CLIENTPEMFILE: <path>
+      CACERTIFICATEFILE: <path>
+      CACERTIFICATEPATH: <path>
+  }
+
+I<VERSION> set the specific SSL/TLS version to use. By default Monit
+uses AUTO. In AUTO mode, only TLS is used, SSLv2 and SSLv3 is
+considered obsolete. If you have to use SSLv2 or SSLv3, you must
+explicitly set the version.
+
+I<VERIFY> enable SSL server certificate verification. This will verify
+and report an error if the server certificate is not trusted, not valid
+or has expired. By default certificate verification is disabled, though
+we recommend enabling it, otherwise there is no guarantee that Monit
+speaks with the server you think it speaks with. 
+
+I<SELFSIGNED> self-signed certificates are rejected by default. Use
+this option to allow self-signed certificates.
+
+I<CLIENTPEMFILE> set the path to the SSL client certificate
+"database-file" in PEM format. If an SSL server requires client
+certificate authentication, Monit will try to find a public key
+certificate in this file which match the server's Certificate Authority
+and if found, use this certificate for client authentication.
+
+I<CACERTIFICATEFILE> set the path to the PEM encoded file containing
+Certificate Authority (CA) certificates. Monit uses OpenSSL's default
+CA cartificates if this options is not used (you can use "openssl version -d"
+command to get the default CA certificates). Many distributions comes
+with SSL and CA certificates already setup and using this option is
+normally not necessary.
+
+I<CACERTIFICATEPATH> set the path to the directory containing
+Certificate Authority (CA) certificates. Monit uses OpenSSL's default
+CA certificates if this options is not used (you can use "openssl version -d"
+command to get the default CA certificates). Many distributions comes
+with SSL and CA certificates already setup and using this option is
+normally not necessary.
+
+The SSL options statement can be used both globally (default for all
+SSL/TLS connection made through Monit) or local in a check, in
+mailserver settings or with the mmonit statement, and will then
+override or extend the global settings.
+
+To set global SSL options, put this statement near the top of your
+I<.monitrc> file:
+
+    set ssl options {...}
+
+Here is an example of setting both global and local SSL options:
+
+    # Enable certificate verification for all SSL connections
+    # Self-signed certificates are not allowed by default
+    set ssl options {
+            verify: enable
+    }
+
+    # Verify certificate (via global setting)
+    # Allow self-signed certificate for this check
+    check host example with address example.com
+            if failed
+                    port 443
+                    protocol https
+                    with ssl options {selfsigned: allow}
+            then alert
+
+    # Do not verify example2.com's certificate (override global setting)
+    check host example2 with address example2.com
+            if failed
+                    port 443
+                    protocol https
+                    with ssl options {verify: disable}
+            then alert
+
 
 =head1 MONIT HTTPD
 
-If specified in the control file, Monit will start with http support.
+If specified in the control file, Monit will start with HTTP support.
 You can then use Monit CLI to start and stop services, disable or
 enable service monitoring as well as view the status of each service.
 
-If http support is enabled over TCP rather than over a Unix Socket, you
+If HTTP support is enabled over TCP rather than over a Unix Socket, you
 can also view Monit's informative dashboard in your web browser.
 
 Note that if HTTP support is disabled, the Monit CLI interface will
 have reduced functionality, as most CLI commands (such as "monit
-status") need to communicate with the Monit background process via the
+status") need to communicate with the Monit background process via
 the HTTP interface. We strongly recommend having HTTP support enabled.
 If security is a concern, bind the HTTP interface to local host only or
 use Unix Socket so Monit is not accessible from the outside.
@@ -598,7 +681,7 @@ Example:
 
 B<Options>:
 
-B<UNIXSOCKET> set the path to the Unix Socket Monit should bind to 
+B<UNIXSOCKET> set the path to the Unix Socket Monit should bind to
 and listen on.
 
 B<PORT> set the port Monit should bind to and listen on. Monit is
@@ -663,7 +746,7 @@ HTTP response header and error pages. For example:
 =head2 Authentication
 
 Access to the Monit web interface is controlled primarily via the
-B<ALLOW> option which is used to specify authentication and authorize
+B<ALLOW> option which is used to specify authentication and authorise
 only specific clients to connect.
 
 If the Monit command line interface is being used, at least one
@@ -721,7 +804,7 @@ The biggest weakness with Basic Authentication is that username and
 password is sent in clear-text over the network (i.e. base64 encoded).
 It is therefor recommended that you do not use this authentication
 method unless you run Monit with I<ssl> support. With ssl, it is safe
-to use Basic Authentication since I<all> http data, including Basic
+to use Basic Authentication since I<all> HTTP data, including Basic
 Authentication headers will be encrypted.
 
 =head4 Cleartext user and password
@@ -783,7 +866,7 @@ Example1:
 
 If you use this method together with a host list, then only
 clients from the listed hosts will be allowed to connect to the
-Monit http server and each client will be asked to provide a
+Monit HTTP server and each client will be asked to provide a
 username and a password.
 
 Example2:
@@ -947,7 +1030,7 @@ Each alert recipient can have it's own filter, for example:
 =head3 Setting an error reminder
 
 Monit by default sends just I<one> notification if a service failed and
-another when/if it recover. If you want to be notified that the service
+another when/if it recovers. If you want to be notified that the service
 is still in a failed state, you can use the reminder option in the
 alert statement:
 
@@ -1057,9 +1140,13 @@ The description of the error condition
 The mail server Monit should use to send alert messages is
 defined with a C<set mailserver> statement:
 
- SET MAILSERVER <hostname|ip-address [PORT number] [USERNAME string]
- [PASSWORD string] [using SSLAUTO|SSLV2|SSLV3|TLSV1|TLSV11|TLSV12]
- [CERTMD5 checksum]>, ...
+ SET MAILSERVER
+        <hostname|ip-address>
+        [PORT number]
+        [USERNAME string] [PASSWORD string]
+        [using SSL [with options {...}]
+        [CERTIFICATE CHECKSUM [MD5|SHA1] <hash>],
+        ...
    [with TIMEOUT X SECONDS]
    [using HOSTNAME hostname]
 
@@ -1074,7 +1161,8 @@ Monit supports AUTH PLAIN and AUTH LOGIN for SMTP authentication.
 You can set a username and a password using the USERNAME and
 PASSWORD options.
 
-You can enable SSL or TLS with optional certificate checksum.
+You can set SSL/TLS L<options|"SSL OPTIONS"> for the connection and 
+also check a SSL certificate checksum.
 
 The default connection timeout is 5 seconds. You can rise this
 limit using the TIMEOUT option.
@@ -1168,7 +1256,7 @@ Example:
 Services are checked in regular intervals by the C<set daemon n>
 statement. Checks are performed in the same order as they are written
 in the C<.monitrc> file, except if dependencies are setup between
-services.
+services, where pre-requisite services are tested first.
 
 It is possible to modify a service check schedule by using the C<every>
 statement.
@@ -1382,14 +1470,19 @@ You may add more than one service name of any type or use more
 than one depend statement in an entry.
 
 Services specified in a I<depend> statement will be checked
-during stop/start/monitor/unmonitor operations. If a service is
-stopped or unmonitored it will stop/unmonitor any services that
-depends on itself. Likewise, if a service is started, it will
-first stop any services that depends on itself and after it is
-started, start all depending services again. If the service is to
-be monitored (enable monitoring), all services which this service
-depends on will be monitored before enabling monitoring of this
-service.
+during stop/start/monitor/unmonitor operations.
+
+If a service is stopped or unmonitored it will stop/unmonitor any
+services that depends on itself.
+
+If the service is started, all services which this service depends on
+will be started before starting this service. if start of some service
+failed, the service with prerequisites will NOT be started and the, but
+will remember that it should start and will retry next cycle.
+
+If a service is restarted, it will first stop any active services that
+depend on it and after it is started, start all depending services that
+were active before the restart again.
 
 Here is an example where we set up an apache service entry to
 depend on the underlying apache binary. If the binary should
@@ -1397,26 +1490,23 @@ change an alert is sent and apache is not monitored anymore. The
 rationale is security and that Monit should not execute a
 possibly cracked apache binary.
 
- (1) check process apache
- (2)    with pidfile "/usr/local/apache/logs/httpd.pid"
+ (1) check process apache with pidfile "/var/run/httpd.pid"
+ (2)    depends on httpd
  (3)    ...
- (4)    depends on httpd
- (5)
- (6) check file httpd with path /usr/local/apache/bin/httpd
- (7)    if failed checksum then unmonitor
+ (4)
+ (5) check file httpd with path /usr/bin/httpd
+ (6)    if failed checksum then stop
 
-The first entry is the process entry for apache (abbreviated for
-clarity). The fourth line sets up a dependency between this entry and
-the service entry named httpd in line 6. A dependency tree works as
-follows, if an action is conducted in a lower branch it will propagate
-upward in the tree and for every dependent entry execute the same
-action. In this case, if the checksum should fail in line 7 then an
-unmonitor action is executed and the apache binary is not checked
+The first entry is the process entry for apache. The second line sets
+up a dependency between this entry and the service entry named httpd in
+line 5. A dependency tree works as follows, if an action is conducted in
+a lower branch it will propagate upward in the tree and for every dependent
+entry execute the same action. In this case, if the checksum should fail in
+line 6 then an stop action is executed and apache binary is not checked
 anymore. But since the apache process entry depends on the httpd entry
-this entry will also execute the unmonitor action. In short, if the
+this entry will also execute the stop action. In short, if the
 checksum test for the httpd binary file should fail, both the check
-file httpd entry and the check process apache entry is set in
-un-monitoring mode.
+file httpd and the check process apache entry are stopped.
 
 A dependency tree is a general construct and can be used between all
 types of service entries and span many levels and propagate any
@@ -1432,7 +1522,7 @@ server setup:
 You can set dependencies so that the web-server depends on the
 application server to run before the web-server starts and the
 application server depends on the database server and the
-database depends on the file-system to be mounted before it
+database depends on the filesystem to be mounted before it
 starts. See also the example section below for examples using the
 depend statement.
 
@@ -1441,36 +1531,36 @@ dependencies:
 
 =over 4
 
-=item If no servers are running
+=item If no services are running
 
 Monit will start the servers in the following order: I<d>, I<c>,
 I<b>, I<a>
 
 =item If all servers are running
 
-When you run 'Monit stop all' this is the stop order: I<a>, I<b>,
+When you run 'monit stop all' this is the stop order: I<a>, I<b>,
 I<c>, I<d>. If you run 'Monit stop d' then I<a>, I<b> and I<c>
 are also stopped because they depend on I<d> and finally I<d> is
 stopped.
 
 =item If I<a> does not run
 
-When Monit runs it will start I<a>
+Monit will start I<a>
 
 =item If I<b> does not run
 
-When Monit runs it will first stop I<a> then start I<b> and
-finally start I<a> again.
+Monit will first stop I<a> then start I<b> and finally start I<a> if
+I<b> is up again.
 
 =item If I<c> does not run
 
-When Monit runs it will first stop I<a> and I<b> then start I<c>
-and finally start I<b> then I<a>.
+Monit will first stop I<a> and I<b> then start I<c> and finally start
+I<b> then I<a>.
 
 =item If I<d> does not run
 
-When Monit runs it will first stop I<a>, I<b> and I<c> then start
-I<d> and finally start I<c>, I<b> then I<a>.
+Monit will first stop I<a>, I<b> and I<c> then start I<d> and finally
+start I<c>, I<b> then I<a>.
 
 =item If the control file contains a depend loop.
 
@@ -1644,7 +1734,7 @@ entry in the Monit control file.
 
 Depending on system or process characteristics, services can be
 stopped or restarted and alerts can be generated. Thus it is
-possible to utilize systems which are idle and to spare system
+possible to utilise systems which are idle and to spare system
 under high load.
 
 The full syntax for a resource-statement used for resource
@@ -2181,7 +2271,7 @@ generate a program timeout event. It is possible to override the
 default timeout (see the syntax below).
 
 The asynchronous nature of the program check allows for
-non-blocking behavior in the current Monit design, but it comes
+non-blocking behaviour in the current Monit design, but it comes
 with a side-effect: when the program has finished executing and
 is waiting for Monit to collect the result, it becomes a
 so-called "zombie" process. A zombie process does not consume
@@ -2216,7 +2306,7 @@ The test will fail if the link/interface is down or link errors were detected.
 
 Example:
 
- check network eth0 with interface eth0 
+ check network eth0 with interface eth0
        if failed link then alert
 
 In case a link failed you can add a start and stop program to automatically
@@ -2231,7 +2321,7 @@ commands for your system)
 
 =head2 NETWORK LINK CAPACITY TEST
 
-You can check the network link mode capacity for changes. This test 
+You can check the network link mode capacity for changes. This test
 may only be used within a check network service entry in the Monit
 control file.
 
@@ -2251,14 +2341,14 @@ a speed attribute.
 
 Example:
 
- check network eth0 with interface eth0 
+ check network eth0 with interface eth0
        if changed link capacity then alert
 
 
 =head2 NETWORK SATURATION TEST
 
 You can check the network link saturation. Monit then computes the link
-utilization based on the current transfer rate vs. link capacity.
+utilisation based on the current transfer rate vs. link capacity.
 This test may only be used within a check network service entry in the
 Monit control file.
 
@@ -2274,13 +2364,13 @@ default is EQUAL).
 I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 "EXEC" or "UNMONITOR".
 
-NOTE: this test depends on the availability of the speed attribute 
+NOTE: this test depends on the availability of the speed attribute
 and not all interface types have this attribute. See the LINK SPEED test
 description.
 
 Example:
 
- check network eth0 with interface eth0 
+ check network eth0 with interface eth0
        if saturation > 90% then alert
 
 
@@ -2318,7 +2408,7 @@ I<unit> is a choice of "B","KB","MB","GB" or long alternatives
 
 I<time-unit> is a choice of "MINUTE(S)", "HOUR(S)", "DAY".
 NOTE: Monit maintains a rolling count of total uploaded and downloaded
-bytes for the last 24 hours only. The value of time-unit can therefor not 
+bytes for the last 24 hours only. The value of time-unit can therefor not
 specify a range wider than one day.
 
 I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
@@ -2326,7 +2416,7 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 
 Examples:
 
- check network eth0 with interface eth0 
+ check network eth0 with interface eth0
        if upload > 500 kB/s then alert
        if total download > 1 GB in last 2 hours then alert
        if total download > 10 GB in last day then alert
@@ -2370,7 +2460,7 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 
 Examples:
 
- check network eth0 with interface eth0 
+ check network eth0 with interface eth0
        if upload > 1000 packets/s then alert
        if total upload > 900000 packets in last hour then alert
 
@@ -2387,7 +2477,7 @@ is allowed to).
 Syntax:
 
   IF FAILED PING[4|6]
-     [COUNT number] [WITH] [TIMEOUT number SECONDS]
+     [COUNT number] [SIZE number] [WITH] [TIMEOUT number SECONDS]
   THEN action
 
 If a DNS host name was used in the I<check host> statement and the host
@@ -2398,15 +2488,21 @@ to try. You can force Monit to only ping IPv4 or IPv6 addresses by
 using the PING4 or the PING6 keyword instead of PING.
 
 The B<COUNT> parameter specifies how many consecutive ping requests
-will be sent to the host in one cycle. If no reply arrive within
-B<TIMEOUT> seconds, Monit reports an error. If at least one reply
-was received, the ping test is considered a success. Monit will,
-by default, send I<three> ping request packets in one cycle to
-prevent false alarm (i.e. up to 66% packet loss is tolerated). You
-can set the B<COUNT> option to a value between 1 and 20 to send more
-or fewer packets. If you require 100% ping success, set the count to
-1 (i.e. just one request will be sent, and if the packet was lost
-an error will be reported).
+will be sent to the host in one cycle at maximum. The default value is 3.
+
+The B<SIZE> parameter specifies the ping request data size. Default
+is 64 bytes.
+
+If no reply arrive within B<TIMEOUT> seconds, Monit reports an error.
+If at least one reply was received, the ping test is considered a
+success.
+
+Monit will, by default, send up to I<three> ping request packets in
+one cycle to prevent false alarm (i.e. up to 66% packet loss is
+tolerated). You can set the B<COUNT> option to a value between 1 and
+20 to send more or fewer packets. If you require 100% ping success,
+set the count to 1 (i.e. just one request will be sent, and if the
+packet was lost an error will be reported).
 
 Note that many ISPs have started to filter out ping or ICMP packets
 now, in which case there will be no reply from the host.
@@ -2430,11 +2526,11 @@ or test that the system is explicit accessible via IPv4 and IPv6:
        if failed ping4 then alert  # IPv4 only
        if failed ping6 then alert  # IPv6 only
 
-or with all parameters; Send 5 pings to mmonit.com and wait for up
-to 10 seconds for a reply
+or with all parameters; Send five 128 byte pings to mmonit.com and wait
+for up to 10 seconds for a reply
 
   check host mmonit.com with address mmonit.com
-        if failed ping count 5 with timeout 10 seconds then alert
+        if failed ping count 5 size 128 with timeout 10 seconds then alert
 
 
 =head2 CONNECTION TESTING
@@ -2456,6 +2552,9 @@ TCP/UDP port test syntax:
     <port>
     [ipversion]
     [type]
+    [ssl [with options {...}]]
+    [certificate checksum]
+    [certificate valid days]
     [protocol | {send/expect}+]
     [timeout]
     [retry]
@@ -2498,27 +2597,51 @@ multiple addresses are available and connection to one address failed,
 Monit will try the next address and so on until a connection succeed or
 until there are no more addresses left to try.
 
-I<type: TYPE {TCP|UDP|TCPSSL}>. Optionally specify the socket type
-Monit should use when trying to connect to the port. The
-different socket types are; TCP, UDP or TCPSSL, where TCP is a
-regular stream based socket, UDP is a datagram socket and TCPSSL
-specifies that Monit should use a TCP socket with SSL when
-connecting to a port. The default socket type is TCP. If TCPSSL
-is used you may optionally specify the SSL/TLS protocol to be
-used and the MD5 checksum of the server's certificate.
+I<type: TYPE [TCP | UDP]>. Optionally specify the socket type Monit
+should use when trying to connect to the port. The different socket
+types are: TCP or UDP, where TCP is a regular stream based socket, UDP,
+a datagram socket. The default socket type is TCP.
 
-The TCPSSL options are:
+I<ssl: [SSL | TLS] [with options {...}]>. Set SSL/TLS L<options|"SSL
+OPTIONS"> and override global/default SSL options. You can set the
+SSL/TLS version to use, whether to verify certificates, trust
+self-signed certificates or set the SSL client certificates
+database-file for client certificate authentication.
 
- TCPSSL [SSLAUTO|SSLV2|SSLV3|TLSV1|TLSV11|TLSV12] [CERTMD5 md5sum]
 
-The default mode is I<SSLAUTO> and it will select the method
-automatically, but for security reasons only TLS is used, not SSL. If
-you need SSLv2 or SSLv3 you have to explicitly select that method using
-I<SSLV2> or I<SSLV3> option.
+I<certificate checksum: CERTIFICATE CHECKSUM [MD5|SHA1] hash>. Verify
+the SSL server certificate by checking its checksum. You can use either
+MD5 or SHA1 checksum (if you don't specify the type, Monit will
+determine the digest based on the hash length). You can use the
+I<openssl> command line tool to get the checksum value for your
+certificate, which you can then use in Monit's control file:
 
-I<protocol: PROTO(COL) protocol>. Optionally specify the protocol
-Monit should speak when a connection is established. At the
-moment Monit knows how to speak:
+ openssl x509 -fingerprint -sha1 -in server.crt | head -1 | cut -f2 -d'='
+
+Example:
+
+ if failed
+     port 443
+     protocol https
+     and certificate checksum = "1ED948A6F4258ACAB964227EF4EB19FCC453B0F8"
+ then alert
+
+I<certificate expire days: CERTIFICATE VALID for number DAYS>. Send
+an alert if the certificate will expire in the given number of days.
+This test is pretty useful to get a notification when it is time to
+renew your SSL certificate.
+
+Example:
+
+  if failed
+      port 443
+      protocol https
+      and certificate valid > 30 days
+  then alert
+
+I<protocol: PROTO(COL) protocol>. Optionally specify the protocol Monit
+should speak when a connection is established. At the moment Monit
+knows how to speak:
  I<APACHE-STATUS>
  I<DNS>
  I<DWP>
@@ -2664,7 +2787,7 @@ For example:
  then restart
 
 I<STATUS> option can be used to explicitly test the HTTP status code
-returned by the HTTP server. If not used, the http protocol test will
+returned by the HTTP server. If not used, the HTTP protocol test will
 fail if the status code returned is greater than or equal to 400. You
 can override this behaviour by using the I<status> qualifier.
 
@@ -2696,7 +2819,7 @@ Example:
  then alert
 
 I<HTTP HEADERS> can be used to send a list of any HTTP headers
-with a http protocol test. For instance, the host header. If the
+with a HTTP protocol test. For instance, the host header. If the
 host header is not set, Monit will use the hostname or IP-address
 of the host as specified in the check host statement. Specifying
 a host header is useful if you want to connect to and test a
@@ -2720,7 +2843,7 @@ In a check host context, using this statement might look like
        and request /monit/ with content = "Monit [0-9.]+"
     then alert
 
-Setting http headers is associated with the http protocol test
+Setting HTTP headers is associated with the HTTP protocol test
 and must come before I<request> as in the example above.
 
 
@@ -2834,7 +2957,8 @@ Syntax:
 
 I<USERNAME> MySQL username (maximum 16 characters).
 
-I<PASSWORD> MySQL password.
+I<PASSWORD> MySQL password (special characters can be used, but for non-alphanumerics
+the password has to be quoted).
 
 The credentials are B<optional>. If no credentials are set, Monit will perform
 the test using anonymous login. That may cause authentication error to be logged
@@ -2854,7 +2978,7 @@ For example:
      stop program = "/sbin/stop mysql"
      if failed
         port 3306
-        protocol mysql username foo password bar
+        protocol mysql username "foo" password "bar"
      then alert
 
 or with unix-socket and OS X start/stop commands
@@ -2864,7 +2988,7 @@ or with unix-socket and OS X start/stop commands
      stop program = "/usr/local/mysql/support-files/mysql.server stop"
      if failed
         unixsocket /tmp/mysql.sock
-        protocol mysql username foo password bar
+        protocol mysql username "foo" password "bar"
      then alert
 
 
@@ -2972,7 +3096,7 @@ vhosts, hence the host statement before port:
        if failed host shop.sol.no port 443 then alert
        if failed host chat.sol.no port 80 then alert
 
-To make sure that Monit is communicating with a http server a
+To make sure that Monit is communicating with a HTTP server a
 protocol test can be added:
 
  check process apache with pidfile /var/run/httpd.pid
@@ -3002,9 +3126,8 @@ alert:
 
 In the following example we ask Monit to compute and verify the
 checksum for the underlying apache binary used by the start and
-stop programs. If the the checksum test should fail, monitoring
-will be disabled to prevent possibly restarting a compromised
-binary:
+stop programs. If the checksum test should fail, monitoring will
+be disabled to prevent possibly restarting a compromised binary:
 
  check process apache with pidfile /var/run/httpd.pid
        start program = "/etc/init.d/httpd start"
@@ -3086,7 +3209,7 @@ service if it is not running:
        group database
 
 This resource checks example will send an alert if CPU usage of the
-Apache's http daemon and its child processes goes beyond 60% for two
+Apache's HTTP daemon and its child processes goes beyond 60% for two
 cycles. Apache is restarted if the CPU usage is over 80% for five
 cycles or the memory usage is over 100Mb for five cycles or if the
 machines load average is more than 10 for 8 cycles:
@@ -3212,7 +3335,7 @@ F</etc/monit.pid>
    systems without /var/run).
 
 F<~/.monit.state>
-   Monit saves its state to this file and utilizes
+   Monit saves its state to this file and utilises
    information found in this file to recover from
    a crash. This is a binary file and its content is
    only of interest to monit. You may set the location
@@ -3227,7 +3350,7 @@ F<~/.monit.id>
 
 No environment variables are used by Monit. However, when Monit
 execute a script or a program Monit will set several environment
-variables which can be utilized by the executable. The following
+variables which can be utilised by the executable. The following
 and I<only> the following environment variables are available:
 
 =over 4
@@ -3288,7 +3411,7 @@ to a Monit daemon if Monit is started with the I<quit> action
 argument.
 
 Sending a SIGHUP signal to a running Monit daemon will force
-the daemon to reinitialize itself, specifically it will reread
+the daemon to reinitialise itself, specifically it will reread
 configuration, close and reopen log files.
 
 Running Monit in foreground while a background Monit daemon is
@@ -3298,15 +3421,15 @@ running will wake up the daemon.
 =head1 NOTES
 
 This is a very silent program. Use the -v switch if you want to
-see what Monit is doing, and tail -f the logfile. Optionally for
+see what Monit is doing, and tail -f the log file. Optionally for
 testing purposes; you can start Monit with the -Iv switch. Monit
 will then print debug information to the console, to stop monit
 in this mode, simply press CTRL^C (i.e. SIGINT) in the same
 console.
 
 The syntax (and parser) of the control file was inspired by Eric
-S. Raymond et al. excellent fetchmail program. Some portions of
-this man page also receive inspiration from the same authors.
+S. Raymond et al.'s excellent fetchmail program. Some portions
+of this man page also receive inspiration from the same authors.
 
 
 =head1 COPYRIGHT

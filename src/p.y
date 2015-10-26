@@ -129,16 +129,19 @@
 
 /* ------------------------------------------------------------- Definitions */
 
+
 struct IHavePrecedence {
         boolean_t daemon;
         boolean_t logfile;
         boolean_t pidfile;
 };
 
+
 struct myrate {
         unsigned count;
         unsigned cycles;
 };
+
 
 /* yacc interface */
 void  yyerror(const char *,...);
@@ -183,6 +186,7 @@ static struct mybandwidth bandwidthset;
 static struct mymatch matchset;
 static struct myicmp icmpset;
 static struct mymail mailset;
+static struct SslOptions_T sslset;
 static struct myport portset;
 static struct mymailserver mailserverset;
 static struct mymmonit mmonitset;
@@ -205,7 +209,7 @@ static Digest_Type digesttype = Digest_Cleartext;
 static void  preparse();
 static void  postparse();
 static void  addmail(char *, Mail_T, Mail_T *);
-static Service_T createservice(Service_Type, char *, char *, boolean_t (*)(Service_T));
+static Service_T createservice(Service_Type, char *, char *, State_Type (*)(Service_T));
 static void  addservice(Service_T);
 static void  adddependant(char *);
 static void  addservicegroup(char *);
@@ -252,6 +256,7 @@ static void  prepare_urlrequest(URL_T U);
 static void  seturlrequest(int, char *);
 static void  setlogfile(char *);
 static void  setpidfile(char *);
+static void  reset_sslset();
 static void  reset_mailset();
 static void  reset_mailserverset();
 static void  reset_mmonitset();
@@ -296,9 +301,9 @@ static int verifyMaxForward(int);
 }
 
 %token IF ELSE THEN OR FAILED
-%token SET LOGFILE FACILITY DAEMON SYSLOG MAILSERVER HTTPD ALLOW ADDRESS INIT
+%token SET LOGFILE FACILITY DAEMON SYSLOG MAILSERVER HTTPD ALLOW REJECTOPT ADDRESS INIT
 %token READONLY CLEARTEXT MD5HASH SHA1HASH CRYPT DELAY
-%token PEMFILE ENABLE DISABLE HTTPDSSL CLIENTPEMFILE ALLOWSELFCERTIFICATION
+%token PEMFILE ENABLE DISABLE SSL CLIENTPEMFILE ALLOWSELFCERTIFICATION SELFSIGNED VERIFY CERTIFICATE CACERTIFICATEFILE CACERTIFICATEPATH VALID
 %token INTERFACE LINK PACKET BYTEIN BYTEOUT PACKETIN PACKETOUT SPEED SATURATION UPLOAD DOWNLOAD TOTAL
 %token IDFILE STATEFILE SEND EXPECT EXPECTBUFFER CYCLE COUNT REMINDER
 %token PIDFILE START STOP PATHTOK
@@ -320,7 +325,7 @@ static int verifyMaxForward(int);
 %token GROUP REQUEST DEPENDS BASEDIR SLOT EVENTQUEUE SECRET HOSTHEADER
 %token UID EUID GID MMONIT INSTANCE USERNAME PASSWORD
 %token TIMESTAMP CHANGED SECOND MINUTE HOUR DAY MONTH
-%token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 CERTMD5
+%token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 CERTMD5 AUTO
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
 %token INODE SPACE TFREE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
 %token EXEC UNMONITOR PING PING4 PING6 ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
@@ -344,6 +349,7 @@ statement_list  : statement
                 ;
 
 statement       : setalert
+                | setssl
                 | setdaemon
                 | setlog
                 | seteventqueue
@@ -383,6 +389,7 @@ optproc         : start
                 | gid
                 | uptime
                 | connection
+                | connectionurl
                 | connectionunix
                 | actionrate
                 | alert
@@ -457,7 +464,7 @@ optdir          : start
                 | depend
                 ;
 
-opthostlist     : opthost
+opthostlist     : /* EMPTY */
                 | opthostlist opthost
                 ;
 
@@ -465,6 +472,7 @@ opthost         : start
                 | stop
                 | restart
                 | connection
+                | connectionurl
                 | icmp
                 | actionrate
                 | alert
@@ -641,23 +649,23 @@ mmonitlist      : mmonit credentials
                 | mmonitlist mmonit credentials
                 ;
 
-mmonit          : URLOBJECT nettimeout mmonitoptlist {
+mmonit          : URLOBJECT mmonitoptlist {
                         mmonitset.url = $<url>1;
-                        mmonitset.timeout = $<number>2;
                         addmmonit(&mmonitset);
                   }
                 ;
 
-mmonitoptlist   : /* EMPTY */
+mmonitoptlist : /* EMPTY */
                 | mmonitoptlist mmonitopt
                 ;
 
-mmonitopt       : sslversion {
-                        mmonitset.ssl.version = $<number>1;
+mmonitopt       : TIMEOUT NUMBER SECOND {
+                        mmonitset.timeout = $<number>2 * 1000; // net timeout is in milliseconds internally
                   }
-                | certmd5 {
-                        mmonitset.ssl.certmd5 = $<string>1;
-                  }
+                | ssl
+                | sslchecksum
+                | sslversion
+                | certmd5
                 ;
 
 credentials     : /* EMPTY */
@@ -666,9 +674,180 @@ credentials     : /* EMPTY */
                   }
                 ;
 
+setssl          : SET SSL '{' ssloptionlist '}' {
+                        Run.ssl.use_ssl = true;
+                        Run.ssl.verify = sslset.verify;
+                        Run.ssl.allowSelfSigned = sslset.allowSelfSigned;
+                        Run.ssl.version = sslset.version;
+                        Run.ssl.minimumValidDays = sslset.minimumValidDays;
+                        Run.ssl.checksumType = sslset.checksumType;
+                        Run.ssl.checksum = sslset.checksum;
+                        Run.ssl.clientpemfile = sslset.clientpemfile;
+                        Run.ssl.CACertificateFile = sslset.CACertificateFile;
+                        Run.ssl.CACertificatePath = sslset.CACertificatePath;
+                        if (Run.ssl.allowSelfSigned == true)
+                                Run.httpd.flags |= Httpd_AllowSelfSignedCertificates;
+                        reset_sslset();
+                  }
+                ;
+
+ssl             : SSL {
+                        sslset.use_ssl = true;
+                  }
+                | SSL '{' ssloptionlist '}'
+                ;
+
+ssloptionlist   : /* EMPTY */
+                | ssloptionlist ssloption
+                ;
+
+ssloption       : VERIFY ':' ENABLE {
+                        sslset.use_ssl = true;
+                        sslset.verify = true;
+                  }
+                | VERIFY ':' DISABLE {
+                        sslset.use_ssl = true;
+                        sslset.verify = false;
+                  }
+                | SELFSIGNED ':' ALLOW {
+                        sslset.use_ssl = true;
+                        sslset.allowSelfSigned = true;
+                  }
+                | SELFSIGNED ':' REJECTOPT {
+                        sslset.use_ssl = true;
+                        sslset.allowSelfSigned = false;
+                  }
+                | VERSIONOPT ':' sslversion {
+                        sslset.use_ssl = true;
+                  }
+                | CLIENTPEMFILE ':' PATH {
+                        sslset.use_ssl = true;
+                        sslset.clientpemfile = $3;
+                        if (! File_exist(sslset.clientpemfile))
+                                yyerror2("SSL client PEM file doesn't exist");
+                        else if (! File_isFile(sslset.clientpemfile))
+                                yyerror2("SSL client PEM file is not a file");
+                        else if (! File_isReadable(sslset.clientpemfile))
+                                yyerror2("Cannot read SSL client PEM file");
+                  }
+                | CACERTIFICATEFILE ':' PATH {
+                        if (sslset.CACertificateFile)
+                                yyerror2("Duplicate SSL CA certificates file doesn't exist");
+                        sslset.use_ssl = true;
+                        sslset.CACertificateFile = $3;
+                        if (! File_exist(sslset.CACertificateFile))
+                                yyerror2("SSL CA certificates file doesn't exist");
+                        else if (! File_isFile(sslset.CACertificateFile))
+                                yyerror2("SSL CA certificates file is not a file");
+                        else if (! File_isReadable(sslset.CACertificateFile))
+                                yyerror2("Cannot read CA certificates file");
+                  }
+                | CACERTIFICATEPATH ':' PATH {
+                        sslset.use_ssl = true;
+                        sslset.CACertificatePath = $3;
+                        if (! File_exist(sslset.CACertificatePath))
+                                yyerror2("SSL CA certificates directory doesn't exist");
+                        else if (! File_isDirectory(sslset.CACertificatePath))
+                                yyerror2("SSL CA certificates path is not directory");
+                        else if (! File_isReadable(sslset.CACertificatePath))
+                                yyerror2("Cannot read CA certificates directory");
+                  }
+                ;
+
+sslexpire       : CERTIFICATE VALID expireoperator NUMBER DAY {
+                        sslset.use_ssl = true;
+                        sslset.minimumValidDays = $<number>4;
+                  }
+                ;
+
+expireoperator  : /* EMPTY */
+                | GREATER
+                ;
+
+sslchecksum     : CERTIFICATE CHECKSUM checksumoperator STRING {
+                        sslset.use_ssl = true;
+                        sslset.checksum = $<string>4;
+                        switch (cleanup_hash_string(sslset.checksum)) {
+                                case 32:
+                                        sslset.checksumType = Hash_Md5;
+                                        break;
+                                case 40:
+                                        sslset.checksumType = Hash_Sha1;
+                                        break;
+                                default:
+                                        yyerror2("Unknown checksum type: [%s] is not MD5 nor SHA1", sslset.checksum);
+                        }
+                  }
+                | CERTIFICATE CHECKSUM MD5HASH checksumoperator STRING {
+                        sslset.use_ssl = true;
+                        sslset.checksum = $<string>5;
+                        if (cleanup_hash_string(sslset.checksum) != 32)
+                                yyerror2("Unknown checksum type: [%s] is not MD5", sslset.checksum);
+                        sslset.checksumType = Hash_Md5;
+                  }
+                | CERTIFICATE CHECKSUM SHA1HASH checksumoperator STRING {
+                        sslset.use_ssl = true;
+                        sslset.checksum = $<string>5;
+                        if (cleanup_hash_string(sslset.checksum) != 40)
+                                yyerror2("Unknown checksum type: [%s] is not SHA1", sslset.checksum);
+                        sslset.checksumType = Hash_Sha1;
+                  }
+                ;
+
+checksumoperator : /* EMPTY */
+                 | EQUAL
+                 ;
+
+sslversion      : SSLV2 {
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_V2;
+                  }
+                | SSLV3 {
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_V3;
+                  }
+                | TLSV1 {
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_TLSV1;
+                  }
+                | TLSV11
+                {
+#ifndef HAVE_TLSV1_1
+                        yyerror("Your SSL Library does not support TLS version 1.1");
+#endif
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_TLSV11;
+                }
+                | TLSV12
+                {
+#ifndef HAVE_TLSV1_2
+                        yyerror("Your SSL Library does not support TLS version 1.2");
+#endif
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_TLSV12;
+                }
+                | SSLAUTO {
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_Auto;
+                  }
+                | AUTO {
+                        sslset.use_ssl = true;
+                        sslset.version = SSL_Auto;
+                  }
+                ;
+
+certmd5         : CERTMD5 STRING { // Backward compatibility
+                        sslset.use_ssl = true;
+                        sslset.checksum = $<string>2;
+                        if (cleanup_hash_string(sslset.checksum) != 32)
+                                yyerror2("Unknown checksum type: [%s] is not MD5", sslset.checksum);
+                        sslset.checksumType = Hash_Md5;
+                  }
+                ;
+
 setmailservers  : SET MAILSERVER mailserverlist nettimeout hostname {
                    if (($<number>4) > SMTP_TIMEOUT)
-                     Run.mailserver_timeout = $<number>4;
+                        Run.mailserver_timeout = $<number>4;
                    Run.mail_hostname = $<string>5;
                   }
                 ;
@@ -693,11 +872,6 @@ mailserver      : STRING mailserveroptlist {
 
                         mailserverset.host = $1;
                         mailserverset.port = PORT_SMTP;
-                        if (mailserverset.ssl.version != SSL_Disabled) {
-                                mailserverset.ssl.use_ssl = true;
-                                if (mailserverset.ssl.version == SSL_V2 || mailserverset.ssl.version == SSL_V3)
-                                        mailserverset.port = PORT_SMTPS;
-                        }
                         addmailserver(&mailserverset);
                   }
                 | STRING PORT NUMBER mailserveroptlist {
@@ -707,8 +881,6 @@ mailserver      : STRING mailserveroptlist {
 
                         mailserverset.host = $1;
                         mailserverset.port = $<number>3;
-                        if (mailserverset.ssl.version != SSL_Disabled)
-                                mailserverset.ssl.use_ssl = true;
                         addmailserver(&mailserverset);
                   }
                 ;
@@ -723,12 +895,10 @@ mailserveropt   : username {
                 | password {
                         mailserverset.password = $<string>1;
                   }
-                | sslversion {
-                        mailserverset.ssl.version = $<number>1;
-                  }
-                | certmd5 {
-                        mailserverset.ssl.certmd5 = $<string>1;
-                  }
+                | ssl
+                | sslchecksum
+                | sslversion
+                | certmd5
                 ;
 
 sethttpd        : SET HTTPD PORT NUMBER httpdnetlist {
@@ -745,7 +915,7 @@ httpdnetlist    : /* EMPTY */
                 | httpdnetlist httpdnetoption
                 ;
 
-httpdnetoption  : ssl
+httpdnetoption  : sslserver
                 | signature
                 | bindaddress
                 | allow
@@ -759,7 +929,7 @@ httpdunixoption : signature
                 | allow
                 ;
 
-ssl             : ssldisable optssllist {
+sslserver       : ssldisable optssllist {
                         Run.httpd.flags &= ~Httpd_Ssl;
                   }
                 | sslenable optssllist {
@@ -784,12 +954,12 @@ optssl          : pemfile
                 | allowselfcert
                 ;
 
-sslenable       : HTTPDSSL ENABLE
-                | ENABLE HTTPDSSL
+sslenable       : SSL ENABLE
+                | ENABLE SSL
                 ;
 
-ssldisable      : HTTPDSSL DISABLE
-                | DISABLE HTTPDSSL
+ssldisable      : SSL DISABLE
+                | DISABLE SSL
                 ;
 
 signature       : sigenable  {
@@ -1076,64 +1246,97 @@ hostname        : /* EMPTY */     {
                   }
                 ;
 
-connection      : IF FAILED host port ip type protocol urloption nettimeout retry rate1 THEN action1 recovery {
-                    portset.timeout = $<number>9;
-                    portset.retry = $<number>10;
+connection      : IF FAILED host port connectionoptlist rate1 THEN action1 recovery {
                     /* This is a workaround to support content match without having to create an URL object. 'urloption' creates the Request_T object we need minus the URL object, but with enough information to perform content test.
                      TODO: Parser is in need of refactoring */
                     portset.url_request = urlrequest;
-                    addeventaction(&(portset).action, $<number>13, $<number>14);
-                    addport(&(current->portlist), &portset);
-                  }
-                | IF FAILED URL URLOBJECT urloption nettimeout retry rate1 THEN action1 recovery {
-                    prepare_urlrequest($<url>4);
-                    portset.timeout = $<number>6;
-                    portset.retry = $<number>7;
-                    addeventaction(&(portset).action, $<number>10, $<number>11);
+                    addeventaction(&(portset).action, $<number>8, $<number>9);
                     addport(&(current->portlist), &portset);
                   }
                 ;
 
-connectionunix  : IF FAILED unixsocket type protocol nettimeout retry rate1 THEN action1 recovery {
-                        portset.timeout = $<number>6;
-                        portset.retry = $<number>7;
-                        addeventaction(&(portset).action, $<number>10, $<number>11);
+connectionoptlist : /* EMPTY */
+                | connectionoptlist connectionopt
+                | sendexpectlist
+                ;
+
+connectionopt   : ip
+                | type
+                | protocol
+                | urloption
+                | connectiontimeout
+                | retry
+                | ssl
+                | sslchecksum
+                | sslexpire
+                ;
+
+connectionurl   : IF FAILED URL URLOBJECT connectionurloptlist rate1 THEN action1 recovery {
+                    prepare_urlrequest($<url>4);
+                    addeventaction(&(portset).action, $<number>8, $<number>9);
+                    addport(&(current->portlist), &portset);
+                  }
+                ;
+
+connectionurloptlist : /* EMPTY */
+                | connectionurloptlist connectionurlopt
+                ;
+
+connectionurlopt : urloption
+                 | connectiontimeout
+                 | retry
+                 | ssl
+                 | sslchecksum
+                 | sslexpire
+                 ;
+
+connectionunix  : IF FAILED unixsocket connectionuxoptlist rate1 THEN action1 recovery {
+                        addeventaction(&(portset).action, $<number>7, $<number>8);
                         addport(&(current->socketlist), &portset);
                   }
                 ;
 
-icmp            : IF FAILED ICMP icmptype icmpcount nettimeout rate1 THEN action1 recovery {
+connectionuxoptlist : /* EMPTY */
+                | connectionuxoptlist connectionuxopt
+                | sendexpectlist
+                ;
+
+connectionuxopt : type
+                | protocol
+                | connectiontimeout
+                | retry
+                ;
+
+icmp            : IF FAILED ICMP icmptype icmpoptlist rate1 THEN action1 recovery {
                         icmpset.family = Socket_Ip;
                         icmpset.type = $<number>4;
-                        icmpset.count = $<number>5;
-                        icmpset.timeout = $<number>6;
-                        addeventaction(&(icmpset).action, $<number>9, $<number>10);
+                        addeventaction(&(icmpset).action, $<number>8, $<number>9);
                         addicmp(&icmpset);
                   }
-                | IF FAILED PING icmpcount nettimeout rate1 THEN action1 recovery {
+                | IF FAILED PING icmpoptlist rate1 THEN action1 recovery {
                         icmpset.family = Socket_Ip;
-                        icmpset.type = ICMP_ECHO;
-                        icmpset.count = $<number>4;
-                        icmpset.timeout = $<number>5;
-                        addeventaction(&(icmpset).action, $<number>8, $<number>9);
+                        addeventaction(&(icmpset).action, $<number>7, $<number>8);
                         addicmp(&icmpset);
                  }
-                | IF FAILED PING4 icmpcount nettimeout rate1 THEN action1 recovery {
+                | IF FAILED PING4 icmpoptlist rate1 THEN action1 recovery {
                         icmpset.family = Socket_Ip4;
-                        icmpset.type = ICMP_ECHO;
-                        icmpset.count = $<number>4;
-                        icmpset.timeout = $<number>5;
-                        addeventaction(&(icmpset).action, $<number>8, $<number>9);
+                        addeventaction(&(icmpset).action, $<number>7, $<number>8);
                         addicmp(&icmpset);
                  }
-                | IF FAILED PING6 icmpcount nettimeout rate1 THEN action1 recovery {
+                | IF FAILED PING6 icmpoptlist rate1 THEN action1 recovery {
                         icmpset.family = Socket_Ip6;
-                        icmpset.type = ICMP_ECHO;
-                        icmpset.count = $<number>4;
-                        icmpset.timeout = $<number>5;
-                        addeventaction(&(icmpset).action, $<number>8, $<number>9);
+                        addeventaction(&(icmpset).action, $<number>7, $<number>8);
                         addicmp(&icmpset);
                  }
+                ;
+
+icmpoptlist     : /* EMPTY */
+                | icmpoptlist icmpopt
+                ;
+
+icmpopt         : icmpcount
+                | icmpsize
+                | icmptimeout
                 ;
 
 host            : /* EMPTY */ {
@@ -1155,10 +1358,7 @@ unixsocket      : UNIXSOCKET PATH {
                   }
                 ;
 
-ip              : /* EMPTY */ {
-                    portset.family = Socket_Ip;
-                  }
-                | IPV4 {
+ip              : IPV4 {
                     portset.family = Socket_Ip4;
                   }
                 | IPV6 {
@@ -1166,17 +1366,12 @@ ip              : /* EMPTY */ {
                   }
                 ;
 
-type            : /* EMPTY */ {
+type            : TYPE TCP {
                     portset.type = Socket_Tcp;
                   }
-                | TYPE TCP {
+                | TYPE TCPSSL typeoptlist { // The typelist is kept for backward compatibility (replaced by ssloptionlist)
                     portset.type = Socket_Tcp;
-                  }
-                | TYPE TCPSSL typeoptlist {
-                    portset.type = Socket_Tcp;
-                    portset.target.net.SSL.use_ssl = true;
-                    if (portset.target.net.SSL.version == SSL_Disabled)
-                      portset.target.net.SSL.version = SSL_Auto;
+                    sslset.use_ssl = true;
                   }
                 | TYPE UDP {
                     portset.type = Socket_Udp;
@@ -1187,43 +1382,11 @@ typeoptlist     : /* EMPTY */
                 | typeoptlist typeopt
                 ;
 
-typeopt         : sslversion {
-                        portset.target.net.SSL.version = $<number>1;
-                  }
-                | certmd5 {
-                        portset.target.net.SSL.certmd5 = $<string>1;
-                  }
+typeopt         : sslversion
+                | certmd5
                 ;
 
-certmd5         : CERTMD5 STRING {
-                        $<string>$ = $2;
-                  }
-                ;
-
-sslversion      : SSLV2        { $<number>$ = SSL_V2; }
-                | SSLV3        { $<number>$ = SSL_V3; }
-                | TLSV1        { $<number>$ = SSL_TLSV1; }
-                | TLSV11
-                {
-#ifndef HAVE_TLSV1_1
-                        yyerror("Your SSL Library does not support TLS version 1.1");
-#endif
-                        $<number>$ = SSL_TLSV11;
-                }
-                | TLSV12
-                {
-#ifndef HAVE_TLSV1_2
-                        yyerror("Your SSL Library does not support TLS version 1.2");
-#endif
-                        $<number>$ = SSL_TLSV12;
-                }
-                | SSLAUTO      { $<number>$ = SSL_Auto; }
-                ;
-
-protocol        : /* EMPTY */  {
-                        portset.protocol = Protocol_get(Protocol_DEFAULT);
-                  }
-                | PROTOCOL APACHESTATUS apache_stat_list {
+protocol        : PROTOCOL APACHESTATUS apache_stat_list {
                         portset.protocol = Protocol_get(Protocol_APACHESTATUS);
                   }
                 | PROTOCOL DEFAULT {
@@ -1242,18 +1405,16 @@ protocol        : /* EMPTY */  {
                         portset.protocol = Protocol_get(Protocol_HTTP);
                   }
                 | PROTOCOL HTTPS httplist {
+                        sslset.use_ssl = true;
                         portset.type = Socket_Tcp;
-                        portset.target.net.SSL.use_ssl = true;
-                        portset.target.net.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_HTTP);
                  }
                 | PROTOCOL IMAP {
                         portset.protocol = Protocol_get(Protocol_IMAP);
                   }
                 | PROTOCOL IMAPS {
+                        sslset.use_ssl = true;
                         portset.type = Socket_Tcp;
-                        portset.target.net.SSL.use_ssl = true;
-                        portset.target.net.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_IMAP);
                   }
                 | PROTOCOL CLAMAV {
@@ -1288,9 +1449,8 @@ protocol        : /* EMPTY */  {
                         portset.protocol = Protocol_get(Protocol_POP);
                   }
                 | PROTOCOL POPS {
+                        sslset.use_ssl = true;
                         portset.type = Socket_Tcp;
-                        portset.target.net.SSL.use_ssl = true;
-                        portset.target.net.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_POP);
                   }
                 | PROTOCOL SIEVE {
@@ -1300,9 +1460,8 @@ protocol        : /* EMPTY */  {
                         portset.protocol = Protocol_get(Protocol_SMTP);
                   }
                 | PROTOCOL SMTPS {
+                        sslset.use_ssl = true;
                         portset.type = Socket_Tcp;
-                        portset.target.net.SSL.use_ssl = true;
-                        portset.target.net.SSL.version = SSL_Auto;
                         portset.protocol = Protocol_get(Protocol_SMTP);
                  }
                 | PROTOCOL SSH  {
@@ -1338,12 +1497,11 @@ protocol        : /* EMPTY */  {
                 | PROTOCOL WEBSOCKET websocketlist {
                         portset.protocol = Protocol_get(Protocol_WEBSOCKET);
                   }
-                | sendexpectlist {
-                        portset.protocol = Protocol_get(Protocol_GENERIC);
-                  }
                 ;
 
-sendexpectlist  : sendexpect
+sendexpectlist  : sendexpect {
+                        portset.protocol = Protocol_get(Protocol_GENERIC);
+                  }
                 | sendexpectlist sendexpect
                 ;
 
@@ -1541,13 +1699,20 @@ uptime          : IF UPTIME operator NUMBER time rate1 THEN action1 recovery {
                     adduptime(&uptimeset);
                   }
 
-icmpcount       : /* EMPTY */ {
-                   $<number>$ = ICMP_ATTEMPT_COUNT;
-                  }
-                | COUNT NUMBER {
-                        $<number>$ = $2;
+icmpcount       : COUNT NUMBER {
+                        icmpset.count = $<number>2;
                  }
                 ;
+
+icmpsize        : SIZE NUMBER {
+                        icmpset.size = $<number>2;
+                 }
+                ;
+
+icmptimeout     : TIMEOUT NUMBER SECOND {
+                        icmpset.timeout = $<number>2 * 1000; // timeout is in milliseconds internally
+                    }
+                  ;
 
 exectimeout     : /* EMPTY */ {
                    $<number>$ = EXEC_TIMEOUT;
@@ -1573,10 +1738,12 @@ nettimeout      : /* EMPTY */ {
                   }
                 ;
 
-retry           : /* EMPTY */ {
-                   $<number>$ = 1;
-                  }
-                | RETRY NUMBER {
+connectiontimeout : TIMEOUT NUMBER SECOND {
+                        portset.timeout = $<number>2 * 1000; // timeout is in milliseconds internally
+                    }
+                  ;
+
+retry           : RETRY NUMBER {
                    $<number>$ = $2;
                   }
                 ;
@@ -1595,8 +1762,7 @@ actionrate      : IF NUMBER RESTART NUMBER CYCLE THEN action1 {
                  }
                 ;
 
-urloption       : /* EMPTY */
-                | CONTENT urloperator STRING {
+urloption       : CONTENT urloperator STRING {
                     seturlrequest($<number>2, $<string>3);
                     FREE($3);
                   }
@@ -2467,6 +2633,7 @@ static void preparse() {
         reset_statusset();
         reset_sizeset();
         reset_mailset();
+        reset_sslset();
         reset_mailserverset();
         reset_mmonitset();
         reset_portset();
@@ -2554,7 +2721,7 @@ static void postparse() {
  * Create a new service object and add any current objects to the
  * service list.
  */
-static Service_T createservice(Service_Type type, char *name, char *value, boolean_t (*check)(Service_T s)) {
+static Service_T createservice(Service_Type type, char *name, char *value, State_Type (*check)(Service_T s)) {
         ASSERT(name);
         ASSERT(value);
 
@@ -2765,14 +2932,18 @@ static void addport(Port_T *list, Port_T port) {
                 p->target.unix.pathname = port->target.unix.pathname;
         } else {
                 p->target.net.port = port->target.net.port;
-                if (port->target.net.SSL.use_ssl == true) {
+                if (sslset.use_ssl == true) {
 #ifdef HAVE_OPENSSL
-                        if (port->target.net.SSL.certmd5 != NULL) {
-                                p->target.net.SSL.certmd5 = port->target.net.SSL.certmd5;
-                                cleanup_hash_string(p->target.net.SSL.certmd5);
-                        }
-                        p->target.net.SSL.use_ssl = true;
-                        p->target.net.SSL.version = port->target.net.SSL.version;
+                        p->target.net.ssl.use_ssl = true;
+                        p->target.net.ssl.verify = sslset.verify;
+                        p->target.net.ssl.allowSelfSigned = sslset.allowSelfSigned;
+                        p->target.net.ssl.minimumValidDays = sslset.minimumValidDays;
+                        p->target.net.ssl.version = sslset.version;
+                        p->target.net.ssl.checksumType = sslset.checksumType;
+                        p->target.net.ssl.checksum = sslset.checksum;
+                        p->target.net.ssl.clientpemfile = sslset.clientpemfile;
+                        p->target.net.ssl.CACertificateFile = sslset.CACertificateFile;
+                        p->target.net.ssl.CACertificatePath = sslset.CACertificatePath;
 #else
                         yyerror("SSL check cannot be activated -- SSL disabled");
 #endif
@@ -2797,6 +2968,7 @@ static void addport(Port_T *list, Port_T port) {
         p->next = *list;
         *list = p;
 
+        reset_sslset();
         reset_portset();
 
 }
@@ -3021,7 +3193,6 @@ static void addchecksum(Checksum_T cs) {
         }
 
         int len = cleanup_hash_string(cs->hash);
-
         if (cs->type == Hash_Unknown) {
                 if (len == 32) {
                         cs->type = Hash_Md5;
@@ -3345,6 +3516,7 @@ static void addicmp(Icmp_T is) {
         NEW(icmp);
         icmp->family       = is->family;
         icmp->type         = is->type;
+        icmp->size         = is->size;
         icmp->count        = is->count;
         icmp->timeout      = is->timeout;
         icmp->action       = is->action;
@@ -3397,8 +3569,7 @@ static void addeventaction(EventAction_T *_ea, Action_Type failed, Action_Type s
  */
 static void addgeneric(Port_T port, char *send, char *expect) {
         Generic_T g = port->parameters.generic.sendexpect;
-
-        if (g == NULL) {
+        if (! g) {
                 NEW(g);
                 port->parameters.generic.sendexpect = g;
         } else {
@@ -3407,13 +3578,11 @@ static void addgeneric(Port_T port, char *send, char *expect) {
                 NEW(g->next);
                 g = g->next;
         }
-
-        if (send != NULL) {
+        if (send) {
                 g->send = send;
                 g->expect = NULL;
-        } else if (expect != NULL) {
+        } else if (expect) {
 #ifdef HAVE_REGEX_H
-
                 int reg_return;
                 NEW(g->expect);
                 reg_return = regcomp(g->expect, expect, REG_NOSUB|REG_EXTENDED);
@@ -3492,8 +3661,7 @@ static void prepare_urlrequest(URL_T U) {
         portset.type = Socket_Tcp;
         portset.parameters.http.request = Str_cat("%s%s%s", U->path, U->query ? "?" : "", U->query ? U->query : "");
         if (IS(U->protocol, "https"))
-                portset.target.net.SSL.use_ssl = true;
-
+                sslset.use_ssl = true;
 }
 
 
@@ -3534,15 +3702,19 @@ static void addmmonit(Mmonit_T mmonit) {
         Mmonit_T c;
         NEW(c);
         c->url = mmonit->url;
-        c->ssl.version = mmonit->ssl.version;
+        c->ssl.use_ssl = sslset.use_ssl;
+        c->ssl.verify = sslset.verify;
+        c->ssl.allowSelfSigned = sslset.allowSelfSigned;
+        c->ssl.minimumValidDays = sslset.minimumValidDays;
+        c->ssl.version = sslset.version;
+        c->ssl.checksumType = sslset.checksumType;
+        c->ssl.checksum = sslset.checksum;
+        c->ssl.clientpemfile = sslset.clientpemfile;
+        c->ssl.CACertificateFile = sslset.CACertificateFile;
+        c->ssl.CACertificatePath = sslset.CACertificatePath;
         if (IS(c->url->protocol, "https")) {
 #ifdef HAVE_OPENSSL
                 c->ssl.use_ssl = true;
-                c->ssl.version = (mmonit->ssl.version == SSL_Disabled) ? SSL_Auto : mmonit->ssl.version;
-                if (mmonit->ssl.certmd5) {
-                        c->ssl.certmd5 = mmonit->ssl.certmd5;
-                        cleanup_hash_string(c->ssl.certmd5);
-                }
 #else
                 yyerror("SSL check cannot be activated -- SSL disabled");
 #endif
@@ -3558,6 +3730,7 @@ static void addmmonit(Mmonit_T mmonit) {
         } else {
                 Run.mmonits = c;
         }
+        reset_sslset();
         reset_mmonitset();
 }
 
@@ -3576,9 +3749,18 @@ static void addmailserver(MailServer_T mailserver) {
         s->port        = mailserver->port;
         s->username    = mailserver->username;
         s->password    = mailserver->password;
-        s->ssl.use_ssl = mailserver->ssl.use_ssl;
-        s->ssl.version = mailserver->ssl.version;
-        s->ssl.certmd5 = mailserver->ssl.certmd5;
+
+        s->ssl.use_ssl = sslset.use_ssl;
+        s->ssl.verify = sslset.verify;
+        s->ssl.allowSelfSigned = sslset.allowSelfSigned;
+        s->ssl.minimumValidDays = sslset.minimumValidDays;
+        s->ssl.version = sslset.version;
+        s->ssl.checksumType = sslset.checksumType;
+        s->ssl.checksum = sslset.checksum;
+        s->ssl.clientpemfile = sslset.clientpemfile;
+        s->ssl.CACertificateFile = sslset.CACertificateFile;
+        s->ssl.CACertificatePath = sslset.CACertificatePath;
+        reset_sslset();
 
         s->next = NULL;
 
@@ -3590,7 +3772,6 @@ static void addmailserver(MailServer_T mailserver) {
         } else {
                 Run.mailservers = s;
         }
-
         reset_mailserverset();
 }
 
@@ -3903,6 +4084,15 @@ static void setsyslog(char *facility) {
 
 
 /*
+ * Reset the current sslset for reuse
+ */
+static void reset_sslset() {
+        memset(&sslset, 0, sizeof(struct SslOptions_T));
+        sslset.version = sslset.verify = sslset.allowSelfSigned = sslset.minimumValidDays = -1;
+}
+
+
+/*
  * Reset the current mailset for reuse
  */
 static void reset_mailset() {
@@ -3916,8 +4106,6 @@ static void reset_mailset() {
 static void reset_mailserverset() {
         memset(&mailserverset, 0, sizeof(struct mymailserver));
         mailserverset.port = PORT_SMTP;
-        mailserverset.ssl.use_ssl = false;
-        mailserverset.ssl.version = SSL_Disabled;
 }
 
 
@@ -3926,9 +4114,7 @@ static void reset_mailserverset() {
  */
 static void reset_mmonitset() {
         memset(&mmonitset, 0, sizeof(struct mymmonit));
-        mailserverset.port = 8080;
-        mailserverset.ssl.use_ssl = false;
-        mailserverset.ssl.version = SSL_Disabled;
+        mmonitset.timeout = NET_TIMEOUT;
 }
 
 
@@ -3942,6 +4128,7 @@ static void reset_portset() {
         portset.family = Socket_Ip;
         portset.timeout = NET_TIMEOUT;
         portset.retry = 1;
+        portset.protocol = Protocol_get(Protocol_DEFAULT);
         urlrequest = NULL;
 }
 
@@ -4125,6 +4312,7 @@ static void reset_filesystemset() {
  */
 static void reset_icmpset() {
         icmpset.type = ICMP_ECHO;
+        icmpset.size = ICMP_SIZE;
         icmpset.count = ICMP_ATTEMPT_COUNT;
         icmpset.timeout = NET_TIMEOUT;
         icmpset.action = NULL;
@@ -4231,8 +4419,6 @@ static void check_depend() {
 
         for (s = depend_list; s; s = s->next_depend)
                 s->next = s->next_depend;
-
-        reset_depend();
 }
 
 
@@ -4260,21 +4446,21 @@ static int verifyMaxForward(int mf) {
 
 
 /*
- * Cleans up an md5 string, tolower and remove byte separators
+ * Cleans up a hash string, tolower and remove byte separators
  */
 static int cleanup_hash_string(char *hashstring) {
         int i = 0, j = 0;
 
         ASSERT(hashstring);
 
-        while (hashstring[i] != '\0') {
-                if (isxdigit((int) hashstring[i])) {
+        while (hashstring[i]) {
+                if (isxdigit((int)hashstring[i])) {
                         hashstring[j] = tolower((int)hashstring[i]);
                         j++;
                 }
                 i++;
         }
-        hashstring[j] = '\0';
+        hashstring[j] = 0;
         return j;
 }
 

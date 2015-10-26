@@ -169,6 +169,8 @@ AC_CACHE_CHECK([vsnprintf is c99 conformant],
                         [AC_MSG_FAILURE([vsnprintf does not conform to c99])],
                         [AC_MSG_ERROR(cross-compiling: please set 'libmonit_cv_vsnprintf_c99_conformant=[yes|no]')])])
 
+AC_CHECK_FUNCS([timegm])
+
 # ------------------------------------------------------------------------
 # Architecture/OS
 # ------------------------------------------------------------------------

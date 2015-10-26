@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "June 09. 2015" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "October 22. 2015" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -156,9 +156,9 @@ checksum changes or size changes.
 .PP
 Monit is controlled via an easy to configure control file based on a
 free-format, token-oriented syntax. Monit logs to syslog or to its own
-log file and notifies you about error conditions via customizable alert
+log file and notifies you about error conditions via customisable alert
 messages. Monit can perform various \s-1TCP/IP\s0 network checks, protocol
-checks and can utilize \s-1SSL\s0 for such checks. Monit provides a http(s)
+checks and can utilise \s-1SSL\s0 for such checks. Monit provides a \s-1HTTP\s0(S)
 interface and you may use a browser to access the Monit program.
 .SH "WHAT TO MONITOR?"
 .IX Header "WHAT TO MONITOR?"
@@ -198,7 +198,7 @@ Finally, Monit can be used to monitor general \fBsystem\fR resources
 on localhost such as overall \s-1CPU\s0 usage, Memory and System Load.
 .SH "GENERAL OPERATION"
 .IX Header "GENERAL OPERATION"
-The behavior of Monit is controlled by command-line options
+The behaviour of Monit is controlled by command-line options
 \&\fIand\fR a run control file, monitrc,
 the syntax of which we describe in a later section. Command-line
 options override \fI.monitrc\fR declarations.
@@ -319,7 +319,7 @@ a service entry name from the monitrc file.
 .IX Item "stop all"
 Stop all services listed in the control file and disable their
 monitoring. If the group option is set, only stop and disable
-monitoring of the services in the named group (all" is not
+monitoring of the services in the named group (\*(L"all\*(R" is not
 required in this case).
 .IP "stop name" 4
 .IX Item "stop name"
@@ -362,7 +362,7 @@ Print service status information.
 Print a short status summary.
 .IP "reload" 4
 .IX Item "reload"
-Reinitialize a running Monit daemon, the daemon will reread its
+Reinitialise a running Monit daemon, the daemon will reread its
 configuration, close and reopen log files.
 .IP "quit" 4
 .IX Item "quit"
@@ -370,7 +370,7 @@ Kill the Monit daemon process
 .IP "validate" 4
 .IX Item "validate"
 Check all services listed in the control file. This action is
-also the default behavior when Monit runs in daemon mode.
+also the default behaviour when Monit runs in daemon mode.
 .IP "procmatch regex" 4
 .IX Item "procmatch regex"
 Allows for easy testing of pattern for process match check. The
@@ -457,14 +457,14 @@ lists all processes matching or not, the regex-pattern.
 Monit will call the entry's start method if defined, if <path> does not
 point to a regular file type (for instance a directory), Monit will
 disable monitoring of this entry. If Monit runs in passive mode or the
-start methods is not defined, Monit will just send an alert on error.
+start method is not defined, Monit will just send an alert on error.
 .IP "3. \s-1CHECK FIFO\s0 <unique name> \s-1PATH\s0 <path>" 4
 .IX Item "3. CHECK FIFO <unique name> PATH <path>"
 <path> is the absolute path to the fifo. If the fifo does not exist,
 Monit will call the entry's start method if defined, if <path> does not
 point to a fifo type (for instance a directory), Monit will disable
 monitoring of this entry. If Monit runs in passive mode or the start
-methods is not defined, Monit will just send an alert on error.
+method is not defined, Monit will just send an alert on error.
 .IP "4. \s-1CHECK FILESYSTEM\s0 <unique name> \s-1PATH\s0 <path>" 4
 .IX Item "4. CHECK FILESYSTEM <unique name> PATH <path>"
 <path> is the path to the device/disk, mount point, file or a directory
@@ -477,7 +477,7 @@ mount point exist.
 If the filesystem becomes unavailable, Monit will call the entry's
 start method if defined. if <path> does not point to a filesystem,
 Monit will disable monitoring of this entry. If Monit runs in passive
-mode or the start methods is not defined, Monit will just send an alert
+mode or the start method is not defined, Monit will just send an alert
 on error.
 .IP "5. \s-1CHECK DIRECTORY\s0 <unique name> \s-1PATH\s0 <path>" 4
 .IX Item "5. CHECK DIRECTORY <unique name> PATH <path>"
@@ -611,7 +611,7 @@ start Monit on a higher run-level after system processes.
 .SH "INCLUDE FILES"
 .IX Header "INCLUDE FILES"
 The Monit control file, \f(CW\*(C`monitrc\*(C'\fR, can include additional
-configuration files. This feature helps one to organize configuration
+configuration files. This feature helps one to organise configuration
 into separate files instead of having everything in one file, if you
 like this kind of thing. Include statements can be placed at virtually
 any place in \f(CW\*(C`monitrc\*(C'\fR though the convention is at the bottom. The
@@ -644,18 +644,106 @@ An example,
 .PP
 This will load any file matching the globstring. That is, all
 files in \fI/etc/monit.d\fR that ends with the prefix \fI.cfg\fR.
+.SH "SSL OPTIONS"
+.IX Header "SSL OPTIONS"
+Common \s-1SSL/TLS\s0 options can be set using the following statement and
+will apply to all \s-1SSL\s0 connections made through Monit:
+.PP
+.Vb 8
+\&  SET <SSL | TLS> [OPTIONS] {
+\&      VERSION: <AUTO | SSLV2 | SSLV3 | TLSV1 | TLSV11 | TLSV12>
+\&      VERIFY: <ENABLE | DISABLE>
+\&      SELFSIGNED: <ALLOW | REJECT>
+\&      CLIENTPEMFILE: <path>
+\&      CACERTIFICATEFILE: <path>
+\&      CACERTIFICATEPATH: <path>
+\&  }
+.Ve
+.PP
+\&\fI\s-1VERSION\s0\fR set the specific \s-1SSL/TLS\s0 version to use. By default Monit
+uses \s-1AUTO.\s0 In \s-1AUTO\s0 mode, only \s-1TLS\s0 is used, SSLv2 and SSLv3 is
+considered obsolete. If you have to use SSLv2 or SSLv3, you must
+explicitly set the version.
+.PP
+\&\fI\s-1VERIFY\s0\fR enable \s-1SSL\s0 server certificate verification. This will verify
+and report an error if the server certificate is not trusted, not valid
+or has expired. By default certificate verification is disabled, though
+we recommend enabling it, otherwise there is no guarantee that Monit
+speaks with the server you think it speaks with.
+.PP
+\&\fI\s-1SELFSIGNED\s0\fR self-signed certificates are rejected by default. Use
+this option to allow self-signed certificates.
+.PP
+\&\fI\s-1CLIENTPEMFILE\s0\fR set the path to the \s-1SSL\s0 client certificate
+\&\*(L"database-file\*(R" in \s-1PEM\s0 format. If an \s-1SSL\s0 server requires client
+certificate authentication, Monit will try to find a public key
+certificate in this file which match the server's Certificate Authority
+and if found, use this certificate for client authentication.
+.PP
+\&\fI\s-1CACERTIFICATEFILE\s0\fR set the path to the \s-1PEM\s0 encoded file containing
+Certificate Authority (\s-1CA\s0) certificates. Monit uses OpenSSL's default
+\&\s-1CA\s0 cartificates if this options is not used (you can use \*(L"openssl version \-d\*(R"
+command to get the default \s-1CA\s0 certificates). Many distributions comes
+with \s-1SSL\s0 and \s-1CA\s0 certificates already setup and using this option is
+normally not necessary.
+.PP
+\&\fI\s-1CACERTIFICATEPATH\s0\fR set the path to the directory containing
+Certificate Authority (\s-1CA\s0) certificates. Monit uses OpenSSL's default
+\&\s-1CA\s0 certificates if this options is not used (you can use \*(L"openssl version \-d\*(R"
+command to get the default \s-1CA\s0 certificates). Many distributions comes
+with \s-1SSL\s0 and \s-1CA\s0 certificates already setup and using this option is
+normally not necessary.
+.PP
+The \s-1SSL\s0 options statement can be used both globally (default for all
+\&\s-1SSL/TLS\s0 connection made through Monit) or local in a check, in
+mailserver settings or with the mmonit statement, and will then
+override or extend the global settings.
+.PP
+To set global \s-1SSL\s0 options, put this statement near the top of your
+\&\fI.monitrc\fR file:
+.PP
+.Vb 1
+\&    set ssl options {...}
+.Ve
+.PP
+Here is an example of setting both global and local \s-1SSL\s0 options:
+.PP
+.Vb 5
+\&    # Enable certificate verification for all SSL connections
+\&    # Self\-signed certificates are not allowed by default
+\&    set ssl options {
+\&            verify: enable
+\&    }
+\&
+\&    # Verify certificate (via global setting)
+\&    # Allow self\-signed certificate for this check
+\&    check host example with address example.com
+\&            if failed
+\&                    port 443
+\&                    protocol https
+\&                    with ssl options {selfsigned: allow}
+\&            then alert
+\&
+\&    # Do not verify example2.com\*(Aqs certificate (override global setting)
+\&    check host example2 with address example2.com
+\&            if failed
+\&                    port 443
+\&                    protocol https
+\&                    with ssl options {verify: disable}
+\&            then alert
+.Ve
 .SH "MONIT HTTPD"
 .IX Header "MONIT HTTPD"
-If specified in the control file, Monit will start with http support.
+If specified in the control file, Monit will start with \s-1HTTP\s0 support.
 You can then use Monit \s-1CLI\s0 to start and stop services, disable or
 enable service monitoring as well as view the status of each service.
 .PP
-If http support is enabled over \s-1TCP\s0 rather than over a Unix Socket, you
+If \s-1HTTP\s0 support is enabled over \s-1TCP\s0 rather than over a Unix Socket, you
 can also view Monit's informative dashboard in your web browser.
 .PP
 Note that if \s-1HTTP\s0 support is disabled, the Monit \s-1CLI\s0 interface will
 have reduced functionality, as most \s-1CLI\s0 commands (such as \*(L"monit
-status\*(R") need to communicate with the Monit background process via the
+status\*(R") need to communicate with the Monit background process via
 the \s-1HTTP\s0 interface. We strongly recommend having \s-1HTTP\s0 support enabled.
 If security is a concern, bind the \s-1HTTP\s0 interface to local host only or
 use Unix Socket so Monit is not accessible from the outside.
@@ -699,7 +787,7 @@ Example:
 .PP
 \&\fBOptions\fR:
 .PP
-\&\fB\s-1UNIXSOCKET\s0\fR set the path to the Unix Socket Monit should bind to 
+\&\fB\s-1UNIXSOCKET\s0\fR set the path to the Unix Socket Monit should bind to
 and listen on.
 .PP
 \&\fB\s-1PORT\s0\fR set the port Monit should bind to and listen on. Monit is
@@ -773,7 +861,7 @@ For example:
 .SS "Authentication"
 .IX Subsection "Authentication"
 Access to the Monit web interface is controlled primarily via the
-\&\fB\s-1ALLOW\s0\fR option which is used to specify authentication and authorize
+\&\fB\s-1ALLOW\s0\fR option which is used to specify authentication and authorise
 only specific clients to connect.
 .PP
 If the Monit command line interface is being used, at least one
@@ -835,7 +923,7 @@ The biggest weakness with Basic Authentication is that username and
 password is sent in clear-text over the network (i.e. base64 encoded).
 It is therefor recommended that you do not use this authentication
 method unless you run Monit with \fIssl\fR support. With ssl, it is safe
-to use Basic Authentication since \fIall\fR http data, including Basic
+to use Basic Authentication since \fIall\fR \s-1HTTP\s0 data, including Basic
 Authentication headers will be encrypted.
 .PP
 Cleartext user and password
@@ -910,7 +998,7 @@ Example1:
 .PP
 If you use this method together with a host list, then only
 clients from the listed hosts will be allowed to connect to the
-Monit http server and each client will be asked to provide a
+Monit \s-1HTTP\s0 server and each client will be asked to provide a
 username and a password.
 .PP
 Example2:
@@ -1093,7 +1181,7 @@ Each alert recipient can have it's own filter, for example:
 .IX Subsection "Setting an error reminder"
 .PP
 Monit by default sends just \fIone\fR notification if a service failed and
-another when/if it recover. If you want to be notified that the service
+another when/if it recovers. If you want to be notified that the service
 is still in a failed state, you can use the reminder option in the
 alert statement:
 .PP
@@ -1209,10 +1297,14 @@ The description of the error condition
 The mail server Monit should use to send alert messages is
 defined with a \f(CW\*(C`set mailserver\*(C'\fR statement:
 .PP
-.Vb 5
-\& SET MAILSERVER <hostname|ip\-address [PORT number] [USERNAME string]
-\& [PASSWORD string] [using SSLAUTO|SSLV2|SSLV3|TLSV1|TLSV11|TLSV12]
-\& [CERTMD5 checksum]>, ...
+.Vb 9
+\& SET MAILSERVER
+\&        <hostname|ip\-address>
+\&        [PORT number]
+\&        [USERNAME string] [PASSWORD string]
+\&        [using SSL [with options {...}]
+\&        [CERTIFICATE CHECKSUM [MD5|SHA1] <hash>],
+\&        ...
 \&   [with TIMEOUT X SECONDS]
 \&   [using HOSTNAME hostname]
 .Ve
@@ -1228,7 +1320,8 @@ Monit supports \s-1AUTH PLAIN\s0 and \s-1AUTH LOGIN\s0 for \s-1SMTP\s0 authentic
 You can set a username and a password using the \s-1USERNAME\s0 and
 \&\s-1PASSWORD\s0 options.
 .PP
-You can enable \s-1SSL\s0 or \s-1TLS\s0 with optional certificate checksum.
+You can set \s-1SSL/TLS \s0options for the connection and 
+also check a \s-1SSL\s0 certificate checksum.
 .PP
 The default connection timeout is 5 seconds. You can rise this
 limit using the \s-1TIMEOUT\s0 option.
@@ -1330,7 +1423,7 @@ Example:
 Services are checked in regular intervals by the \f(CW\*(C`set daemon n\*(C'\fR
 statement. Checks are performed in the same order as they are written
 in the \f(CW\*(C`.monitrc\*(C'\fR file, except if dependencies are setup between
-services.
+services, where pre-requisite services are tested first.
 .PP
 It is possible to modify a service check schedule by using the \f(CW\*(C`every\*(C'\fR
 statement.
@@ -1571,14 +1664,19 @@ You may add more than one service name of any type or use more
 than one depend statement in an entry.
 .PP
 Services specified in a \fIdepend\fR statement will be checked
-during stop/start/monitor/unmonitor operations. If a service is
-stopped or unmonitored it will stop/unmonitor any services that
-depends on itself. Likewise, if a service is started, it will
-first stop any services that depends on itself and after it is
-started, start all depending services again. If the service is to
-be monitored (enable monitoring), all services which this service
-depends on will be monitored before enabling monitoring of this
-service.
+during stop/start/monitor/unmonitor operations.
+.PP
+If a service is stopped or unmonitored it will stop/unmonitor any
+services that depends on itself.
+.PP
+If the service is started, all services which this service depends on
+will be started before starting this service. if start of some service
+failed, the service with prerequisites will \s-1NOT\s0 be started and the, but
+will remember that it should start and will retry next cycle.
+.PP
+If a service is restarted, it will first stop any active services that
+depend on it and after it is started, start all depending services that
+were active before the restart again.
 .PP
 Here is an example where we set up an apache service entry to
 depend on the underlying apache binary. If the binary should
@@ -1586,28 +1684,25 @@ change an alert is sent and apache is not monitored anymore. The
 rationale is security and that Monit should not execute a
 possibly cracked apache binary.
 .PP
-.Vb 7
-\& (1) check process apache
-\& (2)    with pidfile "/usr/local/apache/logs/httpd.pid"
+.Vb 6
+\& (1) check process apache with pidfile "/var/run/httpd.pid"
+\& (2)    depends on httpd
 \& (3)    ...
-\& (4)    depends on httpd
-\& (5)
-\& (6) check file httpd with path /usr/local/apache/bin/httpd
-\& (7)    if failed checksum then unmonitor
+\& (4)
+\& (5) check file httpd with path /usr/bin/httpd
+\& (6)    if failed checksum then stop
 .Ve
 .PP
-The first entry is the process entry for apache (abbreviated for
-clarity). The fourth line sets up a dependency between this entry and
-the service entry named httpd in line 6. A dependency tree works as
-follows, if an action is conducted in a lower branch it will propagate
-upward in the tree and for every dependent entry execute the same
-action. In this case, if the checksum should fail in line 7 then an
-unmonitor action is executed and the apache binary is not checked
+The first entry is the process entry for apache. The second line sets
+up a dependency between this entry and the service entry named httpd in
+line 5. A dependency tree works as follows, if an action is conducted in
+a lower branch it will propagate upward in the tree and for every dependent
+entry execute the same action. In this case, if the checksum should fail in
+line 6 then an stop action is executed and apache binary is not checked
 anymore. But since the apache process entry depends on the httpd entry
-this entry will also execute the unmonitor action. In short, if the
+this entry will also execute the stop action. In short, if the
 checksum test for the httpd binary file should fail, both the check
-file httpd entry and the check process apache entry is set in
-un-monitoring mode.
+file httpd and the check process apache entry are stopped.
 .PP
 A dependency tree is a general construct and can be used between all
 types of service entries and span many levels and propagate any
@@ -1625,37 +1720,37 @@ server setup:
 You can set dependencies so that the web-server depends on the
 application server to run before the web-server starts and the
 application server depends on the database server and the
-database depends on the file-system to be mounted before it
+database depends on the filesystem to be mounted before it
 starts. See also the example section below for examples using the
 depend statement.
 .PP
 Here we describe how Monit will function with the above
 dependencies:
-.IP "If no servers are running" 4
-.IX Item "If no servers are running"
+.IP "If no services are running" 4
+.IX Item "If no services are running"
 Monit will start the servers in the following order: \fId\fR, \fIc\fR,
 \&\fIb\fR, \fIa\fR
 .IP "If all servers are running" 4
 .IX Item "If all servers are running"
-When you run 'Monit stop all' this is the stop order: \fIa\fR, \fIb\fR,
+When you run 'monit stop all' this is the stop order: \fIa\fR, \fIb\fR,
 \&\fIc\fR, \fId\fR. If you run 'Monit stop d' then \fIa\fR, \fIb\fR and \fIc\fR
 are also stopped because they depend on \fId\fR and finally \fId\fR is
 stopped.
 .IP "If \fIa\fR does not run" 4
 .IX Item "If a does not run"
-When Monit runs it will start \fIa\fR
+Monit will start \fIa\fR
 .IP "If \fIb\fR does not run" 4
 .IX Item "If b does not run"
-When Monit runs it will first stop \fIa\fR then start \fIb\fR and
-finally start \fIa\fR again.
+Monit will first stop \fIa\fR then start \fIb\fR and finally start \fIa\fR if
+\&\fIb\fR is up again.
 .IP "If \fIc\fR does not run" 4
 .IX Item "If c does not run"
-When Monit runs it will first stop \fIa\fR and \fIb\fR then start \fIc\fR
-and finally start \fIb\fR then \fIa\fR.
+Monit will first stop \fIa\fR and \fIb\fR then start \fIc\fR and finally start
+\&\fIb\fR then \fIa\fR.
 .IP "If \fId\fR does not run" 4
 .IX Item "If d does not run"
-When Monit runs it will first stop \fIa\fR, \fIb\fR and \fIc\fR then start
-\&\fId\fR and finally start \fIc\fR, \fIb\fR then \fIa\fR.
+Monit will first stop \fIa\fR, \fIb\fR and \fIc\fR then start \fId\fR and finally
+start \fIc\fR, \fIb\fR then \fIa\fR.
 .IP "If the control file contains a depend loop." 4
 .IX Item "If the control file contains a depend loop."
 A depend loop is for example; a\->b and b\->a or a\->b\->c\->a.
@@ -1824,7 +1919,7 @@ entry in the Monit control file.
 .PP
 Depending on system or process characteristics, services can be
 stopped or restarted and alerts can be generated. Thus it is
-possible to utilize systems which are idle and to spare system
+possible to utilise systems which are idle and to spare system
 under high load.
 .PP
 The full syntax for a resource-statement used for resource
@@ -2418,7 +2513,7 @@ generate a program timeout event. It is possible to override the
 default timeout (see the syntax below).
 .PP
 The asynchronous nature of the program check allows for
-non-blocking behavior in the current Monit design, but it comes
+non-blocking behaviour in the current Monit design, but it comes
 with a side-effect: when the program has finished executing and
 is waiting for Monit to collect the result, it becomes a
 so-called \*(L"zombie\*(R" process. A zombie process does not consume
@@ -2456,7 +2551,7 @@ The test will fail if the link/interface is down or link errors were detected.
 Example:
 .PP
 .Vb 2
-\& check network eth0 with interface eth0 
+\& check network eth0 with interface eth0
 \&       if failed link then alert
 .Ve
 .PP
@@ -2472,7 +2567,7 @@ commands for your system)
 .Ve
 .SS "\s-1NETWORK LINK CAPACITY TEST\s0"
 .IX Subsection "NETWORK LINK CAPACITY TEST"
-You can check the network link mode capacity for changes. This test 
+You can check the network link mode capacity for changes. This test
 may only be used within a check network service entry in the Monit
 control file.
 .PP
@@ -2495,13 +2590,13 @@ a speed attribute.
 Example:
 .PP
 .Vb 2
-\& check network eth0 with interface eth0 
+\& check network eth0 with interface eth0
 \&       if changed link capacity then alert
 .Ve
 .SS "\s-1NETWORK SATURATION TEST\s0"
 .IX Subsection "NETWORK SATURATION TEST"
 You can check the network link saturation. Monit then computes the link
-utilization based on the current transfer rate vs. link capacity.
+utilisation based on the current transfer rate vs. link capacity.
 This test may only be used within a check network service entry in the
 Monit control file.
 .PP
@@ -2519,14 +2614,14 @@ default is \s-1EQUAL\s0).
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
 .PP
-\&\s-1NOTE:\s0 this test depends on the availability of the speed attribute 
+\&\s-1NOTE:\s0 this test depends on the availability of the speed attribute
 and not all interface types have this attribute. See the \s-1LINK SPEED\s0 test
 description.
 .PP
 Example:
 .PP
 .Vb 2
-\& check network eth0 with interface eth0 
+\& check network eth0 with interface eth0
 \&       if saturation > 90% then alert
 .Ve
 .SS "\s-1NETWORK BANDWIDTH TEST\s0"
@@ -2571,7 +2666,7 @@ default is \s-1EQUAL\s0).
 .PP
 \&\fItime-unit\fR is a choice of \*(L"\s-1MINUTE\s0(S)\*(R", \*(L"\s-1HOUR\s0(S)\*(R", \*(L"\s-1DAY\*(R".
 NOTE:\s0 Monit maintains a rolling count of total uploaded and downloaded
-bytes for the last 24 hours only. The value of time-unit can therefor not 
+bytes for the last 24 hours only. The value of time-unit can therefor not
 specify a range wider than one day.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
@@ -2580,7 +2675,7 @@ specify a range wider than one day.
 Examples:
 .PP
 .Vb 4
-\& check network eth0 with interface eth0 
+\& check network eth0 with interface eth0
 \&       if upload > 500 kB/s then alert
 \&       if total download > 1 GB in last 2 hours then alert
 \&       if total download > 10 GB in last day then alert
@@ -2632,7 +2727,7 @@ NOTE:\s0 Monit keeps total upload/download statistics only for the last
 Examples:
 .PP
 .Vb 3
-\& check network eth0 with interface eth0 
+\& check network eth0 with interface eth0
 \&       if upload > 1000 packets/s then alert
 \&       if total upload > 900000 packets in last hour then alert
 .Ve
@@ -2649,7 +2744,7 @@ Syntax:
 .PP
 .Vb 3
 \&  IF FAILED PING[4|6]
-\&     [COUNT number] [WITH] [TIMEOUT number SECONDS]
+\&     [COUNT number] [SIZE number] [WITH] [TIMEOUT number SECONDS]
 \&  THEN action
 .Ve
 .PP
@@ -2661,15 +2756,21 @@ to try. You can force Monit to only ping IPv4 or IPv6 addresses by
 using the \s-1PING4\s0 or the \s-1PING6\s0 keyword instead of \s-1PING.\s0
 .PP
 The \fB\s-1COUNT\s0\fR parameter specifies how many consecutive ping requests
-will be sent to the host in one cycle. If no reply arrive within
-\&\fB\s-1TIMEOUT\s0\fR seconds, Monit reports an error. If at least one reply
-was received, the ping test is considered a success. Monit will,
-by default, send \fIthree\fR ping request packets in one cycle to
-prevent false alarm (i.e. up to 66% packet loss is tolerated). You
-can set the \fB\s-1COUNT\s0\fR option to a value between 1 and 20 to send more
-or fewer packets. If you require 100% ping success, set the count to
-1 (i.e. just one request will be sent, and if the packet was lost
-an error will be reported).
+will be sent to the host in one cycle at maximum. The default value is 3.
+.PP
+The \fB\s-1SIZE\s0\fR parameter specifies the ping request data size. Default
+is 64 bytes.
+.PP
+If no reply arrive within \fB\s-1TIMEOUT\s0\fR seconds, Monit reports an error.
+If at least one reply was received, the ping test is considered a
+success.
+.PP
+Monit will, by default, send up to \fIthree\fR ping request packets in
+one cycle to prevent false alarm (i.e. up to 66% packet loss is
+tolerated). You can set the \fB\s-1COUNT\s0\fR option to a value between 1 and
+20 to send more or fewer packets. If you require 100% ping success,
+set the count to 1 (i.e. just one request will be sent, and if the
+packet was lost an error will be reported).
 .PP
 Note that many ISPs have started to filter out ping or \s-1ICMP\s0 packets
 now, in which case there will be no reply from the host.
@@ -2697,12 +2798,12 @@ or test that the system is explicit accessible via IPv4 and IPv6:
 \&       if failed ping6 then alert  # IPv6 only
 .Ve
 .PP
-or with all parameters; Send 5 pings to mmonit.com and wait for up
-to 10 seconds for a reply
+or with all parameters; Send five 128 byte pings to mmonit.com and wait
+for up to 10 seconds for a reply
 .PP
 .Vb 2
 \&  check host mmonit.com with address mmonit.com
-\&        if failed ping count 5 with timeout 10 seconds then alert
+\&        if failed ping count 5 size 128 with timeout 10 seconds then alert
 .Ve
 .SS "\s-1CONNECTION TESTING\s0"
 .IX Subsection "CONNECTION TESTING"
@@ -2718,12 +2819,15 @@ I/O, Monit will execute a specified action.
 .PP
 \&\s-1TCP/UDP\s0 port test syntax:
 .PP
-.Vb 9
+.Vb 12
 \& IF FAILED
 \&    [host]
 \&    <port>
 \&    [ipversion]
 \&    [type]
+\&    [ssl [with options {...}]]
+\&    [certificate checksum]
+\&    [certificate valid days]
 \&    [protocol | {send/expect}+]
 \&    [timeout]
 \&    [retry]
@@ -2771,29 +2875,55 @@ multiple addresses are available and connection to one address failed,
 Monit will try the next address and so on until a connection succeed or
 until there are no more addresses left to try.
 .PP
-\&\fItype: \s-1TYPE\s0 {TCP|UDP|TCPSSL}\fR. Optionally specify the socket type
-Monit should use when trying to connect to the port. The
-different socket types are; \s-1TCP, UDP\s0 or \s-1TCPSSL,\s0 where \s-1TCP\s0 is a
-regular stream based socket, \s-1UDP\s0 is a datagram socket and \s-1TCPSSL\s0
-specifies that Monit should use a \s-1TCP\s0 socket with \s-1SSL\s0 when
-connecting to a port. The default socket type is \s-1TCP.\s0 If \s-1TCPSSL\s0
-is used you may optionally specify the \s-1SSL/TLS\s0 protocol to be
-used and the \s-1MD5\s0 checksum of the server's certificate.
+\&\fItype: \s-1TYPE\s0 [\s-1TCP\s0 | \s-1UDP\s0]\fR. Optionally specify the socket type Monit
+should use when trying to connect to the port. The different socket
+types are: \s-1TCP\s0 or \s-1UDP,\s0 where \s-1TCP\s0 is a regular stream based socket, \s-1UDP,\s0
+a datagram socket. The default socket type is \s-1TCP.\s0
 .PP
-The \s-1TCPSSL\s0 options are:
+\&\fIssl: [\s-1SSL\s0 | \s-1TLS\s0] [with options {...}]\fR. Set \s-1SSL/TLS \s0options and override global/default \s-1SSL\s0 options. You can set the
+\&\s-1SSL/TLS\s0 version to use, whether to verify certificates, trust
+self-signed certificates or set the \s-1SSL\s0 client certificates
+database-file for client certificate authentication.
+.PP
+\&\fIcertificate checksum: \s-1CERTIFICATE CHECKSUM\s0 [MD5|SHA1] hash\fR. Verify
+the \s-1SSL\s0 server certificate by checking its checksum. You can use either
+\&\s-1MD5\s0 or \s-1SHA1\s0 checksum (if you don't specify the type, Monit will
+determine the digest based on the hash length). You can use the
+\&\fIopenssl\fR command line tool to get the checksum value for your
+certificate, which you can then use in Monit's control file:
 .PP
 .Vb 1
-\& TCPSSL [SSLAUTO|SSLV2|SSLV3|TLSV1|TLSV11|TLSV12] [CERTMD5 md5sum]
+\& openssl x509 \-fingerprint \-sha1 \-in server.crt | head \-1 | cut \-f2 \-d\*(Aq=\*(Aq
 .Ve
 .PP
-The default mode is \fI\s-1SSLAUTO\s0\fR and it will select the method
-automatically, but for security reasons only \s-1TLS\s0 is used, not \s-1SSL.\s0 If
-you need SSLv2 or SSLv3 you have to explicitly select that method using
-\&\fI\s-1SSLV2\s0\fR or \fI\s-1SSLV3\s0\fR option.
+Example:
 .PP
-\&\fIprotocol: \s-1PROTO\s0(\s-1COL\s0) protocol\fR. Optionally specify the protocol
-Monit should speak when a connection is established. At the
-moment Monit knows how to speak:
+.Vb 5
+\& if failed
+\&     port 443
+\&     protocol https
+\&     and certificate checksum = "1ED948A6F4258ACAB964227EF4EB19FCC453B0F8"
+\& then alert
+.Ve
+.PP
+\&\fIcertificate expire days: \s-1CERTIFICATE VALID\s0 for number \s-1DAYS\s0\fR. Send
+an alert if the certificate will expire in the given number of days.
+This test is pretty useful to get a notification when it is time to
+renew your \s-1SSL\s0 certificate.
+.PP
+Example:
+.PP
+.Vb 5
+\&  if failed
+\&      port 443
+\&      protocol https
+\&      and certificate valid > 30 days
+\&  then alert
+.Ve
+.PP
+\&\fIprotocol: \s-1PROTO\s0(\s-1COL\s0) protocol\fR. Optionally specify the protocol Monit
+should speak when a connection is established. At the moment Monit
+knows how to speak:
  \fIAPACHE-STATUS\fR
  \fI\s-1DNS\s0\fR
  \fI\s-1DWP\s0\fR
@@ -2955,7 +3085,7 @@ For example:
 .Ve
 .PP
 \&\fI\s-1STATUS\s0\fR option can be used to explicitly test the \s-1HTTP\s0 status code
-returned by the \s-1HTTP\s0 server. If not used, the http protocol test will
+returned by the \s-1HTTP\s0 server. If not used, the \s-1HTTP\s0 protocol test will
 fail if the status code returned is greater than or equal to 400. You
 can override this behaviour by using the \fIstatus\fR qualifier.
 .PP
@@ -2991,7 +3121,7 @@ Example:
 .Ve
 .PP
 \&\fI\s-1HTTP HEADERS\s0\fR can be used to send a list of any \s-1HTTP\s0 headers
-with a http protocol test. For instance, the host header. If the
+with a \s-1HTTP\s0 protocol test. For instance, the host header. If the
 host header is not set, Monit will use the hostname or IP-address
 of the host as specified in the check host statement. Specifying
 a host header is useful if you want to connect to and test a
@@ -3021,7 +3151,7 @@ In a check host context, using this statement might look like
 \&    then alert
 .Ve
 .PP
-Setting http headers is associated with the http protocol test
+Setting \s-1HTTP\s0 headers is associated with the \s-1HTTP\s0 protocol test
 and must come before \fIrequest\fR as in the example above.
 .PP
 \&\fI\s-1CONTENT\s0\fR option sets the pattern which is expected in the data
@@ -3152,7 +3282,8 @@ Syntax:
 .PP
 \&\fI\s-1USERNAME\s0\fR MySQL username (maximum 16 characters).
 .PP
-\&\fI\s-1PASSWORD\s0\fR MySQL password.
+\&\fI\s-1PASSWORD\s0\fR MySQL password (special characters can be used, but for non-alphanumerics
+the password has to be quoted).
 .PP
 The credentials are \fBoptional\fR. If no credentials are set, Monit will perform
 the test using anonymous login. That may cause authentication error to be logged
@@ -3175,7 +3306,7 @@ For example:
 \&     stop program = "/sbin/stop mysql"
 \&     if failed
 \&        port 3306
-\&        protocol mysql username foo password bar
+\&        protocol mysql username "foo" password "bar"
 \&     then alert
 .Ve
 .PP
@@ -3187,7 +3318,7 @@ or with unix-socket and \s-1OS X\s0 start/stop commands
 \&     stop program = "/usr/local/mysql/support\-files/mysql.server stop"
 \&     if failed
 \&        unixsocket /tmp/mysql.sock
-\&        protocol mysql username foo password bar
+\&        protocol mysql username "foo" password "bar"
 \&     then alert
 .Ve
 .PP
@@ -3312,7 +3443,7 @@ vhosts, hence the host statement before port:
 \&       if failed host chat.sol.no port 80 then alert
 .Ve
 .PP
-To make sure that Monit is communicating with a http server a
+To make sure that Monit is communicating with a \s-1HTTP\s0 server a
 protocol test can be added:
 .PP
 .Vb 6
@@ -3348,9 +3479,8 @@ alert:
 .PP
 In the following example we ask Monit to compute and verify the
 checksum for the underlying apache binary used by the start and
-stop programs. If the the checksum test should fail, monitoring
-will be disabled to prevent possibly restarting a compromised
-binary:
+stop programs. If the checksum test should fail, monitoring will
+be disabled to prevent possibly restarting a compromised binary:
 .PP
 .Vb 5
 \& check process apache with pidfile /var/run/httpd.pid
@@ -3442,7 +3572,7 @@ service if it is not running:
 .Ve
 .PP
 This resource checks example will send an alert if \s-1CPU\s0 usage of the
-Apache's http daemon and its child processes goes beyond 60% for two
+Apache's \s-1HTTP\s0 daemon and its child processes goes beyond 60% for two
 cycles. Apache is restarted if the \s-1CPU\s0 usage is over 80% for five
 cycles or the memory usage is over 100Mb for five cycles or if the
 machines load average is more than 10 for 8 cycles:
@@ -3573,7 +3703,7 @@ of each other.
    systems without /var/run).
 .PP
 \&\fI~/.monit.state\fR
-   Monit saves its state to this file and utilizes
+   Monit saves its state to this file and utilises
    information found in this file to recover from
    a crash. This is a binary file and its content is
    only of interest to monit. You may set the location
@@ -3586,7 +3716,7 @@ of each other.
 .IX Header "ENVIRONMENT"
 No environment variables are used by Monit. However, when Monit
 execute a script or a program Monit will set several environment
-variables which can be utilized by the executable. The following
+variables which can be utilised by the executable. The following
 and \fIonly\fR the following environment variables are available:
 .IP "\s-1MONIT_EVENT\s0" 4
 .IX Item "MONIT_EVENT"
@@ -3628,7 +3758,7 @@ to a Monit daemon if Monit is started with the \fIquit\fR action
 argument.
 .PP
 Sending a \s-1SIGHUP\s0 signal to a running Monit daemon will force
-the daemon to reinitialize itself, specifically it will reread
+the daemon to reinitialise itself, specifically it will reread
 configuration, close and reopen log files.
 .PP
 Running Monit in foreground while a background Monit daemon is
@@ -3636,15 +3766,15 @@ running will wake up the daemon.
 .SH "NOTES"
 .IX Header "NOTES"
 This is a very silent program. Use the \-v switch if you want to
-see what Monit is doing, and tail \-f the logfile. Optionally for
+see what Monit is doing, and tail \-f the log file. Optionally for
 testing purposes; you can start Monit with the \-Iv switch. Monit
 will then print debug information to the console, to stop monit
 in this mode, simply press CTRL^C (i.e. \s-1SIGINT\s0) in the same
 console.
 .PP
 The syntax (and parser) of the control file was inspired by Eric
-S. Raymond et al. excellent fetchmail program. Some portions of
-this man page also receive inspiration from the same authors.
+S. Raymond et al.'s excellent fetchmail program. Some portions
+of this man page also receive inspiration from the same authors.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
 Copyright (C) 2001\-2015 by Tildeslash Ltd. All Rights Reserved.

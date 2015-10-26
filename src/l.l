@@ -109,7 +109,7 @@ number      [0-9]+
 real        [0-9]+([.][0-9]+)?
 str         [^\000-\041@:{}"';(),%]+
 hostname    {str}(\.{str})*
-greater     ("greater"|"gt"|">")
+greater     ("more"|"greater"|"gt"|">")
 less        ("less"|"lt"|"<")
 equal       ("equal"|"eq"|"=="|"=")
 notequal    ("notequal"|"ne"|"!=")
@@ -149,6 +149,7 @@ has               {/* EMPTY */}
 using             {/* EMPTY */}
 use               {/* EMPTY */}
 the               {/* EMPTY */}
+to                {/* EMPTY */}
 sum               {/* EMPTY */}
 than              {/* EMPTY */}
 usage             {/* EMPTY */}
@@ -161,6 +162,7 @@ per               {/* EMPTY */}
 in                {/* EMPTY */}
 last              {/* EMPTY */}
 capacity          {/* EMPTY */}
+option(s)?        {/* EMPTY */}
 
 {startarg}        { BEGIN(ARGUMENT_COND); return START; }
 {stoparg}         { BEGIN(ARGUMENT_COND); return STOP; }
@@ -180,9 +182,15 @@ if                { return IF; }
 or                { return OR; }
 then              { return THEN; }
 failed            { return FAILED; }
-ssl               { return HTTPDSSL; }
+ssl               { return SSL; }
+tls               { return SSL; }
 enable            { return ENABLE; }
 disable           { return DISABLE; }
+verify            { return VERIFY; }
+valid             { return VALID; }
+certificate       { return CERTIFICATE; }
+cacertificatefile { return CACERTIFICATEFILE; }
+cacertificatepath { return CACERTIFICATEPATH; }
 set               { return SET; }
 daemon            { return DAEMON; }
 delay             { return DELAY; }
@@ -205,10 +213,12 @@ speed             { return SPEED; }
 total             { return TOTAL; }
 clientpemfile     { return CLIENTPEMFILE; }
 allowselfcertification  { return ALLOWSELFCERTIFICATION; }
+selfsigned        { return SELFSIGNED; }
 certmd5           { return CERTMD5; }
 pemfile           { return PEMFILE; }
 init              { return INIT; }
 allow             { return ALLOW; }
+reject            { return REJECTOPT; }
 read[-]?only      { return READONLY; }
 pidfile           { return PIDFILE; }
 idfile            { return IDFILE; }
@@ -313,6 +323,7 @@ sslv3             { return SSLV3; }
 tlsv1             { return TLSV1; }
 tlsv11            { return TLSV11; }
 tlsv12            { return TLSV12; }
+auto              { return AUTO; }
 sslauto           { return SSLAUTO; }
 inode(s)?         { return INODE; }
 space             { return SPACE; }
@@ -795,7 +806,7 @@ group[ \t]+       {
                         save_arg();
                 }
 
-        [:](({ws}?["][^"]+["])|([^\r\n\],:]+)) { // : value
+        [:](({ws}?["][^"]+["])|({ws}?['][^']+['])|([^\r\n\],:]+)) { // : value
                         yylval.string = Str_cat("%s:%s", Str_trim(argyytext), Str_unquote(yytext + 1));
                         save_arg();
                         return HTTPHEADER;
@@ -849,12 +860,10 @@ group[ \t]+       {
 
 <<EOF>>           {
 
-                       if ( ! pop_buffer_state() )
-                       {
-                         yyterminate();
-                       } else {
-                         BEGIN(INITIAL);
-                       }
+                       BEGIN(INITIAL);
+                       check_state = None_State;
+                       if (! pop_buffer_state())
+                                yyterminate();
                   }
 
 %%

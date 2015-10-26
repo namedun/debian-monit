@@ -32,7 +32,10 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/types.h>
 #include <stdlib.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "Str.h"
 #include "Dir.h"
@@ -91,7 +94,7 @@ struct Process_T {
 
 /* Search the env list and return the pointer to the name (in the list)
  if found, otherwise NULL */
-static inline char *findEnv(T C, const char *name) {
+static inline char *_findEnv(T C, const char *name) {
         for (list_t p = C->env->head; p; p = p->next) {
                 if ((strncmp(p->e, name, strlen(name)) == 0))
                         if (((char*)p->e)[strlen(name)] == '=') // Ensure that p->e is not just a sub-string
@@ -102,8 +105,8 @@ static inline char *findEnv(T C, const char *name) {
 
 
 /* Remove env variable and value identified by name */
-static inline void removeEnv(T C, const char *name) {
-        char *e = findEnv(C, name);
+static inline void _removeEnv(T C, const char *name) {
+        char *e = _findEnv(C, name);
         if (e) {
                 List_remove(C->env, e);
                 FREE(e);
@@ -112,7 +115,7 @@ static inline void removeEnv(T C, const char *name) {
 
 
 /* Free each string in a list of strings */
-static void freeStrings(List_T l) {
+static void _freeStringsInList(List_T l) {
         while (List_length(l) > 0) {
                 char *s = List_pop(l);
                 FREE(s);
@@ -123,8 +126,8 @@ static void freeStrings(List_T l) {
 /* Build the Command args list. The list represent the array sent
  to execv and the List contains the following entries: args[0]
  is the path to the program, the rest are arguments to the program */
-static void buildArgs(T C, const char *path, const char *x, va_list ap) {
-        freeStrings(C->args);
+static void _buildArgs(T C, const char *path, const char *x, va_list ap) {
+        _freeStringsInList(C->args);
         List_append(C->args, Str_dup(path));
         va_list ap_copy;
         va_copy(ap_copy, ap);
@@ -151,7 +154,7 @@ static inline char **_env(T C) {
 
 
 /* Create stdio pipes for communication between parent and child process */
-static void createPipes(Process_T P) {
+static void _createPipes(Process_T P) {
         if (pipe(P->stdin_pipe) < 0 || pipe(P->stdout_pipe) < 0 || pipe(P->stderr_pipe) < 0) {
                 ERROR("Command pipe(2): Bad file descriptors -- %s", System_getLastError());
         }
@@ -159,7 +162,7 @@ static void createPipes(Process_T P) {
 
 
 /* Setup stdio pipes in subprocess */
-static void setupChildPipes(Process_T P) {
+static void _setupChildPipes(Process_T P) {
         close(P->stdin_pipe[1]);   // close write end
         if (P->stdin_pipe[0] != STDIN_FILENO) {
                 if (dup2(P->stdin_pipe[0],  STDIN_FILENO) != STDIN_FILENO)
@@ -182,7 +185,7 @@ static void setupChildPipes(Process_T P) {
 
 
 /* Setup stdio pipes in parent process for communication with the subprocess */
-static void setupParentPipes(Process_T P) {
+static void _setupParentPipes(Process_T P) {
         close(P->stdin_pipe[0]);    // close read end
         close(P->stdout_pipe[1]);   // close write end
         close(P->stderr_pipe[1]);   // close write end
@@ -193,7 +196,7 @@ static void setupParentPipes(Process_T P) {
 
 
 /* Close stdio pipes in parent process */
-static void closeParentPipes(Process_T P) {
+static void _closeParentPipes(Process_T P) {
         close(P->stdin_pipe[1]);    // close write end
         close(P->stdout_pipe[0]);   // close read end
         close(P->stderr_pipe[0]);   // close read end
@@ -201,7 +204,7 @@ static void closeParentPipes(Process_T P) {
 
 
 /* Close and destroy opened stdio streams */
-static void closeStreams(Process_T P) {
+static void _closeStreams(Process_T P) {
         if (P->in) InputStream_free(&P->in);
         if (P->err) InputStream_free(&P->err);
         if (P->out) OutputStream_free(&P->out);
@@ -211,7 +214,7 @@ static void closeStreams(Process_T P) {
 /* -------------------------------------------------------------- Process_T */
 
 
-static inline void setstatus(Process_T P) {
+static inline void _setstatus(Process_T P) {
         if (WIFEXITED(P->status))
                 P->status = WEXITSTATUS(P->status);
         else if (WIFSIGNALED(P->status))
@@ -221,7 +224,7 @@ static inline void setstatus(Process_T P) {
 }
 
 
-static Process_T Process_new(void) {
+static Process_T _Process_new(void) {
         Process_T P;
         NEW(P);
         P->status = -1;
@@ -234,8 +237,8 @@ void Process_free(Process_T *P) {
         FREE((*P)->working_directory);
         if (Process_isRunning(*P)) 
                 Process_kill(*P);
-        closeParentPipes(*P);
-        closeStreams(*P);
+        _closeParentPipes(*P);
+        _closeStreams(*P);
         FREE(*P);
 }
 
@@ -278,7 +281,7 @@ int Process_waitFor(Process_T P) {
                 if (r != P->pid) 
                         P->status = -1;
                 else 
-                        setstatus(P);
+                        _setstatus(P);
         }
         return P->status;
 }
@@ -294,7 +297,7 @@ int Process_exitStatus(Process_T P) {
                 if (r == 0) // Process is still running
                         P->status = -1;
                 else 
-                        setstatus(P);
+                        _setstatus(P);
         }
         return P->status;
 }
@@ -355,7 +358,7 @@ T Command_new(const char *path, const char *arg0, ...) {
         C->args = List_new();
         va_list ap;
         va_start(ap, arg0);
-        buildArgs(C, path, arg0, ap);
+        _buildArgs(C, path, arg0, ap);
         va_end(ap);
         // Copy this process's environment for transit to sub-processes
         extern char **environ;
@@ -370,9 +373,9 @@ void Command_free(T *C) {
         assert(C && *C);
         FREE((*C)->_args);
         FREE((*C)->_env);
-        freeStrings((*C)->args);
+        _freeStringsInList((*C)->args);
         List_free(&(*C)->args);
-        freeStrings((*C)->env);
+        _freeStringsInList((*C)->env);
         List_free(&(*C)->env);
         FREE((*C)->working_directory);
         FREE(*C);
@@ -435,7 +438,7 @@ const char *Command_getDir(T C) {
 void Command_setEnv(Command_T C, const char *name, const char *value) {
         assert(C);
         assert(name);
-        removeEnv(C, name);
+        _removeEnv(C, name);
         List_append(C->env, Str_cat("%s=%s", name, value ? value : ""));
         FREE(C->_env); // Recreate Command environment on exec
 }
@@ -445,7 +448,7 @@ void Command_setEnv(Command_T C, const char *name, const char *value) {
 void Command_vSetEnv(T C, const char *name, const char *value, ...) {
         assert(C);
         assert(name);
-        removeEnv(C, name);
+        _removeEnv(C, name);
         StringBuffer_T b = StringBuffer_new(name);
         StringBuffer_append(b, "=");
         va_list ap;
@@ -462,7 +465,7 @@ void Command_vSetEnv(T C, const char *name, const char *value, ...) {
 const char *Command_getEnv(T C, const char *name) {
         assert(C);
         assert(name);
-        char *e = findEnv(C, name);
+        char *e = _findEnv(C, name);
         if (e) {
                 char *v = strchr(e, '=');
                 if (v)
@@ -487,8 +490,8 @@ Process_T Command_execute(T C) {
         assert(_env(C));
         assert(_args(C));
         volatile int exec_error = 0;
-        Process_T P = Process_new();
-        createPipes(P);
+        Process_T P = _Process_new();
+        _createPipes(P);
         if ((P->pid = vfork()) < 0) {
                 ERROR("Command: fork failed -- %s\n", System_getLastError());
                 Process_free(&P);
@@ -502,16 +505,33 @@ Process_T Command_execute(T C) {
                                 _exit(errno);
                         }
                 }
-                if (C->gid)
-                        P->gid = (setgid(C->gid) != 0) ? ERROR("Command: Cannot change process gid to '%d' -- %s\n", C->gid, System_getLastError()), getgid() : C->gid;
-                else
-                        P->gid = getgid();
-                if (C->uid)
-                        P->uid = (setuid(C->uid) != 0) ? ERROR("Command: Cannot change process uid to '%d' -- %s\n", C->uid, System_getLastError()), getuid() : C->uid;
-                else
-                        P->uid = getuid();
+                P->gid = getgid();
+                if (C->gid) {
+                        if (setgid(C->gid) == 0) {
+                                P->gid = C->gid;
+                        } else {
+                                ERROR("Command: Cannot change process gid to '%d' -- %s\n", C->gid, System_getLastError());
+                        }
+                }
+                P->uid = getuid();
+                if (C->uid) {
+                        struct passwd *user = getpwuid(C->uid);
+                        if (user) {
+                                if (initgroups(user->pw_name, P->gid) == 0) {
+                                        if (setuid(C->uid) == 0) {
+                                                P->uid = C->uid;
+                                        } else {
+                                                ERROR("Command: Cannot change process uid to '%d' -- %s\n", C->uid, System_getLastError());
+                                        }
+                                } else {
+                                        ERROR("Command: initgroups for user %s failed -- %s\n", user->pw_name, System_getLastError());
+                                }
+                        } else {
+                                ERROR("Command: uid %d not found on the system -- %s\n", C->uid, System_getLastError());
+                        }
+                }
                 setsid(); // Loose controlling terminal
-                setupChildPipes(P);
+                _setupChildPipes(P);
                 // Close all descriptors except stdio
                 for (int i = 3, descriptors = getdtablesize(); i < descriptors; i++)
                         close(i);
@@ -533,10 +553,9 @@ Process_T Command_execute(T C) {
                 _exit(errno);
         }
         // Parent
+        _setupParentPipes(P);
         if (exec_error != 0)
                 Process_free(&P);
-        else
-                setupParentPipes(P);
         errno = exec_error;
         return P;
 }
