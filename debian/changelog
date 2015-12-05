@@ -1,3 +1,13 @@
+monit (1:5.15-2) unstable; urgency=medium
+
+  * Document the start delay option (Closes: #806194)
+  * 01_spelling.patch: patch doc/monit.pod instead
+  * Rename monitrc.d/ -> conf-available/ (Closes: #791669)
+  * Fix (?) kfreebsd.patch
+  * Fix spelling errors in the delay.patch too...
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 05 Dec 2015 23:13:24 +0300
+
 monit (1:5.15-1) unstable; urgency=medium
 
   * Explain why sysvinit was suggested (Closes: #791668)
