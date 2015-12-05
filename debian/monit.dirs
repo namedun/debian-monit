@@ -1,4 +1,4 @@
 etc/monit/conf.d
-etc/monit/monitrc.d
+etc/monit/conf-enabled
 etc/monit/templates
 var/lib/monit/events

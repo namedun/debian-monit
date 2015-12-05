@@ -15,23 +15,23 @@ Configuration
 -------------
 
 Hope you'll like monit configuration snippets found in
-/etc/monit/monitrc.d/.
+/etc/monit/conf-available/.  Generally we try to provide them
+working out-of-box but it's not always feasible.
 
-These are supposed to be included into /etc/monit/monitrc *and*
-reviewed accordingly to site configuration and policy, including own
-file permissions (defaults to 0644, configuration snippets *are*
-readable by anyone), IP addresses, host names, exact limit values,
-etc.  Generally we try to provide them working out-of-box but it's not
-always feasible.
+These are supposed to be reviewed accordingly to site configuration
+and policy including own file permissions (defaults to 0644, configuration
+snippets *are* readable by anyone), IP addresses, host names, exact limit
+values, etc.  Then you could enable some snippets by symlinking them
+to the /etc/monit/conf-enabled/ directory.
 
 Please do post bugs against monit package when you have to change any
 snippet in the way that should be current default (e.g. a binary path
 has changed in the package).
 
 Packagers may drop the default monit config file to:
-/etc/monit/monitrc.d/<package>
+/etc/monit/conf-available/<package>
 and alternative/optional snippets to:
-/etc/monit/monitrc.d/<package>-<somename>
+/etc/monit/conf-available/<package>-<somename>
 
 
 Monitoring of deb packages
@@ -81,4 +81,4 @@ For example, the ssh.service uses the Restart directive like this:
 
 This configuration will break any proactive actions from
 the Monit (see example configuration snippet for openssh-server in
-/etc/monit/monitrc.d/openssh-server).
+/etc/monit/conf-available/openssh-server).

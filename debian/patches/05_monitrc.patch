@@ -5,8 +5,8 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: not-needed
 
 ---
- monitrc |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ monitrc |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
 --- a/monitrc
 +++ b/monitrc
@@ -76,10 +76,11 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -275,5 +275,5 @@ set httpd port 2812 and
+@@ -275,5 +275,6 @@ set httpd port 2812 and
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #
 -#  include /etc/monit.d/*
 +   include /etc/monit/conf.d/*
++   include /etc/monit/conf-enabled/*
  #
