@@ -3,9 +3,9 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: no
 
 ---
- configure.ac                 |    9 ++++++++-
+ configure.ac                 |   12 +++++++++---
  src/process/sysdep_FREEBSD.c |    4 ++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
 --- a/src/process/sysdep_FREEBSD.c
 +++ b/src/process/sysdep_FREEBSD.c
@@ -22,11 +22,14 @@ Forwarded: no
  #endif
 --- a/configure.ac
 +++ b/configure.ac
-@@ -187,7 +187,14 @@ AC_CHECK_HEADERS([ \
+@@ -185,9 +185,15 @@ AC_CHECK_HEADERS([ \
+ 	syslog.h \
+ 	unistd.h \
          uvm/uvm_extern.h \
-         uvm/uvm_param.h \
-         vm/vm.h \
+-        uvm/uvm_param.h \
+-        vm/vm.h \
 -	])
++        uvm/uvm_param.h
 +	],
 +    [],
 +    [],
