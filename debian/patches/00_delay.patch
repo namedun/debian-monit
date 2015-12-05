@@ -1,0 +1,46 @@
+Description: Document the start delay option.
+Origin: https://bitbucket.org/tildeslash/monit/commits/b8dd906bb6b3
+Bug-Debian: http://bugs.debian.org/806194
+Forwarded: not-needed
+
+---
+ doc/monit.pod |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
+
+--- a/doc/monit.pod
++++ b/doc/monit.pod
+@@ -451,15 +451,17 @@ for example:
+ 
+ Use
+ 
+- set daemon n (where n is a number in seconds)
++ SET DAEMON <seconds>
++     [[WITH] START DELAY <seconds>]
+ 
+ to specify Monit's poll cycle length and run Monit in daemon
+ mode. You must specify a numeric argument which is a polling
+-interval in seconds. In daemon mode, Monit detaches from the
+-console, puts itself in the background and runs continuously,
+-monitoring each specified service and then goes to sleep for the
+-given poll interval, wakes up and start monitoring again in an
+-endless cycle.
++interval in seconds.
++
++In daemon mode, Monit detaches from the console, puts itself in
++the background and runs continuously, monitoring each specified
++service and then goes to sleep for the given poll interval, wakes
++up and start monitoring again in an endless cycle.
+ 
+ Alternatively, you can use the C<-d> command line switch to set
+ the poll interval, but it is strongly recommended to set the poll
+@@ -476,6 +478,10 @@ a wake-up signal to the daemon, forcing
+ immediately. Calling C<monit> with the quit argument will kill a
+ running Monit daemon process instead of waking it up.
+ 
++The start delay option allows to postpone the first check by given
++number of seconds (can be useful for example when the system boots).
++By default Monit starts service checks immediately after start.
++
+ 
+ =head1 INIT SUPPORT
+ 
