@@ -1,0 +1,23 @@
+Description: Fix unreproducible build
+Author: Chris Lamb <lamby@debian.org>
+Forwarded: https://bitbucket.org/tildeslash/monit/issues/291
+
+---
+ configure.ac |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+--- a/configure.ac
++++ b/configure.ac
+@@ -43,7 +43,12 @@ if test "x$POD2MAN" = "xno"; then
+ 		AC_MSG_ERROR([pod2man is required to build the monit.1 man file.])
+ 	fi
+ else
+-	d=`date  '+%B %d. %Y'`
++	if test "x$SOURCE_DATE_EPOCH" = "x"; then
++	  SOURCE_DATE_EPOCH=`date +%s`
++	fi
++	fmt="%B %d. %Y"
++	d=`date -u -d "@$SOURCE_DATE_EPOCH" "+$fmt" 2>/dev/null || date -u -r "$SOURCE_DATE_EPOCH" "+$fmt" 2>/dev/null || date -u "+$fmt"`
++
+ 	POD2MANFLAGS="--center 'User Commands' --release '${d}' --date='www.mmonit.com' --lax"
+ 	AC_SUBST([POD2MANFLAGS])
+ fi
