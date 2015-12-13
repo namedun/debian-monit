@@ -2,5 +2,5 @@
  01_spelling.patch
  05_monitrc.patch
  11_enable_hurd.patch
- 12_FTBFS_on_kfreebsd.patch
+#12_FTBFS_on_kfreebsd.patch
  13_unrep_fix.patch
