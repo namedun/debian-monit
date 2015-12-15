@@ -1,3 +1,10 @@
+monit (1:5.15-3) unstable; urgency=medium
+
+  * Make build reproducible (Closes: #807159), thanks to Chris Lamb.
+  * Disable FTBFS fix attempt (see #807611)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 15 Dec 2015 15:22:29 +0300
+
 monit (1:5.15-2) unstable; urgency=medium
 
   * Document the start delay option (Closes: #806194)
