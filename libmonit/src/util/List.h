@@ -63,7 +63,6 @@ typedef struct list_t {
 
 struct T {
         int length;
-        int timestamp;
         list_t  head, tail, freelist;
 };
 /** @endcond */
@@ -151,21 +150,6 @@ int List_length(T L);
  * @param L A List object
  */
 void List_clear(T L);
-
-
-/**
- * Apply the visitor function, <code>apply</code> for each element in 
- * the List. Clients can pass an application specific pointer, 
- * <code>ap</code>, to List_map() and this pointer is passed along to the
- * <code>apply</code> function at each call. It is a checked runtime error
- * for <code>apply</code> to change the List. 
- * @param L A List object
- * @param apply The function to apply
- * @param ap An application-specific pointer. If such a pointer is 
- * not needed, just use NULL
- * @exception AssertException if <code>apply</code> change the List
- */
-void List_map(T L, void (*apply)(void *e, void *ap), void *ap);
 
 
 /**

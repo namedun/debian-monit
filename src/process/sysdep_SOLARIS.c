@@ -100,10 +100,7 @@
  *  @file
  */
 
-#define pagetok(size) ((size) << pageshift)
-
 static int    page_size;
-static int    pageshift = 0;
 static long   old_cpu_user = 0;
 static long   old_cpu_syst = 0;
 static long   old_cpu_wait = 0;
@@ -111,27 +108,10 @@ static long   old_total = 0;
 
 #define MAXSTRSIZE 80
 
-#ifndef LOG1024
-#define LOG1024         10
-#endif
-
 boolean_t init_process_info_sysdep(void) {
-        register int pagesize;
-
         systeminfo.cpus = sysconf( _SC_NPROCESSORS_ONLN);
-
-        pagesize  = sysconf(_SC_PAGESIZE);
-        pageshift = 0;
-        while (pagesize > 1) {
-                pageshift++;
-                pagesize >>= 1;
-        }
-
-        /* we only need the amount of log(2)1024 for our conversion */
-        pageshift -= LOG1024;
-
-        systeminfo.mem_kbyte_max = pagetok(sysconf(_SC_PHYS_PAGES));
         page_size = getpagesize();
+        systeminfo.mem_max = sysconf(_SC_PHYS_PAGES) * page_size;
 
         return true;
 }
@@ -142,15 +122,13 @@ double timestruc_to_tseconds(timestruc_t t) {
 
 
 /**
- * Read all processes of the proc files system to initialize
- * the process tree (sysdep version... but should work for
- * all procfs based unices)
- * @param reference  reference of ProcessTree
- * @return treesize>0 if succeeded otherwise =0.
+ * Read all processes of the proc files system to initialize the process tree
+ * @param reference reference of ProcessTree
+ * @param pflags Process engine flags
+ * @return treesize > 0 if succeeded otherwise 0
  */
-int initprocesstree_sysdep(ProcessTree_T ** reference) {
+int initprocesstree_sysdep(ProcessTree_T **reference, ProcessEngine_Flags pflags) {
         int            rv;
-        int            pid;
         int            treesize;
         char           buf[4096];
         glob_t         globbuf;
@@ -171,51 +149,28 @@ int initprocesstree_sysdep(ProcessTree_T ** reference) {
         /* Allocate the tree */
         pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
-        /* Insert data from /proc directory */
         for (int i = 0; i < treesize; i++) {
-                pid = atoi(globbuf.gl_pathv[i] + strlen("/proc/"));
-                pt[i].pid = pid;
-
-                /* get the actual time */
-                pt[i].time = get_float_time();
-
-                if (! read_proc_file(buf, sizeof(buf), "psinfo", pt[i].pid, NULL)) {
-                        pt[i].cputime     = 0;
-                        pt[i].cpu_percent = 0;
-                        pt[i].mem_kbyte   = 0;
-                        continue;
-                }
-
-                pt[i].ppid      = psinfo->pr_ppid;
-                pt[i].uid       = psinfo->pr_uid;
-                pt[i].euid      = psinfo->pr_euid;
-                pt[i].gid       = psinfo->pr_gid;
-                pt[i].starttime = psinfo->pr_start.tv_sec;
-
-                /* If we don't have any light-weight processes (LWP) then we are definitely a zombie */
-                if (psinfo->pr_nlwp == 0) {
-                        pt[i].zombie = true;
-                        pt[i].cputime = 0;
-                        pt[i].cpu_percent = 0;
-                        pt[i].mem_kbyte = 0;
-                        continue;
-                }
-
-                pt[i].mem_kbyte = psinfo->pr_rssize;
-
-                pt[i].cmdline  = Str_dup(psinfo->pr_psargs);
-                if (! pt[i].cmdline || ! *pt[i].cmdline) {
-                        FREE(pt[i].cmdline);
-                        pt[i].cmdline = Str_dup(psinfo->pr_fname);
-                }
-
-                if (! read_proc_file(buf, sizeof(buf), "status", pt[i].pid, NULL)) {
-                        pt[i].cputime     = 0;
-                        pt[i].cpu_percent = 0;
-                } else {
-                        memcpy(&pstatus, buf, sizeof(pstatus_t));
-                        pt[i].cputime     = (timestruc_to_tseconds(pstatus.pr_utime) + timestruc_to_tseconds(pstatus.pr_stime));
-                        pt[i].cpu_percent = 0;
+                pt[i].pid = atoi(globbuf.gl_pathv[i] + strlen("/proc/"));
+                if (read_proc_file(buf, sizeof(buf), "psinfo", pt[i].pid, NULL)) {
+                        pt[i].ppid         = psinfo->pr_ppid;
+                        pt[i].cred.uid     = psinfo->pr_uid;
+                        pt[i].cred.euid    = psinfo->pr_euid;
+                        pt[i].cred.gid     = psinfo->pr_gid;
+                        pt[i].uptime       = systeminfo.time / 10. - psinfo->pr_start.tv_sec;
+                        pt[i].zombie       = psinfo->pr_nlwp == 0 ? true : false; // If we don't have any light-weight processes (LWP) then we are definitely a zombie
+                        pt[i].memory.usage = psinfo->pr_rssize * 1024;
+                        if (pflags & ProcessEngine_CollectCommandLine) {
+                                pt[i].cmdline = Str_dup(psinfo->pr_psargs);
+                                if (! pt[i].cmdline || ! *pt[i].cmdline) {
+                                        FREE(pt[i].cmdline);
+                                        pt[i].cmdline = Str_dup(psinfo->pr_fname);
+                                }
+                        }
+                        if (read_proc_file(buf, sizeof(buf), "status", pt[i].pid, NULL)) {
+                                memcpy(&pstatus, buf, sizeof(pstatus_t));
+                                pt[i].cpu.time = timestruc_to_tseconds(pstatus.pr_utime) + timestruc_to_tseconds(pstatus.pr_stime);
+                                pt[i].threads = pstatus.pr_nlwp;
+                        }
                 }
         }
 
@@ -267,7 +222,7 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
                         }
                         kstat_named_t *rss = kstat_data_lookup(kstat, "rss");
                         if (rss)
-                                si->total_mem_kbyte = rss->value.i64 / 1024;
+                                si->total_mem = rss->value.i64;
                 } else {
                         /* Solaris Zone */
                         size_t nres;
@@ -277,7 +232,7 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
                                 kstat_close(kctl);
                                 return false;
                         }
-                        si->total_mem_kbyte = result.vmu_rss_all / 1024;
+                        si->total_mem = result.vmu_rss_all;
                 }
         } else {
                 kstat = kstat_lookup(kctl, "unix", 0, "system_pages");
@@ -288,7 +243,7 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
                 }
                 knamed = kstat_data_lookup(kstat, "freemem");
                 if (knamed)
-                        si->total_mem_kbyte = systeminfo.mem_kbyte_max - pagetok(knamed->value.ul);
+                        si->total_mem = systeminfo.mem_max - knamed->value.ul * page_size;
         }
         kstat_close(kctl);
 
@@ -300,7 +255,7 @@ again:
         }
         if (num == 0) {
                 DEBUG("system statistic -- no swap configured\n");
-                si->swap_kbyte_max = 0;
+                si->swap_max = 0ULL;
                 return true;
         }
         s = (swaptbl_t *)ALLOC(num * sizeof(swapent_t) + sizeof(struct swaptable));
@@ -310,7 +265,7 @@ again:
         s->swt_n = num + 1;
         if ((n = swapctl(SC_LIST, s)) < 0) {
                 LogError("system statistic error -- swap usage gathering failed: %s\n", STRERROR);
-                si->swap_kbyte_max = 0;
+                si->swap_max = 0ULL;
                 FREE(s);
                 FREE(strtab);
                 return false;
@@ -329,8 +284,8 @@ again:
         }
         FREE(s);
         FREE(strtab);
-        si->swap_kbyte_max   = (unsigned long)(double)(total * page_size) / 1024.;
-        si->total_swap_kbyte = (unsigned long)(double)(used  * page_size) / 1024.;
+        si->swap_max = total * page_size;
+        si->total_swap = used  * page_size;
 
         return true;
 }
@@ -397,11 +352,11 @@ boolean_t used_system_cpu_sysdep(SystemInfo_T *si) {
         }
 
         if (old_total == 0) {
-                si->total_cpu_user_percent = si->total_cpu_syst_percent = si->total_cpu_wait_percent = -10;
+                si->total_cpu_user_percent = si->total_cpu_syst_percent = si->total_cpu_wait_percent = -1.;
         } else if ((diff_total = total - old_total) > 0) {
-                si->total_cpu_user_percent = (int)((1000 * (cpu_user - old_cpu_user)) / diff_total);
-                si->total_cpu_syst_percent = (int)((1000 * (cpu_syst - old_cpu_syst)) / diff_total);
-                si->total_cpu_wait_percent = (int)((1000 * (cpu_wait - old_cpu_wait)) / diff_total);
+                si->total_cpu_user_percent = (100. * (cpu_user - old_cpu_user)) / diff_total;
+                si->total_cpu_syst_percent = (100. * (cpu_syst - old_cpu_syst)) / diff_total;
+                si->total_cpu_wait_percent = (100. * (cpu_wait - old_cpu_wait)) / diff_total;
         }
 
         old_cpu_user = cpu_user;

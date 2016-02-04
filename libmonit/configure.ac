@@ -24,15 +24,17 @@ AC_PROG_LIBTOOL
 # Build options
 # ---------------------------------------------------------------------------
 
+UNIT_TEST="test"
 AC_ARG_ENABLE(optimized,
 	AS_HELP_STRING([--enable-optimized], 
-        	[Build software optimized]),
+        	[Build software optimized. Unit Tests are not enabled with this option]),
     [
-        CFLAGS=`echo $CFLAGS|sed 's/-O.* //'`
         if test "x$enableval" = "xyes" ; then
-   	    	CFLAGS=`echo $CFLAGS|sed 's/-g//'`
-		CFLAGS="$CFLAGS -O3"
+   	    	CFLAGS=`echo $CFLAGS|sed 's/-g[[^ ]]*//g'`
+                CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
+		CFLAGS="$CFLAGS -O3 -DNDEBUG"
 		OPTIMIZED=1
+                UNIT_TEST=""
 	else
 		OPTIMIZED=0
         fi
@@ -41,12 +43,15 @@ AC_ARG_ENABLE(optimized,
 	OPTIMIZED=0
     ]
 )
+AC_SUBST(UNIT_TEST)
 
 AC_ARG_ENABLE(profiling,
         AS_HELP_STRING([--enable-profiling],
                 [Build with debug and profiling options]),
     [
         if test "x$enableval" = "xyes" ; then
+   	    	CFLAGS=`echo $CFLAGS|sed 's/-g.//g'`
+                CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
                 CFLAGS="$CFLAGS -g -pg"
                 profile="true"
         fi
@@ -83,6 +88,7 @@ AC_ARG_ENABLE([openssl],
 # ---------------------------------------------------------------------------
 
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX thread library is required])])
+AC_CHECK_LIB([m], [round], [], [AC_MSG_ERROR([Math library is required])])
 
 # ---------------------------------------------------------------------------
 # Header files 
@@ -95,7 +101,7 @@ AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h pthread.h setjmp.h \
                   sys/sendfile.h sys/dirent.h poll.h sys/poll.h sys/event.h \
                   stropts.h sys/ioctl.h sys/filio.h kstat.h ifaddrs.h \
                   net/if_media.h netinet/in.h sys/sysctl.h net/if_dl.h \
-                  mach/boolean.h uvm/uvm_param.h])
+                  sys/protosw.h mach/boolean.h uvm/uvm_param.h])
 AC_CHECK_HEADERS([net/if.h net/route.h], [], [],
         [
          #ifdef HAVE_SYS_TYPES_H
@@ -192,6 +198,10 @@ elif test "$architecture" = "OpenBSD"
 then
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_DEFINE([OPENBSD], 1, [Define to 1 if the system is OpenBSD])
+elif test "$architecture" = "DragonFly"
+then
+   CFLAGS="$CFLAGS -D _REENTRANT"
+   AC_DEFINE([DRAGONFLY], 1, [Define to 1 if the system is DragonFly])
 elif test "$architecture" = "Darwin"
 then
    CFLAGS="$CFLAGS -DREENTRANT"
@@ -217,6 +227,7 @@ then
    AC_DEFINE([NETBSD], 1, [Define to 1 if the system is NETBSD])
 elif test "$architecture" = "AIX"
 then
+   CFLAGS=`echo $CFLAGS|sed 's/-g//'`
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
    AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
    LIBS="$LIBS -lcfg -lodm -lperfstat"

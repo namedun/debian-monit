@@ -29,6 +29,10 @@
 #include "config.h"
 #include <assert.h>
 
+#ifdef HAVE_KINFO_H
+#include <kinfo.h>
+#endif
+
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -172,6 +176,12 @@ typedef enum {
 
 
 typedef enum {
+        ProcessEngine_None               = 0x0,
+        ProcessEngine_CollectCommandLine = 0x1
+} __attribute__((__packed__)) ProcessEngine_Flags;
+
+
+typedef enum {
         Httpd_Start = 1,
         Httpd_Stop
 } __attribute__((__packed__)) Httpd_Action;
@@ -250,6 +260,13 @@ typedef enum {
 
 
 typedef enum {
+        Connection_Failed = 0,
+        Connection_Ok,
+        Connection_Init
+} __attribute__((__packed__)) Connection_State;
+
+
+typedef enum {
         Service_Filesystem = 0,
         Service_Directory,
         Service_File,
@@ -281,7 +298,8 @@ typedef enum {
         Resource_CpuWait,
         Resource_CpuPercentTotal,
         Resource_SwapPercent,
-        Resource_SwapKbyte
+        Resource_SwapKbyte,
+        Resource_Threads
 } __attribute__((__packed__)) Resource_Type;
 
 
@@ -311,6 +329,18 @@ typedef enum {
 
 
 typedef enum {
+        MTA_DSN                 = 0x1,
+        MTA_ETRN                = 0x2,
+        MTA_8BitMIME            = 0x4,
+        MTA_Pipelining          = 0x8,
+        MTA_EnhancedStatusCodes = 0x10,
+        MTA_StartTLS            = 0x20,
+        MTA_AuthPlain           = 0x40,
+        MTA_AuthLogin           = 0x80
+} __attribute__((__packed__)) MTAFlags_t;
+
+
+typedef enum {
         Level_Full = 0,
         Level_Summary
 } __attribute__((__packed__)) Level_Type;
@@ -333,11 +363,16 @@ typedef enum {
 #define ICMP_ATTEMPT_COUNT 3
 
 
-#define EXPECT_BUFFER_MAX (Unit_Kilobyte * 100 + 1)
-
-
 #define LEVEL_NAME_FULL    "full"
 #define LEVEL_NAME_SUMMARY "summary"
+
+
+/* Default limits */
+#define LIMIT_SENDEXPECTBUFFER  256
+#define LIMIT_FILECONTENTBUFFER 512
+#define LIMIT_PROGRAMOUTPUT     512
+#define LIMIT_HTTPCONTENTBUFFER 1048576
+#define LIMIT_NETWORKTIMEOUT    5000
 
 
 #include "socket.h"
@@ -378,11 +413,18 @@ Sigfunc *signal(int signo, Sigfunc * func);
 /* --------------------------------------------------------- Data structures */
 
 
-//FIXME: refactor internal linked lists (*next) with List_T
-
-
 /** Message Digest type with size for the longest digest we will compute */
 typedef char MD_T[MD_SIZE];
+
+
+/** Defines monit limits object */
+typedef struct mylimits {
+        uint32_t sendExpectBuffer;  /**< Maximum send/expect response length [B] */
+        uint32_t fileContentBuffer;  /**< Maximum tested file content length [B] */
+        uint32_t httpContentBuffer;  /**< Maximum tested HTTP content length [B] */
+        uint32_t programOutput;           /**< Program output truncate limit [B] */
+        uint32_t networkTimeout;               /**< Default network timeout [ms] */
+} Limits_T;
 
 
 /**
@@ -406,8 +448,9 @@ typedef struct mycommand {
 /** Defines an event action object */
 typedef struct myaction {
         Action_Type id;                                   /**< Action to be done */
-        unsigned char count;       /**< Event count needed to trigger the action */
-        unsigned char cycles;/**< Cycles during which count limit can be reached */
+        uint8_t count;             /**< Event count needed to trigger the action */
+        uint8_t cycles;      /**< Cycles during which count limit can be reached */
+        uint8_t repeat;                         /*< Repeat action each Xth cycle */
         command_t exec;                     /**< Optional command to be executed */
 } *Action_T;
 
@@ -495,48 +538,55 @@ typedef struct myauthentication {
 
 /** Defines process tree - data storage backend */
 typedef struct myprocesstree {
-        boolean_t     visited;
-        boolean_t     zombie;
-        pid_t         pid;
-        pid_t         ppid;
-        int           parent;
-        int           uid;
-        int           euid;
-        int           gid;
-        int           children_num;
-        int           children_sum;
-        short         cpu_percent;
-        short         cpu_percent_sum;
-        unsigned long mem_kbyte;
-        unsigned long mem_kbyte_sum;
-        time_t        starttime;
-        char         *cmdline;
-
-        /** For internal use */
-        double        time;                                      /**< 1/10 seconds */
-        double        time_prev;                                 /**< 1/10 seconds */
-        long          cputime;                                   /**< 1/10 seconds */
-        long          cputime_prev;                              /**< 1/10 seconds */
-
-        int          *children;
+        boolean_t visited;
+        boolean_t zombie;
+        pid_t pid;
+        pid_t ppid;
+        int threads;
+        int parent;
+        struct {
+                int uid;
+                int euid;
+                int gid;
+        } cred;
+        struct {
+                float usage;
+                float usage_total;
+                double time;                                     /**< 1/10 seconds */
+        } cpu;
+        struct {
+                int count;
+                int total;
+                int *list;
+        } children;
+        struct {
+                uint64_t usage;
+                uint64_t usage_total;
+        } memory;
+        time_t uptime;
+        char *cmdline;
 } ProcessTree_T;
 
 
 /** Defines data for systemwide statistic */
+//FIXME: structurize the data
 typedef struct mysysteminfo {
         int cpus;                                              /**< Number of CPUs */
-        short total_mem_percent;       /**< Total real memory in use in the system */
-        short total_swap_percent;             /**< Total swap in use in the system */
-        short total_cpu_user_percent;    /**< Total CPU in use in user space (pct.)*/
-        short total_cpu_syst_percent;  /**< Total CPU in use in kernel space (pct.)*/
-        short total_cpu_wait_percent;       /**< Total CPU in use in waiting (pct.)*/
-        unsigned long mem_kbyte_max;               /**< Maximal system real memory */
-        unsigned long swap_kbyte_max;                               /**< Swap size */
-        unsigned long total_mem_kbyte; /**< Total real memory in use in the system */
-        unsigned long total_swap_kbyte;       /**< Total swap in use in the system */
+        float total_mem_percent;       /**< Total real memory in use in the system */
+        float total_swap_percent;             /**< Total swap in use in the system */
+        float total_cpu_user_percent;    /**< Total CPU in use in user space (pct.)*/
+        float total_cpu_syst_percent;  /**< Total CPU in use in kernel space (pct.)*/
+        float total_cpu_wait_percent;       /**< Total CPU in use in waiting (pct.)*/
+        size_t argmax;                          /**< Program arguments maximum [B] */
+        uint64_t mem_max;                          /**< Maximal system real memory */
+        uint64_t swap_max;                                          /**< Swap size */
+        uint64_t total_mem;            /**< Total real memory in use in the system */
+        uint64_t total_swap;                  /**< Total swap in use in the system */
         double loadavg[3];                                /**< Load average triple */
         struct utsname uname;        /**< Platform information provided by uname() */
         struct timeval collected;                    /**< When were data collected */
+        double time;                                             /**< 1/10 seconds */
+        double time_prev;                                        /**< 1/10 seconds */
 } SystemInfo_T;
 
 
@@ -560,6 +610,13 @@ typedef struct mygenericproto {
 } *Generic_T;
 
 
+typedef struct outgoing {
+        char *ip;                                         /**< Outgoing IP address */
+        struct sockaddr_storage addr;
+        socklen_t addrlen;
+} Outgoing_T;
+
+
 /** Defines a port object */
 typedef struct myport {
         char *hostname;                                     /**< Hostname to check */
@@ -572,17 +629,19 @@ typedef struct myport {
                         int port;                                 /**< Port number */
                 } net;
         } target;
-        int timeout; /**< The timeout in milliseconds to wait for connect or read i/o */
+        Outgoing_T outgoing;                                 /**< Outgoing address */
+        int timeout;      /**< The timeout in [ms] to wait for connect or read i/o */
         int retry;       /**< Number of connection retry before reporting an error */
         volatile int socket;                       /**< Socket used for connection */
-        double response;                      /**< Socket connection response time */
+        double response;                 /**< Socket connection response time [ms] */
         Socket_Type type;           /**< Socket type used for connection (UDP/TCP) */
         Socket_Family family;    /**< Socket family used for connection (NET/UNIX) */
-        boolean_t is_available;          /**< true if the server/port is available */
+        Connection_State is_available;               /**< Server/port availability */
         EventAction_T action;  /**< Description of the action upon event occurence */
         /** Protocol specific parameters */
         union {
                 struct {
+                        char *path;                                              /**< status path */
                         short loglimit;                  /**< Max percentage of logging processes */
                         short closelimit;             /**< Max percentage of closinging processes */
                         short dnslimit;         /**< Max percentage of processes doing DNS lookup */
@@ -647,9 +706,10 @@ typedef struct myicmp {
         int size;                                     /**< ICMP echo requests size */
         int count;                                   /**< ICMP echo requests count */
         int timeout;         /**< The timeout in milliseconds to wait for response */
-        boolean_t is_available;               /**< true if the server is available */
+        Connection_State is_available;    /**< Flag for the server is availability */
         Socket_Family family;                 /**< ICMP family used for connection */
-        double response;                              /**< ICMP ECHO response time */
+        double response;                         /**< ICMP ECHO response time [ms] */
+        Outgoing_T outgoing;                                 /**< Outgoing address */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -669,7 +729,7 @@ typedef struct mydependant {
 typedef struct myresource {
         Resource_Type resource_id;                     /**< Which value is checked */
         Operator_Type operator;                           /**< Comparison operator */
-        long limit;                                     /**< Limit of the resource */
+        double limit;                                   /**< Limit of the resource */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -731,8 +791,8 @@ typedef struct myprogram {
         Process_T P;          /**< A Process_T object representing the sub-process */
         Command_T C;          /**< A Command_T object for creating the sub-process */
         command_t args;                                     /**< Program arguments */
-        int timeout;           /**< Seconds the program may run until it is killed */
         time_t started;                      /**< When the sub-process was started */
+        int timeout;           /**< Seconds the program may run until it is killed */
         int exitStatus;                 /**< Sub-process exit status for reporting */
         StringBuffer_T output;                            /**< Last program output */
 } *Program_T;
@@ -792,9 +852,9 @@ typedef struct mylinksaturation {
 
 typedef struct mybandwidth {
         Operator_Type operator;                           /**< Comparison operator */
-        unsigned long long limit;                              /**< Data watermark */
+        Time_Type range;                            /**< Time range to watch: unit */
         int rangecount;                            /**< Time range to watch: count */
-        Time_Type range;                                  /**< Time range to watch: unit */
+        unsigned long long limit;                              /**< Data watermark */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -807,8 +867,8 @@ typedef struct mychecksum {
         boolean_t initialized;               /**< true if checksum was initialized */
         boolean_t test_changes;       /**< true if we only should test for changes */
         Hash_Type type;                   /**< The type of hash (e.g. md5 or sha1) */
-        MD_T  hash;                     /**< A checksum hash computed for the path */
         int   length;                                      /**< Length of the hash */
+        MD_T  hash;                     /**< A checksum hash computed for the path */
         EventAction_T action;  /**< Description of the action upon event occurence */
 } *Checksum_T;
 
@@ -824,8 +884,8 @@ typedef struct myperm {
 typedef struct mymatch {
         boolean_t ignore;                                        /**< Ignore match */
         boolean_t not;                                           /**< Invert match */
-        char    *match_string;                                   /**< Match string */
-        char    *match_path;                         /**< File with matching rules */
+        char    *match_string;                                   /**< Match string */ //FIXME: union?
+        char    *match_path;                         /**< File with matching rules */ //FIXME: union?
 #ifdef HAVE_REGEX_H
         regex_t *regex_comp;                                    /**< Match compile */
 #endif
@@ -880,8 +940,9 @@ typedef struct mynonexist {
 typedef struct myfilesystem {
         Resource_Type resource;               /**< Whether to check inode or space */
         Operator_Type operator;                           /**< Comparison operator */
+        //FIXME: union
         long long limit_absolute;                          /**< Watermark - blocks */
-        short limit_percent;                              /**< Watermark - percent */
+        float limit_percent;                              /**< Watermark - percent */
         EventAction_T action;  /**< Description of the action upon event occurence */
 
         /** For internal use */
@@ -893,7 +954,6 @@ typedef struct myfilesystem {
 typedef struct myinfo {
         union {
                 struct {
-                        long long  f_bsize;                           /**< Transfer block size */
                         long long  f_blocks;              /**< Total data blocks in filesystem */
                         long long  f_blocksfree;   /**< Free blocks available to non-superuser */
                         long long  f_blocksfreetotal;           /**< Free blocks in filesystem */
@@ -901,42 +961,44 @@ typedef struct myinfo {
                         long long  f_filesfree;             /**< Free file nodes in filesystem */
                         long long  inode_total;                  /**< Used inode total objects */
                         long long  space_total;                   /**< Used space total blocks */
-                        short inode_percent;                   /**< Used inode percentage * 10 */
-                        short space_percent;                   /**< Used space percentage * 10 */
+                        float inode_percent;                        /**< Used inode percentage */
+                        float space_percent;                        /**< Used space percentage */
+                        int f_bsize;                                  /**< Transfer block size */
                         int _flags;                      /**< Filesystem flags from last cycle */
                         int flags;                     /**< Filesystem flags from actual cycle */
                         int uid;                                              /**< Owner's uid */
                         int gid;                                              /**< Owner's gid */
-                        mode_t mode;                                           /**< Permission */
+                        int mode;                                              /**< Permission */
                 } filesystem;
 
                 struct {
                         time_t timestamp;                                       /**< Timestamp */
-                        mode_t mode;                                           /**< Permission */
+                        int mode;                                              /**< Permission */
                         int uid;                                              /**< Owner's uid */
                         int gid;                                              /**< Owner's gid */
                         off_t size;                                                  /**< Size */
                         off_t readpos;                        /**< Position for regex matching */
                         ino_t inode;                                                /**< Inode */
                         ino_t inode_prev;               /**< Previous inode for regex matching */
-                        MD_T  cs_sum;                                            /**< Checksum */
+                        MD_T  cs_sum;                                            /**< Checksum */ //FIXME: allocate dynamically only when necessary
                 } file;
 
                 struct {
                         time_t timestamp;                                       /**< Timestamp */
-                        mode_t mode;                                           /**< Permission */
+                        int mode;                                              /**< Permission */
                         int uid;                                              /**< Owner's uid */
                         int gid;                                              /**< Owner's gid */
                 } directory;
 
                 struct {
                         time_t timestamp;                                       /**< Timestamp */
-                        mode_t mode;                                           /**< Permission */
+                        int mode;                                              /**< Permission */
                         int uid;                                              /**< Owner's uid */
                         int gid;                                              /**< Owner's gid */
                 } fifo;
 
                 struct {
+                        boolean_t zombie;
                         pid_t _pid;                           /**< Process PID from last cycle */
                         pid_t _ppid;                   /**< Process parent PID from last cycle */
                         pid_t pid;                          /**< Process PID from actual cycle */
@@ -944,14 +1006,14 @@ typedef struct myinfo {
                         int uid;                                              /**< Process UID */
                         int euid;                                   /**< Effective Process UID */
                         int gid;                                              /**< Process GID */
-                        boolean_t zombie;
+                        int threads;
                         int children;
-                        long mem_kbyte;
-                        long total_mem_kbyte;
-                        short mem_percent;                                /**< percentage * 10 */
-                        short total_mem_percent;                          /**< percentage * 10 */
-                        short cpu_percent;                                /**< percentage * 10 */
-                        short total_cpu_percent;                          /**< percentage * 10 */
+                        uint64_t mem;
+                        uint64_t total_mem;
+                        float mem_percent;                                     /**< percentage */
+                        float total_mem_percent;                               /**< percentage */
+                        float cpu_percent;                                     /**< percentage */
+                        float total_cpu_percent;                               /**< percentage */
                         time_t uptime;                                     /**< Process uptime */
                 } process;
 
@@ -983,7 +1045,7 @@ typedef struct myservice {
         Program_T program;                            /**< Program execution check */
 
         Dependant_T dependantlist;                     /**< Dependant service list */
-        Mail_T      maillist;                  /**< Alert notification mailinglist */
+        Mail_T maillist;                       /**< Alert notification mailinglist */
 
         /** Test rules and event handlers */
         ActionRate_T actionratelist;                    /**< ActionRate check list */
@@ -1021,16 +1083,15 @@ typedef struct myservice {
         EventAction_T action_INVALID;    /**< Description of the action upon event */
 
         /** Internal monit events */
-        EventAction_T action_MONIT_START;         /**< Monit instance start action */
+        EventAction_T action_MONIT_START;  /**< Monit instance start/reload action */
         EventAction_T action_MONIT_STOP;           /**< Monit instance stop action */
-        EventAction_T action_MONIT_RELOAD;       /**< Monit instance reload action */
         EventAction_T action_ACTION;           /**< Action requested by CLI or GUI */
 
         /** Runtime parameters */
         int                error;                          /**< Error flags bitmap */
         int                error_hint;   /**< Failed/Changed hint for error bitmap */
         Info_T             inf;                          /**< Service check result */
-        struct timeval     collected;                /**< When were data collected */
+        struct timeval     collected;                /**< When were data collected */ //FIXME: replace with uint64_t? (all places where timeval is used) ... Time_milli()?
         char              *token;                                /**< Action token */
 
         /** Events */
@@ -1038,7 +1099,7 @@ typedef struct myservice {
                 #define           EVENT_VERSION  4      /**< The event structure version */
                 long              id;                      /**< The event identification */
                 struct timeval    collected;                 /**< When the event occured */
-                char             *source;                 /**< Event source service name */
+                struct myservice *source;                              /**< Event source */
                 Monitor_Mode      mode;             /**< Monitoring mode for the service */
                 Service_Type      type;                      /**< Monitored service type */
                 State_Type        state;                                 /**< Test state */
@@ -1089,12 +1150,12 @@ struct myrun {
         } files;
         char *mygroup;                              /**< Group Name of the Service */
         MD_T id;                                              /**< Unique monit id */
+        Limits_T limits;                                       /**< Default limits */
         SslOptions_T ssl;                                 /**< Default SSL options */
         int  polltime;        /**< In deamon mode, the sleeptime (sec) between run */
         int  startdelay;                    /**< the sleeptime (sec) after startup */
         int  facility;              /** The facility to use when running openlog() */
         int  eventlist_slots;          /**< The event queue size - number of slots */
-        int  expectbuffer; /**< Generic protocol expect buffer - STRLEN by default */
         int mailserver_timeout; /**< Connect and read timeout ms for a SMTP server */
         time_t incarnation;              /**< Unique ID for running monit instance */
         int  handler_queue[Handler_Max + 1];       /**< The handlers queue counter */
@@ -1155,8 +1216,6 @@ extern ServiceGroup_T servicegrouplist;
 extern SystemInfo_T   systeminfo;
 extern ProcessTree_T *ptree;
 extern int            ptreesize;
-extern ProcessTree_T *oldptree;
-extern int            oldptreesize;
 
 extern char *actionnames[];
 extern char *modenames[];
@@ -1215,7 +1274,7 @@ boolean_t sendmail(Mail_T);
 void  init_env();
 void  monit_http(Httpd_Action);
 boolean_t can_http();
-void set_signal_block(sigset_t *, sigset_t *);
+void set_signal_block();
 State_Type check_process(Service_T);
 State_Type check_filesystem(Service_T);
 State_Type check_file(Service_T);

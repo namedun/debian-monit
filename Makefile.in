@@ -124,7 +124,6 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/device/sysdep_@ARCH@.$(OBJEXT) src/http/base64.$(OBJEXT) \
 	src/http/cervlet.$(OBJEXT) src/http/engine.$(OBJEXT) \
 	src/http/processor.$(OBJEXT) \
-	src/process/process_common.$(OBJEXT) \
 	src/process/sysdep_@ARCH@.$(OBJEXT) \
 	src/protocols/apache_status.$(OBJEXT) \
 	src/protocols/clamav.$(OBJEXT) src/protocols/default.$(OBJEXT) \
@@ -466,7 +465,6 @@ monit_SOURCES = src/y.tab.c \
 		  src/http/cervlet.c \
 		  src/http/engine.c \
 		  src/http/processor.c \
-		  src/process/process_common.c \
 		  src/process/sysdep_@ARCH@.c \
 		  src/protocols/apache_status.c \
 		  src/protocols/clamav.c \
@@ -660,7 +658,6 @@ src/http/processor.$(OBJEXT): src/http/$(am__dirstamp)
 src/process/$(am__dirstamp):
 	@$(MKDIR_P) src/process
 	@: > src/process/$(am__dirstamp)
-src/process/process_common.$(OBJEXT): src/process/$(am__dirstamp)
 src/process/sysdep_@ARCH@.$(OBJEXT): src/process/$(am__dirstamp)
 src/protocols/$(am__dirstamp):
 	@$(MKDIR_P) src/protocols

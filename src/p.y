@@ -196,9 +196,13 @@ static struct mychecksum checksumset;
 static struct mytimestamp timestampset;
 static struct myactionrate actionrateset;
 static struct IHavePrecedence ihp = {false, false, false};
+static struct myrate rate = {1, 1};
 static struct myrate rate1 = {1, 1};
 static struct myrate rate2 = {1, 1};
 static char * htpasswd_file = NULL;
+static unsigned repeat = 0;
+static unsigned repeat1 = 0;
+static unsigned repeat2 = 0;
 static Digest_Type digesttype = Digest_Cleartext;
 
 #define BITMAP_MAX (sizeof(long long) * 8)
@@ -208,6 +212,7 @@ static Digest_Type digesttype = Digest_Cleartext;
 
 static void  preparse();
 static void  postparse();
+static boolean_t _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing);
 static void  addmail(char *, Mail_T, Mail_T *);
 static Service_T createservice(Service_Type, char *, char *, State_Type (*)(Service_T));
 static void  addservice(Service_T);
@@ -281,7 +286,7 @@ static void  reset_gidset();
 static void  reset_statusset();
 static void  reset_filesystemset();
 static void  reset_icmpset();
-static void  reset_rateset();
+static void  reset_rateset(struct myrate *);
 static void  check_name(char *);
 static int   check_perm(int);
 static void  check_exec(char *);
@@ -305,7 +310,8 @@ static int verifyMaxForward(int);
 %token READONLY CLEARTEXT MD5HASH SHA1HASH CRYPT DELAY
 %token PEMFILE ENABLE DISABLE SSL CLIENTPEMFILE ALLOWSELFCERTIFICATION SELFSIGNED VERIFY CERTIFICATE CACERTIFICATEFILE CACERTIFICATEPATH VALID
 %token INTERFACE LINK PACKET BYTEIN BYTEOUT PACKETIN PACKETOUT SPEED SATURATION UPLOAD DOWNLOAD TOTAL
-%token IDFILE STATEFILE SEND EXPECT EXPECTBUFFER CYCLE COUNT REMINDER
+%token IDFILE STATEFILE SEND EXPECT CYCLE COUNT REMINDER REPEAT
+%token LIMITS SENDEXPECTBUFFER EXPECTBUFFER FILECONTENTBUFFER HTTPCONTENTBUFFER PROGRAMOUTPUT NETWORKTIMEOUT
 %token PIDFILE START STOP PATHTOK
 %token HOST HOSTNAME PORT IPV4 IPV6 TYPE UDP TCP TCPSSL PROTOCOL CONNECTION
 %token ALERT NOALERT MAILFORMAT UNIXSOCKET SIGNATURE
@@ -319,12 +325,12 @@ static int verifyMaxForward(int);
 %token <number> CLEANUPLIMIT
 %token <real> REAL
 %token CHECKPROC CHECKFILESYS CHECKFILE CHECKDIR CHECKHOST CHECKSYSTEM CHECKFIFO CHECKPROGRAM CHECKNET
-%token CHILDREN STATUS ORIGIN VERSIONOPT
+%token THREADS CHILDREN STATUS ORIGIN VERSIONOPT
 %token RESOURCE MEMORY TOTALMEMORY LOADAVG1 LOADAVG5 LOADAVG15 SWAP
 %token MODE ACTIVE PASSIVE MANUAL CPU TOTALCPU CPUUSER CPUSYSTEM CPUWAIT
 %token GROUP REQUEST DEPENDS BASEDIR SLOT EVENTQUEUE SECRET HOSTHEADER
 %token UID EUID GID MMONIT INSTANCE USERNAME PASSWORD
-%token TIMESTAMP CHANGED SECOND MINUTE HOUR DAY MONTH
+%token TIMESTAMP CHANGED MILLISECOND SECOND MINUTE HOUR DAY MONTH
 %token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 CERTMD5 AUTO
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
 %token INODE SPACE TFREE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
@@ -362,6 +368,7 @@ statement       : setalert
                 | setstatefile
                 | setexpectbuffer
                 | setinit
+                | setlimits
                 | setfips
                 | checkproc optproclist
                 | checkfile optfilelist
@@ -578,20 +585,46 @@ startdelay      : /* EMPTY */        { $<number>$ = START_DELAY; }
                 | START DELAY NUMBER { $<number>$ = $3; }
                 ;
 
-setexpectbuffer : SET EXPECTBUFFER NUMBER unit {
-                    Run.expectbuffer = $3 * $<number>4;
-                    if (Run.expectbuffer > EXPECT_BUFFER_MAX)
-                        yyerror("Maximum value for expect buffer is 100 KB");
+setinit         : SET INIT {
+                        Run.flags |= Run_Foreground;
                   }
                 ;
 
-setinit         : SET INIT {
-                    Run.flags |= Run_Foreground;
+setexpectbuffer : SET EXPECTBUFFER NUMBER unit {
+                        // Note: deprecated (replaced by "set limits" statement's "sendExpectBuffer" option)
+                        Run.limits.sendExpectBuffer = $3 * $<number>4;
+                  }
+                ;
+
+setlimits       : SET LIMITS '{' limitlist '}'
+                ;
+
+limitlist       : /* EMPTY */
+                | limitlist limit
+                ;
+
+limit           : SENDEXPECTBUFFER ':' NUMBER unit {
+                        Run.limits.sendExpectBuffer = $3 * $<number>4;
+                  }
+                | FILECONTENTBUFFER ':' NUMBER unit {
+                        Run.limits.fileContentBuffer = $3 * $<number>4;
+                  }
+                | HTTPCONTENTBUFFER ':' NUMBER unit {
+                        Run.limits.httpContentBuffer = $3 * $<number>4;
+                  }
+                | PROGRAMOUTPUT ':' NUMBER unit {
+                        Run.limits.programOutput = $3 * $<number>4;
+                  }
+                | NETWORKTIMEOUT ':' NUMBER MILLISECOND {
+                        Run.limits.networkTimeout= $3;
+                  }
+                | NETWORKTIMEOUT ':' NUMBER SECOND {
+                        Run.limits.networkTimeout= $3 * 1000;
                   }
                 ;
 
 setfips         : SET FIPS {
-                    Run.flags |= Run_FipsEnabled;
+                        Run.flags |= Run_FipsEnabled;
                   }
                 ;
 
@@ -1257,14 +1290,15 @@ connection      : IF FAILED host port connectionoptlist rate1 THEN action1 recov
 
 connectionoptlist : /* EMPTY */
                 | connectionoptlist connectionopt
-                | sendexpectlist
                 ;
 
 connectionopt   : ip
                 | type
                 | protocol
+                | sendexpect
                 | urloption
                 | connectiontimeout
+                | outgoing
                 | retry
                 | ssl
                 | sslchecksum
@@ -1298,11 +1332,11 @@ connectionunix  : IF FAILED unixsocket connectionuxoptlist rate1 THEN action1 re
 
 connectionuxoptlist : /* EMPTY */
                 | connectionuxoptlist connectionuxopt
-                | sendexpectlist
                 ;
 
 connectionuxopt : type
                 | protocol
+                | sendexpect
                 | connectiontimeout
                 | retry
                 ;
@@ -1337,6 +1371,7 @@ icmpoptlist     : /* EMPTY */
 icmpopt         : icmpcount
                 | icmpsize
                 | icmptimeout
+                | icmpoutgoing
                 ;
 
 host            : /* EMPTY */ {
@@ -1384,6 +1419,11 @@ typeoptlist     : /* EMPTY */
 
 typeopt         : sslversion
                 | certmd5
+                ;
+
+outgoing        : ADDRESS STRING {
+                        _parseOutgoingAddress($<string>2, &(portset.outgoing));
+                  }
                 ;
 
 protocol        : PROTOCOL APACHESTATUS apache_stat_list {
@@ -1499,16 +1539,12 @@ protocol        : PROTOCOL APACHESTATUS apache_stat_list {
                   }
                 ;
 
-sendexpectlist  : sendexpect {
-                        portset.protocol = Protocol_get(Protocol_GENERIC);
-                  }
-                | sendexpectlist sendexpect
-                ;
-
 sendexpect      : SEND STRING {
+                    portset.protocol = Protocol_get(Protocol_GENERIC);
                     addgeneric(&portset, $2, NULL);
                   }
                 | EXPECT STRING {
+                    portset.protocol = Protocol_get(Protocol_GENERIC);
                     addgeneric(&portset, NULL, $2);
                   }
                 ;
@@ -1628,10 +1664,13 @@ radius          : secret {
                 ;
 
 apache_stat_list: apache_stat
-                | apache_stat_list OR apache_stat
+                | apache_stat_list apache_stat
                 ;
 
-apache_stat     : LOGLIMIT operator NUMBER PERCENT {
+apache_stat     : PATHTOK PATH {
+                    portset.parameters.apachestatus.path = $<string>2;
+                  }
+                | LOGLIMIT operator NUMBER PERCENT {
                     portset.parameters.apachestatus.loglimitOP = $<number>2;
                     portset.parameters.apachestatus.loglimit = $<number>3;
                   }
@@ -1714,6 +1753,11 @@ icmptimeout     : TIMEOUT NUMBER SECOND {
                     }
                   ;
 
+icmpoutgoing    : ADDRESS STRING {
+                        _parseOutgoingAddress($<string>2, &(icmpset.outgoing));
+                  }
+                ;
+
 exectimeout     : /* EMPTY */ {
                    $<number>$ = EXEC_TIMEOUT;
                   }
@@ -1731,7 +1775,7 @@ programtimeout  : /* EMPTY */ {
                 ;
 
 nettimeout      : /* EMPTY */ {
-                   $<number>$ = NET_TIMEOUT; // timeout is in milliseconds
+                   $<number>$ = Run.limits.networkTimeout;
                   }
                 | TIMEOUT NUMBER SECOND {
                    $<number>$ = $2 * 1000; // net timeout is in milliseconds internally
@@ -1914,6 +1958,7 @@ resourceprocesslist : resourceprocessopt
 
 resourceprocessopt  : resourcecpuproc
                     | resourcemem
+                    | resourcethreads
                     | resourcechild
                     | resourceload
                     ;
@@ -1937,19 +1982,19 @@ resourcesystemopt  : resourceload
 resourcecpuproc : CPU operator NUMBER PERCENT {
                     resourceset.resource_id = Resource_CpuPercent;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10);
+                    resourceset.limit = $3;
                   }
                 | TOTALCPU operator NUMBER PERCENT {
                     resourceset.resource_id = Resource_CpuPercentTotal;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10);
+                    resourceset.limit = $3;
                   }
                 ;
 
 resourcecpu     : resourcecpuid operator NUMBER PERCENT {
                     resourceset.resource_id = $<number>1;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10);
+                    resourceset.limit = $3;
                   }
                 ;
 
@@ -1962,48 +2007,55 @@ resourcecpuid   : CPUUSER   { $<number>$ = Resource_CpuUser; }
 resourcemem     : MEMORY operator value unit {
                     resourceset.resource_id = Resource_MemoryKbyte;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) ($<real>3 * ($<number>4 / 1024.0));
+                    resourceset.limit = $<real>3 * $<number>4;
                   }
                 | MEMORY operator NUMBER PERCENT {
                     resourceset.resource_id = Resource_MemoryPercent;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10);
+                    resourceset.limit = $3;
                   }
                 | TOTALMEMORY operator value unit {
                     resourceset.resource_id = Resource_MemoryKbyteTotal;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) ($<real>3 * ($<number>4 / 1024.0));
+                    resourceset.limit = $<real>3 * $<number>4;
                   }
                 | TOTALMEMORY operator NUMBER PERCENT  {
                     resourceset.resource_id = Resource_MemoryPercentTotal;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10);
+                    resourceset.limit = $3;
                   }
                 ;
 
 resourceswap    : SWAP operator value unit {
                     resourceset.resource_id = Resource_SwapKbyte;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) ($<real>3 * ($<number>4 / 1024.0));
+                    resourceset.limit = $<real>3 * $<number>4;
                   }
                 | SWAP operator NUMBER PERCENT {
                     resourceset.resource_id = Resource_SwapPercent;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = ($3 * 10);
+                    resourceset.limit = $3;
+                  }
+                ;
+
+resourcethreads : THREADS operator NUMBER {
+                    resourceset.resource_id = Resource_Threads;
+                    resourceset.operator = $<number>2;
+                    resourceset.limit = $<number>3;
                   }
                 ;
 
 resourcechild   : CHILDREN operator NUMBER {
                     resourceset.resource_id = Resource_Children;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) $3;
+                    resourceset.limit = $<number>3;
                   }
                 ;
 
 resourceload    : resourceloadavg operator value {
                     resourceset.resource_id = $<number>1;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = (int) ($<real>3 * 10.0);
+                    resourceset.limit = $<real>3;
                   }
                 ;
 
@@ -2052,18 +2104,49 @@ totaltime       : MINUTE      { $<number>$ = Time_Minute; }
 currenttime     : /* EMPTY */ { $<number>$ = Time_Second; }
                 | SECOND      { $<number>$ = Time_Second; }
 
-action          : ALERT                            { $<number>$ = Action_Alert; }
-                | EXEC argumentlist                { $<number>$ = Action_Exec; }
-                | EXEC argumentlist useroptionlist { $<number>$ = Action_Exec; }
-                | RESTART                          { $<number>$ = Action_Restart; }
-                | START                            { $<number>$ = Action_Start; }
-                | STOP                             { $<number>$ = Action_Stop; }
-                | UNMONITOR                        { $<number>$ = Action_Unmonitor; }
+repeat          : /* EMPTY */ {
+                        repeat = 0;
+                  }
+                | REPEAT EVERY CYCLE {
+                        repeat = 1;
+                  }
+                | REPEAT EVERY NUMBER CYCLE {
+                        if ($<number>3 < 0) {
+                                yyerror2("The number of repeat cycles must be greater or equal to 0");
+                        }
+                        repeat = $<number>3;
+                  }
+                ;
+
+action          : ALERT {
+                        $<number>$ = Action_Alert;
+                  }
+                | EXEC argumentlist repeat {
+                        $<number>$ = Action_Exec;
+                  }
+                | EXEC argumentlist useroptionlist repeat
+                  {
+                        $<number>$ = Action_Exec;
+                  }
+                | RESTART {
+                        $<number>$ = Action_Restart;
+                  }
+                | START {
+                        $<number>$ = Action_Start;
+                  }
+                | STOP {
+                        $<number>$ = Action_Stop;
+                  }
+                | UNMONITOR {
+                        $<number>$ = Action_Unmonitor;
+                  }
                 ;
 
 action1         : action {
                     $<number>$ = $<number>1;
                     if ($<number>1 == Action_Exec && command) {
+                      repeat1 = repeat;
+                      repeat = 0;
                       command1 = command;
                       command = NULL;
                     }
@@ -2073,44 +2156,60 @@ action1         : action {
 action2         : action {
                     $<number>$ = $<number>1;
                     if ($<number>1 == Action_Exec && command) {
+                      repeat2 = repeat;
+                      repeat = 0;
                       command2 = command;
                       command = NULL;
                     }
                   }
                 ;
 
-rate1           : /* EMPTY */
-                | NUMBER CYCLE {
-                    rate1.count  = $<number>1;
-                    rate1.cycles = $<number>1;
-                    if (rate1.cycles < 1 || rate1.cycles > BITMAP_MAX)
-                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
-                  }
-                | NUMBER NUMBER CYCLE {
-                    rate1.count  = $<number>1;
-                    rate1.cycles = $<number>2;
-                    if (rate1.cycles < 1 || rate1.cycles > BITMAP_MAX)
-                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
-                    if (rate1.count < 1 || rate1.count > rate1.cycles)
-                      yyerror2("The number of events must be bigger then 0 and less than poll cycles");
+rateXcycles     : NUMBER CYCLE {
+                        if ($<number>1 < 1 || $<number>1 > BITMAP_MAX) {
+                                yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
+                        } else {
+                                rate.count  = $<number>1;
+                                rate.cycles = $<number>1;
+                        }
                   }
                 ;
 
+rateXYcycles    : NUMBER NUMBER CYCLE {
+                        if ($<number>2 < 1 || $<number>2 > BITMAP_MAX) {
+                                yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
+                        } else if ($<number>1 < 1 || $<number>1 > $<number>2) {
+                                yyerror2("The number of events must be between 1 and less then poll cycles");
+                        } else {
+                                rate.count  = $<number>1;
+                                rate.cycles = $<number>2;
+                        }
+                  }
+                ;
+
+rate1           : /* EMPTY */
+                | rateXcycles {
+                        rate1.count = rate.count;
+                        rate1.cycles = rate.cycles;
+                        reset_rateset(&rate);
+                  }
+                | rateXYcycles {
+                        rate1.count = rate.count;
+                        rate1.cycles = rate.cycles;
+                        reset_rateset(&rate);
+                }
+                ;
+
 rate2           : /* EMPTY */
-                | NUMBER CYCLE {
-                    rate2.count  = $<number>1;
-                    rate2.cycles = $<number>1;
-                    if (rate2.cycles < 1 || rate2.cycles > BITMAP_MAX)
-                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
+                | rateXcycles {
+                        rate2.count = rate.count;
+                        rate2.cycles = rate.cycles;
+                        reset_rateset(&rate);
                   }
-                | NUMBER NUMBER CYCLE {
-                    rate2.count  = $<number>1;
-                    rate2.cycles = $<number>2;
-                    if (rate2.cycles < 1 || rate2.cycles > BITMAP_MAX)
-                      yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
-                    if (rate2.count < 1 || rate2.count > rate2.cycles)
-                      yyerror2("The number of events must be bigger then 0 and less than poll cycles");
-                  }
+                | rateXYcycles {
+                        rate2.count = rate.count;
+                        rate2.cycles = rate.cycles;
+                        reset_rateset(&rate);
+                }
                 ;
 
 recovery        : /* EMPTY */ {
@@ -2159,7 +2258,7 @@ inode           : IF INODE operator NUMBER rate1 THEN action1 recovery {
                 | IF INODE operator NUMBER PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_Inode;
                     filesystemset.operator = $<number>3;
-                    filesystemset.limit_percent = (int)($4 * 10);
+                    filesystemset.limit_percent = $4;
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
@@ -2173,7 +2272,7 @@ inode           : IF INODE operator NUMBER rate1 THEN action1 recovery {
                 | IF INODE TFREE operator NUMBER PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_InodeFree;
                     filesystemset.operator = $<number>4;
-                    filesystemset.limit_percent = (int)($5 * 10);
+                    filesystemset.limit_percent = $5;
                     addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                     addfilesystem(&filesystemset);
                   }
@@ -2191,7 +2290,7 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                 | IF SPACE operator NUMBER PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_Space;
                     filesystemset.operator = $<number>3;
-                    filesystemset.limit_percent = (int)($4 * 10);
+                    filesystemset.limit_percent = $4;
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
@@ -2207,7 +2306,7 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                 | IF SPACE TFREE operator NUMBER PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_SpaceFree;
                     filesystemset.operator = $<number>4;
-                    filesystemset.limit_percent = (int)($5 * 10);
+                    filesystemset.limit_percent = $5;
                     addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                     addfilesystem(&filesystemset);
                   }
@@ -2238,7 +2337,38 @@ permission      : IF FAILED PERMISSION NUMBER rate1 THEN action1 recovery {
                   }
                 ;
 
-match           : IF matchflagnot MATCH PATH rate1 THEN action1 {
+match           : IF CONTENT urloperator PATH rate1 THEN action1 {
+                    matchset.not = $<number>3 == Operator_Equal ? false : true;
+                    matchset.ignore = false;
+                    matchset.match_path = $4;
+                    matchset.match_string = NULL;
+                    addmatchpath(&matchset, $<number>7);
+                    FREE($4);
+                  }
+                | IF CONTENT urloperator STRING rate1 THEN action1 {
+                    matchset.not = $<number>3 == Operator_Equal ? false : true;
+                    matchset.ignore = false;
+                    matchset.match_path = NULL;
+                    matchset.match_string = $4;
+                    addmatch(&matchset, $<number>7, 0);
+                  }
+                | IGNORE CONTENT urloperator PATH {
+                    matchset.not = $<number>3 == Operator_Equal ? false : true;
+                    matchset.ignore = true;
+                    matchset.match_path = $4;
+                    matchset.match_string = NULL;
+                    addmatchpath(&matchset, Action_Ignored);
+                    FREE($4);
+                  }
+                | IGNORE CONTENT urloperator STRING {
+                    matchset.not = $<number>3 == Operator_Equal ? false : true;
+                    matchset.ignore = true;
+                    matchset.match_path = NULL;
+                    matchset.match_string = $4;
+                    addmatch(&matchset, Action_Ignored, 0);
+                  }
+                /* The bellow MATCH statement is deprecated (replaced by CONTENT) */
+                | IF matchflagnot MATCH PATH rate1 THEN action1 {
                     matchset.ignore = false;
                     matchset.match_path = $4;
                     matchset.match_string = NULL;
@@ -2604,27 +2734,32 @@ static void preparse() {
         argcurrentfile              = NULL;
         argyytext                   = NULL;
         /* Reset parser */
-        Run.mmonitcredentials       = NULL;
-        Run.httpd.flags             = Httpd_Disabled | Httpd_Signature;
-        Run.httpd.credentials       = NULL;
+        Run.limits.sendExpectBuffer  = LIMIT_SENDEXPECTBUFFER;
+        Run.limits.fileContentBuffer = LIMIT_FILECONTENTBUFFER;
+        Run.limits.httpContentBuffer = LIMIT_HTTPCONTENTBUFFER;
+        Run.limits.programOutput     = LIMIT_PROGRAMOUTPUT;
+        Run.limits.networkTimeout    = LIMIT_NETWORKTIMEOUT;
+        Run.mmonitcredentials        = NULL;
+        Run.httpd.flags              = Httpd_Disabled | Httpd_Signature;
+        Run.httpd.credentials        = NULL;
         memset(&(Run.httpd.socket), 0, sizeof(Run.httpd.socket));
-        Run.mailserver_timeout      = SMTP_TIMEOUT;
-        Run.eventlist               = NULL;
-        Run.eventlist_dir           = NULL;
-        Run.eventlist_slots         = -1;
-        Run.system                  = NULL;
-        Run.expectbuffer            = STRLEN;
-        Run.mmonits                 = NULL;
-        Run.maillist                = NULL;
-        Run.mailservers             = NULL;
-        Run.MailFormat.from         = NULL;
-        Run.MailFormat.replyto      = NULL;
-        Run.MailFormat.subject      = NULL;
-        Run.MailFormat.message      = NULL;
-        depend_list                 = NULL;
+        Run.mailserver_timeout       = SMTP_TIMEOUT;
+        Run.eventlist                = NULL;
+        Run.eventlist_dir            = NULL;
+        Run.eventlist_slots          = -1;
+        Run.system                   = NULL;
+        Run.mmonits                  = NULL;
+        Run.maillist                 = NULL;
+        Run.mailservers              = NULL;
+        Run.MailFormat.from          = NULL;
+        Run.MailFormat.replyto       = NULL;
+        Run.MailFormat.subject       = NULL;
+        Run.MailFormat.message       = NULL;
+        depend_list                  = NULL;
         Run.flags |= Run_HandlerInit | Run_MmonitCredentials;
         for (i = 0; i <= Handler_Max; i++)
                 Run.handler_queue[i] = 0;
+
         /*
          * Initialize objects
          */
@@ -2643,7 +2778,9 @@ static void preparse() {
         reset_linkspeedset();
         reset_linksaturationset();
         reset_bandwidthset();
-        reset_rateset();
+        reset_rateset(&rate);
+        reset_rateset(&rate1);
+        reset_rateset(&rate2);
         reset_filesystemset();
         reset_resourceset();
         reset_checksumset();
@@ -2687,6 +2824,8 @@ static void postparse() {
                         addservice(Run.system);
                 }
         }
+        addeventaction(&(Run.system->action_MONIT_START), Action_Start, Action_Ignored);
+        addeventaction(&(Run.system->action_MONIT_STOP), Action_Stop,  Action_Ignored);
 
         if (Run.mmonits) {
                 if (Run.httpd.flags & Httpd_Net) {
@@ -2714,6 +2853,22 @@ static void postparse() {
 #ifdef HAVE_OPENSSL
         Ssl_setFipsMode(Run.flags & Run_FipsEnabled);
 #endif
+}
+
+
+static boolean_t _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing) {
+        struct addrinfo *result, hints = {.ai_flags = AI_NUMERICHOST};
+        int status = getaddrinfo(ip, NULL, &hints, &result);
+        if (status == 0) {
+                outgoing->ip = (char *)ip;
+                outgoing->addrlen = result->ai_addrlen;
+                memcpy(&(outgoing->addr), result->ai_addr, result->ai_addrlen);
+                freeaddrinfo(result);
+                return true;
+        } else {
+                yyerror2("IP address parsing failed -- %s", ip, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
+        }
+        return false;
 }
 
 
@@ -2757,9 +2912,6 @@ static Service_T createservice(Service_Type type, char *name, char *value, State
         addeventaction(&(current)->action_INVALID,  Action_Restart,   Action_Alert);
 
         /* Initialize internal event handlers */
-        addeventaction(&(current)->action_MONIT_START,  Action_Start, Action_Ignored);
-        addeventaction(&(current)->action_MONIT_STOP,   Action_Stop,  Action_Ignored);
-        addeventaction(&(current)->action_MONIT_RELOAD, Action_Start, Action_Ignored);
         addeventaction(&(current)->action_ACTION,       Action_Alert, Action_Ignored);
 
         gettimeofday(&current->collected, NULL);
@@ -2919,6 +3071,7 @@ static void addport(Port_T *list, Port_T port) {
 
         Port_T p;
         NEW(p);
+        p->is_available       = Connection_Init;
         p->type               = port->type;
         p->socket             = port->socket;
         p->family             = port->family;
@@ -2928,6 +3081,7 @@ static void addport(Port_T *list, Port_T port) {
         p->protocol           = port->protocol;
         p->hostname           = port->hostname;
         p->url_request        = port->url_request;
+        p->outgoing           = port->outgoing;
         if (p->family == Socket_Unix) {
                 p->target.unix.pathname = port->target.unix.pathname;
         } else {
@@ -3346,7 +3500,6 @@ static void appendmatch(Match_T *list, Match_T item) {
  */
 static void addmatch(Match_T ms, int actionnumber, int linenumber) {
         Match_T m;
-        int     reg_return;
 
         ASSERT(ms);
 
@@ -3365,7 +3518,7 @@ static void addmatch(Match_T ms, int actionnumber, int linenumber) {
         addeventaction(&(m->action), actionnumber, Action_Ignored);
 
 #ifdef HAVE_REGEX_H
-        reg_return = regcomp(m->regex_comp, ms->match_string, REG_NOSUB|REG_EXTENDED);
+        int reg_return = regcomp(m->regex_comp, ms->match_string, REG_NOSUB|REG_EXTENDED);
 
         if (reg_return != 0) {
                 char errbuf[STRLEN];
@@ -3520,7 +3673,8 @@ static void addicmp(Icmp_T is) {
         icmp->count        = is->count;
         icmp->timeout      = is->timeout;
         icmp->action       = is->action;
-        icmp->is_available = false;
+        icmp->outgoing     = is->outgoing;
+        icmp->is_available = Connection_Init;
         icmp->response     = -1;
 
         icmp->next         = current->icmplist;
@@ -3542,8 +3696,9 @@ static void addeventaction(EventAction_T *_ea, Action_Type failed, Action_Type s
         NEW(ea->failed);
         NEW(ea->succeeded);
 
-        ea->failed->id     = failed;
-        ea->failed->count  = rate1.count;
+        ea->failed->id = failed;
+        ea->failed->repeat = repeat1;
+        ea->failed->count = rate1.count;
         ea->failed->cycles = rate1.cycles;
         if (failed == Action_Exec) {
                 ASSERT(command1);
@@ -3551,8 +3706,9 @@ static void addeventaction(EventAction_T *_ea, Action_Type failed, Action_Type s
                 command1 = NULL;
         }
 
-        ea->succeeded->id     = succeeded;
-        ea->succeeded->count  = rate2.count;
+        ea->succeeded->id = succeeded;
+        ea->succeeded->repeat = repeat2;
+        ea->succeeded->count = rate2.count;
         ea->succeeded->cycles = rate2.cycles;
         if (succeeded == Action_Exec) {
                 ASSERT(command2);
@@ -3560,7 +3716,10 @@ static void addeventaction(EventAction_T *_ea, Action_Type failed, Action_Type s
                 command2 = NULL;
         }
         *_ea = ea;
-        reset_rateset();
+        reset_rateset(&rate);
+        reset_rateset(&rate1);
+        reset_rateset(&rate2);
+        repeat = repeat1 = repeat2 = 0;
 }
 
 
@@ -3782,26 +3941,20 @@ static void addmailserver(MailServer_T mailserver) {
  * otherwise the user parameter is used.
  */
 static uid_t get_uid(char *user, uid_t uid) {
-        struct passwd *pwd;
-
+        char buf[4096];
+        struct passwd pwd, *result = NULL;
         if (user) {
-                pwd = getpwnam(user);
-
-                if (! pwd) {
+                if (getpwnam_r(user, &pwd, buf, sizeof(buf), &result) != 0 || ! result) {
                         yyerror2("Requested user not found on the system");
                         return(0);
                 }
-
         } else {
-
-                if (! (pwd = getpwuid(uid))) {
+                if (getpwuid_r(uid, &pwd, buf, sizeof(buf), &result) != 0 || ! result) {
                         yyerror2("Requested uid not found on the system");
                         return(0);
                 }
         }
-
-        return(pwd->pw_uid);
-
+        return(pwd.pw_uid);
 }
 
 
@@ -4007,26 +4160,28 @@ static boolean_t addcredentials(char *uname, char *passwd, Digest_Type dtype, bo
         ASSERT(uname);
         ASSERT(passwd);
 
+        if (strlen(passwd) > MAX_CONSTANT_TIME_STRING_LENGTH) {
+                yyerror2("Password for user %s is too long, maximum %d allowed", uname, MAX_CONSTANT_TIME_STRING_LENGTH);
+                FREE(uname);
+                FREE(passwd);
+                return false;
+        }
+
         if (! Run.httpd.credentials) {
                 NEW(Run.httpd.credentials);
                 c = Run.httpd.credentials;
         } else {
-
                 if (Util_getUserCredentials(uname) != NULL) {
                         yywarning2("Credentials for user %s were already added, entry ignored", uname);
                         FREE(uname);
                         FREE(passwd);
                         return false;
                 }
-
                 c = Run.httpd.credentials;
-
                 while (c->next != NULL)
                         c = c->next;
-
                 NEW(c->next);
                 c = c->next;
-
         }
 
         c->next        = NULL;
@@ -4114,7 +4269,7 @@ static void reset_mailserverset() {
  */
 static void reset_mmonitset() {
         memset(&mmonitset, 0, sizeof(struct mymmonit));
-        mmonitset.timeout = NET_TIMEOUT;
+        mmonitset.timeout = Run.limits.networkTimeout;
 }
 
 
@@ -4126,7 +4281,7 @@ static void reset_portset() {
         portset.socket = -1;
         portset.type = Socket_Tcp;
         portset.family = Socket_Ip;
-        portset.timeout = NET_TIMEOUT;
+        portset.timeout = Run.limits.networkTimeout;
         portset.retry = 1;
         portset.protocol = Protocol_get(Protocol_DEFAULT);
         urlrequest = NULL;
@@ -4302,7 +4457,7 @@ static void reset_filesystemset() {
         filesystemset.resource = 0;
         filesystemset.operator = Operator_Equal;
         filesystemset.limit_absolute = -1;
-        filesystemset.limit_percent = -1;
+        filesystemset.limit_percent = -1.;
         filesystemset.action = NULL;
 }
 
@@ -4314,7 +4469,7 @@ static void reset_icmpset() {
         icmpset.type = ICMP_ECHO;
         icmpset.size = ICMP_SIZE;
         icmpset.count = ICMP_ATTEMPT_COUNT;
-        icmpset.timeout = NET_TIMEOUT;
+        icmpset.timeout = Run.limits.networkTimeout;
         icmpset.action = NULL;
 }
 
@@ -4322,12 +4477,9 @@ static void reset_icmpset() {
 /*
  * Reset the Rate set to default values
  */
-static void reset_rateset() {
-        rate1.count  = 1;
-        rate1.cycles = 1;
-
-        rate2.count  = 1;
-        rate2.cycles = 1;
+static void reset_rateset(struct myrate *rate) {
+        rate->count = 1;
+        rate->cycles = 1;
 }
 
 

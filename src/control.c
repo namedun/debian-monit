@@ -56,7 +56,10 @@
 #include "net.h"
 #include "socket.h"
 #include "event.h"
+#include "util.h"
 #include "system/Time.h"
+
+// libmonit
 #include "exceptions/AssertException.h"
 
 
@@ -118,10 +121,10 @@ static int _commandExecute(Service_T S, command_t c, char *msg, int msglen, int6
                 Command_setEnv(C, "MONIT_EVENT", c == S->start ? "Started" : c == S->stop ? "Stopped" : "Restarted");
                 Command_setEnv(C, "MONIT_DESCRIPTION", c == S->start ? "Started" : c == S->stop ? "Stopped" : "Restarted");
                 if (S->type == Service_Process) {
-                        Command_vSetEnv(C, "MONIT_PROCESS_PID", "%d", Util_isProcessRunning(S, false));
-                        Command_vSetEnv(C, "MONIT_PROCESS_MEMORY", "%ld", S->inf->priv.process.mem_kbyte);
+                        Command_vSetEnv(C, "MONIT_PROCESS_PID", "%d", S->inf->priv.process.pid);
+                        Command_vSetEnv(C, "MONIT_PROCESS_MEMORY", "%llu", (unsigned long long)((double)S->inf->priv.process.mem / 1024.));
                         Command_vSetEnv(C, "MONIT_PROCESS_CHILDREN", "%d", S->inf->priv.process.children);
-                        Command_vSetEnv(C, "MONIT_PROCESS_CPU_PERCENT", "%d", S->inf->priv.process.cpu_percent);
+                        Command_vSetEnv(C, "MONIT_PROCESS_CPU_PERCENT", "%.1f", S->inf->priv.process.cpu_percent);
                 }
                 Process_T P = Command_execute(C);
                 Command_free(&C);
@@ -154,11 +157,11 @@ static int _commandExecute(Service_T S, command_t c, char *msg, int msglen, int6
 
 
 static Process_Status _waitProcessStart(Service_T s, int64_t *timeout) {
-        long wait = 50000;
+        long wait = RETRY_INTERVAL;
         do {
-                if (Util_isProcessRunning(s, true))
-                        return Process_Started;
                 Time_usleep(wait);
+                if (Util_isProcessRunning(s))
+                        return Process_Started;
                 *timeout -= wait;
                 wait = wait < 1000000 ? wait * 2 : 1000000; // double the wait during each cycle until 1s is reached (Util_isProcessRunning can be heavy and we don't want to drain power every 100ms on mobile devices)
         } while (*timeout > 0 && ! (Run.flags & Run_Stopped));
@@ -168,9 +171,9 @@ static Process_Status _waitProcessStart(Service_T s, int64_t *timeout) {
 
 static Process_Status _waitProcessStop(int pid, int64_t *timeout) {
         do {
+                Time_usleep(RETRY_INTERVAL);
                 if (! pid || (getpgid(pid) == -1 && errno != EPERM))
                         return Process_Stopped;
-                Time_usleep(RETRY_INTERVAL);
                 *timeout -= RETRY_INTERVAL;
         } while (*timeout > 0 && ! (Run.flags & Run_Stopped));
         return Process_Started;
@@ -223,12 +226,12 @@ static boolean_t _doStart(Service_T s) {
         }
         if (rv) {
                 if (s->start) {
-                        if (s->type != Service_Process || ! Util_isProcessRunning(s, false)) {
+                        if (s->type != Service_Process || ! Util_isProcessRunning(s)) {
                                 LogInfo("'%s' start: %s\n", s->name, s->start->arg[0]);
                                 char msg[STRLEN];
                                 int64_t timeout = s->start->timeout * USEC_PER_SEC;
                                 int status = _commandExecute(s, s->start, msg, sizeof(msg), &timeout);
-                                if ((s->type == Service_Process && _waitProcessStart(s, &timeout) != Process_Started) || status < 0) {
+                                if (status < 0 || (s->type == Service_Process && _waitProcessStart(s, &timeout) != Process_Started)) {
                                         Event_post(s, Event_Exec, State_Failed, s->action_EXEC, "failed to start (exit status %d) -- %s", status, *msg ? msg : "no output");
                                         rv = false;
                                 } else {
@@ -278,7 +281,7 @@ static boolean_t _doStop(Service_T s, boolean_t unmonitor) {
                         char msg[STRLEN];
                         int64_t timeout = s->stop->timeout * USEC_PER_SEC;
                         if (s->type == Service_Process) {
-                                int pid = Util_isProcessRunning(s, true);
+                                int pid = Util_isProcessRunning(s);
                                 if (pid) {
                                         exitStatus = _executeStop(s, msg, sizeof(msg), &timeout);
                                         rv = _waitProcessStop(pid, &timeout) == Process_Stopped ? true : false;
@@ -316,7 +319,7 @@ static boolean_t _doRestart(Service_T s) {
                 char msg[STRLEN];
                 int64_t timeout = s->restart->timeout * USEC_PER_SEC;
                 int status = _commandExecute(s, s->restart, msg, sizeof(msg), &timeout);
-                if ((s->type == Service_Process && _waitProcessStart(s, &timeout) != Process_Started) || status < 0) {
+                if (status < 0 || (s->type == Service_Process && _waitProcessStart(s, &timeout) != Process_Started)) {
                         rv = false;
                         Event_post(s, Event_Exec, State_Failed, s->action_EXEC, "failed to restart (exit status %d) -- %s", status, msg);
                 } else {
@@ -420,9 +423,9 @@ boolean_t control_service_daemon(List_T services, const char *action) {
         Socket_T socket = NULL;
         if (Run.httpd.flags & Httpd_Net)
                 // FIXME: Monit HTTP support IPv4 only currently ... when IPv6 is implemented change the family to Socket_Ip
-                socket = Socket_create(Run.httpd.socket.net.address ? Run.httpd.socket.net.address : "localhost", Run.httpd.socket.net.port, Socket_Tcp, Socket_Ip4, (SslOptions_T){.use_ssl = Run.httpd.flags & Httpd_Ssl, .clientpemfile = Run.httpd.socket.net.ssl.clientpem, .allowSelfSigned = Run.httpd.flags & Httpd_AllowSelfSignedCertificates}, NET_TIMEOUT);
+                socket = Socket_create(Run.httpd.socket.net.address ? Run.httpd.socket.net.address : "localhost", Run.httpd.socket.net.port, Socket_Tcp, Socket_Ip4, (SslOptions_T){.use_ssl = Run.httpd.flags & Httpd_Ssl, .clientpemfile = Run.httpd.socket.net.ssl.clientpem, .allowSelfSigned = Run.httpd.flags & Httpd_AllowSelfSignedCertificates}, Run.limits.networkTimeout);
         else if (Run.httpd.flags & Httpd_Unix)
-                socket = Socket_createUnix(Run.httpd.socket.unix.path, Socket_Tcp, NET_TIMEOUT);
+                socket = Socket_createUnix(Run.httpd.socket.unix.path, Socket_Tcp, Run.limits.networkTimeout);
         else
                 LogError("Action %s not possible - monit http interface is not enabled, please add the 'set httpd' statement\n", action);
         if (! socket)
@@ -453,42 +456,16 @@ boolean_t control_service_daemon(List_T services, const char *action) {
                 goto err;
         }
 
-        /* Process response */
-        char buf[STRLEN];
-        if (! Socket_readLine(socket, buf, STRLEN)) {
-                errors++;
-                LogError("Error receiving data -- %s\n", STRERROR);
-                goto err;
+        TRY
+        {
+                Util_parseMonitHttpResponse(socket);
         }
-        Str_chomp(buf);
-        int status;
-        if (! sscanf(buf, "%*s %d", &status)) {
+        ELSE
+        {
+                LogError("%s\n", Exception_frame.message);
                 errors++;
-                LogError("Cannot parse status in response: %s\n", buf);
-                goto err;
         }
-        if (status >= 300) {
-                errors++;
-                int content_length = 0;
-                while (Socket_readLine(socket, buf, STRLEN)) {
-                        if (! strncmp(buf, "\r\n", sizeof(buf)))
-                                break;
-                        if (Str_startsWith(buf, "Content-Length") && ! sscanf(buf, "%*s%*[: ]%d", &content_length))
-                                goto err;
-                }
-                char *message = NULL;
-                if (content_length > 0 && content_length < 1024 && Socket_readLine(socket, buf, STRLEN)) {
-                        char token[] = "</h2>";
-                        message = strstr(buf, token);
-                        if (strlen(message) > strlen(token)) {
-                                message += strlen(token);
-                                char *footer = NULL;
-                                if ((footer = strstr(message, "<p>")) || (footer = strstr(message, "<hr>")))
-                                        *footer = 0;
-                        }
-                }
-                LogError("Action failed -- %s\n", message ? message : "unable to parse response");
-        }
+        END_TRY;
 err:
         FREE(auth);
         StringBuffer_free(&sb);
@@ -527,11 +504,11 @@ boolean_t control_service_string(List_T services, const char *action) {
  */
 boolean_t control_service(const char *S, Action_Type A) {
         Service_T s = NULL;
-        boolean_t rv = false;
+        boolean_t rv = true;
         ASSERT(S);
         if (! (s = Util_getService(S))) {
                 LogError("Service '%s' -- doesn't exist\n", S);
-                return rv;
+                return false;
         }
         s->doaction = Action_Ignored;
         switch (A) {

@@ -41,7 +41,11 @@ int main(void) {
                 assert(Str_isEqual(result, "03/01/10 12:00:00"));
                 Time_fmt(result, STRLEN, "%D %z", 1267441200);
                 printf("\tResult: 1267441200 -> %s\n", result);
+#ifdef AIX
+                assert(Str_startsWith(result, "03/01/10 CET"));
+#else
                 assert(Str_startsWith(result, "03/01/10 +"));
+#endif
         }
         printf("=> Test1: OK\n\n");
 

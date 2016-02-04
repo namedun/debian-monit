@@ -153,6 +153,8 @@ static void _updateValue(LinkData_T *data, unsigned long long raw) {
 #include "os/openbsd/Link.inc"
 #elif defined NETBSD
 #include "os/netbsd/Link.inc"
+#elif defined DRAGONFLY
+#include "os/dragonfly/Link.inc"
 #elif defined LINUX
 #include "os/linux/Link.inc"
 #elif defined SOLARIS

@@ -89,10 +89,8 @@ static void _gc_request(Request_T *);
 
 void gc() {
         Engine_destroyHostsAllow();
-        if (Run.flags & Run_ProcessEngineEnabled) {
-                delprocesstree(&oldptree, &oldptreesize);
+        if (Run.flags & Run_ProcessEngineEnabled)
                 delprocesstree(&ptree, &ptreesize);
-        }
         if (servicelist)
                 _gc_service_list(&servicelist);
         if (servicegrouplist)
@@ -149,7 +147,6 @@ void gc_event(Event_T *e) {
         if ((*e)->next)
                 gc_event(&(*e)->next);
         (*e)->action = NULL;
-        FREE((*e)->source);
         FREE((*e)->message);
         FREE(*e);
 }
@@ -260,8 +257,6 @@ static void _gc_service(Service_T *s) {
                 _gc_eventaction(&(*s)->action_MONIT_START);
         if ((*s)->action_MONIT_STOP)
                 _gc_eventaction(&(*s)->action_MONIT_STOP);
-        if ((*s)->action_MONIT_RELOAD)
-                _gc_eventaction(&(*s)->action_MONIT_RELOAD);
         if ((*s)->action_ACTION)
                 _gc_eventaction(&(*s)->action_ACTION);
         if ((*s)->eventlist)
@@ -356,6 +351,7 @@ static void _gcportlist(Port_T *p) {
         else
                 _gcssloptions(&((*p)->target.net.ssl));
         FREE((*p)->hostname);
+        FREE((*p)->outgoing.ip);
         if ((*p)->protocol->check == check_http) {
                 FREE((*p)->parameters.http.request);
                 FREE((*p)->parameters.http.checksum);
@@ -365,6 +361,7 @@ static void _gcportlist(Port_T *p) {
                                 char *s = List_pop(l);
                                 FREE(s);
                         }
+                        List_free(&(*p)->parameters.http.headers);
                 }
         } else if ((*p)->protocol->check == check_generic) {
                 if ((*p)->parameters.generic.sendexpect)
@@ -380,6 +377,8 @@ static void _gcportlist(Port_T *p) {
                 FREE((*p)->parameters.websocket.host);
                 FREE((*p)->parameters.websocket.origin);
                 FREE((*p)->parameters.websocket.request);
+        } else if ((*p)->protocol->check == check_apache_status) {
+                FREE((*p)->parameters.apachestatus.path);
         }
         FREE(*p);
 }
@@ -399,6 +398,7 @@ static void _gcicmp(Icmp_T *i) {
         ASSERT(i&&*i);
         if ((*i)->next)
                 _gcicmp(&(*i)->next);
+        FREE((*i)->outgoing.ip);
         if ((*i)->action)
                 _gc_eventaction(&(*i)->action);
         FREE(*i);

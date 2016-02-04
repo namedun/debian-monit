@@ -38,13 +38,6 @@
 
 
 /**
- * Standard milliseconds to wait for a socket connection or for socket read
- * i/o before aborting
- */
-#define NET_TIMEOUT 5000
-
-
-/**
  * Check if the hostname resolves
  * @param hostname The host to check
  * @return true if hostname resolves, otherwise false
@@ -82,11 +75,12 @@ int create_server_socket_unix(const char *path, int backlog);
  * The 'count' echo requests  is send and we expect at least one reply.
  * @param hostname The host to open a socket at
  * @param family The socket family to use
+ * @param outgoing Outgoing IP address (optional)
  * @param size The ping size
  * @param timeout If response will not come within timeout milliseconds abort
  * @param count How many pings to send
  * @return response time on succes, -1 on error
  */
-double icmp_echo(const char *hostname, Socket_Family family, int size, int timeout, int count);
+double icmp_echo(const char *hostname, Socket_Family family, Outgoing_T *outgoing, int size, int timeout, int count);
 
 #endif

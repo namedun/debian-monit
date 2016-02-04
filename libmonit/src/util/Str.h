@@ -38,6 +38,13 @@
 
 
 /**
+ * Maximum length of input for Str_compareConstantTime() method. We support
+ * currently up to 64 characters, which is enough for SHA256 digests.
+ */
+#define MAX_CONSTANT_TIME_STRING_LENGTH 64
+
+
+/**
  * Test if the given string is defined. That is; not NULL nor the 
  * empty ("") string
  * @param s The string to test
@@ -426,6 +433,16 @@ int Str_cmp(const void *x, const void *y);
 
 
 /**
+ * Compare case sensitive two strings in constant time. This function
+ * can be used for timing-attack resistent comparison of credentials.
+ * @param x A String
+ * @param y A String
+ * @return 0 if x and y are equal otherwise a non-zero integer
+ */
+int Str_compareConstantTime(const void *x, const void *y);
+
+
+/**
  * Convert the numeric bytes value to a string representation scaled to
  * human friendly storage unit [B, kB, MB, etc.].
  * @param bytes Byte value to convert
@@ -433,6 +450,16 @@ int Str_cmp(const void *x, const void *y);
  * @return A pointer to s
  */
 char *Str_bytesToSize(double bytes, char s[10]);
+
+
+/**
+ * Convert the value in milliseconds to human friendlier unit (ms/s/m).
+ * @param milli The time value in milliseconds to present
+ * @param s A result buffer, must be large enough to hold 23 chars
+ * @return A pointer to s
+ */
+char *Str_milliToTime(double milli, char s[23]);
+
 
 #endif
 

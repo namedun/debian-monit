@@ -3,7 +3,8 @@
 AUTOMAKE_OPTIONS = foreign no-dependencies subdir-objects
 ACLOCAL_AMFLAGS  = -I m4
 
-SUBDIRS         = . test
+SUBDIRS         = . $(UNIT_TEST)
+DIST_SUBDIRS    = . test
 
 EXTRA_DIST      = README COPYING bootstrap test src config
 

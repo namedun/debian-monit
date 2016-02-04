@@ -225,11 +225,17 @@ static boolean_t _doConnect(int s, const struct sockaddr *addr, socklen_t addrle
 }
 
 
-T _createIpSocket(const char *host, const struct sockaddr *addr, socklen_t addrlen, int family, int type, int protocol, SslOptions_T ssl, int timeout) {
+T _createIpSocket(const char *host, const struct sockaddr *addr, socklen_t addrlen, const struct sockaddr *localaddr, socklen_t localaddrlen, int family, int type, int protocol, SslOptions_T ssl, int timeout) {
         ASSERT(host);
         char error[STRLEN];
         int s = socket(family, type, protocol);
         if (s >= 0) {
+                if (localaddr) {
+                        if (bind(s, localaddr, localaddrlen) < 0) {
+                                snprintf(error, sizeof(error), "Cannot bind to outgoing address -- %s", STRERROR);
+                                goto error;
+                        }
+                }
                 if (Net_setNonBlocking(s)) {
                         if (fcntl(s, F_SETFD, FD_CLOEXEC) != -1) {
                                 if (_doConnect(s, addr, addrlen, timeout, error, sizeof(error))) {
@@ -262,6 +268,7 @@ T _createIpSocket(const char *host, const struct sockaddr *addr, socklen_t addrl
                 } else {
                         snprintf(error, sizeof(error), "Cannot set nonblocking socket -- %s", STRERROR);
                 }
+error:
                 Net_close(s);
         } else {
                 snprintf(error, sizeof(error), "Cannot create socket to %s -- %s", _addressToString(addr, addrlen, (char[STRLEN]){}, STRLEN), STRERROR);
@@ -358,7 +365,7 @@ T Socket_create(const char *host, int port, Socket_Type type, Socket_Family fami
                 for (struct addrinfo *r = result; r && S == NULL; r = r->ai_next) {
                         TRY
                         {
-                                S = _createIpSocket(host, r->ai_addr, r->ai_addrlen, r->ai_family, r->ai_socktype, r->ai_protocol, ssl, timeout);
+                                S = _createIpSocket(host, r->ai_addr, r->ai_addrlen, NULL, 0, r->ai_family, r->ai_socktype, r->ai_protocol, ssl, timeout);
                         }
                         ELSE
                         {
@@ -387,7 +394,7 @@ T Socket_createAccepted(int socket, struct sockaddr *addr, socklen_t addrlen, vo
         T S;
         NEW(S);
         S->socket = socket;
-        S->timeout = NET_TIMEOUT;
+        S->timeout = Run.limits.networkTimeout;
         S->connection_type = Connection_Server;
         S->type = Socket_Tcp;
         if (addr->sa_family == AF_INET) {
@@ -538,33 +545,38 @@ static void _testUnix(Port_T p) {
 
 static void _testIp(Port_T p) {
         char error[STRLEN];
-        boolean_t is_available = false;
+        Connection_State is_available = Connection_Failed;
         struct addrinfo *result = _resolve(p->hostname, p->target.net.port, p->type, p->family);
         if (result) {
                 // The host may resolve to multiple IPs and if at least one succeeded, we have no problem and don't have to flood the log with partial errors => log only the last error
-                for (struct addrinfo *r = result; r && ! is_available; r = r->ai_next) {
-                        volatile T S = NULL;
-                        TRY
-                        {
-                                S = _createIpSocket(p->hostname, r->ai_addr, r->ai_addrlen, r->ai_family, r->ai_socktype, r->ai_protocol, p->target.net.ssl, p->timeout);
-                                S->Port = p;
-                                p->protocol->check(S);
-                                is_available = true;
+                for (struct addrinfo *r = result; r && is_available != Connection_Ok; r = r->ai_next) {
+                        if (p->outgoing.addrlen == 0 || p->outgoing.addrlen == r->ai_addrlen) {
+                                const struct sockaddr *localaddr = p->outgoing.addrlen ? (struct sockaddr *)&(p->outgoing.addr) : NULL;
+                                volatile T S = NULL;
+                                TRY
+                                {
+                                        S = _createIpSocket(p->hostname, r->ai_addr, r->ai_addrlen, localaddr, p->outgoing.addrlen, r->ai_family, r->ai_socktype, r->ai_protocol, p->target.net.ssl, p->timeout);
+                                        S->Port = p;
+                                        p->protocol->check(S);
+                                        is_available = Connection_Ok;
+                                }
+                                ELSE
+                                {
+                                        snprintf(error, sizeof(error), "%s", Exception_frame.message);
+                                        DEBUG("Socket test failed for %s -- %s\n", _addressToString(r->ai_addr, r->ai_addrlen, (char[STRLEN]){}, STRLEN), error);
+                                }
+                                FINALLY
+                                {
+                                        if (S)
+                                                Socket_free((Socket_T *)&S);
+                                }
+                                END_TRY;
+                        } else {
+                                snprintf(error, sizeof(error), "No target IP with family matching our outgoing address '%s' was found", p->outgoing.ip);
                         }
-                        ELSE
-                        {
-                                snprintf(error, sizeof(error), "%s", Exception_frame.message);
-                                DEBUG("Socket test failed for %s -- %s\n", _addressToString(r->ai_addr, r->ai_addrlen, (char[STRLEN]){}, STRLEN), error);
-                        }
-                        FINALLY
-                        {
-                                if (S)
-                                        Socket_free((Socket_T *)&S);
-                        }
-                        END_TRY;
                 }
                 freeaddrinfo(result);
-                if (! is_available)
+                if (is_available != Connection_Ok)
                         THROW(IOException, "%s", error);
         } else {
                 THROW(IOException, "Cannot resolve [%s]:%d", p->hostname, p->target.net.port);
@@ -580,7 +592,7 @@ void Socket_test(void *P) {
         Port_T p = P;
         TRY
         {
-                long long start = Time_milli();
+                int64_t start = Time_micro();
                 switch (p->family) {
                         case Socket_Unix:
                                 _testUnix(p);
@@ -594,13 +606,13 @@ void Socket_test(void *P) {
                                 THROW(IOException, "Invalid socket family %d\n", p->family);
                                 break;
                 }
-                p->is_available = true;
-                p->response = (Time_milli() - start) / 1000.;
+                p->response = (double)(Time_micro() - start) / 1000.; // Convert microseconds to milliseconds
+                p->is_available = Connection_Ok;
         }
         ELSE
         {
-                p->is_available = false;
-                p->response = -1;
+                p->is_available = Connection_Failed;
+                p->response = -1.;
                 RETHROW;
         }
         END_TRY;

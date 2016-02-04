@@ -84,8 +84,7 @@
 /* ----------------------------------------------------------------- Private */
 
 
-static int  hz;
-static int  pagesize_kbyte;
+static int  pagesize;
 static long total_old    = 0;
 static long cpu_user_old = 0;
 static long cpu_syst_old = 0;
@@ -95,42 +94,26 @@ static long cpu_syst_old = 0;
 
 
 boolean_t init_process_info_sysdep(void) {
-        int              mib[2];
-        size_t           len;
-        struct clockinfo clock;
-
-        mib[0] = CTL_KERN;
-        mib[1] = KERN_CLOCKRATE;
-        len    = sizeof(clock);
-        if (sysctl(mib, 2, &clock, &len, NULL, 0) == -1) {
-                DEBUG("system statistic error -- cannot get clock rate: %s\n", STRERROR);
-                return false;
-        }
-        hz     = clock.hz;
-
-        mib[0] = CTL_HW;
-        mib[1] = HW_NCPU;
-        len    = sizeof(systeminfo.cpus);
+        int mib[2] = {CTL_HW, HW_NCPU};
+        size_t len = sizeof(systeminfo.cpus);
         if (sysctl(mib, 2, &systeminfo.cpus, &len, NULL, 0) == -1) {
                 DEBUG("system statistic error -- cannot get cpu count: %s\n", STRERROR);
                 return false;
         }
 
         mib[1] = HW_PHYSMEM;
-        len    = sizeof(systeminfo.mem_kbyte_max);
-        if (sysctl(mib, 2, &systeminfo.mem_kbyte_max, &len, NULL, 0) == -1) {
+        len    = sizeof(systeminfo.mem_max);
+        if (sysctl(mib, 2, &systeminfo.mem_max, &len, NULL, 0) == -1) {
                 DEBUG("system statistic error -- cannot get real memory amount: %s\n", STRERROR);
                 return false;
         }
-        systeminfo.mem_kbyte_max /= 1024;
 
         mib[1] = HW_PAGESIZE;
-        len    = sizeof(pagesize_kbyte);
-        if (sysctl(mib, 2, &pagesize_kbyte, &len, NULL, 0) == -1) {
+        len    = sizeof(pagesize);
+        if (sysctl(mib, 2, &pagesize, &len, NULL, 0) == -1) {
                 DEBUG("system statistic error -- cannot get memory page size: %s\n", STRERROR);
                 return false;
         }
-        pagesize_kbyte /= 1024;
 
         return true;
 }
@@ -139,56 +122,57 @@ boolean_t init_process_info_sysdep(void) {
 /**
  * Read all processes to initialize the information tree.
  * @param reference  reference of ProcessTree
- * @return treesize>0 if succeeded otherwise =0.
+ * @param pflags Process engine flags
+ * @return treesize > 0 if succeeded otherwise 0.
  */
-int initprocesstree_sysdep(ProcessTree_T **reference) {
-        int                treesize;
-        static kvm_t      *kvm_handle;
-        ProcessTree_T     *pt;
-        struct kinfo_proc *pinfo;
-
-        if (! (kvm_handle = kvm_open(NULL, _PATH_DEVNULL, NULL, O_RDONLY, prog))) {
+int initprocesstree_sysdep(ProcessTree_T **reference, ProcessEngine_Flags pflags) {
+        kvm_t *kvm_handle = kvm_open(NULL, _PATH_DEVNULL, NULL, O_RDONLY, prog);
+        if (! kvm_handle) {
                 LogError("system statistic error -- cannot initialize kvm interface\n");
                 return 0;
         }
 
-        pinfo = kvm_getprocs(kvm_handle, KERN_PROC_PROC, 0, &treesize);
+        int treesize;
+        struct kinfo_proc *pinfo = kvm_getprocs(kvm_handle, KERN_PROC_PROC, 0, &treesize);
         if (! pinfo || (treesize < 1)) {
                 LogError("system statistic error -- cannot get process tree\n");
                 kvm_close(kvm_handle);
                 return 0;
         }
 
-        pt = CALLOC(sizeof(ProcessTree_T), treesize);
+        ProcessTree_T *pt = CALLOC(sizeof(ProcessTree_T), treesize);
 
+        StringBuffer_T cmdline = NULL;
+        if (pflags & ProcessEngine_CollectCommandLine)
+                cmdline = StringBuffer_create(64);
         for (int i = 0; i < treesize; i++) {
-                StringBuffer_T cmdline = StringBuffer_create(64);
-                pt[i].pid       = pinfo[i].ki_pid;
-                pt[i].ppid      = pinfo[i].ki_ppid;
-                pt[i].uid       = pinfo[i].ki_ruid;
-                pt[i].euid      = pinfo[i].ki_uid;
-                pt[i].gid       = pinfo[i].ki_rgid;
-                pt[i].starttime = pinfo[i].ki_start.tv_sec;
-                pt[i].cputime   = (long)(pinfo[i].ki_runtime / 100000);
-                pt[i].mem_kbyte = (unsigned long)(pinfo[i].ki_rssize * pagesize_kbyte);
-                int flags       = pinfo[i].ki_stat;
-                char * procname = pinfo[i].ki_comm;
-                if (flags == SZOMB)
-                        pt[i].zombie = true;
-                pt[i].cpu_percent = 0;
-                pt[i].time = get_float_time();
-                char **args;
-                if ((args = kvm_getargv(kvm_handle, &pinfo[i], 0))) {
-                        for (int j = 0; args[j]; j++)
-                                StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
-                        pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
-                }
-                StringBuffer_free(&cmdline);
-                if (! pt[i].cmdline || ! *pt[i].cmdline) {
-                        FREE(pt[i].cmdline);
-                        pt[i].cmdline = Str_dup(procname);
+                pt[i].pid          = pinfo[i].ki_pid;
+                pt[i].ppid         = pinfo[i].ki_ppid;
+                pt[i].cred.uid     = pinfo[i].ki_ruid;
+                pt[i].cred.euid    = pinfo[i].ki_uid;
+                pt[i].cred.gid     = pinfo[i].ki_rgid;
+                pt[i].threads      = pinfo[i].ki_numthreads;
+                pt[i].uptime       = systeminfo.time / 10. - pinfo[i].ki_start.tv_sec;
+                pt[i].cpu.time     = (double)pinfo[i].ki_runtime / 100000.;
+                pt[i].memory.usage = pinfo[i].ki_rssize * pagesize;
+                pt[i].zombie       = pinfo[i].ki_stat == SZOMB ? true : false;
+                if (pflags & ProcessEngine_CollectCommandLine) {
+                        char **args = kvm_getargv(kvm_handle, &pinfo[i], 0);
+                        if (args) {
+                                StringBuffer_clear(cmdline);
+                                for (int j = 0; args[j]; j++)
+                                        StringBuffer_append(cmdline, args[j + 1] ? "%s " : "%s", args[j]);
+                                if (StringBuffer_length(cmdline))
+                                        pt[i].cmdline = Str_dup(StringBuffer_toString(StringBuffer_trim(cmdline)));
+                        }
+                        if (! pt[i].cmdline || ! *pt[i].cmdline) {
+                                FREE(pt[i].cmdline);
+                                pt[i].cmdline = Str_dup(pinfo[i].ki_comm);
+                        }
                 }
         }
+        if (pflags & ProcessEngine_CollectCommandLine)
+                StringBuffer_free(&cmdline);
 
         *reference = pt;
         kvm_close(kvm_handle);
@@ -234,7 +218,7 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
                 LogError("system statistic error -- wired memory usage statics error\n");
                 return false;
         }
-        si->total_mem_kbyte = (active + wired) * pagesize_kbyte;
+        si->total_mem = (active + wired) * pagesize;
 
         /* Swap */
         int mib[16] = {};
@@ -243,7 +227,7 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
         size_t miblen = sizeof(mib) / sizeof(mib[0]);
         if (sysctlnametomib("vm.swap_info", mib, &miblen) == -1) {
                 LogError("system statistic error -- cannot get swap usage: %s\n", STRERROR);
-                si->swap_kbyte_max = 0;
+                si->swap_max = 0;
                 return false;
         }
         int n = 0;
@@ -255,15 +239,15 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
                         break;
                 if (xsw.xsw_version != XSWDEV_VERSION) {
                         LogError("system statistic error -- cannot get swap usage: xswdev version mismatch\n");
-                        si->swap_kbyte_max = 0;
+                        si->swap_max = 0;
                         return false;
                 }
                 total += xsw.xsw_nblks;
                 used  += xsw.xsw_used;
                 n++;
         }
-        si->swap_kbyte_max = total * pagesize_kbyte;
-        si->total_swap_kbyte = used * pagesize_kbyte;
+        si->swap_max = total * pagesize;
+        si->total_swap = used * pagesize;
         return true;
 }
 
@@ -297,9 +281,9 @@ boolean_t used_system_cpu_sysdep(SystemInfo_T *si) {
         total     = total_new - total_old;
         total_old = total_new;
 
-        si->total_cpu_user_percent = (total > 0) ? (int)(1000 * (double)(cp_time[CP_USER] - cpu_user_old) / total) : -10;
-        si->total_cpu_syst_percent = (total > 0) ? (int)(1000 * (double)(cp_time[CP_SYS] - cpu_syst_old) / total) : -10;
-        si->total_cpu_wait_percent = 0; /* there is no wait statistic available */
+        si->total_cpu_user_percent = (total > 0) ? (100. * (double)(cp_time[CP_USER] - cpu_user_old) / total) : -1.;
+        si->total_cpu_syst_percent = (total > 0) ? (100. * (double)(cp_time[CP_SYS] - cpu_syst_old) / total) : -1.;
+        si->total_cpu_wait_percent = 0.; /* there is no wait statistic available */
 
         cpu_user_old = cp_time[CP_USER];
         cpu_syst_old = cp_time[CP_SYS];

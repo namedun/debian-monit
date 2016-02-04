@@ -129,16 +129,16 @@ static void document_head(StringBuffer_T B, int V, const char *myip) {
                             "<version>%s</version>"
                             "<machine>%s</machine>"
                             "<cpu>%d</cpu>"
-                            "<memory>%lu</memory>"
-                            "<swap>%lu</swap>"
+                            "<memory>%llu</memory>"
+                            "<swap>%llu</swap>"
                             "</platform>",
                             systeminfo.uname.sysname,
                             systeminfo.uname.release,
                             systeminfo.uname.version,
                             systeminfo.uname.machine,
                             systeminfo.cpus,
-                            systeminfo.mem_kbyte_max,
-                            systeminfo.swap_kbyte_max);
+                            (unsigned long long)((double)systeminfo.mem_max / 1024.),   // Send as kB for backward compatibility
+                            (unsigned long long)((double)systeminfo.swap_max / 1024.)); // Send as kB for backward compatibility
 }
 
 
@@ -245,7 +245,7 @@ static void status_service(Service_T S, StringBuffer_T B, Level_Type L, int V) {
                                                 (int)S->inf->priv.filesystem.uid,
                                                 (int)S->inf->priv.filesystem.gid,
                                                 S->inf->priv.filesystem.flags,
-                                                S->inf->priv.filesystem.space_percent/10.,
+                                                S->inf->priv.filesystem.space_percent,
                                                 S->inf->priv.filesystem.f_bsize > 0 ? (double)S->inf->priv.filesystem.space_total / 1048576. * (double)S->inf->priv.filesystem.f_bsize : 0.,
                                                 S->inf->priv.filesystem.f_bsize > 0 ? (double)S->inf->priv.filesystem.f_blocks / 1048576. * (double)S->inf->priv.filesystem.f_bsize : 0.);
                                         if (S->inf->priv.filesystem.f_files > 0) {
@@ -255,7 +255,7 @@ static void status_service(Service_T S, StringBuffer_T B, Level_Type L, int V) {
                                                         "<usage>%lld</usage>"
                                                         "<total>%lld</total>"
                                                         "</inode>",
-                                                        S->inf->priv.filesystem.inode_percent/10.,
+                                                        S->inf->priv.filesystem.inode_percent,
                                                         S->inf->priv.filesystem.inode_total,
                                                         S->inf->priv.filesystem.f_files);
                                         }
@@ -329,24 +329,26 @@ static void status_service(Service_T S, StringBuffer_T B, Level_Type L, int V) {
                                                 (long long)S->inf->priv.process.uptime);
                                         if (Run.flags & Run_ProcessEngineEnabled) {
                                                 StringBuffer_append(B,
+                                                        "<threads>%d</threads>"
                                                         "<children>%d</children>"
                                                         "<memory>"
                                                         "<percent>%.1f</percent>"
                                                         "<percenttotal>%.1f</percenttotal>"
-                                                        "<kilobyte>%ld</kilobyte>"
-                                                        "<kilobytetotal>%ld</kilobytetotal>"
+                                                        "<kilobyte>%llu</kilobyte>"
+                                                        "<kilobytetotal>%llu</kilobytetotal>"
                                                         "</memory>"
                                                         "<cpu>"
                                                         "<percent>%.1f</percent>"
                                                         "<percenttotal>%.1f</percenttotal>"
                                                         "</cpu>",
+                                                        S->inf->priv.process.threads,
                                                         S->inf->priv.process.children,
-                                                        S->inf->priv.process.mem_percent/10.0,
-                                                        S->inf->priv.process.total_mem_percent/10.0,
-                                                        S->inf->priv.process.mem_kbyte,
-                                                        S->inf->priv.process.total_mem_kbyte,
-                                                        S->inf->priv.process.cpu_percent/10.0,
-                                                        S->inf->priv.process.total_cpu_percent/10.0);
+                                                        S->inf->priv.process.mem_percent,
+                                                        S->inf->priv.process.total_mem_percent,
+                                                        (unsigned long long)((double)S->inf->priv.process.mem / 1024.),       // Send as kB for backward compatibility
+                                                        (unsigned long long)((double)S->inf->priv.process.total_mem / 1024.), // Send as kB for backward compatibility
+                                                        S->inf->priv.process.cpu_percent,
+                                                        S->inf->priv.process.total_cpu_percent);
                                         }
                                         break;
 
@@ -360,7 +362,7 @@ static void status_service(Service_T S, StringBuffer_T B, Level_Type L, int V) {
                                                     "<responsetime>%.6f</responsetime>"
                                                     "</icmp>",
                                                     icmpnames[i->type],
-                                                    i->is_available ? i->response : -1.);
+                                                    i->is_available == Connection_Ok ? i->response / 1000. : -1.); // We send the response time in [s] for backward compatibility (with microseconds precision)
                         }
                         for (Port_T p = S->portlist; p; p = p->next) {
                                 StringBuffer_append(B,
@@ -370,25 +372,25 @@ static void status_service(Service_T S, StringBuffer_T B, Level_Type L, int V) {
                                                     "<request><![CDATA[%s]]></request>"
                                                     "<protocol>%s</protocol>"
                                                     "<type>%s</type>"
-                                                    "<responsetime>%.3f</responsetime>"
+                                                    "<responsetime>%.6f</responsetime>"
                                                     "</port>",
                                                     p->hostname ? p->hostname : "",
                                                     p->target.net.port,
                                                     Util_portRequestDescription(p),
                                                     p->protocol->name ? p->protocol->name : "",
                                                     Util_portTypeDescription(p),
-                                                    p->is_available ? p->response : -1.);
+                                                    p->is_available == Connection_Ok ? p->response / 1000. : -1.); // We send the response time in [s] for backward compatibility (with microseconds precision)
                         }
                         for (Port_T p = S->socketlist; p; p = p->next) {
                                 StringBuffer_append(B,
                                                     "<unix>"
                                                     "<path>%s</path>"
                                                     "<protocol>%s</protocol>"
-                                                    "<responsetime>%.3f</responsetime>"
+                                                    "<responsetime>%.6f</responsetime>"
                                                     "</unix>",
                                                     p->target.unix.pathname ? p->target.unix.pathname : "",
                                                     p->protocol->name ? p->protocol->name : "",
-                                                    p->is_available ? p->response : -1.);
+                                                    p->is_available == Connection_Ok ? p->response / 1000. : -1.); // We send the response time in [s] for backward compatibility (with microseconds precision)
                         }
                         if (S->type == Service_System && (Run.flags & Run_ProcessEngineEnabled)) {
                                 StringBuffer_append(B,
@@ -407,25 +409,25 @@ static void status_service(Service_T S, StringBuffer_T B, Level_Type L, int V) {
                                                     "</cpu>"
                                                     "<memory>"
                                                     "<percent>%.1f</percent>"
-                                                    "<kilobyte>%ld</kilobyte>"
+                                                    "<kilobyte>%llu</kilobyte>"
                                                     "</memory>"
                                                     "<swap>"
                                                     "<percent>%.1f</percent>"
-                                                    "<kilobyte>%ld</kilobyte>"
+                                                    "<kilobyte>%llu</kilobyte>"
                                                     "</swap>"
                                                     "</system>",
                                                     systeminfo.loadavg[0],
                                                     systeminfo.loadavg[1],
                                                     systeminfo.loadavg[2],
-                                                    systeminfo.total_cpu_user_percent > 0 ? systeminfo.total_cpu_user_percent/10. : 0,
-                                                    systeminfo.total_cpu_syst_percent > 0 ? systeminfo.total_cpu_syst_percent/10. : 0,
+                                                    systeminfo.total_cpu_user_percent > 0. ? systeminfo.total_cpu_user_percent : 0.,
+                                                    systeminfo.total_cpu_syst_percent > 0. ? systeminfo.total_cpu_syst_percent : 0.,
 #ifdef HAVE_CPU_WAIT
-                                                    systeminfo.total_cpu_wait_percent > 0 ? systeminfo.total_cpu_wait_percent/10. : 0,
+                                                    systeminfo.total_cpu_wait_percent > 0. ? systeminfo.total_cpu_wait_percent : 0.,
 #endif
-                                                    systeminfo.total_mem_percent/10.,
-                                                    systeminfo.total_mem_kbyte,
-                                                    systeminfo.total_swap_percent/10.,
-                                                    systeminfo.total_swap_kbyte);
+                                                    systeminfo.total_mem_percent,
+                                                    (unsigned long long)((double)systeminfo.total_mem / 1024.),               // Send as kB for backward compatibility
+                                                    systeminfo.total_swap_percent,
+                                                    (unsigned long long)((double)systeminfo.total_swap / 1024.));             // Send as kB for backward compatibility
                         }
                         if (S->type == Service_Program && S->program->started) {
                                 StringBuffer_append(B,
@@ -468,7 +470,6 @@ static void status_servicegroup(ServiceGroup_T SG, StringBuffer_T B, Level_Type 
  * @param B StringBuffer object
  */
 static void status_event(Event_T E, StringBuffer_T B) {
-        struct timeval *tv = Event_get_collected(E);
         StringBuffer_append(B,
                             "<event>"
                             "<collected_sec>%lld</collected_sec>"
@@ -479,18 +480,17 @@ static void status_event(Event_T E, StringBuffer_T B) {
                             "<state>%d</state>"
                             "<action>%d</action>"
                             "<message><![CDATA[",
-                            (long long)tv->tv_sec,
-                            (long)tv->tv_usec,
-                            Event_get_id(E) == Event_Instance ? "Monit" : Event_get_source_name(E),
-                            Event_get_source_type(E),
-                            Event_get_id(E),
-                            Event_get_state(E),
+                            (long long)E->collected.tv_sec,
+                            (long)E->collected.tv_usec,
+                            E->id == Event_Instance ? "Monit" : E->source->name,
+                            E->type,
+                            E->id,
+                            E->state,
                             Event_get_action(E));
-        _escapeCDATA(B, Event_get_message(E));
+        _escapeCDATA(B, E->message);
         StringBuffer_append(B, "]]></message>");
-        Service_T s = Event_get_source(E);
-        if (s && s->token)
-                StringBuffer_append(B, "<token>%s</token>", s->token);
+        if (E->source->token)
+                StringBuffer_append(B, "<token>%s</token>", E->source->token);
         StringBuffer_append(B, "</event>");
 }
 
