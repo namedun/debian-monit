@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.15], [monit-general@nongnu.org])
+AC_INIT([monit], [5.16], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -43,8 +43,7 @@ if test "x$POD2MAN" = "xno"; then
 		AC_MSG_ERROR([pod2man is required to build the monit.1 man file.])
 	fi
 else
-	d=`date  '+%B %d. %Y'`
-	POD2MANFLAGS="--center 'User Commands' --release '${d}' --date='www.mmonit.com' --lax"
+	POD2MANFLAGS="--center 'User Commands' --release AC_PACKAGE_VERSION --date='www.mmonit.com' --lax"
 	AC_SUBST([POD2MANFLAGS])
 fi
 
@@ -55,29 +54,6 @@ fi
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
-
-
-# ---------------------------------------------------------------------------
-# Build options
-# ---------------------------------------------------------------------------
-
-AC_ARG_ENABLE(optimized,
-        AS_HELP_STRING([--enable-optimized],
-                [Build software optimized]),
-    [
-        CFLAGS=`echo $CFLAGS|sed 's/-O.* //'`
-        if test "x$enableval" = "xyes" ; then
-                CFLAGS=`echo $CFLAGS|sed 's/-g//'`
-                CFLAGS="$CFLAGS -O3"
-                OPTIMIZED=1
-        else
-                OPTIMIZED=0
-        fi
-    ],
-    [
-        OPTIMIZED=0
-    ]
-)
 
 
 # ------------------------------------------------------------------------
@@ -91,6 +67,7 @@ AC_CHECK_LIB([nsl],    [inet_addr])
 AC_CHECK_LIB([resolv], [inet_aton])
 AC_CHECK_LIB([c], [crypt], [:], [AC_CHECK_LIB([crypt], [crypt])])
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX thread library is required])])
+
 
 # ------------------------------------------------------------------------
 # Header files 
@@ -118,11 +95,13 @@ AC_CHECK_HEADERS([ \
 	glob.h \
 	grp.h \
 	ifaddrs.h \
+	kinfo.h \
 	kvm.h \
 	paths.h \
 	kstat.h \
 	zone.h \
 	sys/protosw.h \
+	libproc.h \
 	limits.h \
 	loadavg.h \
 	locale.h \
@@ -375,6 +354,9 @@ AC_CHECK_TYPES([boolean_t], [], [],
          #ifdef HAVE_VM_VM_H
          #include <vm/vm.h>
          #endif
+         #ifdef HAVE_KINFO_H
+         #include <kinfo.h>
+         #endif
         ])
 
 AC_TYPE_MODE_T
@@ -571,6 +553,11 @@ then
    ARCH="NETBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
+elif test "$architecture" = "DragonFly"
+then
+   ARCH="DRAGONFLY"
+   CFLAGS="$CFLAGS -D _REENTRANT"
+   test_kvm="true"
 elif test "$architecture" = "Darwin"
 then
    ARCH="DARWIN"
@@ -580,12 +567,9 @@ then
 elif test "$architecture" = "AIX"
 then
    ARCH="AIX"
+   CFLAGS=`echo $CFLAGS|sed 's/-g//g'`
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
-   LIBS="$LIBS -lodm"	
-   # AIX v. 5.2
-   LIBS="$LIBS -lcfg"	
-   # AIX v. 5.3
-   LIBS="$LIBS -lperfstat"	
+   LIBS="$LIBS -lodm -lperfstat"
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 else
    AC_MSG_WARN([Architecture not supported: ${architecture}])
@@ -656,6 +640,7 @@ AC_ARG_WITH(largefiles,
 # Settings for largefiles support
 if test "$use_largefiles" = 1; then
         AC_SYS_LARGEFILE
+        AC_DEFINE([HAVE_LARGEFILES], 1, [Define to 1 if you have large files support])
 fi
 
 
@@ -949,6 +934,49 @@ if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
 fi
 
 
+# ---------------------------------------------------------------------------
+# Build options
+# ---------------------------------------------------------------------------
+
+AC_ARG_ENABLE(optimized,
+        AS_HELP_STRING([--enable-optimized],
+                [Build software optimized]),
+    [
+        CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
+        if test "x$enableval" = "xyes" ; then
+                CFLAGS=`echo $CFLAGS|sed 's/-g[[^ ]]*//g'`
+                CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
+                CFLAGS="$CFLAGS -O3 -DNDEBUG"
+                OPTIMIZED=1
+        else
+                OPTIMIZED=0
+        fi
+    ],
+    [
+        OPTIMIZED=0
+    ]
+)
+
+AC_ARG_ENABLE(profiling,
+        AS_HELP_STRING([--enable-profiling],
+                [Build with debug and profiling options]),
+    [
+        if test "x$enableval" = "xyes" ; then
+                CFLAGS=`echo $CFLAGS|sed 's/-g.//g'`
+                CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
+                CFLAGS="$CFLAGS -g -pg"
+                profile="true"
+        else
+                profile="false"
+        fi
+    ],
+    [
+        profile="false"
+    ]
+)
+AM_CONDITIONAL([ENABLE_PROFILING], [test x$profile = xtrue])
+
+
 # ------------------------------------------------------------------------
 # Outputs
 # ------------------------------------------------------------------------
@@ -1015,5 +1043,10 @@ if test "x1" = "x$OPTIMIZED"; then
 echo "|   Optimized:                                    ENABLED    |"
 else
 echo "|   Optimized:                                    DISABLED   |"
+fi
+if test "xfalse" = "x$profile"; then
+echo "|   Profiling:                                    DISABLED   |"
+else
+echo "|   Profiling:                                    ENABLED    |"
 fi
 echo "+------------------------------------------------------------+"

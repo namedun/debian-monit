@@ -132,15 +132,13 @@ Mutex_T  heartbeatMutex;
 static volatile boolean_t heartbeatRunning = false;
 
 int ptreesize = 0;
-int oldptreesize = 0;
 ProcessTree_T *ptree = NULL;
-ProcessTree_T *oldptree = NULL;
 
 char *actionnames[] = {"ignore", "alert", "restart", "stop", "exec", "unmonitor", "start", "monitor", ""};
 char *modenames[] = {"active", "passive", "manual"};
 char *checksumnames[] = {"UNKNOWN", "MD5", "SHA1"};
 char *operatornames[] = {"less than", "greater than", "equal to", "not equal to", "changed"};
-char *operatorshortnames[] = {">", "<", "=", "!=", "<>"};
+char *operatorshortnames[] = {"<", ">", "=", "!=", "<>"};
 char *statusnames[] = {"Accessible", "Accessible", "Accessible", "Running", "Online with all services", "Running", "Accessible", "Status ok", "UP"};
 char *servicetypes[] = {"Filesystem", "Directory", "File", "Process", "Remote Host", "System", "Fifo", "Program", "Network"};
 char *pathnames[] = {"Path", "Path", "Path", "Pid file", "Path", "", "Path"};
@@ -191,6 +189,15 @@ boolean_t do_wakeupcall() {
 
 
 /* ----------------------------------------------------------------- Private */
+
+
+static void _validateOnce() {
+        if (State_open()) {
+                State_update();
+                validate();
+                State_close();
+        }
+}
 
 
 /**
@@ -376,7 +383,7 @@ static void do_reinit() {
                 monit_http(Httpd_Start);
 
         /* send the monit startup notification */
-        Event_post(Run.system, Event_Instance, State_Changed, Run.system->action_MONIT_RELOAD, "Monit reloaded");
+        Event_post(Run.system, Event_Instance, State_Changed, Run.system->action_MONIT_START, "Monit reloaded");
 
         if (Run.mmonits) {
                 Thread_create(heartbeatThread, heartbeat, NULL);
@@ -402,6 +409,7 @@ static void do_action(char **args) {
                    IS(action, "unmonitor") ||
                    IS(action, "restart")) {
                 if (Run.mygroup || service) {
+                        int errors = 0;
                         List_T services = List_new();
                         if (Run.mygroup) {
                                 for (ServiceGroup_T sg = servicegrouplist; sg; sg = sg->next) {
@@ -413,13 +421,18 @@ static void do_action(char **args) {
                                                 break;
                                         }
                                 }
+                                if (List_length(services) == 0) {
+                                        List_free(&services);
+                                        LogError("Group '%s' not found\n", Run.mygroup);
+                                        exit(1);
+                                }
                         } else if (IS(service, "all")) {
                                 for (Service_T s = servicelist; s; s = s->next)
                                         List_append(services, s->name);
                         } else {
                                 List_append(services, service);
                         }
-                        int errors = exist_daemon() ? control_service_daemon(services, action) : control_service_string(services, action);
+                        errors = exist_daemon() ? control_service_daemon(services, action) : control_service_string(services, action);
                         List_free(&services);
                         if (errors)
                                 exit(1);
@@ -431,9 +444,11 @@ static void do_action(char **args) {
                 LogInfo("Reinitializing %s daemon\n", prog);
                 kill_daemon(SIGHUP);
         } else if (IS(action, "status")) {
-                status(LEVEL_NAME_FULL, Run.mygroup, service);
+                if (! status(LEVEL_NAME_FULL, Run.mygroup, service))
+                        exit(1);
         } else if (IS(action, "summary")) {
-                status(LEVEL_NAME_SUMMARY, Run.mygroup, service);
+                if (! status(LEVEL_NAME_SUMMARY, Run.mygroup, service))
+                        exit(1);
         } else if (IS(action, "procmatch")) {
                 if (! service) {
                         printf("Invalid syntax - usage: procmatch \"<pattern>\"\n");
@@ -443,8 +458,11 @@ static void do_action(char **args) {
         } else if (IS(action, "quit")) {
                 kill_daemon(SIGTERM);
         } else if (IS(action, "validate")) {
-                if (validate())
-                        exit(1);
+                if (do_wakeupcall())
+                        status(LEVEL_NAME_FULL, Run.mygroup, service);
+                else
+                        _validateOnce();
+                exit(1);
         } else {
                 LogError("Invalid argument -- %s  (-h will show valid arguments)\n", action);
                 exit(1);
@@ -456,8 +474,7 @@ static void do_action(char **args) {
  * Finalize monit
  */
 static void do_exit() {
-        sigset_t ns;
-        set_signal_block(&ns, NULL);
+        set_signal_block();
         Run.flags |= Run_Stopped;
         if ((Run.flags & Run_Daemon) && ! (Run.flags & Run_Once)) {
                 if (can_http())
@@ -550,7 +567,7 @@ static void do_default() {
                         State_save();
 
                         /* In the case that there is no pending action then sleep */
-                        if (! (Run.flags & Run_ActionPending))
+                        if (! (Run.flags & Run_ActionPending) && ! (Run.flags & Run_Stopped))
                                 sleep(Run.polltime);
 
                         if (Run.flags & Run_DoWakeup) {
@@ -564,7 +581,7 @@ static void do_default() {
                                 do_reinit();
                 }
         } else {
-                validate();
+                _validateOnce();
         }
 }
 
@@ -761,11 +778,11 @@ static void handle_options(int argc, char **argv) {
  * Print the program's help message
  */
 static void help() {
-        printf("Usage: %s [options] {arguments}\n", prog);
+        printf("Usage: %s [options]+ [command]\n", prog);
         printf("Options are as follows:\n");
         printf(" -c file       Use this control file\n");
         printf(" -d n          Run as a daemon once per n seconds\n");
-        printf(" -g name       Set group name for start, stop, restart, monitor, unmonitor, status and summary\n");
+        printf(" -g name       Set group name for monit commands\n");
         printf(" -l logfile    Print log information to this file\n");
         printf(" -p pidfile    Use this lock file in daemon mode\n");
         printf(" -s statefile  Set the file monit should write state information to\n");
@@ -779,17 +796,17 @@ static void help() {
         printf("               filename is omited; monit will exit afterwards\n");
         printf(" -V            Print version number and patchlevel\n");
         printf(" -h            Print this text\n");
-        printf("Optional action arguments for non-daemon mode are as follows:\n");
+        printf("Optional commands are as follows:\n");
         printf(" start all           - Start all services\n");
-        printf(" start name          - Only start the named service\n");
+        printf(" start <name>        - Only start the named service\n");
         printf(" stop all            - Stop all services\n");
-        printf(" stop name           - Only stop the named service\n");
+        printf(" stop <name>         - Only stop the named service\n");
         printf(" restart all         - Stop and start all services\n");
-        printf(" restart name        - Only restart the named service\n");
+        printf(" restart <name>      - Only restart the named service\n");
         printf(" monitor all         - Enable monitoring of all services\n");
-        printf(" monitor name        - Only enable monitoring of the named service\n");
+        printf(" monitor <name>      - Only enable monitoring of the named service\n");
         printf(" unmonitor all       - Disable monitoring of all services\n");
-        printf(" unmonitor name      - Only disable monitoring of the named service\n");
+        printf(" unmonitor <name>    - Only disable monitoring of the named service\n");
         printf(" reload              - Reinitialize monit\n");
         printf(" status [name]       - Print full status information for service(s)\n");
         printf(" summary [name]      - Print short status information for service(s)\n");
@@ -804,9 +821,21 @@ static void help() {
  * Print version information
  */
 static void version() {
-        printf("This is Monit version " VERSION "\n");
-        printf("Copyright (C) 2001-2015 Tildeslash Ltd.");
-        printf(" All Rights Reserved.\n");
+        printf("This is Monit version %s\n", VERSION);
+        printf("Built with");
+#ifndef HAVE_OPENSSL
+        printf("out");
+#endif
+        printf(" ssl, with");
+#ifndef HAVE_LIBPAM
+        printf("out");
+#endif
+        printf(" pam and with");
+#ifndef HAVE_LARGEFILES
+        printf("out");
+#endif
+        printf(" large files\n");
+        printf("Copyright (C) 2001-2016 Tildeslash Ltd. All Rights Reserved.\n");
 }
 
 
@@ -814,8 +843,7 @@ static void version() {
  * M/Monit heartbeat thread
  */
 static void *heartbeat(void *args) {
-        sigset_t ns;
-        set_signal_block(&ns, NULL);
+        set_signal_block();
         LogInfo("M/Monit heartbeat started\n");
         LOCK(heartbeatMutex)
         {

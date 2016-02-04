@@ -87,11 +87,17 @@
 /* Define to 1 if the system supports IPv6 */
 #undef HAVE_IPV6
 
+/* Define to 1 if you have the <kinfo.h> header file. */
+#undef HAVE_KINFO_H
+
 /* Define to 1 if you have the <kstat.h> header file. */
 #undef HAVE_KSTAT_H
 
 /* Define to 1 if you have the <kvm.h> header file. */
 #undef HAVE_KVM_H
+
+/* Define to 1 if you have large files support */
+#undef HAVE_LARGEFILES
 
 /* Define to 1 if you have the `crypt' library (-lcrypt). */
 #undef HAVE_LIBCRYPT
@@ -110,6 +116,9 @@
 
 /* Define to 1 if you have the <libperfstat.h> header file. */
 #undef HAVE_LIBPERFSTAT_H
+
+/* Define to 1 if you have the <libproc.h> header file. */
+#undef HAVE_LIBPROC_H
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD

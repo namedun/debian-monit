@@ -91,8 +91,10 @@ typedef enum {
 static Check_State check_state = None_State;
 
 /* Prototypes */
-extern void yyerror(const char*,...);
+extern void yyerror(const char *,...);
+extern void yyerror2(const char *,...);
 extern void yywarning(const char *,...);
+extern void yywarning2(const char *,...);
 static void steplinenobycr(char *);
 static void save_arg(void);
 static void include_file(char *);
@@ -129,6 +131,12 @@ byte        ("byte"|"bytes"|"b")("/s")?
 kilobyte    ("kilobyte"|"kilobytes"|"kb")("/s")?
 megabyte    ("megabyte"|"megabytes"|"mb")("/s")?
 gigabyte    ("gigabyte"|"gigabytes"|"gb")("/s")?
+millisecond ("millisecond"|"milliseconds"|"ms")
+second      ("second"|"seconds"|"s")
+minute      ("minute"|"minutes"|"m")
+hour        ("hour"|"hours"|"h")
+day         ("day"|"days")
+month       ("month"|"months")
 
 %x ARGUMENT_COND DEPEND_COND SERVICE_COND URL_COND STRING_COND EVERY_COND HTTP_HEADER_COND INCLUDE
 
@@ -141,6 +149,7 @@ is                {/* EMPTY */}
 as                {/* EMPTY */}
 are               {/* EMPTY */}
 for               {/* EMPTY */}
+via               {/* EMPTY */}
 on(ly)?           {/* EMPTY */}
 with(in|out)?     {/* EMPTY */}
 program(s)?       {/* EMPTY */}
@@ -157,6 +166,7 @@ was               {/* EMPTY */}
 times             {/* EMPTY */}
 but               {/* EMPTY */}
 of                {/* EMPTY */}
+or                {/* EMPTY */}
 does              {/* EMPTY */}
 per               {/* EMPTY */}
 in                {/* EMPTY */}
@@ -179,7 +189,6 @@ option(s)?        {/* EMPTY */}
                   }
 
 if                { return IF; }
-or                { return OR; }
 then              { return THEN; }
 failed            { return FAILED; }
 ssl               { return SSL; }
@@ -310,14 +319,10 @@ swap              { return SWAP; }
 total[ ]?mem(ory)? { return TOTALMEMORY; }
 cpu               { return CPU; }
 total[ ]?cpu      { return TOTALCPU; }
-child(ren)        { return CHILDREN; }
+child(ren)?       { return CHILDREN; }
+thread(s)?        { return THREADS; }
 timestamp         { return TIMESTAMP; }
 changed           { return CHANGED; }
-second(s)?        { return SECOND; }
-minute(s)?        { return MINUTE; }
-hour(s)?          { return HOUR; }
-day(s)?           { return DAY; }
-month(s)?         { return MONTH; }
 sslv2             { return SSLV2; }
 sslv3             { return SSLV3; }
 tlsv1             { return TLSV1; }
@@ -349,6 +354,12 @@ echo              { return ICMPECHO; }
 send              { return SEND; }
 expect            { return EXPECT; }
 expectbuffer      { return EXPECTBUFFER; }
+limits            { return LIMITS; }
+sendexpectbuffer  { return SENDEXPECTBUFFER; }
+filecontentbuffer { return FILECONTENTBUFFER; }
+httpcontentbuffer { return HTTPCONTENTBUFFER; }
+programoutput     { return PROGRAMOUTPUT; }
+networktimeout    { return NETWORKTIMEOUT; }
 cleartext         { return CLEARTEXT; }
 md5               { return MD5HASH; }
 sha1              { return SHA1HASH; }
@@ -368,6 +379,7 @@ content           { return CONTENT; }
 pid               { return PID; }
 ppid              { return PPID; }
 count             { return COUNT; }
+repeat            { return REPEAT; }
 reminder          { return REMINDER; }
 instance          { return INSTANCE; }
 hostname          { return HOSTNAME; }
@@ -391,6 +403,12 @@ fips              { return FIPS; }
 {less}            { return LESS; }
 {equal}           { return EQUAL; }
 {notequal}        { return NOTEQUAL; }
+{millisecond}     { return MILLISECOND; }
+{second}          { return SECOND; }
+{minute}          { return MINUTE; }
+{hour}            { return HOUR; }
+{day}             { return DAY; }
+{month}           { return MONTH; }
 
 include           { BEGIN(INCLUDE); }
 
@@ -895,27 +913,21 @@ static char *handle_quoted_string(char *string) {
 
 static void include_file(char *pattern) {
         glob_t globbuf;
-        int i;
-
-        if (glob(pattern,  GLOB_MARK, NULL, &globbuf) != 0)
-        return; // no include files found
-
-        for (i = 0; i < globbuf.gl_pathc; i++) {
-                FILE *yyin;
-                size_t filename_length = strlen(globbuf.gl_pathv[i]);
-
-                /* check whenever we have caught a directory or file backup copy */
-                if ((filename_length == 0) || (globbuf.gl_pathv[i][filename_length-1] == '~' ) || (globbuf.gl_pathv[i][filename_length-1] == '/' ))
-                continue;
-
-                yyin = fopen( globbuf.gl_pathv[i], "r" );
-
-                if (! yyin)
-                yyerror( "failed to include file" );
-                else
-                push_buffer_state(yy_create_buffer( yyin, YY_BUF_SIZE ), globbuf.gl_pathv[i]);
+        if (glob(pattern, GLOB_MARK, NULL, &globbuf) == 0) {
+                for (int i = 0; i < globbuf.gl_pathc; i++) {
+                        size_t filename_length = strlen(globbuf.gl_pathv[i]);
+                        if ((filename_length == 0) || (globbuf.gl_pathv[i][filename_length - 1] == '~' ) || (globbuf.gl_pathv[i][filename_length - 1] == '/'))
+                                continue; // skip subdirectories and file backup copies
+                        FILE *yyin = fopen(globbuf.gl_pathv[i], "r");
+                        if (! yyin)
+                                yyerror("Cannot include file '%s' -- %s", globbuf.gl_pathv[i], STRERROR);
+                        else
+                                push_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE), globbuf.gl_pathv[i]);
+                }
+                globfree(&globbuf);
+        } else {
+                yywarning("Include failed -- %s", STRERROR); // no include files found
         }
-        globfree(&globbuf);
 }
 
 

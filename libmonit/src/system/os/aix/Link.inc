@@ -48,6 +48,8 @@ static boolean_t _update(T L, const char *interface) {
         L->timestamp.last = L->timestamp.now;
         L->timestamp.now = Time_milli();
         //FIXME: L->state and L->duplex are not implemented
+        L->state = 1;
+        L->duplex = 1;
         return true;
 }
 

@@ -37,6 +37,7 @@
 #include <ctype.h>
 #include <regex.h>
 #include <limits.h>
+#include <math.h>
 
 
 #include "NumberFormatException.h"
@@ -78,7 +79,7 @@ char *Str_ltrim(char *s) {
                 for (j = 0; s[j]; j++) ;
                 for (i = 0; isspace(s[i]); i++) ;
                 memmove(s, s + i, j - i);
-                s[j-i] = 0;
+                s[j - i] = 0;
         }
         return s;
 }
@@ -420,6 +421,19 @@ int Str_cmp(const void *x, const void *y) {
 }
 
 
+int Str_compareConstantTime(const void *x, const void *y) {
+        // Copy input to zero initialized buffers of fixed size, to prevent string length timing attack (handle NULL input as well). If some string exceeds hardcoded buffer size, error is returned.
+        char _x[MAX_CONSTANT_TIME_STRING_LENGTH + 1] = {};
+        char _y[MAX_CONSTANT_TIME_STRING_LENGTH + 1] = {};
+        if (snprintf(_x, sizeof(_x), "%s", x ? (const char *)x : "") > MAX_CONSTANT_TIME_STRING_LENGTH || snprintf(_y, sizeof(_y), "%s", y ? (const char *)y : "") > MAX_CONSTANT_TIME_STRING_LENGTH) 
+                return 1;
+        int rv = 0;
+        for (size_t i = 0; i < sizeof(_x); i++)
+                rv |= _x[i] ^ _y[i];
+        return rv;
+}
+
+
 char *Str_bytesToSize(double bytes, char s[10]) {
         assert(s);
         assert(bytes < 1e+24);
@@ -429,10 +443,28 @@ char *Str_bytesToSize(double bytes, char s[10]) {
                 if (bytes > 1024) {
                         bytes /= 1024;
                 } else {
-                        snprintf(s, 10, i == 0 ? "%.0lf %s" : "%.1lf %s", bytes, kNotation[i]);
+                        snprintf(s, 10, (round(bytes) == bytes) ? "%.0lf %s" : "%.1lf %s", bytes, kNotation[i]);
                         break;
                 }
         }
+        return s;
+}
+
+
+char *Str_milliToTime(double milli, char s[23]) {
+        assert(s);
+        struct conversion {
+                double base;
+                char *suffix;
+        } conversion[]= {
+                {1000., "ms"}, // millisecond
+                {60.,   "s"},  // second
+                {60.,   "m"}   // minute
+        };
+        int index = 0;
+        while (fabs(milli) >= conversion[index].base && index < sizeof(conversion) / sizeof(conversion[0]) - 1)
+                milli /= conversion[index++].base;
+        snprintf(s, 23, (round(milli) == milli) ? "%.0lf %s" : "%.3lf %s", milli, conversion[index].suffix);
         return s;
 }
 

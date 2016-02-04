@@ -9,6 +9,9 @@
 /* Define to 1 if the system is OSX */
 #undef DARWIN
 
+/* Define to 1 if the system is DragonFly */
+#undef DRAGONFLY
+
 /* Define to 1 if the system is FreeBSD */
 #undef FREEBSD
 
@@ -41,6 +44,9 @@
 
 /* Define to 1 if you have the `crypto' library (-lcrypto). */
 #undef HAVE_LIBCRYPTO
+
+/* Define to 1 if you have the `m' library (-lm). */
+#undef HAVE_LIBM
 
 /* Define to 1 if you have the <libperfstat.h> header file. */
 #undef HAVE_LIBPERFSTAT_H
@@ -122,6 +128,9 @@
 
 /* Define to 1 if you have the <sys/poll.h> header file. */
 #undef HAVE_SYS_POLL_H
+
+/* Define to 1 if you have the <sys/protosw.h> header file. */
+#undef HAVE_SYS_PROTOSW_H
 
 /* Define to 1 if you have the <sys/sendfile.h> header file. */
 #undef HAVE_SYS_SENDFILE_H

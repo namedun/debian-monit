@@ -25,16 +25,28 @@
 
 #include "config.h"
 
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
 #endif
 
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
+
+#ifdef HAVE_KINFO_H
+#include <kinfo.h>
+#endif
+
+#ifdef HAVE_KVM_H
+#include <kvm.h>
+#endif
+
+#ifdef HAVE_PATHS_H
+#include <paths.h>
 #endif
 
 #ifdef HAVE_SYS_PARAM_H
@@ -45,12 +57,12 @@
 #include <sys/proc.h>
 #endif
 
-#ifdef HAVE_KVM_H
-#include <kvm.h>
+#ifdef HAVE_SYS_USER_H
+#include <sys/user.h>
 #endif
 
-#ifdef HAVE_UVM_UVM_H
-#include <uvm/uvm.h>
+#ifdef HAVE_SYS_VMMETER_H
+#include <sys/vmmeter.h>
 #endif
 
 #ifdef HAVE_SYS_SYSCTL_H
@@ -67,7 +79,7 @@
 
 
 /**
- *  System dependent resource gathering code for NetBSD.
+ *  System dependent resource gathering code for DragonFly.
  *
  *  @file
  */
@@ -76,11 +88,10 @@
 /* ----------------------------------------------------------------- Private */
 
 
-static int      pagesize;
-static long     total_old    = 0;
-static long     cpu_user_old = 0;
-static long     cpu_syst_old = 0;
-static unsigned maxslp;
+static int  pagesize;
+static long total_old    = 0;
+static long cpu_user_old = 0;
+static long cpu_syst_old = 0;
 
 
 /* ------------------------------------------------------------------ Public */
@@ -114,62 +125,43 @@ boolean_t init_process_info_sysdep(void) {
 
 /**
  * Read all processes to initialize the information tree.
- * @param reference reference of ProcessTree
+ * @param reference  reference of ProcessTree
  * @param pflags Process engine flags
- * @return treesize > 0 if succeeded otherwise 0
+ * @return treesize > 0 if succeeded otherwise 0.
  */
 int initprocesstree_sysdep(ProcessTree_T **reference, ProcessEngine_Flags pflags) {
-        size_t size = sizeof(maxslp);
-        static int mib_maxslp[] = {CTL_VM, VM_MAXSLP};
-        if (sysctl(mib_maxslp, 2, &maxslp, &size, NULL, 0) < 0) {
-                LogError("system statistic error -- vm.maxslp failed\n");
+        kvm_t *kvm_handle = kvm_open(NULL, _PATH_DEVNULL, NULL, O_RDONLY, prog);
+        if (! kvm_handle) {
+                LogError("system statistic error -- cannot initialize kvm interface\n");
                 return 0;
         }
 
-        int mib_proc2[6] = {CTL_KERN, KERN_PROC2, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc2), 0};
-        if (sysctl(mib_proc2, 6, NULL, &size, NULL, 0) == -1) {
-                LogError("system statistic error -- kern.proc2 #1 failed\n");
+        int treesize;
+        struct kinfo_proc *pinfo = kvm_getprocs(kvm_handle, KERN_PROC_ALL, 0, &treesize);
+        if (! pinfo || (treesize < 1)) {
+                LogError("system statistic error -- cannot get process tree\n");
+                kvm_close(kvm_handle);
                 return 0;
         }
-
-        size *= 2; // Add reserve for new processes which were created between calls of sysctl
-        struct kinfo_proc2 *pinfo = CALLOC(1, size);
-        mib_proc2[5] = (int)(size / sizeof(struct kinfo_proc2));
-        if (sysctl(mib_proc2, 6, pinfo, &size, NULL, 0) == -1) {
-                FREE(pinfo);
-                LogError("system statistic error -- kern.proc2 #2 failed\n");
-                return 0;
-        }
-
-        int treesize = (int)(size / sizeof(struct kinfo_proc2));
 
         ProcessTree_T *pt = CALLOC(sizeof(ProcessTree_T), treesize);
-
-        char buf[_POSIX2_LINE_MAX];
-        kvm_t *kvm_handle = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, buf);
-        if (! kvm_handle) {
-                FREE(pinfo);
-                FREE(pt);
-                LogError("system statistic error -- kvm_openfiles failed: %s\n", buf);
-                return 0;
-        }
 
         StringBuffer_T cmdline = NULL;
         if (pflags & ProcessEngine_CollectCommandLine)
                 cmdline = StringBuffer_create(64);
         for (int i = 0; i < treesize; i++) {
-                pt[i].pid          = pinfo[i].p_pid;
-                pt[i].ppid         = pinfo[i].p_ppid;
-                pt[i].cred.uid     = pinfo[i].p_ruid;
-                pt[i].cred.euid    = pinfo[i].p_uid;
-                pt[i].cred.gid     = pinfo[i].p_rgid;
-                pt[i].threads      = pinfo[i].p_nlwps;
-                pt[i].uptime       = systeminfo.time / 10. - pinfo[i].p_ustart_sec;
-                pt[i].cpu.time     = pinfo[i].p_rtime_sec * 10 + (double)pinfo[i].p_rtime_usec / 100000.;
-                pt[i].memory.usage = pinfo[i].p_vm_rssize * pagesize;
-                pt[i].zombie       = pinfo[i].p_stat == SZOMB ? true : false;
+                pt[i].pid          = pinfo[i].kp_pid;
+                pt[i].ppid         = pinfo[i].kp_ppid;
+                pt[i].cred.uid     = pinfo[i].kp_ruid;
+                pt[i].cred.euid    = pinfo[i].kp_uid;
+                pt[i].cred.gid     = pinfo[i].kp_rgid;
+                pt[i].threads      = pinfo[i].kp_nthreads;
+                pt[i].uptime       = systeminfo.time / 10. - pinfo[i].kp_start.tv_sec;
+                pt[i].cpu.time     = (double)((pinfo[i].kp_lwp.kl_uticks + pinfo[i].kp_lwp.kl_sticks + pinfo[i].kp_lwp.kl_iticks) / 1000000.);
+                pt[i].memory.usage = (unsigned long)(pinfo[i].kp_vm_rssize * pagesize);
+                pt[i].zombie       = pinfo[i].kp_stat == SZOMB ? true : false;
                 if (pflags & ProcessEngine_CollectCommandLine) {
-                        char **args = kvm_getargv2(kvm_handle, &pinfo[i], 0);
+                        char **args = kvm_getargv(kvm_handle, &pinfo[i], 0);
                         if (args) {
                                 StringBuffer_clear(cmdline);
                                 for (int j = 0; args[j]; j++)
@@ -179,16 +171,15 @@ int initprocesstree_sysdep(ProcessTree_T **reference, ProcessEngine_Flags pflags
                         }
                         if (! pt[i].cmdline || ! *pt[i].cmdline) {
                                 FREE(pt[i].cmdline);
-                                pt[i].cmdline = Str_dup(pinfo[i].p_comm);
+                                pt[i].cmdline = Str_dup(pinfo[i].kp_comm);
                         }
                 }
         }
         if (pflags & ProcessEngine_CollectCommandLine)
                 StringBuffer_free(&cmdline);
-        FREE(pinfo);
-        kvm_close(kvm_handle);
 
         *reference = pt;
+        kvm_close(kvm_handle);
 
         return treesize;
 }
@@ -201,7 +192,7 @@ int initprocesstree_sysdep(ProcessTree_T **reference, ProcessEngine_Flags pflags
  * @param nelem number of averages
  * @return: 0 if successful, -1 if failed (and all load averages are 0).
  */
-int getloadavg_sysdep (double *loadv, int nelem) {
+int getloadavg_sysdep(double *loadv, int nelem) {
         return getloadavg(loadv, nelem);
 }
 
@@ -211,17 +202,49 @@ int getloadavg_sysdep (double *loadv, int nelem) {
  * @return: true if successful, false if failed (or not available)
  */
 boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
-        struct uvmexp_sysctl vm;
-        int mib[2] = {CTL_VM, VM_UVMEXP2};
-        size_t len = sizeof(struct uvmexp_sysctl);
-        if (sysctl(mib, 2, &vm, &len, NULL, 0) == -1) {
-                LogError("system statistic error -- cannot get memory usage: %s\n", STRERROR);
-                si->swap_max = 0ULL;
+        /* Memory */
+        size_t len = sizeof(unsigned int);
+        unsigned int active;
+        if (sysctlbyname("vm.stats.vm.v_active_count", &active, &len, NULL, 0) == -1) {
+                LogError("system statistic error -- cannot get for active memory usage: %s\n", STRERROR);
                 return false;
         }
-        si->total_mem = (vm.active + vm.wired) * vm.pagesize;
-        si->swap_max = vm.swpages * vm.pagesize;
-        si->total_swap = vm.swpginuse * vm.pagesize;
+        if (len != sizeof(unsigned int)) {
+                LogError("system statistic error -- active memory usage statics error\n");
+                return false;
+        }
+        unsigned int wired;
+        if (sysctlbyname("vm.stats.vm.v_wire_count", &wired, &len, NULL, 0) == -1) {
+                LogError("system statistic error -- cannot get for wired memory usage: %s\n", STRERROR);
+                return false;
+        }
+        if (len != sizeof(unsigned int)) {
+                LogError("system statistic error -- wired memory usage statics error\n");
+                return false;
+        }
+        si->total_mem = (active + wired) * pagesize;
+
+        /* Swap */
+        unsigned int used;
+        if (sysctlbyname("vm.swap_anon_use", &used, &len, NULL, 0) == -1) {
+                LogError("system statistic error -- cannot get swap usage: %s\n", STRERROR);
+                si->swap_max = 0;
+                return false;
+        }
+        si->total_swap = used * pagesize;
+        if (sysctlbyname("vm.swap_cache_use", &used, &len, NULL, 0) == -1) {
+                LogError("system statistic error -- cannot get swap usage: %s\n", STRERROR);
+                si->swap_max = 0;
+                return false;
+        }
+        si->total_swap += used * pagesize;
+        unsigned int free;
+        if (sysctlbyname("vm.swap_size", &free, &len, NULL, 0) == -1) {
+                LogError("system statistic error -- cannot get swap usage: %s\n", STRERROR);
+                si->swap_max = 0;
+                return false;
+        }
+        si->swap_max = free * pagesize + si->total_swap;
         return true;
 }
 
@@ -231,11 +254,17 @@ boolean_t used_system_memory_sysdep(SystemInfo_T *si) {
  * @return: true if successful, false if failed
  */
 boolean_t used_system_cpu_sysdep(SystemInfo_T *si) {
-        int       mib[] = {CTL_KERN, KERN_CP_TIME};
-        long long cp_time[CPUSTATES];
-        long      total_new = 0;
-        long      total;
-        size_t    len;
+        int    mib[2];
+        long   cp_time[CPUSTATES];
+        long   total_new = 0;
+        long   total;
+        size_t len;
+
+        len = sizeof(mib);
+        if (sysctlnametomib("kern.cp_time", mib, &len) == -1) {
+                LogError("system statistic error -- cannot get cpu time handler: %s\n", STRERROR);
+                return false;
+        }
 
         len = sizeof(cp_time);
         if (sysctl(mib, 2, &cp_time, &len, NULL, 0) == -1) {
@@ -245,16 +274,16 @@ boolean_t used_system_cpu_sysdep(SystemInfo_T *si) {
 
         for (int i = 0; i < CPUSTATES; i++)
                 total_new += cp_time[i];
+
         total     = total_new - total_old;
         total_old = total_new;
 
         si->total_cpu_user_percent = (total > 0) ? (100. * (double)(cp_time[CP_USER] - cpu_user_old) / total) : -1.;
         si->total_cpu_syst_percent = (total > 0) ? (100. * (double)(cp_time[CP_SYS] - cpu_syst_old) / total) : -1.;
-        si->total_cpu_wait_percent = 0; /* there is no wait statistic available */
+        si->total_cpu_wait_percent = 0.; /* there is no wait statistic available */
 
         cpu_user_old = cp_time[CP_USER];
         cpu_syst_old = cp_time[CP_SYS];
 
         return true;
 }
-

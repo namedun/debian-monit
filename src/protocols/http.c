@@ -54,13 +54,6 @@
  */
 
 
-
-/* ------------------------------------------------------------- Definitions */
-
-
-#define HTTP_CONTENT_MAX 1048576
-
-
 /* ----------------------------------------------------------------- Private */
 
 
@@ -82,8 +75,8 @@ static void do_regex(Socket_T socket, int content_length, Request_T R) {
 
         if (content_length == 0)
                 THROW(IOException, "HTTP error: No content returned from server");
-        else if (content_length < 0 || content_length > HTTP_CONTENT_MAX) /* content_length < 0 if no Content-Length header was found */
-                content_length = HTTP_CONTENT_MAX;
+        else if (content_length < 0 || content_length > Run.limits.httpContentBuffer) /* content_length < 0 if no Content-Length header was found */
+                content_length = Run.limits.httpContentBuffer;
 
         char error[STRLEN];
         int size = 0, length = content_length, buflen = content_length + 1;
@@ -269,10 +262,11 @@ void check_http(Socket_T socket) {
 
         StringBuffer_T sb = StringBuffer_create(168);
         StringBuffer_append(sb,
-                            "GET %s HTTP/1.1\r\n"
+                            "%s %s HTTP/1.1\r\n"
                             "Accept: */*\r\n"
                             "Connection: close\r\n"
                             "%s",
+                            ((P->url_request && P->url_request->regex) || P->parameters.http.checksum) ? "GET" : "HEAD",
                             P->parameters.http.request ? P->parameters.http.request : "/",
                             get_auth_header(P, (char[STRLEN]){0}, STRLEN));
         if (! _hasHeader(P->parameters.http.headers, "Host"))

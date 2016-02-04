@@ -393,9 +393,9 @@ int main(void) {
                 Str_bytesToSize(0, str);
                 assert(Str_isEqual(str, "0 B"));
                 Str_bytesToSize(2048, str);
-                assert(Str_isEqual(str, "2.0 KB"));
+                assert(Str_isEqual(str, "2 KB"));
                 Str_bytesToSize(2097152, str);
-                assert(Str_isEqual(str, "2.0 MB"));
+                assert(Str_isEqual(str, "2 MB"));
                 Str_bytesToSize(2621440, str);
                 assert(Str_isEqual(str, "2.5 MB"));
                 Str_bytesToSize(9083741824, str);
@@ -403,7 +403,7 @@ int main(void) {
                 Str_bytesToSize(9083741824987653, str);
                 assert(Str_isEqual(str, "8.1 PB"));
                 Str_bytesToSize(LLONG_MAX, str);
-                assert(Str_isEqual(str, "8.0 EB"));
+                assert(Str_isEqual(str, "8 EB"));
         }
         printf("=> Test23: OK\n\n");
 
@@ -417,6 +417,46 @@ int main(void) {
                 assert(Str_unescape("@*!#$%&/(=", NULL) == NULL);
         }
         printf("=> Test24: OK\n\n");
+
+        printf("=> Test25: Str_compareConstantTime\n");
+        {
+                assert(Str_compareConstantTime(NULL,     NULL)        == 0);
+                assert(Str_compareConstantTime("abcdef", NULL)        != 0);
+                assert(Str_compareConstantTime(NULL,     "abcdef")    != 0);
+                assert(Str_compareConstantTime("abcdef", "abcdef")    == 0);
+                assert(Str_compareConstantTime("abcdef", "ABCDEF")    != 0);
+                assert(Str_compareConstantTime("abcdef", "abc")       != 0);
+                assert(Str_compareConstantTime("abcdef", "abcdefghi") != 0);
+                // Test maximum length
+                unsigned char ok[] = "1111111111111111111111111111111111111111111111111111111111111111"; // 64 characters currently
+                assert(Str_compareConstantTime(ok, ok) == 0);
+                // Test maximum length + 1
+                unsigned char ko[] = "11111111111111111111111111111111111111111111111111111111111111111"; // 65 characters should fail
+                assert(Str_compareConstantTime(ko, ko) != 0);
+        }
+        printf("=> Test25: OK\n\n");
+
+        printf("=> Test25: Str_milliToTime\n");
+        {
+                char str[13];
+                Str_milliToTime(0, str);
+                assert(Str_isEqual(str, "0 ms"));
+                Str_milliToTime(0.5, str);
+                assert(Str_isEqual(str, "0.500 ms"));
+                Str_milliToTime(1, str);
+                assert(Str_isEqual(str, "1 ms"));
+                Str_milliToTime(2000, str);
+                assert(Str_isEqual(str, "2 s"));
+                Str_milliToTime(2123, str);
+                assert(Str_isEqual(str, "2.123 s"));
+                Str_milliToTime(60000, str);
+                assert(Str_isEqual(str, "1 m"));
+                Str_milliToTime(90000, str);
+                assert(Str_isEqual(str, "1.500 m"));
+                Str_milliToTime(3600000, str);
+                assert(Str_isEqual(str, "60 m"));
+        }
+        printf("=> Test25: OK\n\n");
 
         printf("============> Str Tests: OK\n\n");
         return 0;

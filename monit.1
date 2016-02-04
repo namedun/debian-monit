@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "October 22. 2015" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.16" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -142,7 +142,7 @@
 Monit \- utility for monitoring services on a Unix system
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
-\&\fBmonit\fR [options] {arguments}
+\&\fBmonit\fR [options] <arguments>
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 \&\fBMonit\fR is a utility for managing and monitoring processes, programs,
@@ -506,7 +506,9 @@ status test allows one to check the
 program's exit status. If the program does not finish executing within
 <number> seconds, Monit will terminate it. The default program timeout
 is 300 seconds (5 minutes). The output of the program is recorded and
-made available in the User Interface and in alerts (up to 1kB).
+made available in the User Interface and in alerts (by default up to
+512B, you can customize the limit using the set limits
+statement).
 .IP "9. \s-1CHECK NETWORK\s0 <unique name> <\s-1ADDRESS\s0 <ipaddress> | \s-1INTERFACE\s0 <name>>" 4
 .IX Item "9. CHECK NETWORK <unique name> <ADDRESS <ipaddress> | INTERFACE <name>>"
 <ipaddress> is the IPv4 or IPv6 address of the monitored network interface. It
@@ -533,23 +535,25 @@ The format for logfile is:
 for example:
 .PP
 .Vb 1
-\&    [CET Jan  5 18:49:29] info : \*(Aqmymachine\*(Aq Monit started
+\&    [CET Jan  5 18:49:29] info : \*(Aqlocalhost\*(Aq Monit started
 .Ve
 .SH "DAEMON MODE"
 .IX Header "DAEMON MODE"
 Use
 .PP
-.Vb 1
-\& set daemon n (where n is a number in seconds)
+.Vb 2
+\& SET DAEMON <seconds>
+\&     [[WITH] START DELAY <seconds>]
 .Ve
 .PP
 to specify Monit's poll cycle length and run Monit in daemon
 mode. You must specify a numeric argument which is a polling
-interval in seconds. In daemon mode, Monit detaches from the
-console, puts itself in the background and runs continuously,
-monitoring each specified service and then goes to sleep for the
-given poll interval, wakes up and start monitoring again in an
-endless cycle.
+interval in seconds.
+.PP
+In daemon mode, Monit detaches from the console, puts itself in
+the background and runs continuously, monitoring each specified
+service and then goes to sleep for the given poll interval, wakes
+up and start monitoring again in an endless cycle.
 .PP
 Alternatively, you can use the \f(CW\*(C`\-d\*(C'\fR command line switch to set
 the poll interval, but it is strongly recommended to set the poll
@@ -565,6 +569,11 @@ Calling \f(CW\*(C`monit\*(C'\fR with a Monit daemon running in the background se
 a wake-up signal to the daemon, forcing it to check services
 immediately. Calling \f(CW\*(C`monit\*(C'\fR with the quit argument will kill a
 running Monit daemon process instead of waking it up.
+.PP
+The start delay option can be used to wait (once) before Monit starts
+checking services. This can be useful for example when the system
+boots. Monit will by default start checking services immediately at
+startup.
 .SH "INIT SUPPORT"
 .IX Header "INIT SUPPORT"
 The \f(CW\*(C`set init\*(C'\fR statement prevents Monit from transforming itself into
@@ -618,7 +627,7 @@ any place in \f(CW\*(C`monitrc\*(C'\fR though the convention is at the bottom. T
 syntax is the following:
 .PP
 .Vb 1
-\&  include globstring
+\&  INCLUDE <globstring>
 .Ve
 .PP
 The globstring is any kind of string as defined in \f(CWglob(7)\fR. Thus,
@@ -682,21 +691,20 @@ and if found, use this certificate for client authentication.
 .PP
 \&\fI\s-1CACERTIFICATEFILE\s0\fR set the path to the \s-1PEM\s0 encoded file containing
 Certificate Authority (\s-1CA\s0) certificates. Monit uses OpenSSL's default
-\&\s-1CA\s0 cartificates if this options is not used (you can use \*(L"openssl version \-d\*(R"
-command to get the default \s-1CA\s0 certificates). Many distributions comes
+\&\s-1CA\s0 certificates if this options is not used (\fIopenssl version \-d\fR
+can be used to get the default \s-1CA\s0 certificates). Many distributions comes
 with \s-1SSL\s0 and \s-1CA\s0 certificates already setup and using this option is
 normally not necessary.
 .PP
 \&\fI\s-1CACERTIFICATEPATH\s0\fR set the path to the directory containing
 Certificate Authority (\s-1CA\s0) certificates. Monit uses OpenSSL's default
-\&\s-1CA\s0 certificates if this options is not used (you can use \*(L"openssl version \-d\*(R"
-command to get the default \s-1CA\s0 certificates). Many distributions comes
+\&\s-1CA\s0 certificates if this options is not used. Many distributions comes
 with \s-1SSL\s0 and \s-1CA\s0 certificates already setup and using this option is
 normally not necessary.
 .PP
-The \s-1SSL\s0 options statement can be used both globally (default for all
-\&\s-1SSL/TLS\s0 connection made through Monit) or local in a check, in
-mailserver settings or with the mmonit statement, and will then
+The \s-1SSL\s0 options statement will globally apply to all \s-1SSL/TLS\s0 connection
+made through Monit. \s-1SSL\s0 options can also be set in a local check, in
+\&\fImailserver\fR settings or in the \fImmonit\fR statement, and will then
 override or extend the global settings.
 .PP
 To set global \s-1SSL\s0 options, put this statement near the top of your
@@ -1761,19 +1769,57 @@ depend statement was used that does not point to a service in the
 control file.
 .SH "SERVICE TESTS"
 .IX Header "SERVICE TESTS"
+\fI\s-1LIMITS\s0\fR
+.IX Subsection "LIMITS"
+.PP
+You can configure and set various limits to tweak buffer sizes and
+timeouts used by Monit. In most situations the default values are
+fine. If needed, below are the limits you can currently modify in
+Monit.
+.PP
+Syntax:
+.PP
+.Vb 7
+\& SET LIMIT {
+\&   PROGRAMOUTPUT:     <number> <unit>,
+\&   SENDEXPECTBUFFER:  <number> <unit>,
+\&   FILECONTENTBUFFER: <number> <unit>,
+\&   HTTPCONTENTBUFFER: <number> <unit>,
+\&   NETWORKTIMEOUT:    <number> <timeunit>
+\& }
+.Ve
+.PP
+Where:
+ \fIunit\fR is \*(L"B\*(R" (byte), \*(L"kB\*(R" (kilobyte) or \*(L"\s-1MB\*(R" \s0(megabyte)
+ \fItimeunit\fR is \*(L"\s-1MS\*(R" \s0(millisecond) or \*(L"S\*(R" (second)
+.PP
+Options legend:
+.PP
+.Vb 9
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& | Option            | Description                                      | Default |
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& | programOutput     | limit for check program output (truncated after) | 512 B   |
+\& | sendExpectBuffer  | limit for send/expect protocol test              | 256 B   |
+\& | fileContentBuffer | limit for file content test (line)               | 512 B   |
+\& | httpContentBuffer | limit for HTTP content test (response body)      | 1 MB    |
+\& | networkTimeout    | timeout for network I/O                          | 5 sec   |
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+.Ve
+.PP
 \fI\s-1GENERAL SYNTAX\s0\fR
 .IX Subsection "GENERAL SYNTAX"
 .PP
-Monit provides several tests you can use in a 'check' statement to test
-a service.
+Monit offers several if-tests you can use in a 'check' statement to test
+various aspects of a service.
 .PP
-You can test either for some expected value or range and take
-actions if the value changed.
+You can test both for a predefined value or for a range and take actions if the
+value changes.
 .PP
 General syntax for testing a specific value or range:
 .PP
 .Vb 1
-\& IF <TEST> THEN ACTION [ELSE IF SUCCEEDED THEN ACTION]
+\& IF <test> THEN <action> [ELSE IF SUCCEEDED THEN <action>]
 .Ve
 .PP
 The action is evaluated each time the <\s-1TEST\s0> condition is true. Success
@@ -1784,7 +1830,7 @@ recovery alert by default.
 General syntax for a value change test:
 .PP
 .Vb 1
-\& IF CHANGED <TEST> THEN ACTION
+\& IF CHANGED <test> THEN <action>
 .Ve
 .PP
 The action is executed each time the value changes. Monit will remember
@@ -1814,14 +1860,17 @@ enable monitoring from the web interface or from the console.
 .IP "\(bu" 4
 \&\fB\s-1EXEC\s0\fR can be used to execute an arbitrary program \fBand\fR send
 an alert. If you choose this action you must state the program to
-be executed and if the program require arguments you must enclose
+be executed and if the program requires arguments you must enclose
 the program and its arguments in a quoted string. You may
 optionally specify the uid and gid the executed program should
-switch to upon start. For instance:
+switch to upon start. The program is by default executed only once,
+on the state change. You can enable program repetition when the error
+persists for given number of cycles. For instance:
 .Sp
-.Vb 2
-\& exec "/usr/local/tomcat/bin/startup.sh"
+.Vb 3
+\& if failed <test> then exec "/usr/local/bin/sms.sh"
 \&      as uid nobody and gid nobody
+\&      repeat every 5 cycles
 .Ve
 .Sp
 Remember, if Monit is run by root, then all programs executed by Monit
@@ -1834,14 +1883,15 @@ restarted again later.  To reactivate monitoring of the service
 you must explicitly enable monitoring from the web interface or
 from the console.
 .PP
-\fI\s-1FAILURE TOLERANCE\s0\fR
-.IX Subsection "FAILURE TOLERANCE"
+\fI\s-1FAULT TOLERANCE\s0\fR
+.IX Subsection "FAULT TOLERANCE"
 .PP
-By default the action is executed if it matches and the service set in
-an error state. However, you can require a test to fail more than once
-before the error event is triggered and the service state changed to
-failed. This is useful to avoid getting alerts on spurious errors,
-which can happen, especially with network tests.
+By default an action is executed if it matches and the corresponding
+service is set in an error state. However, you can require a test to
+fail more than once before the error event is triggered and the
+service state is changed to failed. This is useful to avoid getting
+alerts on spurious errors, which can happen, especially with network
+tests.
 .PP
 Syntax:
 .PP
@@ -1893,13 +1943,14 @@ Example which sets multiple error levels and actions:
 Note: the maximum value for cycles is 64.
 .SS "\s-1EXISTENCE TESTING\s0"
 .IX Subsection "EXISTENCE TESTING"
-This test is always active for the process, file, directory and fifo
-checks and is if not defined, it defaults to a restart action.
+This test is implicite and always active for service checks of type,
+\&\fIprocess\fR, \fIfile\fR, \fIdirectory\fR and \fIfifo\fR. If not defined, it
+defaults to a restart action.
 .PP
 You can override the default action with the following statement:
 .PP
 .Vb 1
-\& IF [DOES] NOT EXIST THEN action
+\& IF [DOES] NOT EXIST THEN <action>
 .Ve
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R", \*(L"EXEC\*(R"\s0 or
@@ -1927,14 +1978,14 @@ testing is as follows (keywords are in capital and optional
 statements in [brackets]),
 .PP
 .Vb 1
-\& IF resource operator value THEN action
+\& IF <resource> <operator> <value> THEN <action>
 .Ve
 .PP
 \&\fIresource\fR is a choice of \*(L"\s-1CPU\*(R", \*(L"TOTAL CPU\*(R",
-\&\*(L"CPU\s0([user|system|wait])\*(R", \*(L"\s-1MEMORY\*(R", \*(L"SWAP\*(R", \*(L"CHILDREN\*(R", \*(L"TOTAL
-MEMORY\*(R", \*(L"LOADAVG\s0([1min|5min|15min])\*(R". Some resource tests can be used
-inside a check system entry, some in a check process entry and some in
-both:
+\&\*(L"CPU\s0([user|system|wait])\*(R", \*(L"\s-1MEMORY\*(R", \*(L"SWAP\*(R", \*(L"THREADS\*(R", \*(L"CHILDREN\*(R",
+\&\*(L"TOTAL MEMORY\*(R", \*(L"LOADAVG\s0([1min|5min|15min])\*(R". Some resource tests can
+be used inside a check system entry, some in a check process entry and
+some in both:
 .PP
 System only resource tests:
 .PP
@@ -1953,6 +2004,8 @@ Process only resource tests:
 in (percent). You will want to use \s-1TOTAL CPU\s0 typically for
 services like Apache web server where one master process forks
 child processes as workers.
+.PP
+\&\s-1THREADS\s0 is the number of processes' threads.
 .PP
 \&\s-1CHILDREN\s0 is the number of child processes of the process.
 .PP
@@ -1974,10 +2027,10 @@ queue, averaged over the specified time period.
 \&\*(L"less\*(R", \*(L"equal\*(R", \*(L"notequal\*(R" in human readable form (if not
 specified, default is \s-1EQUAL\s0).
 .PP
-\&\fIvalue\fR is either an integer or a real number (except for
-\&\s-1CHILDREN\s0). For \s-1CPU, TOTAL CPU, MEMORY\s0 and \s-1TOTAL MEMORY\s0 you need to
-specify a \fIunit\fR. This could be \*(L"%\*(R" or if applicable \*(L"B\*(R" (Byte),
-\&\*(L"kB\*(R" (1024 Byte), \*(L"\s-1MB\*(R" \s0(1024 KiloByte) or \*(L"\s-1GB\*(R" \s0(1024 MegaByte).
+\&\fIvalue\fR is either an integer or a real number. For \s-1CPU, TOTAL CPU,
+MEMORY\s0 and \s-1TOTAL MEMORY\s0 you need to specify a \fIunit\fR. This could
+be \*(L"%\*(R" or if applicable \*(L"B\*(R" (Byte), \*(L"kB\*(R" (1024 Byte), \*(L"\s-1MB\*(R" \s0(1024 KiloByte)
+or \*(L"\s-1GB\*(R" \s0(1024 MegaByte).
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
@@ -2122,14 +2175,16 @@ For example to send an alert if the file is too large:
 .Ve
 .SS "\s-1FILE CONTENT TESTING\s0"
 .IX Subsection "FILE CONTENT TESTING"
-The match statement can be used to incrementally test the content of a
+The content statement can be used to incrementally test the content of a
 text file by using regular expressions.
 .PP
 Syntax:
 .PP
 .Vb 1
-\& IF [NOT] MATCH {regex|path} THEN action
+\& IF CONTENT <operator> <regex|path> THEN action
 .Ve
+.PP
+\&\fIoperator\fR is either a \*(L"=\*(R" for match or \*(L"!=\*(R" for no-match.
 .PP
 \&\fIregex\fR is a string containing the extended regular expression.
 See also \fIregex\fR\|(7).
@@ -2140,8 +2195,6 @@ regular expression on every line. See also \fIregex\fR\|(7).
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
 .PP
-You can use the \fI\s-1NOT\s0\fR statement to invert a match.
-.PP
 On startup the read position is set to the end of the file
 and Monit continues to scan to the end of the file on each cycle.
 .PP
@@ -2150,26 +2203,27 @@ position is set to the start of the file.
 .PP
 Only lines ending with a newline character are inspected.
 .PP
-Only the first 511 characters of a line are inspected.
+By default only the first 511 characters of a line are inspected. You can
+increase the limit using the set limits statement.
 .PP
 .Vb 1
-\& IGNORE [NOT] MATCH {regex|path}
+\& IGNORE CONTENT <operator> <regex|path>
 .Ve
 .PP
 Lines matching an \fI\s-1IGNORE\s0\fR are not inspected during later
-evaluations. \fI\s-1IGNORE MATCH\s0\fR has always precedence over
-\&\fI\s-1IF MATCH\s0\fR.
+evaluations. \fI\s-1IGNORE CONTENT\s0\fR has always precedence over
+\&\fI\s-1IF CONTENT\s0\fR.
 .PP
-All \fI\s-1IGNORE MATCH\s0\fR statements are evaluated first, in the
-order of their appearance. Thereafter, all the \fI\s-1IF MATCH\s0\fR
+All \fI\s-1IGNORE CONTENT\s0\fR statements are evaluated first, in the
+order of their appearance. Thereafter, all the \fI\s-1IF CONTENT\s0\fR
 statements are evaluated.
 .PP
 For example:
 .PP
 .Vb 3
 \&  check file syslog with path /var/log/syslog
-\&        ignore match "^monit"
-\&        if match "^mrcoffee" then alert
+\&        ignore content = "^monit"
+\&        if content = "^mrcoffee" then alert
 .Ve
 .SS "\s-1FILESYSTEM FLAGS TESTING\s0"
 .IX Subsection "FILESYSTEM FLAGS TESTING"
@@ -2742,9 +2796,12 @@ is allowed to).
 .PP
 Syntax:
 .PP
-.Vb 3
+.Vb 6
 \&  IF FAILED PING[4|6]
-\&     [COUNT number] [SIZE number] [WITH] [TIMEOUT number SECONDS]
+\&     [COUNT number]
+\&     [SIZE number]
+\&     [TIMEOUT number SECONDS]
+\&     [ADDRESS string]
 \&  THEN action
 .Ve
 .PP
@@ -2764,6 +2821,8 @@ is 64 bytes.
 If no reply arrive within \fB\s-1TIMEOUT\s0\fR seconds, Monit reports an error.
 If at least one reply was received, the ping test is considered a
 success.
+.PP
+The \fB\s-1ADDRESS\s0\fR parameter specifies source \s-1IP\s0 address.
 .PP
 Monit will, by default, send up to \fIthree\fR ping request packets in
 one cycle to prevent false alarm (i.e. up to 66% packet loss is
@@ -2819,16 +2878,17 @@ I/O, Monit will execute a specified action.
 .PP
 \&\s-1TCP/UDP\s0 port test syntax:
 .PP
-.Vb 12
+.Vb 10
 \& IF FAILED
 \&    [host]
 \&    <port>
+\&    [localaddress]
 \&    [ipversion]
 \&    [type]
 \&    [ssl [with options {...}]]
 \&    [certificate checksum]
 \&    [certificate valid days]
-\&    [protocol | {send/expect}+]
+\&    [protocol | <send|expect>, ...]
 \&    [timeout]
 \&    [retry]
 \& THEN action
@@ -2840,7 +2900,7 @@ Unix socket test syntax:
 \& IF FAILED
 \&    <unixsocket>
 \&    [type]
-\&    [protocol | {send/expect}+]
+\&    [protocol | <send|expect>, ...]
 \&    [timeout]
 \&    [retry]
 \& THEN action
@@ -2867,6 +2927,8 @@ remote host entry then the entry's remote host is assumed.
 .PP
 \&\fIunixsocket: \s-1UNIXSOCKET\s0 path\fR. Specifies the path to a Unix
 socket (local machine only).
+.PP
+\&\fIlocaladdress: \s-1ADDRESS\s0 string\fR. The source \s-1IP\s0 address to use.
 .PP
 \&\fIipversion: \s-1IPV4\s0 | \s-1IPV6 \s0\fR. Optionally specify the \s-1IP\s0 version Monit
 should use when trying to connect to the port. If not used, Monit will
@@ -2990,7 +3052,7 @@ server with the string given in the expect statement.
 Syntax:
 .PP
 .Vb 1
-\& [{SEND|EXPECT} "string"]+
+\& [<SEND|EXPECT> "string"]+
 .Ve
 .PP
 Monit will send a string as it is, and you \fBmust\fR remember to
@@ -3000,19 +3062,7 @@ protocols used over Internet do).
 .PP
 Monit will by default read up to 255 bytes from the server and
 use this string when comparing the \s-1EXPECT\s0 string. You can override
-the default value by using this statement at the top of the Monit
-configuration file:
-.PP
-.Vb 1
-\& SET EXPECTBUFFER <number> ["b"|"kb"]
-.Ve
-.PP
-Max value for the expect buffer is 100 kb. For example, to set
-the expect buffer to read 10 kilobytes:
-.PP
-.Vb 1
-\& set expectbuffer 10 kb
-.Ve
+the default value using the set limits statement.
 .PP
 You can use non-printable characters in a \s-1SEND\s0 string if needed.
 Use the hex notation, \e0xHEXHEX to send any char in the range
@@ -3067,7 +3117,7 @@ Syntax:
 \&     [STATUS operator number]
 \&     [CHECKSUM checksum]
 \&     [HTTP HEADERS list of headers]
-\&     [CONTENT {= | != } STRING]
+\&     [CONTENT < "=" | "!=" > STRING]
 .Ve
 .PP
 \&\fI\s-1REQUEST\s0\fR option can set an \s-1URL\s0 string specifying a document on the
@@ -3158,6 +3208,9 @@ and must come before \fIrequest\fR as in the example above.
 returned by the server. If the pattern doesn't match, event is
 triggered.
 .PP
+By default at maximum 1MB is inspected. You can increase the limit
+using the set limits statement.
+.PP
 For example:
 .PP
 .Vb 5
@@ -3178,10 +3231,12 @@ its default address of http://www.example.com/server\-status.
 Syntax:
 .PP
 .Vb 1
-\& PROTOCOL APACHE\-STATUS <limit operator number>+
+\& PROTOCOL APACHE\-STATUS [PATH <path>] [<property> <operator> <number>]+
 .Ve
 .PP
-\&\fIlimit\fR is acronym for child status:
+\&\fIpath\fR is an optional path to apache status (\*(L"/server\-status\*(R" by default)
+.PP
+\&\fIproperty\fR is acronym for child status:
 .PP
 .Vb 10
 \& (1) logging (loglimit)
@@ -3777,7 +3832,7 @@ S. Raymond et al.'s excellent fetchmail program. Some portions
 of this man page also receive inspiration from the same authors.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2001\-2015 by Tildeslash Ltd. All Rights Reserved.
+Copyright (C) 2001\-2016 by Tildeslash Ltd. All Rights Reserved.
 This product is distributed in the hope that it will be useful,
 but \s-1WITHOUT\s0 any warranty; without even the implied warranty of
 \&\s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 for a particular purpose.

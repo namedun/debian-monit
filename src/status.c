@@ -58,6 +58,8 @@
 #include "process.h"
 #include "device.h"
 
+// libmonit
+#include "exceptions/AssertException.h"
 
 /**
  *  Obtain status from the monit daemon
@@ -81,9 +83,9 @@ boolean_t status(const char *level, const char *group, const char *service) {
         Socket_T S = NULL;
         if (Run.httpd.flags & Httpd_Net)
                 // FIXME: Monit HTTP support IPv4 only currently ... when IPv6 is implemented change the family to Socket_Ip
-                S = Socket_create(Run.httpd.socket.net.address ? Run.httpd.socket.net.address : "localhost", Run.httpd.socket.net.port, Socket_Tcp, Socket_Ip4, (SslOptions_T){.use_ssl = Run.httpd.flags & Httpd_Ssl, .clientpemfile = Run.httpd.socket.net.ssl.clientpem, .allowSelfSigned = Run.httpd.flags & Httpd_AllowSelfSignedCertificates}, NET_TIMEOUT);
+                S = Socket_create(Run.httpd.socket.net.address ? Run.httpd.socket.net.address : "localhost", Run.httpd.socket.net.port, Socket_Tcp, Socket_Ip4, (SslOptions_T){.use_ssl = Run.httpd.flags & Httpd_Ssl, .clientpemfile = Run.httpd.socket.net.ssl.clientpem, .allowSelfSigned = Run.httpd.flags & Httpd_AllowSelfSignedCertificates}, Run.limits.networkTimeout);
         else if (Run.httpd.flags & Httpd_Unix)
-                S = Socket_createUnix(Run.httpd.socket.unix.path, Socket_Tcp, NET_TIMEOUT);
+                S = Socket_createUnix(Run.httpd.socket.unix.path, Socket_Tcp, Run.limits.networkTimeout);
         else
                 LogError("Status not available - monit http interface is not enabled, please add the 'set httpd' statement\n");
         if (S) {
@@ -101,22 +103,19 @@ boolean_t status(const char *level, const char *group, const char *service) {
                 char *_auth = Util_getBasicAuthHeaderMonit();
                 Socket_print(S, " HTTP/1.0\r\n%s\r\n", _auth ? _auth : "");
                 FREE(_auth);
-
-                /* Read past HTTP headers and check status */
                 char buf[1024];
-                while (Socket_readLine(S, buf, sizeof(buf))) {
-                        if (*buf == '\n' || *buf == '\r')
-                                break;
-                        if (Str_startsWith(buf, "HTTP/1.0 200"))
-                                status = true;
-                }
-
-                if (! status) {
-                        LogError("Cannot read status from the monit daemon\n");
-                } else {
+                TRY
+                {
+                        Util_parseMonitHttpResponse(S);
                         while (Socket_readLine(S, buf, sizeof(buf)))
                                 printf("%s", buf);
+                        status = true;
                 }
+                ELSE
+                {
+                        LogError("%s\n", Exception_frame.message);
+                }
+                END_TRY;
                 Socket_free(&S);
         }
         return status;

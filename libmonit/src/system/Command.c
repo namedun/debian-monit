@@ -549,6 +549,9 @@ Process_T Command_execute(T C) {
                 signal(SIGHUP, SIG_IGN);  // Ensure future opens won't allocate controlling TTYs
                 // Execute the program
                 execve(_args(C)[0], _args(C), _env(C));
+                // Won't print to error log as descriptor was closed above, but will
+                // print error to stderr Processor_T can be read
+                ERROR("Command: '%s' failed to execute -- %s", _args(C)[0], System_getLastError());
                 exec_error = errno;
                 _exit(errno);
         }

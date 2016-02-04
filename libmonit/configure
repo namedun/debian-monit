@@ -636,6 +636,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+UNIT_TEST
 CPP
 OTOOL64
 OTOOL
@@ -1402,7 +1403,8 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --enable-optimized      Build software optimized
+  --enable-optimized      Build software optimized. Unit Tests are not enabled
+                          with this option
   --enable-profiling      Build with debug and profiling options
   --enable-openssl(=<path>)
                           Link Monit with openssl. An optional path argument
@@ -11525,14 +11527,16 @@ CC="$lt_save_CC"
 # Build options
 # ---------------------------------------------------------------------------
 
+UNIT_TEST="test"
 # Check whether --enable-optimized was given.
 if test "${enable_optimized+set}" = set; then :
   enableval=$enable_optimized;
-        CFLAGS=`echo $CFLAGS|sed 's/-O.* //'`
         if test "x$enableval" = "xyes" ; then
-   	    	CFLAGS=`echo $CFLAGS|sed 's/-g//'`
-		CFLAGS="$CFLAGS -O3"
+   	    	CFLAGS=`echo $CFLAGS|sed 's/-g[^ ]*//g'`
+                CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
+		CFLAGS="$CFLAGS -O3 -DNDEBUG"
 		OPTIMIZED=1
+                UNIT_TEST=""
 	else
 		OPTIMIZED=0
         fi
@@ -11545,10 +11549,13 @@ else
 fi
 
 
+
 # Check whether --enable-profiling was given.
 if test "${enable_profiling+set}" = set; then :
   enableval=$enable_profiling;
         if test "x$enableval" = "xyes" ; then
+   	    	CFLAGS=`echo $CFLAGS|sed 's/-g.//g'`
+                CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
                 CFLAGS="$CFLAGS -g -pg"
                 profile="true"
         fi
@@ -11729,6 +11736,53 @@ else
   as_fn_error $? "POSIX thread library is required" "$LINENO" 5
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for round in -lm" >&5
+$as_echo_n "checking for round in -lm... " >&6; }
+if ${ac_cv_lib_m_round+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lm  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char round ();
+int
+main ()
+{
+return round ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_m_round=yes
+else
+  ac_cv_lib_m_round=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_m_round" >&5
+$as_echo "$ac_cv_lib_m_round" >&6; }
+if test "x$ac_cv_lib_m_round" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBM 1
+_ACEOF
+
+  LIBS="-lm $LIBS"
+
+else
+  as_fn_error $? "Math library is required" "$LINENO" 5
+fi
+
 
 # ---------------------------------------------------------------------------
 # Header files
@@ -11852,7 +11906,7 @@ for ac_header in ctype.h errno.h fcntl.h limits.h pthread.h setjmp.h \
                   sys/sendfile.h sys/dirent.h poll.h sys/poll.h sys/event.h \
                   stropts.h sys/ioctl.h sys/filio.h kstat.h ifaddrs.h \
                   net/if_media.h netinet/in.h sys/sysctl.h net/if_dl.h \
-                  mach/boolean.h uvm/uvm_param.h
+                  sys/protosw.h mach/boolean.h uvm/uvm_param.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -12082,6 +12136,12 @@ then
 
 $as_echo "#define OPENBSD 1" >>confdefs.h
 
+elif test "$architecture" = "DragonFly"
+then
+   CFLAGS="$CFLAGS -D _REENTRANT"
+
+$as_echo "#define DRAGONFLY 1" >>confdefs.h
+
 elif test "$architecture" = "Darwin"
 then
    CFLAGS="$CFLAGS -DREENTRANT"
@@ -12115,6 +12175,7 @@ $as_echo "#define NETBSD 1" >>confdefs.h
 
 elif test "$architecture" = "AIX"
 then
+   CFLAGS=`echo $CFLAGS|sed 's/-g//'`
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
 
 $as_echo "#define AIX 1" >>confdefs.h
