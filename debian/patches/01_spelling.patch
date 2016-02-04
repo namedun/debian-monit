@@ -3,21 +3,12 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: no
 
 ---
- doc/monit.pod |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ doc/monit.pod |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 --- a/doc/monit.pod
 +++ b/doc/monit.pod
-@@ -478,7 +478,7 @@ a wake-up signal to the daemon, forcing
- immediately. Calling C<monit> with the quit argument will kill a
- running Monit daemon process instead of waking it up.
- 
--The start delay option allows to postpone the first check by given
-+The start delay option allows one to postpone the first check by given
- number of seconds (can be useful for example when the system boots).
- By default Monit starts service checks immediately after start.
- 
-@@ -756,7 +756,7 @@ B<ALLOW> option which is used to specify
+@@ -757,7 +757,7 @@ B<ALLOW> option which is used to specify
  only specific clients to connect.
  
  If the Monit command line interface is being used, at least one
@@ -26,7 +17,7 @@ Forwarded: no
  command line interface will not be able to connect to the Monit
  web interface.
  
-@@ -1160,7 +1160,7 @@ Multiple mail servers can be set by usin
+@@ -1161,7 +1161,7 @@ Multiple mail servers can be set by usin
  Monit cannot connect to the first server, it will try the next in
  the list and so on.
  
@@ -35,7 +26,7 @@ Forwarded: no
  (465 for SSL, or 25 for TLS and non secure connection).
  
  Monit supports AUTH PLAIN and AUTH LOGIN for SMTP authentication.
-@@ -1692,7 +1692,7 @@ events before switching the state:
+@@ -1731,7 +1731,7 @@ events before switching the state:
      for 3 cycles
   then alert
  
@@ -44,7 +35,7 @@ Forwarded: no
  issues, but still catch excessive problems, where the service is
  flapping between error and success states frequently.
  
-@@ -2868,7 +2868,7 @@ For example:
+@@ -2914,7 +2914,7 @@ For example:
  
  =head4 APACHE-STATUS
  

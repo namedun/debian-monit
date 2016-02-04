@@ -45,8 +45,8 @@ Forwarded: not-needed
 +  set statefile /var/lib/monit/state
  #
  #
- ## Set global SSL options (just most common options showed, see manual for
-@@ -74,9 +74,9 @@ set logfile syslog
+ 
+@@ -85,9 +85,9 @@ set logfile syslog
  ## by using the SLOTS option (if omitted, the queue is limited by space
  ## available in the back end filesystem).
  #
@@ -59,7 +59,7 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -135,11 +135,11 @@ set logfile syslog
+@@ -146,11 +146,11 @@ set logfile syslog
  ## commands to a running Monit daemon. See the Monit Wiki if you want to 
  ## enable SSL for the HTTP interface. 
  #
@@ -76,7 +76,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -275,5 +275,6 @@ set httpd port 2812 and
+@@ -286,5 +286,6 @@ set httpd port 2812 and
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #
