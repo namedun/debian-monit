@@ -1,3 +1,9 @@
+monit (1:5.16-2) unstable; urgency=medium
+
+  * Fix Hurd patch: use /proc/uptime to get uptime in get_starttime()
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 16 Feb 2016 18:49:22 +0300
+
 monit (1:5.16-1) unstable; urgency=medium
 
   * Remove unused patch for kfreebsd
