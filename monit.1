@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.16" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.17.1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1244,7 +1244,7 @@ Example:
 .PP
 .Vb 8
 \& set mail\-format {
-\&      from: monit@foo.bar
+\&      from: Monit Support <monit@foo.bar>
 \&  reply\-to: support@domain.com
 \&   subject: $SERVICE $EVENT at $DATE
 \&   message: Monit $ACTION $SERVICE at $DATE on $HOST: $DESCRIPTION.
@@ -1253,11 +1253,12 @@ Example:
 \& }
 .Ve
 .PP
-The \fIfrom:\fR option is the sender's email address. That is, the email
-address Monit will pretend it is sending alerts from. It does not have
-to be a real email-address only a proper formatted address.
+The \fIfrom:\fR option is the sender's email address for Monit alerts. A
+sender's name is optional, but if used, requires that the subsequent
+email-address is enclosed in angle brackets as in the example above.
 .PP
-The \fIreply-to:\fR option can be used to set the reply-to mail header.
+The \fIreply-to:\fR option can be used to set the reply-to mail header,
+optionally with a name.
 .PP
 The \fIsubject:\fR option sets the message subject and must be on only
 \&\fIone\fR line.
@@ -1267,7 +1268,7 @@ be the last in a mail-format statement. The mail body can be as long
 as needed, but must \fInot\fR contain the block-closing '}' character.
 .PP
 You need not use all options, only the option which you want to
-override. For example to globally change the senders address only:
+override. For example to globally change the sender address only:
 .PP
 .Vb 1
 \& set mail\-format { from: bofh@foo.bar }
@@ -1780,7 +1781,7 @@ Monit.
 Syntax:
 .PP
 .Vb 7
-\& SET LIMIT {
+\& SET LIMITS {
 \&   PROGRAMOUTPUT:     <number> <unit>,
 \&   SENDEXPECTBUFFER:  <number> <unit>,
 \&   FILECONTENTBUFFER: <number> <unit>,
@@ -3170,12 +3171,12 @@ Example:
 \& then alert
 .Ve
 .PP
-\&\fI\s-1HTTP HEADERS\s0\fR can be used to send a list of any \s-1HTTP\s0 headers
-with a \s-1HTTP\s0 protocol test. For instance, the host header. If the
-host header is not set, Monit will use the hostname or IP-address
-of the host as specified in the check host statement. Specifying
-a host header is useful if you want to connect to and test a
-name-based virtual host. The syntax for setting \s-1HTTP\s0 headers is
+\&\fI\s-1HTTP HEADERS\s0\fR can be used to send a list of \s-1HTTP\s0 headers when using
+the \s-1HTTP\s0 protocol test. For instance, the host header. If the host
+header is not set, Monit will use the hostname or IP-address of the
+host as specified in the check host statement. Specifying a host header
+is useful if you want to connect to and test a name-based virtual host.
+The syntax for setting \s-1HTTP\s0 headers is
 .PP
 .Vb 1
 \&  http headers [name:value, name:value,..]
@@ -3204,12 +3205,13 @@ In a check host context, using this statement might look like
 Setting \s-1HTTP\s0 headers is associated with the \s-1HTTP\s0 protocol test
 and must come before \fIrequest\fR as in the example above.
 .PP
-\&\fI\s-1CONTENT\s0\fR option sets the pattern which is expected in the data
-returned by the server. If the pattern doesn't match, event is
-triggered.
+The \fI\s-1CONTENT\s0\fR option sets the pattern which is expected in the data
+returned by the server. If the pattern doesn't match, the test fails. In
+the example above, if the server does not return a page with the name
+Monit followed by a version number the test will fail.
 .PP
-By default at maximum 1MB is inspected. You can increase the limit
-using the set limits statement.
+By default, at maximum 1MB of content is inspected. You can
+increase this limit using the set limits statement.
 .PP
 For example:
 .PP
@@ -3272,6 +3274,82 @@ Example:
 \& then alert
 .Ve
 .PP
+\s-1MYSQL\s0
+.IX Subsection "MYSQL"
+.PP
+Syntax:
+.PP
+.Vb 1
+\& PROTOCOL MYSQL [USERNAME string PASSWORD string]
+.Ve
+.PP
+\&\fI\s-1USERNAME\s0\fR MySQL username (maximum 16 characters).
+.PP
+\&\fI\s-1PASSWORD\s0\fR MySQL password (special characters can be used, but for non-alphanumerics
+the password has to be quoted).
+.PP
+Username and password (credentials) are \fBoptional\fR and if not set,
+Monit will perform the test using anonymous login. This can cause an
+authentication error to be logged in your MySQL log, depending on your
+MySQL configuration.
+.PP
+If credentials are set, Monit will login and perform a MySQL ping test.
+Monit does not require any database privileges, it just needs the
+database user. You might want to create standalone user for Monit to
+use when testing, for example:
+.PP
+.Vb 2
+\& CREATE USER \*(Aqmonit\*(Aq@\*(Aqhost_from_which_monit_performs_testing\*(Aq IDENTIFIED BY \*(Aqmysecretpassword\*(Aq;
+\& FLUSH PRIVILEGES;
+.Ve
+.PP
+Example:
+.PP
+.Vb 7
+\& check process mysql with pidfile /var/run/mysqld/mysqld.pid
+\&     start program = "/sbin/start mysql"
+\&     stop program = "/sbin/stop mysql"
+\&     if failed
+\&        port 3306
+\&        protocol mysql username "foo" password "bar"
+\&     then alert
+.Ve
+.PP
+or with unix-socket and \s-1OS X\s0 start/stop commands
+.PP
+.Vb 7
+\& check process mysql with pidfile /var/run/mysqld/mysqld.pid
+\&     start program = "/usr/local/mysql/support\-files/mysql.server start"
+\&     stop program = "/usr/local/mysql/support\-files/mysql.server stop"
+\&     if failed
+\&        unixsocket /tmp/mysql.sock
+\&        protocol mysql username "foo" password "bar"
+\&     then alert
+.Ve
+.PP
+\s-1RADIUS\s0
+.IX Subsection "RADIUS"
+.PP
+Syntax:
+.PP
+.Vb 1
+\& PROTOCOL RADIUS [SECRET string]
+.Ve
+.PP
+\&\fI\s-1SECRET\s0\fR you may specify an alternative secret, default is \*(L"testing123\*(R".
+.PP
+For example:
+.PP
+.Vb 7
+\& check process radiusd with pidfile /var/run/radiusd.pid
+\&       start program = "/etc/init.d/freeradius start"
+\&       stop program = "/etc/init.d/freeradius stop"
+\&       if failed
+\&          host 127.0.0.1 port 1812 type udp protocol radius
+\&          secret pingpong
+\&       then alert
+.Ve
+.PP
 \s-1SIP\s0
 .IX Subsection "SIP"
 .PP
@@ -3303,77 +3381,49 @@ For example:
 \&   then alert
 .Ve
 .PP
-\s-1RADIUS\s0
-.IX Subsection "RADIUS"
+\s-1SMTP\s0
+.IX Subsection "SMTP"
 .PP
 Syntax:
 .PP
 .Vb 1
-\& PROTOCOL RADIUS [SECRET string]
+\& PROTOCOL SMTP[S] [USERNAME string PASSWORD string]
 .Ve
 .PP
-\&\fI\s-1SECRET\s0\fR you may specify an alternative secret, default is \*(L"testing123\*(R".
+\&\fI\s-1USERNAME\s0\fR \s-1SMTP\s0 username.
 .PP
-For example:
+\&\fI\s-1PASSWORD\s0\fR \s-1SMTP\s0 password (special characters can be used, but for
+non-alphanumerics the password has to be quoted).
+.PP
+Credentials are \fIoptional\fR and when used will perform authentication
+during testing so you can test that authentication also works. We
+recommend using \fIsmtps\fR if authentication is to be used to encrypt the
+communication. If no credentials are set, Monit will just perform a
+basic protocol test.
+.PP
+Example:
 .PP
 .Vb 7
-\& check process radiusd with pidfile /var/run/radiusd.pid
-\&       start program = "/etc/init.d/freeradius start"
-\&       stop program = "/etc/init.d/freeradius stop"
-\&       if failed
-\&          host 127.0.0.1 port 1812 type udp protocol radius
-\&          secret pingpong
-\&       then alert
-.Ve
-.PP
-\s-1MYSQL\s0
-.IX Subsection "MYSQL"
-.PP
-Syntax:
-.PP
-.Vb 1
-\& PROTOCOL MYSQL [USERNAME string PASSWORD string]
-.Ve
-.PP
-\&\fI\s-1USERNAME\s0\fR MySQL username (maximum 16 characters).
-.PP
-\&\fI\s-1PASSWORD\s0\fR MySQL password (special characters can be used, but for non-alphanumerics
-the password has to be quoted).
-.PP
-The credentials are \fBoptional\fR. If no credentials are set, Monit will perform
-the test using anonymous login. That may cause authentication error to be logged
-in your MySQL log for higher MySQL log levels.
-.PP
-If credentials are set, Monit will login and perform MySQL ping. Monit doesn't
-require any database privileges, it needs just database user, we recommend to
-create standalone user for Monit testing, for example:
-.PP
-.Vb 2
-\& CREATE USER \*(Aqmonit\*(Aq@\*(Aqhost_from_which_monit_performs_testing\*(Aq IDENTIFIED BY \*(Aqmysecretpassword\*(Aq;
-\& FLUSH PRIVILEGES;
-.Ve
-.PP
-For example:
-.PP
-.Vb 7
-\& check process mysql with pidfile /var/run/mysqld/mysqld.pid
-\&     start program = "/sbin/start mysql"
-\&     stop program = "/sbin/stop mysql"
+\& check process postfix with pidfile /var/spool/postfix/pid/master.pid
+\&     start program = "/etc/init.d/postfix start"
+\&     stop  program = "/etc/init.d/postfix stop"
 \&     if failed
-\&        port 3306
-\&        protocol mysql username "foo" password "bar"
+\&        port 25
+\&        protocol smtp
 \&     then alert
 .Ve
 .PP
-or with unix-socket and \s-1OS X\s0 start/stop commands
+Example using authentication and \s-1STARTTLS/SMTPS:\s0
 .PP
-.Vb 7
-\& check process mysql with pidfile /var/run/mysqld/mysqld.pid
-\&     start program = "/usr/local/mysql/support\-files/mysql.server start"
-\&     stop program = "/usr/local/mysql/support\-files/mysql.server stop"
+.Vb 9
+\& check process postfix with pidfile /var/spool/postfix/pid/master.pid
+\&     start program = "/etc/init.d/postfix start"
+\&     stop  program = "/etc/init.d/postfix stop"
 \&     if failed
-\&        unixsocket /tmp/mysql.sock
-\&        protocol mysql username "foo" password "bar"
+\&        port 25
+\&        protocol smtps
+\&        username "foo"
+\&        password "bar"
 \&     then alert
 .Ve
 .PP
@@ -3791,7 +3841,7 @@ The time and date (\s-1RFC 822\s0 style) the event occurred
 The host the event occurred on
 .PP
 The following environment variables are only available for
-process service entries:
+\&\fIcheck process\fR service entries:
 .IP "\s-1MONIT_PROCESS_PID\s0" 4
 .IX Item "MONIT_PROCESS_PID"
 The process pid. This may be 0 if the process was (re)started,
@@ -3804,6 +3854,12 @@ Process children. This may be 0 if the process was (re)started,
 .IP "\s-1MONIT_PROCESS_CPU_PERCENT\s0" 4
 .IX Item "MONIT_PROCESS_CPU_PERCENT"
 Process cpu%. This may be 0 if the process was (re)started,
+.PP
+The following environment variables are only available for
+\&\fIcheck program\fR service entries:
+.IP "\s-1MONIT_PROGRAM_STATUS\s0" 4
+.IX Item "MONIT_PROGRAM_STATUS"
+The program status (exit value).
 .SH "SIGNALS"
 .IX Header "SIGNALS"
 If a Monit daemon is running, \s-1SIGUSR1\s0 wakes it up from its sleep
