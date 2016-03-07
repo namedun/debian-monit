@@ -121,7 +121,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/monit.h
 +++ b/src/monit.h
-@@ -389,6 +389,11 @@ Sigfunc *signal(int signo, Sigfunc * fun
+@@ -377,6 +377,11 @@ Sigfunc *signal(int signo, Sigfunc * fun
  #define SIG_ERR ((Sigfunc *)-1)
  #endif
  
