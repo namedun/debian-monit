@@ -22,38 +22,48 @@
  * for all of the code used other than OpenSSL.
  */
 
+
 #include "config.h"
 
-#include "protocol.h"
-#include "SMTP.h"
-
-
-/* --------------------------------------------------------------- Public */
+#include "monit.h"
 
 
 /**
- * Check the SMTP server.
+ * Implementation of the Address class.
  *
  * @file
  */
-void check_smtp(Socket_T socket) {
-        ASSERT(socket);
-        SMTP_T smtp = SMTP_new(socket);
-        TRY
-        {
-                Port_T port = Socket_getPort(socket);
-                SMTP_greeting(smtp);
-                SMTP_helo(smtp, "localhost");
-                if (port->family != Socket_Unix && port->target.net.ssl.flags == SSL_StartTLS)
-                        SMTP_starttls(smtp, port->target.net.ssl);
-                if (port->parameters.smtp.username && port->parameters.smtp.password)
-                        SMTP_auth(smtp, port->parameters.smtp.username, port->parameters.smtp.password);
-                SMTP_quit(smtp);
-        }
-        FINALLY
-        {
-                SMTP_free(&smtp);
-        }
-        END_TRY;
+
+
+/* ------------------------------------------------------------- Definitions */
+
+
+#define T Address_T
+
+
+/* ------------------------------------------------------------------ Public */
+
+
+T Address_new() {
+        Address_T A;
+        NEW(A);
+        return A;
+}
+
+
+void Address_free(T *A) {
+        ASSERT(A && *A);
+        FREE((*A)->name);
+        FREE((*A)->address);
+        FREE(*A);
+}
+
+
+T Address_copy(T A) {
+        ASSERT(A);
+        Address_T C = Address_new();
+        C->name = A->name ? Str_dup(A->name) : NULL;
+        C->address = A->address ? Str_dup(A->address) : NULL;
+        return C;
 }
 

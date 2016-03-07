@@ -116,14 +116,16 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/daemonize.$(OBJEXT) src/env.$(OBJEXT) src/event.$(OBJEXT) \
 	src/file.$(OBJEXT) src/gc.$(OBJEXT) src/http.$(OBJEXT) \
 	src/log.$(OBJEXT) src/md5.$(OBJEXT) src/md5_crypt.$(OBJEXT) \
-	src/net.$(OBJEXT) src/process.$(OBJEXT) src/sendmail.$(OBJEXT) \
-	src/sha1.$(OBJEXT) src/signal.$(OBJEXT) src/socket.$(OBJEXT) \
-	src/spawn.$(OBJEXT) src/state.$(OBJEXT) src/status.$(OBJEXT) \
-	src/util.$(OBJEXT) src/validate.$(OBJEXT) src/xml.$(OBJEXT) \
+	src/net.$(OBJEXT) src/process.$(OBJEXT) src/sha1.$(OBJEXT) \
+	src/signal.$(OBJEXT) src/socket.$(OBJEXT) src/spawn.$(OBJEXT) \
+	src/state.$(OBJEXT) src/status.$(OBJEXT) src/util.$(OBJEXT) \
+	src/validate.$(OBJEXT) src/xml.$(OBJEXT) \
 	src/device/device_common.$(OBJEXT) \
 	src/device/sysdep_@ARCH@.$(OBJEXT) src/http/base64.$(OBJEXT) \
 	src/http/cervlet.$(OBJEXT) src/http/engine.$(OBJEXT) \
 	src/http/processor.$(OBJEXT) \
+	src/notification/Address.$(OBJEXT) \
+	src/notification/SMTP.$(OBJEXT) \
 	src/process/sysdep_@ARCH@.$(OBJEXT) \
 	src/protocols/apache_status.$(OBJEXT) \
 	src/protocols/clamav.$(OBJEXT) src/protocols/default.$(OBJEXT) \
@@ -430,7 +432,7 @@ EXTRA_DIST = README COPYING CONTRIBUTORS bootstrap doc src config monitrc system
 SUBDIRS = libmonit
 FLEXFLAGS = -i
 YACCFLAGS = -dvt
-AM_CPPFLAGS = $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\"" -I./src -I./src/device -I./src/http -I./src/process -I./src/protocols -I./src/ssl -I./libmonit/src
+AM_CPPFLAGS = $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\"" -I./src -I./src/device -I./src/http -I./src/notification -I./src/process -I./src/protocols -I./src/ssl -I./libmonit/src
 AM_LDFLAGS = $(LDFLAGS) $(EXTLDFLAGS) -L./lib/
 monit_SOURCES = src/y.tab.c \
 		  src/lex.yy.c \
@@ -449,7 +451,6 @@ monit_SOURCES = src/y.tab.c \
 		  src/md5_crypt.c \
 		  src/net.c \
 		  src/process.c \
-		  src/sendmail.c \
 		  src/sha1.c \
 		  src/signal.c \
 		  src/socket.c \
@@ -465,6 +466,8 @@ monit_SOURCES = src/y.tab.c \
 		  src/http/cervlet.c \
 		  src/http/engine.c \
 		  src/http/processor.c \
+		  src/notification/Address.c \
+		  src/notification/SMTP.c \
 		  src/process/sysdep_@ARCH@.c \
 		  src/protocols/apache_status.c \
 		  src/protocols/clamav.c \
@@ -633,7 +636,6 @@ src/md5.$(OBJEXT): src/$(am__dirstamp)
 src/md5_crypt.$(OBJEXT): src/$(am__dirstamp)
 src/net.$(OBJEXT): src/$(am__dirstamp)
 src/process.$(OBJEXT): src/$(am__dirstamp)
-src/sendmail.$(OBJEXT): src/$(am__dirstamp)
 src/sha1.$(OBJEXT): src/$(am__dirstamp)
 src/signal.$(OBJEXT): src/$(am__dirstamp)
 src/socket.$(OBJEXT): src/$(am__dirstamp)
@@ -655,6 +657,11 @@ src/http/base64.$(OBJEXT): src/http/$(am__dirstamp)
 src/http/cervlet.$(OBJEXT): src/http/$(am__dirstamp)
 src/http/engine.$(OBJEXT): src/http/$(am__dirstamp)
 src/http/processor.$(OBJEXT): src/http/$(am__dirstamp)
+src/notification/$(am__dirstamp):
+	@$(MKDIR_P) src/notification
+	@: > src/notification/$(am__dirstamp)
+src/notification/Address.$(OBJEXT): src/notification/$(am__dirstamp)
+src/notification/SMTP.$(OBJEXT): src/notification/$(am__dirstamp)
 src/process/$(am__dirstamp):
 	@$(MKDIR_P) src/process
 	@: > src/process/$(am__dirstamp)
@@ -708,6 +715,7 @@ mostlyclean-compile:
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/device/*.$(OBJEXT)
 	-rm -f src/http/*.$(OBJEXT)
+	-rm -f src/notification/*.$(OBJEXT)
 	-rm -f src/process/*.$(OBJEXT)
 	-rm -f src/protocols/*.$(OBJEXT)
 	-rm -f src/ssl/*.$(OBJEXT)
@@ -1113,6 +1121,7 @@ distclean-generic:
 	-rm -f src/$(am__dirstamp)
 	-rm -f src/device/$(am__dirstamp)
 	-rm -f src/http/$(am__dirstamp)
+	-rm -f src/notification/$(am__dirstamp)
 	-rm -f src/process/$(am__dirstamp)
 	-rm -f src/protocols/$(am__dirstamp)
 	-rm -f src/ssl/$(am__dirstamp)
@@ -1238,6 +1247,7 @@ dist-hook::
 	-rm -f $(distdir)/src/stamp-*
 	-rm -f $(distdir)/src/y.output
 	-rm -f $(distdir)/README.md
+	-mv $(distdir)/doc/CHANGES $(distdir)/
 	-perl -pi -e 's/^Version: .*/Version: '$(VERSION)'/' $(distdir)/system/packages/redhat/monit.spec
 	-chmod 600 monitrc
 
