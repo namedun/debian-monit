@@ -1,3 +1,11 @@
+monit (1:5.17.1-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.17.1
+  * Refresh patches
+  * Bump up Standards-Version (to 3.9.7)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 08 Mar 2016 01:49:12 +0300
+
 monit (1:5.16-2) unstable; urgency=medium
 
   * Fix Hurd patch: use /proc/uptime to get uptime in get_starttime()
