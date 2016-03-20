@@ -1,0 +1,37 @@
+Author: Guillem Jover <gjover@sipwise.com>
+Origin: https://bitbucket.org/tildeslash/monit/pull-requests/34/
+Description: When we free and kill a process also wait for it
+ Otherwise we leave zombies laying around, which are a sanitary hazard
+ at best, and very confusing at worst, because it is not clear whether
+ there is a problem with the process or with the monitoring itself. Not
+ reaping zombies properly might also run afoul of system limits.
+ .
+ This happens commonly when timeouts trigger, as the process structure
+ is freed but nothing waits for the pid, and then the pid is lost.
+Bug-Debian: http://bugs.debian.org/818478
+
+---
+ libmonit/src/system/Command.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+--- a/libmonit/src/system/Command.c
++++ b/libmonit/src/system/Command.c
+@@ -233,12 +233,17 @@ static Process_T _Process_new(void) {
+ 
+ 
+ void Process_free(Process_T *P) {
++        int isrunning;
++
+         assert(P && *P);
+         FREE((*P)->working_directory);
+-        if (Process_isRunning(*P)) 
++        isrunning = Process_isRunning(*P);
++        if (isrunning)
+                 Process_kill(*P);
+         _closeParentPipes(*P);
+         _closeStreams(*P);
++        if (isrunning)
++                Process_waitFor(*P);
+         FREE(*P);
+ }
+ 
