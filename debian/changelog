@@ -1,3 +1,13 @@
+monit (1:5.17.1-2) unstable; urgency=medium
+
+  * Fix comment in debian/conf-available/rsyslog
+  * Change rsyslog config defaults: monitor
+    /var/log/syslog (Closes: #818290)
+  * Better cleanup (prevent zombies) after timeouts
+    trigger (Closes: #818478).  Thanks to Guillem Jover.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 22 Mar 2016 18:43:13 +0300
+
 monit (1:5.17.1-1) unstable; urgency=medium
 
   * Imported Upstream version 5.17.1
