@@ -111,21 +111,22 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
-	src/monit.$(OBJEXT) src/alert.$(OBJEXT) \
-	src/collector.$(OBJEXT) src/control.$(OBJEXT) \
+	src/monit.$(OBJEXT) src/alert.$(OBJEXT) src/control.$(OBJEXT) \
 	src/daemonize.$(OBJEXT) src/env.$(OBJEXT) src/event.$(OBJEXT) \
 	src/file.$(OBJEXT) src/gc.$(OBJEXT) src/http.$(OBJEXT) \
 	src/log.$(OBJEXT) src/md5.$(OBJEXT) src/md5_crypt.$(OBJEXT) \
-	src/net.$(OBJEXT) src/process.$(OBJEXT) src/sha1.$(OBJEXT) \
-	src/signal.$(OBJEXT) src/socket.$(OBJEXT) src/spawn.$(OBJEXT) \
-	src/state.$(OBJEXT) src/status.$(OBJEXT) src/util.$(OBJEXT) \
-	src/validate.$(OBJEXT) src/xml.$(OBJEXT) \
+	src/net.$(OBJEXT) src/sha1.$(OBJEXT) src/signal.$(OBJEXT) \
+	src/socket.$(OBJEXT) src/spawn.$(OBJEXT) src/state.$(OBJEXT) \
+	src/util.$(OBJEXT) src/validate.$(OBJEXT) \
 	src/device/device_common.$(OBJEXT) \
 	src/device/sysdep_@ARCH@.$(OBJEXT) src/http/base64.$(OBJEXT) \
-	src/http/cervlet.$(OBJEXT) src/http/engine.$(OBJEXT) \
+	src/http/cervlet.$(OBJEXT) src/http/client.$(OBJEXT) \
+	src/http/engine.$(OBJEXT) src/http/xml.$(OBJEXT) \
 	src/http/processor.$(OBJEXT) \
 	src/notification/Address.$(OBJEXT) \
+	src/notification/MMonit.$(OBJEXT) \
 	src/notification/SMTP.$(OBJEXT) \
+	src/process/ProcessTree.$(OBJEXT) \
 	src/process/sysdep_@ARCH@.$(OBJEXT) \
 	src/protocols/apache_status.$(OBJEXT) \
 	src/protocols/clamav.$(OBJEXT) src/protocols/default.$(OBJEXT) \
@@ -145,7 +146,8 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/sieve.$(OBJEXT) src/protocols/sip.$(OBJEXT) \
 	src/protocols/smtp.$(OBJEXT) src/protocols/ssh.$(OBJEXT) \
 	src/protocols/tns.$(OBJEXT) src/protocols/websocket.$(OBJEXT) \
-	src/ssl/Ssl.$(OBJEXT)
+	src/ssl/Ssl.$(OBJEXT) src/terminal/Box.$(OBJEXT) \
+	src/terminal/Color.$(OBJEXT)
 monit_OBJECTS = $(am_monit_OBJECTS)
 monit_DEPENDENCIES = libmonit/libmonit.la
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -432,13 +434,12 @@ EXTRA_DIST = README COPYING CONTRIBUTORS bootstrap doc src config monitrc system
 SUBDIRS = libmonit
 FLEXFLAGS = -i
 YACCFLAGS = -dvt
-AM_CPPFLAGS = $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\"" -I./src -I./src/device -I./src/http -I./src/notification -I./src/process -I./src/protocols -I./src/ssl -I./libmonit/src
+AM_CPPFLAGS = $(CPPFLAGS) $(EXTCPPFLAGS) -D@ARCH@ -DSYSCONFDIR="\"@sysconfdir@\"" -I./src -I./src/device -I./src/http -I./src/notification -I./src/process -I./src/protocols -I./src/ssl -I./src/terminal -I./libmonit/src
 AM_LDFLAGS = $(LDFLAGS) $(EXTLDFLAGS) -L./lib/
 monit_SOURCES = src/y.tab.c \
 		  src/lex.yy.c \
 		  src/monit.c \
 		  src/alert.c \
-		  src/collector.c \
 		  src/control.c \
 		  src/daemonize.c \
 		  src/env.c \
@@ -450,24 +451,25 @@ monit_SOURCES = src/y.tab.c \
 		  src/md5.c \
 		  src/md5_crypt.c \
 		  src/net.c \
-		  src/process.c \
 		  src/sha1.c \
 		  src/signal.c \
 		  src/socket.c \
 		  src/spawn.c \
 		  src/state.c \
-		  src/status.c \
 		  src/util.c \
 		  src/validate.c \
-		  src/xml.c \
 		  src/device/device_common.c \
 		  src/device/sysdep_@ARCH@.c \
 		  src/http/base64.c \
 		  src/http/cervlet.c \
+		  src/http/client.c \
 		  src/http/engine.c \
+		  src/http/xml.c \
 		  src/http/processor.c \
 		  src/notification/Address.c \
+		  src/notification/MMonit.c \
 		  src/notification/SMTP.c \
+		  src/process/ProcessTree.c \
 		  src/process/sysdep_@ARCH@.c \
 		  src/protocols/apache_status.c \
 		  src/protocols/clamav.c \
@@ -501,7 +503,9 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/ssh.c \
 		  src/protocols/tns.c \
 		  src/protocols/websocket.c \
-		  src/ssl/Ssl.c
+		  src/ssl/Ssl.c \
+		  src/terminal/Box.c \
+		  src/terminal/Color.c
 
 monit_LDADD = libmonit/libmonit.la
 monit_LDFLAGS = -static $(EXTLDFLAGS)
@@ -623,7 +627,6 @@ src/y.tab.$(OBJEXT): src/$(am__dirstamp)
 src/lex.yy.$(OBJEXT): src/$(am__dirstamp)
 src/monit.$(OBJEXT): src/$(am__dirstamp)
 src/alert.$(OBJEXT): src/$(am__dirstamp)
-src/collector.$(OBJEXT): src/$(am__dirstamp)
 src/control.$(OBJEXT): src/$(am__dirstamp)
 src/daemonize.$(OBJEXT): src/$(am__dirstamp)
 src/env.$(OBJEXT): src/$(am__dirstamp)
@@ -635,16 +638,13 @@ src/log.$(OBJEXT): src/$(am__dirstamp)
 src/md5.$(OBJEXT): src/$(am__dirstamp)
 src/md5_crypt.$(OBJEXT): src/$(am__dirstamp)
 src/net.$(OBJEXT): src/$(am__dirstamp)
-src/process.$(OBJEXT): src/$(am__dirstamp)
 src/sha1.$(OBJEXT): src/$(am__dirstamp)
 src/signal.$(OBJEXT): src/$(am__dirstamp)
 src/socket.$(OBJEXT): src/$(am__dirstamp)
 src/spawn.$(OBJEXT): src/$(am__dirstamp)
 src/state.$(OBJEXT): src/$(am__dirstamp)
-src/status.$(OBJEXT): src/$(am__dirstamp)
 src/util.$(OBJEXT): src/$(am__dirstamp)
 src/validate.$(OBJEXT): src/$(am__dirstamp)
-src/xml.$(OBJEXT): src/$(am__dirstamp)
 src/device/$(am__dirstamp):
 	@$(MKDIR_P) src/device
 	@: > src/device/$(am__dirstamp)
@@ -655,16 +655,20 @@ src/http/$(am__dirstamp):
 	@: > src/http/$(am__dirstamp)
 src/http/base64.$(OBJEXT): src/http/$(am__dirstamp)
 src/http/cervlet.$(OBJEXT): src/http/$(am__dirstamp)
+src/http/client.$(OBJEXT): src/http/$(am__dirstamp)
 src/http/engine.$(OBJEXT): src/http/$(am__dirstamp)
+src/http/xml.$(OBJEXT): src/http/$(am__dirstamp)
 src/http/processor.$(OBJEXT): src/http/$(am__dirstamp)
 src/notification/$(am__dirstamp):
 	@$(MKDIR_P) src/notification
 	@: > src/notification/$(am__dirstamp)
 src/notification/Address.$(OBJEXT): src/notification/$(am__dirstamp)
+src/notification/MMonit.$(OBJEXT): src/notification/$(am__dirstamp)
 src/notification/SMTP.$(OBJEXT): src/notification/$(am__dirstamp)
 src/process/$(am__dirstamp):
 	@$(MKDIR_P) src/process
 	@: > src/process/$(am__dirstamp)
+src/process/ProcessTree.$(OBJEXT): src/process/$(am__dirstamp)
 src/process/sysdep_@ARCH@.$(OBJEXT): src/process/$(am__dirstamp)
 src/protocols/$(am__dirstamp):
 	@$(MKDIR_P) src/protocols
@@ -705,6 +709,11 @@ src/ssl/$(am__dirstamp):
 	@$(MKDIR_P) src/ssl
 	@: > src/ssl/$(am__dirstamp)
 src/ssl/Ssl.$(OBJEXT): src/ssl/$(am__dirstamp)
+src/terminal/$(am__dirstamp):
+	@$(MKDIR_P) src/terminal
+	@: > src/terminal/$(am__dirstamp)
+src/terminal/Box.$(OBJEXT): src/terminal/$(am__dirstamp)
+src/terminal/Color.$(OBJEXT): src/terminal/$(am__dirstamp)
 
 monit$(EXEEXT): $(monit_OBJECTS) $(monit_DEPENDENCIES) $(EXTRA_monit_DEPENDENCIES) 
 	@rm -f monit$(EXEEXT)
@@ -719,6 +728,7 @@ mostlyclean-compile:
 	-rm -f src/process/*.$(OBJEXT)
 	-rm -f src/protocols/*.$(OBJEXT)
 	-rm -f src/ssl/*.$(OBJEXT)
+	-rm -f src/terminal/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -1125,6 +1135,7 @@ distclean-generic:
 	-rm -f src/process/$(am__dirstamp)
 	-rm -f src/protocols/$(am__dirstamp)
 	-rm -f src/ssl/$(am__dirstamp)
+	-rm -f src/terminal/$(am__dirstamp)
 	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
