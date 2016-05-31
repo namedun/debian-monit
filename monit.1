@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.17.1" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.18" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -269,6 +269,9 @@ the \fI.monitrc\fR control file.
    Write state information to this file. Or use \fI\*(L"set
    statefile\*(R"\fR in monitrc.
 .PP
+\&\fB\-B\fR
+   Batch command line mode (nontabular output with no colors)
+.PP
 \&\fB\-I\fR
    Do not run in background (needed for run from init)
 .PP
@@ -311,8 +314,8 @@ Start all services listed in the control file and enable
 monitoring for them. If the group option is set (\fI\-g\fR), only
 start and enable monitoring of services in the named group (\*(L"all\*(R"
 is not required in this case).
-.IP "start name" 4
-.IX Item "start name"
+.IP "start <name>" 4
+.IX Item "start <name>"
 Start the named service and enable monitoring for it. The name is
 a service entry name from the monitrc file.
 .IP "stop all" 4
@@ -321,8 +324,8 @@ Stop all services listed in the control file and disable their
 monitoring. If the group option is set, only stop and disable
 monitoring of the services in the named group (\*(L"all\*(R" is not
 required in this case).
-.IP "stop name" 4
-.IX Item "stop name"
+.IP "stop <name>" 4
+.IX Item "stop <name>"
 Stop the named service and disable its monitoring. The name is a
 service entry name from the monitrc file.
 .IP "restart all" 4
@@ -330,8 +333,8 @@ service entry name from the monitrc file.
 Stop and start \fIall\fR services. If the group option is set, only
 restart the services in the named group (\*(L"all\*(R" is not required in
 this case).
-.IP "restart name" 4
-.IX Item "restart name"
+.IP "restart <name>" 4
+.IX Item "restart <name>"
 Restart the named service. The name is a service entry name from
 the monitrc file.
 .IP "monitor all" 4
@@ -339,8 +342,8 @@ the monitrc file.
 Enable monitoring of all services listed in the control file. If
 the group option is set, only start monitoring of services in the
 named group (\*(L"all\*(R" is not required in this case).
-.IP "monitor name" 4
-.IX Item "monitor name"
+.IP "monitor <name>" 4
+.IX Item "monitor <name>"
 Enable monitoring of the named service. The name is a service
 entry name from the monitrc file. Monit will also enable
 monitoring of all services this service depends on.
@@ -349,8 +352,8 @@ monitoring of all services this service depends on.
 Disable monitoring of all services listed in the control file. If
 the group option is set, only disable monitoring of services in
 the named group (\*(L"all\*(R" is not required in this case).
-.IP "unmonitor name" 4
-.IX Item "unmonitor name"
+.IP "unmonitor <name>" 4
+.IX Item "unmonitor <name>"
 Disable monitoring of the named service. The name is a service
 entry name from the monitrc file. Monit will also disable
 monitoring of all services that depends on this service.
@@ -360,6 +363,12 @@ Print service status information.
 .IP "summary [name]" 4
 .IX Item "summary [name]"
 Print a short status summary.
+.IP "report [up | down | initialising | unmonitored | total]" 4
+.IX Item "report [up | down | initialising | unmonitored | total]"
+Report services state. The output can easily be parsed by scripts. 
+Without options, prints a short overview of the state of all 
+services managed by Monit. The option, \fIup\fR prints the number of
+all services in this state, \fIdown\fR likewise and so on.
 .IP "reload" 4
 .IX Item "reload"
 Reinitialise a running Monit daemon, the daemon will reread its
@@ -371,8 +380,8 @@ Kill the Monit daemon process
 .IX Item "validate"
 Check all services listed in the control file. This action is
 also the default behaviour when Monit runs in daemon mode.
-.IP "procmatch regex" 4
-.IX Item "procmatch regex"
+.IP "procmatch <regex>" 4
+.IX Item "procmatch <regex>"
 Allows for easy testing of pattern for process match check. The
 command takes regular expression as an argument and displays all
 running processes matching the pattern.
@@ -429,78 +438,126 @@ string. This statement is used to include configure directives from
 separate files.
 .IP "3. One or more service entry statements." 4
 .IX Item "3. One or more service entry statements."
+.SS "Service checks"
+.IX Subsection "Service checks"
 Each service entry consists of the keywords \f(CW\*(C`check\*(C'\fR, followed by the
 service type. Each entry requires a \fBunique\fR descriptive name, which
 may be freely chosen. This name is used by Monit to refer to the
 service internally and in all interactions with the user.
 .PP
 Currently, nine types of check statements are supported:
-.IP "1. \s-1CHECK PROCESS\s0 <unique name> <\s-1PIDFILE\s0 <path> | \s-1MATCHING\s0 <regex>>" 4
-.IX Item "1. CHECK PROCESS <unique name> <PIDFILE <path> | MATCHING <regex>>"
+.PP
+\fIProcess\fR
+.IX Subsection "Process"
+.PP
+.Vb 1
+\&    CHECK PROCESS <unique name> <PIDFILE <path> | MATCHING <regex>>
+.Ve
+.PP
 <path> is the absolute path to the program's pid-file. A pid-file is a
 file, containing a Process's unique \s-1ID.\s0 If the pid-file does not exist
 or does not contain the \s-1PID\s0 number of a running process, Monit will
 call the entry's start method if defined.
-.Sp
+.PP
 <regex> is an alternative to using \s-1PID\s0 files and uses process name
-pattern matching to find the process to monitor. The first match is
-used so this form of check is most useful if the process name is
-unique. Pid-file should be used where possible as it defines expected
-pid exactly (pattern matching won't be useful for processes which start
-a child process using fork/clone as the child will match the same
-pattern temporarily). You can test if a process match a pattern from
-the command-line using \f(CW\*(C`monit procmatch "regex\-pattern"\*(C'\fR. This will
+pattern matching to find the process to monitor. The top-most matching
+parent with highest uptime is selected, so this form of check is most
+useful if the process name is unique. Pid-file should be used where possible
+as it defines expected \s-1PID\s0 exactly. You can test if a process match a pattern
+from the command-line using \f(CW\*(C`monit procmatch "regex\-pattern"\*(C'\fR. This will
 lists all processes matching or not, the regex-pattern.
-.IP "2. \s-1CHECK FILE\s0 <unique name> \s-1PATH\s0 <path>" 4
-.IX Item "2. CHECK FILE <unique name> PATH <path>"
+.PP
+\fIFile\fR
+.IX Subsection "File"
+.PP
+.Vb 1
+\&    CHECK FILE <unique name> PATH <path>
+.Ve
+.PP
 <path> is the absolute path to the file. If the file does not exist,
 Monit will call the entry's start method if defined, if <path> does not
 point to a regular file type (for instance a directory), Monit will
 disable monitoring of this entry. If Monit runs in passive mode or the
 start method is not defined, Monit will just send an alert on error.
-.IP "3. \s-1CHECK FIFO\s0 <unique name> \s-1PATH\s0 <path>" 4
-.IX Item "3. CHECK FIFO <unique name> PATH <path>"
+.PP
+\fIFifo\fR
+.IX Subsection "Fifo"
+.PP
+.Vb 1
+\&    CHECK FIFO <unique name> PATH <path>
+.Ve
+.PP
 <path> is the absolute path to the fifo. If the fifo does not exist,
 Monit will call the entry's start method if defined, if <path> does not
 point to a fifo type (for instance a directory), Monit will disable
 monitoring of this entry. If Monit runs in passive mode or the start
 method is not defined, Monit will just send an alert on error.
-.IP "4. \s-1CHECK FILESYSTEM\s0 <unique name> \s-1PATH\s0 <path>" 4
-.IX Item "4. CHECK FILESYSTEM <unique name> PATH <path>"
+.PP
+\fIFilesystem\fR
+.IX Subsection "Filesystem"
+.PP
+.Vb 1
+\&    CHECK FILESYSTEM <unique name> PATH <path>
+.Ve
+.PP
 <path> is the path to the device/disk, mount point, file or a directory
 which is part of a filesystem. It is recommended to use a block special
 file directly (for example /dev/hda1 on Linux or /dev/dsk/c0t0d0s1 on
 Solaris, etc.) If you use a mount point (for example /data), note if
 the filesystem is unmounted the test will still be true because the
 mount point exist.
-.Sp
+.PP
 If the filesystem becomes unavailable, Monit will call the entry's
 start method if defined. if <path> does not point to a filesystem,
 Monit will disable monitoring of this entry. If Monit runs in passive
 mode or the start method is not defined, Monit will just send an alert
 on error.
-.IP "5. \s-1CHECK DIRECTORY\s0 <unique name> \s-1PATH\s0 <path>" 4
-.IX Item "5. CHECK DIRECTORY <unique name> PATH <path>"
+.PP
+\fIDirectory\fR
+.IX Subsection "Directory"
+.PP
+.Vb 1
+\&    CHECK DIRECTORY <unique name> PATH <path>
+.Ve
+.PP
 <path> is the absolute path to the directory. If the directory does not
 exist, Monit will call the entry's start method if defined. If <path>
 does not point to a directory, monit will disable monitoring of this
 entry. If Monit runs in passive mode or the start methods is not
 defined, Monit will just send an alert on error.
-.IP "6. \s-1CHECK HOST\s0 <unique name> \s-1ADDRESS\s0 <host address>" 4
-.IX Item "6. CHECK HOST <unique name> ADDRESS <host address>"
+.PP
+\fIRemote host\fR
+.IX Subsection "Remote host"
+.PP
+.Vb 1
+\&    CHECK HOST <unique name> ADDRESS <host address>
+.Ve
+.PP
 The host address can be specified as a hostname string or as an
 IP-address string on a dotted decimal format. Such as,
 tildeslash.com or \*(L"64.87.72.95\*(R".
-.IP "7. \s-1CHECK SYSTEM\s0 <unique name>" 4
-.IX Item "7. CHECK SYSTEM <unique name>"
+.PP
+\fISystem\fR
+.IX Subsection "System"
+.PP
+.Vb 1
+\&    CHECK SYSTEM <unique name>
+.Ve
+.PP
 The \fIunique name\fR is usually the local host name, but any descriptive
 name can be used. If you use the variable \f(CW$HOST\fR as the name, it will
 expand to the hostname. This check allows one to monitor general system
 resources such as \s-1CPU\s0 usage, total memory usage or load average. The
 \&\fIunique name\fR is used as the system hostname in mail alerts and as
 the initial name of the host entry in M/Monit.
-.IP "8. \s-1CHECK PROGRAM\s0 <unique name> \s-1PATH\s0 <executable file> [\s-1TIMEOUT\s0 <number> \s-1SECONDS\s0]" 4
-.IX Item "8. CHECK PROGRAM <unique name> PATH <executable file> [TIMEOUT <number> SECONDS]"
+.PP
+\fICustom\fR
+.IX Subsection "Custom"
+.PP
+.Vb 1
+\&    CHECK PROGRAM <unique name> PATH <executable file> [TIMEOUT <number> SECONDS]
+.Ve
+.PP
 <path> is the absolute path to the executable program or script. The
 status test allows one to check the
 program's exit status. If the program does not finish executing within
@@ -509,8 +566,14 @@ is 300 seconds (5 minutes). The output of the program is recorded and
 made available in the User Interface and in alerts (by default up to
 512B, you can customize the limit using the set limits
 statement).
-.IP "9. \s-1CHECK NETWORK\s0 <unique name> <\s-1ADDRESS\s0 <ipaddress> | \s-1INTERFACE\s0 <name>>" 4
-.IX Item "9. CHECK NETWORK <unique name> <ADDRESS <ipaddress> | INTERFACE <name>>"
+.PP
+\fINetwork\fR
+.IX Subsection "Network"
+.PP
+.Vb 1
+\&    CHECK NETWORK <unique name> <ADDRESS <ipaddress> | INTERFACE <name>>
+.Ve
+.PP
 <ipaddress> is the IPv4 or IPv6 address of the monitored network interface. It
 is also possible to use interface name, such as \*(L"eth0\*(R" on Linux.
 .SH "LOGGING"
@@ -536,6 +599,20 @@ for example:
 .PP
 .Vb 1
 \&    [CET Jan  5 18:49:29] info : \*(Aqlocalhost\*(Aq Monit started
+.Ve
+.SH "TERMINAL OUTPUT"
+.IX Header "TERMINAL OUTPUT"
+Monit uses \s-1ANSI\s0 escape sequences to colorise important parts
+of the command-line output, if the terminal supports colors,
+and \s-1UTF\-8\s0 box characters for tabular output.
+.PP
+If you want to process the monit \s-1CLI\s0 output in a script, you
+can use either \-B option or the following statement in the monit
+configuration file to disable the tabular output and colors
+completely:
+.PP
+.Vb 1
+\& SET TERMINAL BATCH
 .Ve
 .SH "DAEMON MODE"
 .IX Header "DAEMON MODE"
@@ -938,9 +1015,10 @@ Cleartext user and password
 .IX Subsection "Cleartext user and password"
 .PP
 Monit will use Basic Authentication if an allow statement contains a
-username and a password separated with a single ':' character. Special
-characters can be used, but for non-alphanumerics the password has to
-be quoted.
+username and a password separated with a single ':' character.
+.PP
+Note: Special characters can be used, but for non-alphanumerics the
+password has to be quoted.
 .PP
 Syntax:
 .PP
@@ -1042,6 +1120,40 @@ A user is set to read-only by using the \fIread-only\fR keyword
 \&\fBafter\fR username:password. In the above example the user \fIhauk\fR
 is defined as a read-only user, while the \fIadmin\fR user has all
 access rights.
+.SH "CENTRAL MANAGEMENT OF MULTIPLE MONIT HOSTS WITH M/MONIT"
+.IX Header "CENTRAL MANAGEMENT OF MULTIPLE MONIT HOSTS WITH M/MONIT"
+You can use M/Monit <https://mmonit.com> for central management of multiple
+Monit hosts and to keep event log, draw charts, trends and more.
+.PP
+To send data to M/Monit, add the following statement:
+.PP
+.Vb 1
+\&  SET MMONIT <url>
+.Ve
+.PP
+Example:
+.PP
+.Vb 1
+\& set mmonit http://monit:monit@192.168.1.10:8080/collector
+.Ve
+.PP
+Monit will register itself in M/Monit and will start sending service
+statistics (for charts) and events to M/Monit.
+.PP
+By default Monit registers its own credentials from the \s-1SET HTTPD\s0 statement's
+\&\s-1ALLOW\s0 option, so M/Monit can communicate back to Monit (such as restart a specific service).
+.PP
+It is possible to disable credentials registration, Monit will still be able
+to send statistics and events to M/Monit, but if you'll want to control some
+service remotely from M/Monit, you'll have to enter credentials manually. Example:
+.PP
+.Vb 1
+\& set mmonit http://monit:monit@192.168.1.10:8080/collector and register without credentials
+.Ve
+.PP
+The password should be \s-1URL\s0 encoded if it contains URL-significant characters like \*(L":\*(R", \*(L"?\*(R", \*(L"@\*(R".
+.PP
+Important: always use M/Monit with \s-1HTTPS\s0 url scheme, so the communication is encrypted.
 .SH "ALERT MESSAGES"
 .IX Header "ALERT MESSAGES"
 Monit will raise an alert in the following situations:
@@ -1429,33 +1541,33 @@ Example:
 .Ve
 .SH "SERVICE POLL TIME"
 .IX Header "SERVICE POLL TIME"
-Services are checked in regular intervals by the \f(CW\*(C`set daemon n\*(C'\fR
-statement. Checks are performed in the same order as they are written
-in the \f(CW\*(C`.monitrc\*(C'\fR file, except if dependencies are setup between
-services, where pre-requisite services are tested first.
+Services are checked regularly in an interval defined by the \f(CW\*(C`set
+daemon n\*(C'\fR statement. Checks are performed in the same order as they are
+written in the \f(CW\*(C`.monitrc\*(C'\fR file, except if dependencies are setup
+between services, where pre-requisite services are tested first.
 .PP
 It is possible to modify a service check schedule by using the \f(CW\*(C`every\*(C'\fR
 statement.
 .PP
 There are three variants:
-.IP "1. custom interval based on a poll cycle multiple" 4
-.IX Item "1. custom interval based on a poll cycle multiple"
+.IP "1. A poll cycle multiple" 4
+.IX Item "1. A poll cycle multiple"
 .Vb 1
 \& EVERY [number] CYCLES
 .Ve
-.IP "2. check is schedule based on a cron-style string" 4
-.IX Item "2. check is schedule based on a cron-style string"
+.IP "2. Cron-style" 4
+.IX Item "2. Cron-style"
 .Vb 1
 \& EVERY [cron]
 .Ve
-.IP "3. do-not-check schedule based on a cron-style string" 4
-.IX Item "3. do-not-check schedule based on a cron-style string"
+.IP "3. Negative Cron-style (do-not-check)" 4
+.IX Item "3. Negative Cron-style (do-not-check)"
 .Vb 1
 \& NOT EVERY [cron]
 .Ve
 .PP
-A cron-style string, consist of 5 fields separated with
-white-space. All fields are required:
+A cron-style string consist of 5 fields separated with white-space.
+All fields are required:
 .PP
 .Vb 7
 \& Name:        | Allowed values:            | Special characters:
@@ -1497,7 +1609,7 @@ Example 1: Check once per two cycles
 \&       every 2 cycles
 .Ve
 .PP
-Example 2: Check every workday 8AM\-7PM
+Example 2: Check every workday between 8AM to 7PM
 .PP
 .Vb 3
 \& check program checkOracleDatabase
@@ -1505,8 +1617,9 @@ Example 2: Check every workday 8AM\-7PM
 \&       every "* 8\-19 * * 1\-5"
 .Ve
 .PP
-Example 3: Do not run the check in the backup window on
-Sunday 0AM\-3AM
+Example 3: Do not run the check in the backup window on Sunday between
+0AM to 3AM, otherwise run the check with the regular poll cycle
+frequency.
 .PP
 .Vb 2
 \& check process mysqld with pidfile /var/run/mysqld.pid
@@ -1515,13 +1628,13 @@ Sunday 0AM\-3AM
 .PP
 Limitations:
 .PP
-The current scheduler is poll cycle based. When a service check is
-constraint with the \fIevery cron\fR statement, Monit will check whether
-the current time match the cron-string pattern. If it does, the check
-is performed, otherwise it is skipped. The cron specification thus does
-not guarantee when exactly the test will run, this depends on the
-default poll time and the length of the check cycle. In other words, we
-cannot guarantee that Monit will run on a specific time. Therefor we
+The current scheduler is poll cycle based. If a service check is
+scheduled with the \fIevery cron\fR statement, Monit will check if the
+current time match the cron-string pattern. If it does, then the check
+is performed otherwise it is skipped. The cron specification does not
+guarantee when exactly the test will run, this depends on the default
+poll time and the length of the check cycle. In other words, we cannot
+guarantee that Monit will run on a specific time. Therefor we
 \&\fBstrongly\fR recommend to use an asterix in the minute field or at
 minimum a range, e..g. 0\-15. \fBNever\fR use a specific minute as Monit
 may not run on that minute.
@@ -1571,44 +1684,49 @@ statement:
 .Ve
 .SH "SERVICE MONITORING MODE"
 .IX Header "SERVICE MONITORING MODE"
-Monit supports three monitoring modes per service: \fIactive\fR,
-\&\fIpassive\fR and \fImanual\fR.
+Monit supports two monitoring modes: \fIactive\fR and \fIpassive\fR.
 .PP
 Syntax:
 .PP
 .Vb 1
-\&  MODE <ACTIVE | PASSIVE | MANUAL>
+\&  MODE <ACTIVE | PASSIVE>
 .Ve
 .PP
-In \fIactive\fR mode (the default), Monit will pro-actively monitor a
-service and in case of problems raise alerts and/or restart
-the service.
+In \fIactive\fR mode, Monit will pro-actively monitor a service and in
+case of problems raise alerts and restart the service. Active is the
+default mode.
 .PP
-In \fIpassive\fR mode, Monit will passively monitor a service and will
-raise alerts, but will \fBnot\fR try to fix a problem by executing
-\&\fIstart\fR, \fIstop\fR or \fIrestart\fR.
+The \fIpassive\fR mode is similar to the \fIactive\fR mode, except if the
+service fails, monit will \fBnot\fR try to fix a problem by restarting
+the service and will raise alerts only.
+.SH "SYSTEM REBOOT AND SERVICE STARTUP"
+.IX Header "SYSTEM REBOOT AND SERVICE STARTUP"
+Monit supports three reboot modes: \fIstart\fR, \fInostart\fR and \fIlaststate\fR.
 .PP
-In \fImanual\fR mode, Monit will enter \fIactive\fR mode \fIonly\fR if a
-service was started via Monit:
+Syntax:
 .PP
 .Vb 1
-\&  monit start <servicename>
+\&  ONREBOOT <START | NOSTART | LASTSTATE>
 .Ve
 .PP
-Use \*(L"monit stop <servicename>\*(R" to stop the service and take it out
-of Monit's control. The manual mode can be used to build a simple
-cluster with active/passive HA-services.
+In \fIstart\fR mode, Monit will always start the service automatically on
+reboot, even if it was stopped before restart. This is the default mode
+and used if \fIonreboot\fR is not specified.
 .PP
-A service's monitoring state is persistent across Monit restart.
+In \fInostart\fR mode, the service is \fInever\fR started automatically after
+reboot. This mode is intended for a high-availability solutions with
+active/passive clusters. For example, a service group \s-1HA,\s0 consisting of
+e.g. a mobile \s-1IP\s0 alias and an application server, is started on host
+H1, host H2 is backup and heartbeat is in place between both hosts.
+The service group \fI\s-1HA\s0\fR must be started on one node only. If H1 dies,
+H2 takes over the \s-1HA\s0 group. If H1 reboots, it is important that it
+won't try to start the \s-1HA\s0 group also. Even though the group was active
+on H1 before it crashed, as \s-1HA\s0 is running on H2 now.
 .PP
-If you use Monit in a HA-cluster you should place the Monit state file
-in a temporary filesystem so if the machine which runs HA-services
-should crash and the stand-by machine take over its services, the
-HA-services won't be started after the crashed node will boot again:
-.PP
-.Vb 1
-\&  set statefile /tmp/monit.state
-.Ve
+In \fIlaststate\fR mode, a service's monitoring state is persistent across
+reboot. For instance, if a service was started before reboot, it willl
+be started after reboot. If it was stopped before reboot, it will
+not be started after and so on.
 .SH "SERVICE RESTART LIMIT"
 .IX Header "SERVICE RESTART LIMIT"
 \&\fBMonit\fR provides a restart limit mechanism for situations
@@ -2450,9 +2568,9 @@ Example:
 \& check process myproc with pidfile /var/run/myproc.pid
 \&       if changed ppid then exec "/my/script"
 .Ve
-.SS "\s-1PROCESS UPTIME TESTING\s0"
-.IX Subsection "PROCESS UPTIME TESTING"
-The uptime statement may only be used in a process service
+.SS "\s-1UPTIME TESTING\s0"
+.IX Subsection "UPTIME TESTING"
+The uptime statement may only be used in a process and system service
 type context.
 .PP
 Syntax:
@@ -3820,19 +3938,26 @@ of each other.
 .SH "ENVIRONMENT"
 .IX Header "ENVIRONMENT"
 No environment variables are used by Monit. However, when Monit
-execute a script or a program Monit will set several environment
-variables which can be utilised by the executable. The following
-and \fIonly\fR the following environment variables are available:
+executes a start/stop/restart program or an exec action, it will
+set several environment variables which can be utilised by the
+executable to get informations about the event, which triggered
+the action.
+.PP
+The following environment variable is set for every program
+executed by monit, including \fIcheck program\fR:
+.IP "\s-1MONIT_SERVICE\s0" 4
+.IX Item "MONIT_SERVICE"
+The name of the service (from monitrc) for which the program
+is executed.
+.PP
+The following environment variables are only available in the
+service start/stop/restart program and exec action context:
 .IP "\s-1MONIT_EVENT\s0" 4
 .IX Item "MONIT_EVENT"
 The event that occurred on the service
 .IP "\s-1MONIT_DESCRIPTION\s0" 4
 .IX Item "MONIT_DESCRIPTION"
 A description of the error condition
-.IP "\s-1MONIT_SERVICE\s0" 4
-.IX Item "MONIT_SERVICE"
-The name of the service (from monitrc) on which the event
-occurred.
 .IP "\s-1MONIT_DATE\s0" 4
 .IX Item "MONIT_DATE"
 The time and date (\s-1RFC 822\s0 style) the event occurred
@@ -3840,8 +3965,9 @@ The time and date (\s-1RFC 822\s0 style) the event occurred
 .IX Item "MONIT_HOST"
 The host the event occurred on
 .PP
-The following environment variables are only available for
-\&\fIcheck process\fR service entries:
+The following environment variables are only available in the
+\&\fIcheck process\fR start/stop/restart program and exec action
+context:
 .IP "\s-1MONIT_PROCESS_PID\s0" 4
 .IX Item "MONIT_PROCESS_PID"
 The process pid. This may be 0 if the process was (re)started,
@@ -3856,7 +3982,8 @@ Process children. This may be 0 if the process was (re)started,
 Process cpu%. This may be 0 if the process was (re)started,
 .PP
 The following environment variables are only available for
-\&\fIcheck program\fR service entries:
+\&\fIcheck program\fR start/stop/restart program and exec action
+context:
 .IP "\s-1MONIT_PROGRAM_STATUS\s0" 4
 .IX Item "MONIT_PROGRAM_STATUS"
 The program status (exit value).

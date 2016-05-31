@@ -409,6 +409,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the <utmpx.h> header file. */
+#undef HAVE_UTMPX_H
+
 /* Define to 1 if you have the <uvm/uvm_extern.h> header file. */
 #undef HAVE_UVM_UVM_EXTERN_H
 
