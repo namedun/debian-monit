@@ -11,7 +11,7 @@ Forwarded: no
 
 --- a/doc/monit.pod
 +++ b/doc/monit.pod
-@@ -757,7 +757,7 @@ B<ALLOW> option which is used to specify
+@@ -796,7 +796,7 @@ B<ALLOW> option which is used to specify
  only specific clients to connect.
  
  If the Monit command line interface is being used, at least one
@@ -20,7 +20,7 @@ Forwarded: no
  command line interface will not be able to connect to the Monit
  web interface.
  
-@@ -1162,7 +1162,7 @@ Multiple mail servers can be set by usin
+@@ -1232,7 +1232,7 @@ Multiple mail servers can be set by usin
  Monit cannot connect to the first server, it will try the next in
  the list and so on.
  
@@ -29,7 +29,7 @@ Forwarded: no
  (465 for SSL, or 25 for TLS and non secure connection).
  
  Monit supports AUTH PLAIN and AUTH LOGIN for SMTP authentication.
-@@ -1732,7 +1732,7 @@ events before switching the state:
+@@ -1812,7 +1812,7 @@ events before switching the state:
      for 3 cycles
   then alert
  
@@ -38,7 +38,7 @@ Forwarded: no
  issues, but still catch excessive problems, where the service is
  flapping between error and success states frequently.
  
-@@ -2916,7 +2916,7 @@ For example:
+@@ -2996,7 +2996,7 @@ For example:
  
  =head4 APACHE-STATUS
  
@@ -80,7 +80,7 @@ Forwarded: no
          if (response[1] != 0x00)
 --- a/src/validate.c
 +++ b/src/validate.c
-@@ -850,11 +850,11 @@ static State_Type _checkFilesystemFlags(
+@@ -843,11 +843,11 @@ static State_Type _checkFilesystemFlags(
          if (s->inf->priv.filesystem._flags >= 0) {
                  if (s->inf->priv.filesystem._flags != s->inf->priv.filesystem.flags) {
                          for (Fsflag_T l = s->fsflaglist; l; l = l->next)
@@ -94,7 +94,7 @@ Forwarded: no
                  return State_ChangedNot;
          }
          return State_Init;
-@@ -1342,7 +1342,7 @@ State_Type check_program(Service_T s) {
+@@ -1336,7 +1336,7 @@ State_Type check_program(Service_T s) {
                                  // Fall-through with P and evaluate exit value below.
                          } else {
                                  // Defer test of exit value until program exit or timeout

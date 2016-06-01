@@ -59,7 +59,7 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -146,11 +146,11 @@ set logfile syslog
+@@ -148,11 +148,11 @@ set logfile syslog
  ## commands to a running Monit daemon. See the Monit Wiki if you want to 
  ## enable SSL for the HTTP interface. 
  #
@@ -76,7 +76,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -286,5 +286,6 @@ set httpd port 2812 and
+@@ -288,5 +288,6 @@ set httpd port 2812 and
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #

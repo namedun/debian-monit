@@ -1,4 +1,3 @@
- 00_timeout_zombies.patch
  01_spelling.patch
  05_monitrc.patch
  11_enable_hurd.patch
