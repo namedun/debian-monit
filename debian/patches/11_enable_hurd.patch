@@ -5,7 +5,6 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  1. Enable building for GNU/Hurd in configure.ac
  2. Fix MAX_PATH use cases
  3. Implement src/{device,process}/sysdep_HURD.c
- 4. Use /proc/uptime to get uptime in get_starttime()
 
 ---
  configure                            |    6 +++++-
@@ -18,8 +17,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  src/device/sysdep_HURD.c             |    1 +
  src/monit.h                          |    5 +++++
  src/process/sysdep_HURD.c            |   20 ++++++++++++++++++++
- src/process/sysdep_LINUX.c           |   16 ++++++++++++----
- 11 files changed, 66 insertions(+), 5 deletions(-)
+ 10 files changed, 54 insertions(+), 1 deletion(-)
 
 --- a/configure
 +++ b/configure
@@ -146,32 +144,5 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +#elif defined HURD
 +#include "os/hurd/Link.inc"
  #endif
- 
- 
---- a/src/process/sysdep_LINUX.c
-+++ b/src/process/sysdep_LINUX.c
-@@ -106,12 +106,20 @@ static double hz = 0.;
-  * @return seconds since unix epoch
-  */
- static time_t get_starttime() {
--        struct sysinfo info;
--        if (sysinfo(&info) < 0) {
--                LogError("system statistic error -- cannot get system uptime: %s\n", STRERROR);
-+        char   buf[STRLEN];
-+        double up = 0;
-+
-+        if (! read_proc_file(buf, sizeof(buf), "uptime", -1, NULL)) {
-+                LogError("system statistic error -- cannot get system uptime\n");
-                 return 0;
-         }
--        return Time_now() - info.uptime;
-+
-+        if (sscanf(buf, "%lf", &up) != 1) {
-+                LogError("system statistic error -- invalid uptime\n");
-+                return 0;
-+        }
-+
-+        return Time_now() - (time_t)up;
- }
  
  
