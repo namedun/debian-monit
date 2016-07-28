@@ -1,3 +1,9 @@
+monit (1:5.18-1~bpo8+1) jessie-backports; urgency=medium
+
+  * Rebuild for jessie-backports.
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 28 Jul 2016 11:51:54 +0300
+
 monit (1:5.18-1) unstable; urgency=medium
 
   * Imported Upstream version 5.18
