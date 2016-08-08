@@ -725,6 +725,10 @@ static int _checkPattern(Match_T pattern, const char *line) {
  */
 static State_Type _checkMatch(Service_T s) {
         ASSERT(s);
+        /* TODO: https://bitbucket.org/tildeslash/monit/issues/401 Refactor and use mmap instead of naive std file io.
+         mmap can make code simpler, more efficient and support multi-line matching as there is no line-buffer, but the
+         whole file is in the buffer.
+         */
         State_Type rv = State_Succeeded;
         if (s->matchlist) {
                 FILE *file = fopen(s->path, "r");
@@ -843,11 +847,11 @@ static State_Type _checkFilesystemFlags(Service_T s) {
         if (s->inf->priv.filesystem._flags >= 0) {
                 if (s->inf->priv.filesystem._flags != s->inf->priv.filesystem.flags) {
                         for (Fsflag_T l = s->fsflaglist; l; l = l->next)
-                                Event_post(s, Event_Fsflag, State_Changed, l->action, "filesytem flags changed to %#x", s->inf->priv.filesystem.flags);
+                                Event_post(s, Event_Fsflag, State_Changed, l->action, "filesystem flags changed to %#x", s->inf->priv.filesystem.flags);
                         return State_Changed;
                 }
                 for (Fsflag_T l = s->fsflaglist; l; l = l->next)
-                        Event_post(s, Event_Fsflag, State_ChangedNot, l->action, "filesytem flags has not changed");
+                        Event_post(s, Event_Fsflag, State_ChangedNot, l->action, "filesystem flags has not changed");
                 return State_ChangedNot;
         }
         return State_Init;
@@ -1131,6 +1135,7 @@ State_Type check_process(Service_T s) {
                 }
         }
         for (Port_T pp = s->portlist; pp; pp = pp->next) {
+                //FIXME: instead of pause, try to test, but ignore any errors in the start timeout timeframe ... will allow to display the port response time as soon as available, instead of waiting for 30+ seconds
                 /* pause port tests in the start timeout timeframe while the process is starting (it may take some time to the process before it starts accepting connections) */
                 if (! s->start || s->inf->priv.process.uptime > s->start->timeout) {
                         if (_checkConnection(s, pp) == State_Failed)
@@ -1141,6 +1146,7 @@ State_Type check_process(Service_T s) {
                 }
         }
         for (Port_T pp = s->socketlist; pp; pp = pp->next) {
+                //FIXME: instead of pause, try to test, but ignore any errors in the start timeout timeframe ... will allow to display the port response time as soon as available, instead of waiting for 30+ seconds
                 /* pause socket tests in the start timeout timeframe while the process is starting (it may take some time to the process before it starts accepting connections) */
                 if (! s->start || s->inf->priv.process.uptime > s->start->timeout) {
                         if (_checkConnection(s, pp) == State_Failed)
@@ -1336,7 +1342,7 @@ State_Type check_program(Service_T s) {
                                 // Fall-through with P and evaluate exit value below.
                         } else {
                                 // Defer test of exit value until program exit or timeout
-                                DEBUG("'%s' status check defered - waiting on program to exit\n", s->name);
+                                DEBUG("'%s' status check deferred - waiting on program to exit\n", s->name);
                                 return State_Init;
                         }
                 }
@@ -1465,13 +1471,13 @@ State_Type check_net(Service_T s) {
         {
                 havedata = false;
                 for (LinkStatus_T link = s->linkstatuslist; link; link = link->next)
-                        Event_post(s, Event_Link, State_Failed, link->action, "link data gathering failed -- %s", Exception_frame.message);
+                        Event_post(s, Event_Link, State_Failed, link->action, "link data collection failed -- %s", Exception_frame.message);
         }
         END_TRY;
         if (! havedata)
                 return State_Failed; // Terminate test if no data are available
         for (LinkStatus_T link = s->linkstatuslist; link; link = link->next) {
-                Event_post(s, Event_Size, State_Succeeded, link->action, "link data gathering succeeded");
+                Event_post(s, Event_Size, State_Succeeded, link->action, "link data collection succeeded");
         }
         // State
         if (! Link_getState(s->inf->priv.net.stats)) {

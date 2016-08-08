@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.18" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.19.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -365,8 +365,8 @@ Print service status information.
 Print a short status summary.
 .IP "report [up | down | initialising | unmonitored | total]" 4
 .IX Item "report [up | down | initialising | unmonitored | total]"
-Report services state. The output can easily be parsed by scripts. 
-Without options, prints a short overview of the state of all 
+Report services state. The output can easily be parsed by scripts.
+Without options, prints a short overview of the state of all
 services managed by Monit. The option, \fIup\fR prints the number of
 all services in this state, \fIdown\fR likewise and so on.
 .IP "reload" 4
@@ -869,9 +869,8 @@ Example:
 \& set httpd unixsocket /var/run/monit.sock
 \&     allow username:password
 .Ve
-.PP
-\&\fBOptions\fR:
-.PP
+.SS "Options"
+.IX Subsection "Options"
 \&\fB\s-1UNIXSOCKET\s0\fR set the path to the Unix Socket Monit should bind to
 and listen on.
 .PP
@@ -943,6 +942,38 @@ For example:
 \&    signature disable
 \&    allow myuser:mypassword
 .Ve
+.SS "\s-1IP\s0 version"
+.IX Subsection "IP version"
+Monit \s-1HTTP\s0 over \s-1TCP\s0 supports both \s-1IP\s0 version 4 and 6. Support is
+transparent and does not require any special configuration. If the bind
+\&\fIaddress\fR is \fBnot\fR specified as in this example:
+.PP
+.Vb 3
+\&  set httpd
+\&    port 2812
+\&    allow ...
+.Ve
+.PP
+Monit will bind to and listen on port 2812 on all interfaces, both IPv4
+and IPv6 if available. To force Monit \s-1HTTP\s0 to only listen on and accept
+connections over \s-1IP\s0 version 6, specify a IPv6 address:
+.PP
+.Vb 4
+\&  set httpd
+\&    port 2812
+\&    use address "fe80::222:19ff:fe53:6c59"
+\&    allow ...
+.Ve
+.PP
+Likewise, to force Monit \s-1HTTP\s0 to only listen on and accept connections
+over \s-1IP\s0 version 4, specify a IPv4 address:
+.PP
+.Vb 4
+\&  set httpd
+\&    port 2812
+\&    use address 62.109.39.247
+\&    allow ...
+.Ve
 .SS "Authentication"
 .IX Subsection "Authentication"
 Access to the Monit web interface is controlled primarily via the
@@ -950,7 +981,7 @@ Access to the Monit web interface is controlled primarily via the
 only specific clients to connect.
 .PP
 If the Monit command line interface is being used, at least one
-cleartext password is necessary (see bellow), otherwise the Monit
+cleartext password is necessary (see below), otherwise the Monit
 command line interface will not be able to connect to the Monit
 web interface.
 .PP
@@ -1120,40 +1151,6 @@ A user is set to read-only by using the \fIread-only\fR keyword
 \&\fBafter\fR username:password. In the above example the user \fIhauk\fR
 is defined as a read-only user, while the \fIadmin\fR user has all
 access rights.
-.SH "CENTRAL MANAGEMENT OF MULTIPLE MONIT HOSTS WITH M/MONIT"
-.IX Header "CENTRAL MANAGEMENT OF MULTIPLE MONIT HOSTS WITH M/MONIT"
-You can use M/Monit <https://mmonit.com> for central management of multiple
-Monit hosts and to keep event log, draw charts, trends and more.
-.PP
-To send data to M/Monit, add the following statement:
-.PP
-.Vb 1
-\&  SET MMONIT <url>
-.Ve
-.PP
-Example:
-.PP
-.Vb 1
-\& set mmonit http://monit:monit@192.168.1.10:8080/collector
-.Ve
-.PP
-Monit will register itself in M/Monit and will start sending service
-statistics (for charts) and events to M/Monit.
-.PP
-By default Monit registers its own credentials from the \s-1SET HTTPD\s0 statement's
-\&\s-1ALLOW\s0 option, so M/Monit can communicate back to Monit (such as restart a specific service).
-.PP
-It is possible to disable credentials registration, Monit will still be able
-to send statistics and events to M/Monit, but if you'll want to control some
-service remotely from M/Monit, you'll have to enter credentials manually. Example:
-.PP
-.Vb 1
-\& set mmonit http://monit:monit@192.168.1.10:8080/collector and register without credentials
-.Ve
-.PP
-The password should be \s-1URL\s0 encoded if it contains URL-significant characters like \*(L":\*(R", \*(L"?\*(R", \*(L"@\*(R".
-.PP
-Important: always use M/Monit with \s-1HTTPS\s0 url scheme, so the communication is encrypted.
 .SH "ALERT MESSAGES"
 .IX Header "ALERT MESSAGES"
 Monit will raise an alert in the following situations:
@@ -1434,14 +1431,14 @@ Multiple mail servers can be set by using a comma separated list. If
 Monit cannot connect to the first server, it will try the next in
 the list and so on.
 .PP
-The port statement allows to override the default \s-1SMTP\s0 port
+The port statement allows one to override the default \s-1SMTP\s0 port
 (465 for \s-1SSL,\s0 or 25 for \s-1TLS\s0 and non secure connection).
 .PP
 Monit supports \s-1AUTH PLAIN\s0 and \s-1AUTH LOGIN\s0 for \s-1SMTP\s0 authentication.
 You can set a username and a password using the \s-1USERNAME\s0 and
 \&\s-1PASSWORD\s0 options.
 .PP
-You can set \s-1SSL/TLS \s0options for the connection and 
+You can set \s-1SSL/TLS \s0options for the connection and
 also check a \s-1SSL\s0 certificate checksum.
 .PP
 The default connection timeout is 5 seconds. You can rise this
@@ -2036,7 +2033,7 @@ events before switching the state:
 \& then alert
 .Ve
 .PP
-The second format is more advanced and allows to tolerate intermittent
+The second format is more advanced and allows one to tolerate intermittent
 issues, but still catch excessive problems, where the service is
 flapping between error and success states frequently.
 .PP
@@ -2341,7 +2338,7 @@ For example:
 .PP
 .Vb 3
 \&  check file syslog with path /var/log/syslog
-\&        ignore content = "^monit"
+\&        ignore content = "monit"
 \&        if content = "^mrcoffee" then alert
 .Ve
 .SS "\s-1FILESYSTEM FLAGS TESTING\s0"
@@ -2800,33 +2797,31 @@ Example:
 .SS "\s-1NETWORK BANDWIDTH TEST\s0"
 .IX Subsection "NETWORK BANDWIDTH TEST"
 You can check a network link upload and download bandwidth usage, current
-transfer rate and total data transferred in the last 24 hours. This test may
-only be used within a check network service entry in the Monit control file.
+transfer speed and total data transferred in the last 24 hours. This test may
+only be used within a \fIcheck network\fR service entry in the Monit control file.
 .PP
-Warning: this test requires monit poll time to be at maximum 30 seconds.
-.PP
-Current upload bandwidth rate test syntax:
+Upload speed test syntax (per second):
 .PP
 .Vb 1
-\& IF UPLOAD operator value unit THEN action
+\& IF UPLOAD operator value unit/S THEN action
 .Ve
 .PP
-Current download bandwidth rate test syntax:
+Download speed test syntax (per second):
 .PP
 .Vb 1
-\& IF DOWNLOAD operator value unit THEN action
+\& IF DOWNLOAD operator value unit/S THEN action
 .Ve
 .PP
-Total upload test syntax:
+Total upload data test syntax:
 .PP
 .Vb 1
-\& IF TOTAL UPLOAD operator value unit IN LAST number time\-unit THEN action
+\& IF TOTAL UPLOADED operator value unit IN LAST number time\-unit THEN action
 .Ve
 .PP
-Total download test syntax:
+Total download data test syntax:
 .PP
 .Vb 1
-\& IF TOTAL DOWNLOAD operator value unit IN LAST number time\-unit THEN action
+\& IF TOTAL DOWNLOADED operator value unit IN LAST number time\-unit THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -2850,16 +2845,14 @@ Examples:
 .Vb 4
 \& check network eth0 with interface eth0
 \&       if upload > 500 kB/s then alert
-\&       if total download > 1 GB in last 2 hours then alert
-\&       if total download > 10 GB in last day then alert
+\&       if total downloaded > 1 GB in last 2 hours then alert
+\&       if total downloaded > 10 GB in last day then alert
 .Ve
 .SS "\s-1NETWORK PACKETS TEST\s0"
 .IX Subsection "NETWORK PACKETS TEST"
 You can check the network link upload and download packets count, current
 transfer rate and total data transferred in last 24 hours. This test may
 only be used within a check network service entry in the Monit control file.
-.PP
-Warning: this test requires monit poll time to be at maximum 30 seconds.
 .PP
 Current upload bandwidth rate test syntax:
 .PP
@@ -2876,13 +2869,13 @@ Current download bandwidth rate test syntax:
 Total upload test syntax:
 .PP
 .Vb 1
-\& IF TOTAL UPLOAD operator value PACKETS IN LAST number time\-unit THEN action
+\& IF TOTAL UPLOADED operator value PACKETS IN LAST number time\-unit THEN action
 .Ve
 .PP
 Total download test syntax:
 .PP
 .Vb 1
-\& IF TOTAL DOWNLOAD operator value PACKETS IN LAST number time\-unit THEN action
+\& IF TOTAL DOWNLOADED operator value PACKETS IN LAST number time\-unit THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -2902,7 +2895,7 @@ Examples:
 .Vb 3
 \& check network eth0 with interface eth0
 \&       if upload > 1000 packets/s then alert
-\&       if total upload > 900000 packets in last hour then alert
+\&       if total uploaded > 900000 packets in last hour then alert
 .Ve
 .SS "\s-1NETWORK PING TEST\s0"
 .IX Subsection "NETWORK PING TEST"
@@ -3230,14 +3223,20 @@ Here is a simple \s-1SMTP\s0 protocol example:
 .PP
 Syntax:
 .PP
-.Vb 6
+.Vb 8
 \& PROTO(COL) HTTP
+\&     [USERNAME "string"]
+\&     [PASSWORD "string"]
 \&     [REQUEST "string"]
 \&     [STATUS operator number]
 \&     [CHECKSUM checksum]
 \&     [HTTP HEADERS list of headers]
 \&     [CONTENT < "=" | "!=" > STRING]
 .Ve
+.PP
+\&\fI\s-1USERNAME\s0\fR is an optional username for Basic authentication
+.PP
+\&\fI\s-1PASSWORD\s0\fR is an optional password for Basic authentication
 .PP
 \&\fI\s-1REQUEST\s0\fR option can set an \s-1URL\s0 string specifying a document on the
 \&\s-1HTTP\s0 server. If the request statement isn't specified, the default \*(L"/\*(R"
@@ -3344,17 +3343,21 @@ For example:
 APACHE-STATUS
 .IX Subsection "APACHE-STATUS"
 .PP
-The \fIAPACHE-STATUS\fR test allows to check server performance by examination
+The \fIAPACHE-STATUS\fR test allows one to check server performance by examination
 of the status page generated by Apache's mod_status, which is expected to be at
 its default address of http://www.example.com/server\-status.
 .PP
 Syntax:
 .PP
 .Vb 1
-\& PROTOCOL APACHE\-STATUS [PATH <path>] [<property> <operator> <number>]+
+\& PROTOCOL APACHE\-STATUS [PATH <path>] [USERNAME <string>] [PASSWORD <string>] [<property> <operator> <number>]+
 .Ve
 .PP
-\&\fIpath\fR is an optional path to apache status (\*(L"/server\-status\*(R" by default)
+\&\fI\s-1PATH\s0\fR is an optional path to apache status (\*(L"/server\-status\*(R" by default)
+.PP
+\&\fI\s-1USERNAME\s0\fR is an optional username for Basic authentication
+.PP
+\&\fI\s-1PASSWORD\s0\fR is an optional password for Basic authentication
 .PP
 \&\fIproperty\fR is acronym for child status:
 .PP
@@ -3578,6 +3581,35 @@ For example:
 \&          version 13
 \&       then alert
 .Ve
+.SH "MANAGE YOUR MONIT INSTANCES"
+.IX Header "MANAGE YOUR MONIT INSTANCES"
+M/Monit <https://mmonit.com> expands on Monit's capabilities and
+provides monitoring and management of all your Monit enabled hosts.
+M/Monit uses Monit as an agent. With regular intervals, Monit can send
+a message to M/Monit with the status of the host it is running on.
+M/Monit presents the collected data in charts and event logs and give
+you the option to view key performance data of all your hosts in a
+modern, clean and well designed user interface which also works on
+mobile devices. From M/Monit, you can also start, stop and restart
+services on your hosts running Monit.
+.PP
+To send data to M/Monit, add the following statement to your Monit
+control file:
+.PP
+.Vb 1
+\&  SET MMONIT <url>
+.Ve
+.PP
+Example:
+.PP
+.Vb 1
+\& set mmonit https://monit:monit@192.168.1.10:8443/collector
+.Ve
+.PP
+Monit will register itself in M/Monit and will start sending status and
+event messages to M/Monit. We recommend using \fIhttps\fR as in the
+example above to ensure that the communication between Monit and
+M/Monit is secure
 .SH "CONFIGURATION EXAMPLES"
 .IX Header "CONFIGURATION EXAMPLES"
 The simplest form is just the check statement. In this example we
@@ -3940,7 +3972,7 @@ of each other.
 No environment variables are used by Monit. However, when Monit
 executes a start/stop/restart program or an exec action, it will
 set several environment variables which can be utilised by the
-executable to get informations about the event, which triggered
+executable to get information about the event, which triggered
 the action.
 .PP
 The following environment variable is set for every program

@@ -966,32 +966,19 @@ mailserveropt   : username {
                 | certmd5
                 ;
 
-sethttpd        : SET HTTPD PORT NUMBER httpdnetlist {
-                        Run.httpd.flags |= Httpd_Net;
-                        Run.httpd.socket.net.port = $4;
-                 }
-                | SET HTTPD UNIXSOCKET PATH httpdunixlist {
-                        Run.httpd.flags |= Httpd_Unix;
-                        Run.httpd.socket.unix.path = $4;
-                 }
+sethttpd        : SET HTTPD httpdlist
                 ;
 
-httpdnetlist    : /* EMPTY */
-                | httpdnetlist httpdnetoption
+httpdlist       : /* EMPTY */
+                | httpdlist httpdoption
                 ;
 
-httpdnetoption  : sslserver
+httpdoption     : sslserver
                 | signature
                 | bindaddress
                 | allow
-                ;
-
-httpdunixlist   : /* EMPTY */
-                | httpdunixlist httpdunixoption
-                ;
-
-httpdunixoption : signature
-                | allow
+                | httpdport
+                | httpdsocket
                 ;
 
 sslserver       : ssldisable optssllist {
@@ -1025,6 +1012,18 @@ sslenable       : SSL ENABLE
 
 ssldisable      : SSL DISABLE
                 | DISABLE SSL
+                ;
+
+httpdport       : PORT NUMBER {
+                        Run.httpd.flags |= Httpd_Net;
+                        Run.httpd.socket.net.port = $2;
+                  }
+                ;
+
+httpdsocket     : UNIXSOCKET PATH {
+                        Run.httpd.flags |= Httpd_Unix;
+                        Run.httpd.socket.unix.path = $2;
+                  }
                 ;
 
 signature       : sigenable  {
@@ -1121,8 +1120,8 @@ allow           : ALLOW STRING':'STRING readonly {
                         FREE(htpasswd_file);
                   }
                 | ALLOW STRING {
-                        if (! (Engine_addNetAllow($2) || Engine_addHostAllow($2)))
-                                yyerror2("Erroneous network or host identifier %s", $2);
+                        if (! Engine_addAllow($2))
+                                yywarning2("invalid allow option", $2);
                         FREE($2);
                   }
                 ;
@@ -1575,12 +1574,20 @@ protocol        : PROTOCOL APACHESTATUS apache_stat_list {
                 ;
 
 sendexpect      : SEND STRING {
-                    portset.protocol = Protocol_get(Protocol_GENERIC);
-                    addgeneric(&portset, $2, NULL);
+                        if (portset.protocol->check == check_default || portset.protocol->check == check_generic) {
+                                portset.protocol = Protocol_get(Protocol_GENERIC);
+                                addgeneric(&portset, $2, NULL);
+                        } else {
+                                yyerror("The SEND statement is not allowed in the %s protocol context", portset.protocol->name);
+                        }
                   }
                 | EXPECT STRING {
-                    portset.protocol = Protocol_get(Protocol_GENERIC);
-                    addgeneric(&portset, NULL, $2);
+                        if (portset.protocol->check == check_default || portset.protocol->check == check_generic) {
+                                portset.protocol = Protocol_get(Protocol_GENERIC);
+                                addgeneric(&portset, NULL, $2);
+                        } else {
+                                yyerror("The EXPECT statement is not allowed in the %s protocol context", portset.protocol->name);
+                        }
                   }
                 ;
 
@@ -1621,7 +1628,7 @@ mysqllist       : /* EMPTY */
 mysql           : username {
                         if ($<string>1) {
                                 if (strlen($<string>1) > 16)
-                                        yyerror2("Username too long -- Maximum MySQL username lengh is 16 characters");
+                                        yyerror2("Username too long -- Maximum MySQL username length is 16 characters");
                                 else
                                         portset.parameters.mysql.username = $<string>1;
                         }
@@ -1660,7 +1667,13 @@ httplist        : /* EMPTY */
                 | httplist http
                 ;
 
-http            : request
+http            : username {
+                        portset.parameters.http.username = $<string>1;
+                  }
+                | password {
+                        portset.parameters.http.password = $<string>1;
+                  }
+                | request
                 | responsesum
                 | status
                 | hostheader
@@ -1714,48 +1727,54 @@ apache_stat_list: apache_stat
                 | apache_stat_list apache_stat
                 ;
 
-apache_stat     : PATHTOK PATH {
-                    portset.parameters.apachestatus.path = $<string>2;
+apache_stat     : username {
+                        portset.parameters.apachestatus.username = $<string>1;
+                  }
+                | password {
+                        portset.parameters.apachestatus.password = $<string>1;
+                  }
+                | PATHTOK PATH {
+                        portset.parameters.apachestatus.path = $<string>2;
                   }
                 | LOGLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.loglimitOP = $<number>2;
-                    portset.parameters.apachestatus.loglimit = $<number>3;
+                        portset.parameters.apachestatus.loglimitOP = $<number>2;
+                        portset.parameters.apachestatus.loglimit = $<number>3;
                   }
                 | CLOSELIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.closelimitOP = $<number>2;
-                    portset.parameters.apachestatus.closelimit = $<number>3;
+                        portset.parameters.apachestatus.closelimitOP = $<number>2;
+                        portset.parameters.apachestatus.closelimit = $<number>3;
                   }
                 | DNSLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.dnslimitOP = $<number>2;
-                    portset.parameters.apachestatus.dnslimit = $<number>3;
+                        portset.parameters.apachestatus.dnslimitOP = $<number>2;
+                        portset.parameters.apachestatus.dnslimit = $<number>3;
                   }
                 | KEEPALIVELIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.keepalivelimitOP = $<number>2;
-                    portset.parameters.apachestatus.keepalivelimit = $<number>3;
+                        portset.parameters.apachestatus.keepalivelimitOP = $<number>2;
+                        portset.parameters.apachestatus.keepalivelimit = $<number>3;
                   }
                 | REPLYLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.replylimitOP = $<number>2;
-                    portset.parameters.apachestatus.replylimit = $<number>3;
+                        portset.parameters.apachestatus.replylimitOP = $<number>2;
+                        portset.parameters.apachestatus.replylimit = $<number>3;
                   }
                 | REQUESTLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.requestlimitOP = $<number>2;
-                    portset.parameters.apachestatus.requestlimit = $<number>3;
+                        portset.parameters.apachestatus.requestlimitOP = $<number>2;
+                        portset.parameters.apachestatus.requestlimit = $<number>3;
                   }
                 | STARTLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.startlimitOP = $<number>2;
-                    portset.parameters.apachestatus.startlimit = $<number>3;
+                        portset.parameters.apachestatus.startlimitOP = $<number>2;
+                        portset.parameters.apachestatus.startlimit = $<number>3;
                   }
                 | WAITLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.waitlimitOP = $<number>2;
-                    portset.parameters.apachestatus.waitlimit = $<number>3;
+                        portset.parameters.apachestatus.waitlimitOP = $<number>2;
+                        portset.parameters.apachestatus.waitlimit = $<number>3;
                   }
                 | GRACEFULLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.gracefullimitOP = $<number>2;
-                    portset.parameters.apachestatus.gracefullimit = $<number>3;
+                        portset.parameters.apachestatus.gracefullimitOP = $<number>2;
+                        portset.parameters.apachestatus.gracefullimit = $<number>3;
                   }
                 | CLEANUPLIMIT operator NUMBER PERCENT {
-                    portset.parameters.apachestatus.cleanuplimitOP = $<number>2;
-                    portset.parameters.apachestatus.cleanuplimit = $<number>3;
+                        portset.parameters.apachestatus.cleanuplimitOP = $<number>2;
+                        portset.parameters.apachestatus.cleanuplimit = $<number>3;
                   }
                 ;
 
@@ -1936,7 +1955,7 @@ formatoption    : MAILFROM ADDRESSOBJECT { mailset.from = $<address>1; }
 
 every           : EVERY NUMBER CYCLE {
                    current->every.type = Every_SkipCycles;
-                   current->every.spec.cycle.number = $2;
+                   current->every.spec.cycle.counter = current->every.spec.cycle.number = $2;
                  }
                 | EVERY TIMESPEC {
                    current->every.type = Every_Cron;
@@ -2428,7 +2447,7 @@ match           : IF CONTENT urloperator PATH rate1 THEN action1 {
                     matchset.match_string = $4;
                     addmatch(&matchset, Action_Ignored, 0);
                   }
-                /* The bellow MATCH statement is deprecated (replaced by CONTENT) */
+                /* The below MATCH statement is deprecated (replaced by CONTENT) */
                 | IF matchflagnot MATCH PATH rate1 THEN action1 {
                     matchset.ignore = false;
                     matchset.match_path = $4;
@@ -3208,20 +3227,19 @@ static void addhttpheader(Port_T port, const char *header) {
  * Add a new resource object to the current service resource list
  */
 static void addresource(Resource_T rr) {
-        Resource_T r;
-
         ASSERT(rr);
-
-        NEW(r);
-        if (! (Run.flags & Run_ProcessEngineEnabled))
-                yyerror("Cannot activate service check. The process status engine was disabled. On certain systems you must run monit as root to utilize this feature)\n");
-        r->resource_id = rr->resource_id;
-        r->limit       = rr->limit;
-        r->action      = rr->action;
-        r->operator    = rr->operator;
-        r->next        = current->resourcelist;
-
-        current->resourcelist = r;
+        if (Run.flags & Run_ProcessEngineEnabled) {
+                Resource_T r;
+                NEW(r);
+                r->resource_id = rr->resource_id;
+                r->limit       = rr->limit;
+                r->action      = rr->action;
+                r->operator    = rr->operator;
+                r->next        = current->resourcelist;
+                current->resourcelist = r;
+        } else {
+                yywarning("Cannot activate service check. The process status engine was disabled. On certain systems you must run monit as root to utilize this feature)\n");
+        }
         reset_resourceset();
 }
 

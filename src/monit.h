@@ -98,6 +98,11 @@
 #ifdef HAVE_VM_VM_H
 #include <vm/vm.h>
 #endif
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#else
+#define PRIu64 "llu"
+#endif
 
 
 //FIXME: we can export this type in libmonit
@@ -593,6 +598,8 @@ typedef struct myport {
         /** Protocol specific parameters */
         union {
                 struct {
+                        char *username;
+                        char *password;
                         char *path;                                              /**< status path */
                         short loglimit;                  /**< Max percentage of logging processes */
                         short closelimit;             /**< Max percentage of closinging processes */
@@ -622,6 +629,8 @@ typedef struct myport {
                         Hash_Type hashtype;           /**< Type of hash for a checksum (optional) */
                         Operator_Type operator;                         /**< HTTP status operator */
                         int status;                                              /**< HTTP status */
+                        char *username;
+                        char *password;
                         char *request;                                          /**< HTTP request */
                         char *checksum;                         /**< Document checksum (optional) */
                         List_T headers;      /**< List of headers to send with request (optional) */
@@ -1054,7 +1063,7 @@ typedef struct myservice {
         struct myevent {
                 #define           EVENT_VERSION  4      /**< The event structure version */
                 long              id;                      /**< The event identification */
-                struct timeval    collected;                 /**< When the event occured */
+                struct timeval    collected;                /**< When the event occurred */
                 struct myservice *source;                              /**< Event source */
                 Monitor_Mode      mode;             /**< Monitoring mode for the service */
                 Service_Type      type;                      /**< Monitored service type */
@@ -1121,7 +1130,7 @@ struct myrun {
         /** An object holding Monit HTTP interface setup */
         struct {
                 Httpd_Flags flags;
-                union {
+                struct {
                         struct {
                                 int  port;
                                 char *address;
@@ -1163,6 +1172,7 @@ struct myrun {
 
 /* -------------------------------------------------------- Global variables */
 
+
 extern const char    *prog;
 extern struct myrun   Run;
 extern Service_T      servicelist;
@@ -1181,6 +1191,8 @@ extern char *servicetypes[];
 extern char *pathnames[];
 extern char *icmpnames[];
 extern char *sslnames[];
+extern char *socketnames[];
+
 
 /* ------------------------------------------------------- Public prototypes */
 
