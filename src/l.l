@@ -112,6 +112,11 @@ str            [^\000-\041@:{}"';(),%]+
 address        [^\000-\041<>{}\[\]]+
 addrname       [^\000-\037@<>{}\[\]]+
 hostname       {str}(\.{str})*
+dec-octet      [0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]
+h16            [0-9A-Fa-f]{1,4}
+ipv4           {dec-octet}\.{dec-octet}\.{dec-octet}\.{dec-octet}
+ls32           {h16}:{h16}|{ipv4}
+ipv6           ({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|(({h16}:){0,1}{h16})?::({h16}:){3}{ls32}|(({h16}:){0,2}{h16})?::({h16}:){2}{ls32}|(({h16}:){0,3}{h16})?::{h16}:{ls32}|(({h16}:){0,4}{h16})?::{ls32}|(({h16}:){0,5}{h16})?::{h16}|(({h16}:){0,6}{h16})?::
 greater        ("more"|"greater"|"gt"|">")
 greaterorequal ("ge"|">=")
 less           ("less"|"lt"|"<")
@@ -617,6 +622,18 @@ group[ \t]+       {
                       return STRING;
                   }
 
+{ipv4}[/]?[0-9]{0,2} {
+                      yylval.string = Str_dup(yytext);
+                      save_arg();
+                      return STRING;
+                  }
+
+{ipv6}[/]?[0-9]{0,3} {
+                      yylval.string = Str_dup(yytext);
+                      save_arg();
+                      return STRING;
+                  }
+
 [\"\']            {
                       yyerror("unbalanced quotes");
                   }
@@ -666,6 +683,18 @@ group[ \t]+       {
 
   {str}           {
                     yylval.string = Str_dup(yytext);
+                    save_arg();
+                    return SERVICENAME;
+                  }
+
+  \"{str}\"       {
+                    yylval.string = handle_quoted_string(yytext);
+                    save_arg();
+                    return SERVICENAME;
+                  }
+
+  \'{str}\'       {
+                    yylval.string = handle_quoted_string(yytext);
                     save_arg();
                     return SERVICENAME;
                   }

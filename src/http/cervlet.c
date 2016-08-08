@@ -382,7 +382,7 @@ static void _printStatus(Output_Type type, HttpResponse res, Service_T s) {
                         case Service_Program:
                                 if (s->program->started) {
                                         _formatStatus("last exit value", Event_Status, type, res, s, true, "%d", s->program->exitStatus);
-                                        _formatStatus("last output", Event_Status, type, res, s, StringBuffer_length(s->program->output), "%s", StringBuffer_toString(s->program->output)); //FIXME: use both columns
+                                        _formatStatus("last output", Event_Status, type, res, s, StringBuffer_length(s->program->output), "%s", StringBuffer_toString(s->program->output));
                                 }
                                 break;
 
@@ -798,7 +798,7 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
         }
         StringBuffer_append(res->outputbuffer,
                             "<tr><td>httpd auth. style</td><td>%s</td></tr>",
-                            Run.httpd.credentials && Engine_hasHostsAllow() ? "Basic Authentication and Host/Net allow list" : Run.httpd.credentials ? "Basic Authentication" : Engine_hasHostsAllow() ? "Host/Net allow list" : "No authentication");
+                            Run.httpd.credentials && Engine_hasAllow() ? "Basic Authentication and Host/Net allow list" : Run.httpd.credentials ? "Basic Authentication" : Engine_hasAllow() ? "Host/Net allow list" : "No authentication");
         print_alerts(res, Run.maillist);
         StringBuffer_append(res->outputbuffer, "</table>");
         if (! is_readonly(req)) {
@@ -824,7 +824,7 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
 
 static void do_viewlog(HttpRequest req, HttpResponse res) {
         if (is_readonly(req)) {
-                send_error(req, res, SC_FORBIDDEN, "You do not have sufficent privileges to access this page");
+                send_error(req, res, SC_FORBIDDEN, "You do not have sufficient privileges to access this page");
                 return;
         }
         do_head(res, "_viewlog", "View log", 100);
@@ -871,7 +871,7 @@ static void handle_action(HttpRequest req, HttpResponse res) {
         const char *action = get_parameter(req, "action");
         if (action) {
                 if (is_readonly(req)) {
-                        send_error(req, res, SC_FORBIDDEN, "You do not have sufficent privileges to access this page");
+                        send_error(req, res, SC_FORBIDDEN, "You do not have sufficient privileges to access this page");
                         return;
                 }
                 Action_Type doaction = Util_getAction(action);
@@ -901,7 +901,7 @@ static void handle_do_action(HttpRequest req, HttpResponse res) {
 
         if (action) {
                 if (is_readonly(req)) {
-                        send_error(req, res, SC_FORBIDDEN, "You do not have sufficent privileges to access this page");
+                        send_error(req, res, SC_FORBIDDEN, "You do not have sufficient privileges to access this page");
                         return;
                 }
                 if ((doaction = Util_getAction(action)) == Action_Ignored) {
@@ -940,7 +940,7 @@ static void handle_run(HttpRequest req, HttpResponse res) {
         const char *action = get_parameter(req, "action");
         if (action) {
                 if (is_readonly(req)) {
-                        send_error(req, res, SC_FORBIDDEN, "You do not have sufficent privileges to access this page");
+                        send_error(req, res, SC_FORBIDDEN, "You do not have sufficient privileges to access this page");
                         return;
                 }
                 if (IS(action, "validate")) {
@@ -2184,7 +2184,7 @@ static void print_status(HttpRequest req, HttpResponse res, int version) {
         } else {
                 set_content_type(res, "text/plain");
 
-                StringBuffer_append(res->outputbuffer, "Monit uptime: %s\n", _getUptime(ProcessTree_getProcessUptime(getpid()), (char[256]){}));
+                StringBuffer_append(res->outputbuffer, "Monit %s uptime: %s\n\n", VERSION, _getUptime(ProcessTree_getProcessUptime(getpid()), (char[256]){}));
 
                 int found = 0;
                 const char *stringGroup = Util_urlDecode((char *)get_parameter(req, "group"));
@@ -2242,7 +2242,7 @@ static int _printServiceSummaryByType(Box_T t, Service_Type type) {
 static void print_summary(HttpRequest req, HttpResponse res) {
         set_content_type(res, "text/plain");
 
-        StringBuffer_append(res->outputbuffer, "Monit uptime: %s\n", _getUptime(ProcessTree_getProcessUptime(getpid()), (char[256]){}));
+        StringBuffer_append(res->outputbuffer, "Monit %s uptime: %s\n", VERSION, _getUptime(ProcessTree_getProcessUptime(getpid()), (char[256]){}));
 
         int found = 0;
         const char *stringGroup = Util_urlDecode((char *)get_parameter(req, "group"));

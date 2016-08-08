@@ -134,7 +134,7 @@ struct T {
  * operation timed out -1 is returned.
  * @param S A Socket object
  * @param timeout The number of milliseconds to wait for data to be read
- * @return the length of data read or -1 if an error occured
+ * @return the length of data read or -1 if an error occurred
  */
 static int _fill(T S, int timeout) {
         S->offset = 0;
@@ -397,11 +397,20 @@ T Socket_createAccepted(int socket, struct sockaddr *addr, socklen_t addrlen, vo
         S->timeout = Run.limits.networkTimeout;
         S->connection_type = Connection_Server;
         S->type = Socket_Tcp;
-        if (addr->sa_family == AF_INET) {
-                struct sockaddr_in *a = (struct sockaddr_in *)addr;
-                S->family = Socket_Ip4;
+        if (addr->sa_family != AF_UNIX) {
+                if (addr->sa_family == AF_INET) {
+                        struct sockaddr_in *a = (struct sockaddr_in *)addr;
+                        S->family = Socket_Ip4;
+                        S->host = Str_dup(inet_ntop(addr->sa_family, &a->sin_addr, (char[INET_ADDRSTRLEN]){}, INET_ADDRSTRLEN));
+                }
+#ifdef HAVE_IPV6
+                else {
+                        struct sockaddr_in6 *a = (struct sockaddr_in6 *)addr;
+                        S->family = Socket_Ip6;
+                        S->host = Str_dup(inet_ntop(addr->sa_family, &a->sin6_addr, (char[INET6_ADDRSTRLEN]){}, INET6_ADDRSTRLEN));
+                }
+#endif
                 S->port = _getPort(addr, addrlen);
-                S->host = Str_dup(inet_ntoa(a->sin_addr));
 #ifdef HAVE_OPENSSL
                 if (sslserver) {
                         S->sslserver = sslserver;
@@ -572,7 +581,7 @@ static void _testIp(Port_T p) {
                                 }
                                 END_TRY;
                         } else {
-                                snprintf(error, sizeof(error), "No target IP with family matching our outgoing address '%s' was found", p->outgoing.ip);
+                                snprintf(error, sizeof(error), "No IP address matching '%s' was found", p->outgoing.ip);
                         }
                 }
                 freeaddrinfo(result);
