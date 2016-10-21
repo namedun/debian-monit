@@ -1,3 +1,11 @@
+monit (1:5.20.0-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.20.0
+  * Refresh patches
+  * Add spelling fixes from lintian
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 22 Oct 2016 02:27:54 +0300
+
 monit (1:5.19.0-1) unstable; urgency=medium
 
   * Imported Upstream version 5.19.0
