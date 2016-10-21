@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.19.0" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.20.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -563,8 +563,8 @@ status test allows one to check the
 program's exit status. If the program does not finish executing within
 <number> seconds, Monit will terminate it. The default program timeout
 is 300 seconds (5 minutes). The output of the program is recorded and
-made available in the User Interface and in alerts (by default up to
-512B, you can customize the limit using the set limits
+made available in the User Interface and in alerts, by default up to
+512B. You can customize the limits using the set limits
 statement).
 .PP
 \fINetwork\fR
@@ -1255,7 +1255,7 @@ above:
 .Vb 10
 \& Event:     | Failure state:              | Success state:
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-\& action     | "Action done"               | "Action done"
+\& action     | "Action failed"             | "Action done"
 \& checksum   | "Checksum failed"           | "Checksum succeeded"
 \& bytein     | "Download bytes exceeded"   | "Download bytes ok"
 \& byteout    | "Upload bytes exceeded"     | "Upload bytes ok"
@@ -1527,7 +1527,8 @@ Example:
 .PP
 In the case of a process check, Monit will wait up to 30 seconds for
 the start/stop action to finish before giving up and report an error.
-You can override this timeout using the \fI\s-1TIMEOUT\s0\fR option.
+You can override this timeout using the \fI\s-1TIMEOUT\s0\fR option or globally
+using the set limits.
 .PP
 Example:
 .PP
@@ -1724,6 +1725,12 @@ In \fIlaststate\fR mode, a service's monitoring state is persistent across
 reboot. For instance, if a service was started before reboot, it willl
 be started after reboot. If it was stopped before reboot, it will
 not be started after and so on.
+.PP
+The default \s-1ONREBOOT START\s0 mode can be overriden globally:
+.PP
+.Vb 1
+\&  SET ONREBOOT <START | NOSTART | LASTSTATE>
+.Ve
 .SH "SERVICE RESTART LIMIT"
 .IX Header "SERVICE RESTART LIMIT"
 \&\fBMonit\fR provides a restart limit mechanism for situations
@@ -1895,13 +1902,17 @@ Monit.
 .PP
 Syntax:
 .PP
-.Vb 7
+.Vb 11
 \& SET LIMITS {
 \&   PROGRAMOUTPUT:     <number> <unit>,
 \&   SENDEXPECTBUFFER:  <number> <unit>,
 \&   FILECONTENTBUFFER: <number> <unit>,
 \&   HTTPCONTENTBUFFER: <number> <unit>,
 \&   NETWORKTIMEOUT:    <number> <timeunit>
+\&   PROGRAMTIMEOUT:    <number> <timeunit>
+\&   STOPTIMEOUT:       <number> <timeunit>
+\&   STARTTIMEOUT:      <number> <timeunit>
+\&   RESTARTTIMEOUT:    <number> <timeunit>
 \& }
 .Ve
 .PP
@@ -1911,7 +1922,7 @@ Where:
 .PP
 Options legend:
 .PP
-.Vb 9
+.Vb 10
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 \& | Option            | Description                                      | Default |
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
@@ -1919,7 +1930,11 @@ Options legend:
 \& | sendExpectBuffer  | limit for send/expect protocol test              | 256 B   |
 \& | fileContentBuffer | limit for file content test (line)               | 512 B   |
 \& | httpContentBuffer | limit for HTTP content test (response body)      | 1 MB    |
-\& | networkTimeout    | timeout for network I/O                          | 5 sec   |
+\& | networkTimeout    | timeout for network I/O                          | 5 s     |
+\& | programTimeout    | timeout for check program                        | 300 s   |
+\& | stopTimeout       | timeout for service stop                         | 30 s    |
+\& | startTimeout      | timeout for service start                        | 30 s    |
+\& | startTimeout      | timeout for service restart                      | 30 s    |
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 .Ve
 .PP
@@ -2059,9 +2074,9 @@ Example which sets multiple error levels and actions:
 Note: the maximum value for cycles is 64.
 .SS "\s-1EXISTENCE TESTING\s0"
 .IX Subsection "EXISTENCE TESTING"
-This test is implicite and always active for service checks of type,
-\&\fIprocess\fR, \fIfile\fR, \fIdirectory\fR and \fIfifo\fR. If not defined, it
-defaults to a restart action.
+This test is implicit and always active for service checks of type,
+\&\fIprocess\fR, \fIfile\fR, \fIdirectory\fR, \fIfilesystem\fR and \fIfifo\fR. If not
+defined, it defaults to a restart action.
 .PP
 You can override the default action with the following statement:
 .PP

@@ -373,6 +373,10 @@ filecontentbuffer { return FILECONTENTBUFFER; }
 httpcontentbuffer { return HTTPCONTENTBUFFER; }
 programoutput     { return PROGRAMOUTPUT; }
 networktimeout    { return NETWORKTIMEOUT; }
+programtimeout    { return PROGRAMTIMEOUT; }
+stoptimeout       { return STOPTIMEOUT; }
+starttimeout      { return STARTTIMEOUT; }
+restarttimeout    { return RESTARTTIMEOUT; }
 cleartext         { return CLEARTEXT; }
 md5               { return MD5HASH; }
 sha1              { return SHA1HASH; }
@@ -771,8 +775,9 @@ group[ \t]+       {
                       yylval.url->hostname = Str_dup(yytext);
                   }
 
-  \[[0-9a-zA-Z:%]+\] {
+  \[[0-9a-zA-Z.:%]+\] {
                       yylval.url->hostname = Str_ndup(yytext + 1, yyleng - 2);
+                      yylval.url->ipv6 = true;
                   }
 
   [:]{number}     {
@@ -780,11 +785,11 @@ group[ \t]+       {
                   }
 
   [/][^?#\r\n ]*  {
-                      yylval.url->path = Util_urlEncode(yytext);
+                      yylval.url->path = Util_urlEncode(yytext, false);
                   }
 
   [?][^#\r\n ]*   {
-                      yylval.url->query = Util_urlEncode(++yytext);
+                      yylval.url->query = Util_urlEncode(++yytext, false);
                   }
 
   [#][^\r\n ]*    {
@@ -991,16 +996,17 @@ static void _include(const char *path) {
                         return;
                 }
         }
-        FILE *yyin = fopen(path, "r");
-        if (! yyin)
+        FILE *_yyin = fopen(path, "r");
+        if (! _yyin)
                 yyerror("Cannot include file '%s' -- %s", path, STRERROR);
         else
-                push_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE), (char *)path);
+                push_buffer_state(yy_create_buffer(_yyin, YY_BUF_SIZE), (char *)path);
 }
 
 
 static void include_file(char *pattern) {
         glob_t globbuf;
+        errno = 0;
         if (glob(pattern, GLOB_MARK, NULL, &globbuf) == 0) {
                 for (int i = 0; i < globbuf.gl_pathc; i++) {
                         size_t filename_length = strlen(globbuf.gl_pathv[i]);
@@ -1009,9 +1015,9 @@ static void include_file(char *pattern) {
                         _include(globbuf.gl_pathv[i]);
                 }
                 globfree(&globbuf);
-        } else {
-                yywarning("Include failed -- %s", STRERROR); // no include files found
-        }
+        } else if (errno != 0) {
+                yywarning("Include failed -- %s", STRERROR);
+        } // else no include files found -- silently ignore
 }
 
 

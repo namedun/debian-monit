@@ -57,6 +57,9 @@
 /* Define to 1 if you have the `ssl' library (-lssl). */
 #undef HAVE_LIBSSL
 
+/* Define to 1 if you have the `z' library (-lz). */
+#undef HAVE_LIBZ
+
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
@@ -164,6 +167,9 @@
 
 /* Define to 1 if you have the <uvm/uvm_param.h> header file. */
 #undef HAVE_UVM_UVM_PARAM_H
+
+/* Define to 1 if you have the <zlib.h> header file. */
+#undef HAVE_ZLIB_H
 
 /* Define to 1 if the system is HPUX */
 #undef HPUX
