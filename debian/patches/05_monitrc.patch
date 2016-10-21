@@ -16,7 +16,7 @@ Forwarded: not-needed
  #
 -set daemon  30              # check services at 30 seconds intervals
 +  set daemon 120            # check services at 2-minute intervals
- #   with start delay 240    # optional: delay the first check by 4-minutes (by 
+ #   with start delay 240    # optional: delay the first check by 4-minutes (by
  #                           # default Monit check immediately after Monit start)
  #
 @@ -24,8 +24,7 @@ set daemon  30              # check serv
@@ -46,7 +46,7 @@ Forwarded: not-needed
  #
  #
  
-@@ -85,9 +85,9 @@ set logfile syslog
+@@ -89,9 +89,9 @@ set logfile syslog
  ## by using the SLOTS option (if omitted, the queue is limited by space
  ## available in the back end filesystem).
  #
@@ -58,10 +58,10 @@ Forwarded: not-needed
 +      slots 100                     # optionally limit the queue size
  #
  #
- ## Send status and events to M/Monit (for more informations about M/Monit 
-@@ -148,11 +148,11 @@ set logfile syslog
- ## commands to a running Monit daemon. See the Monit Wiki if you want to 
- ## enable SSL for the HTTP interface. 
+ ## Send status and events to M/Monit (for more informations about M/Monit
+@@ -152,11 +152,11 @@ set logfile syslog
+ ## commands to a running Monit daemon. See the Monit Wiki if you want to
+ ## enable SSL for the HTTP interface.
  #
 -set httpd port 2812 and
 -    use address localhost  # only accept connection from localhost
@@ -76,7 +76,7 @@ Forwarded: not-needed
  ###############################################################################
  ## Services
  ###############################################################################
-@@ -288,5 +288,6 @@ set httpd port 2812 and
+@@ -292,5 +292,6 @@ set httpd port 2812 and
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #
