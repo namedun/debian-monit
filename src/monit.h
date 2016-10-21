@@ -159,8 +159,6 @@ typedef enum {
 #define SMTP_TIMEOUT       30000
 
 #define START_DELAY        0
-#define EXEC_TIMEOUT       30
-#define PROGRAM_TIMEOUT    300
 
 
 //FIXME: refactor Run_Flags to bit field
@@ -352,6 +350,13 @@ typedef enum {
 } __attribute__((__packed__)) Handler_Type;
 
 
+typedef enum {
+        MmonitCompress_Init = 0,
+        MmonitCompress_No,
+        MmonitCompress_Yes
+} __attribute__((__packed__)) MmonitCompress_Type;
+
+
 /* Length of the longest message digest in bytes */
 #define MD_SIZE 65
 
@@ -367,6 +372,10 @@ typedef enum {
 #define LIMIT_PROGRAMOUTPUT     512
 #define LIMIT_HTTPCONTENTBUFFER 1048576
 #define LIMIT_NETWORKTIMEOUT    5000
+#define LIMIT_PROGRAMTIMEOUT    300000
+#define LIMIT_STOPTIMEOUT       30000
+#define LIMIT_STARTTIMEOUT      30000
+#define LIMIT_RESTARTTIMEOUT    30000
 
 
 #include "socket.h"
@@ -418,6 +427,10 @@ typedef struct mylimits {
         uint32_t httpContentBuffer;  /**< Maximum tested HTTP content length [B] */
         uint32_t programOutput;           /**< Program output truncate limit [B] */
         uint32_t networkTimeout;               /**< Default network timeout [ms] */
+        uint32_t programTimeout;               /**< Default program timeout [ms] */
+        uint32_t stopTimeout;                     /**< Default stop timeout [ms] */
+        uint32_t startTimeout;                   /**< Default start timeout [ms] */
+        uint32_t restartTimeout;               /**< Default restart timeout [ms] */
 } Limits_T;
 
 
@@ -463,9 +476,10 @@ typedef struct myurl {
         char *user;                                        /**< URL user     part */
         char *password;                                    /**< URL password part */
         char *hostname;                                    /**< URL hostname part */
-        int   port;                                        /**< URL port     part */
         char *path;                                        /**< URL path     part */
         char *query;                                       /**< URL query    part */
+        int   port;                                        /**< URL port     part */
+        boolean_t ipv6;
 } *URL_T;
 
 
@@ -482,6 +496,7 @@ typedef struct mymmonit {
         URL_T url;                                             /**< URL definition */
         SslOptions_T ssl;                                      /**< SSL definition */
         int timeout;                /**< The timeout to wait for connection or i/o */
+        MmonitCompress_Type compress;                        /**< Compression flag */
 
         /** For internal use */
         struct mymmonit *next;                         /**< next receiver in chain */
@@ -1106,6 +1121,7 @@ struct myrun {
         uint8_t debug;                                            /**< Debug level */
         volatile Run_Flags flags;
         Handler_Type handler_flag;                    /**< The handlers state flag */
+        Onreboot_Type onreboot;
         struct {
                 char *control;            /**< The file to read configuration from */
                 char *log;                     /**< The file to write logdata into */

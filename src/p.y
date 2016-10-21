@@ -317,7 +317,7 @@ static int verifyMaxForward(int);
 %token PEMFILE ENABLE DISABLE SSL CLIENTPEMFILE ALLOWSELFCERTIFICATION SELFSIGNED VERIFY CERTIFICATE CACERTIFICATEFILE CACERTIFICATEPATH VALID
 %token INTERFACE LINK PACKET BYTEIN BYTEOUT PACKETIN PACKETOUT SPEED SATURATION UPLOAD DOWNLOAD TOTAL
 %token IDFILE STATEFILE SEND EXPECT CYCLE COUNT REMINDER REPEAT
-%token LIMITS SENDEXPECTBUFFER EXPECTBUFFER FILECONTENTBUFFER HTTPCONTENTBUFFER PROGRAMOUTPUT NETWORKTIMEOUT
+%token LIMITS SENDEXPECTBUFFER EXPECTBUFFER FILECONTENTBUFFER HTTPCONTENTBUFFER PROGRAMOUTPUT NETWORKTIMEOUT PROGRAMTIMEOUT STARTTIMEOUT STOPTIMEOUT RESTARTTIMEOUT
 %token PIDFILE START STOP PATHTOK
 %token HOST HOSTNAME PORT IPV4 IPV6 TYPE UDP TCP TCPSSL PROTOCOL CONNECTION
 %token ALERT NOALERT MAILFORMAT UNIXSOCKET SIGNATURE
@@ -377,6 +377,7 @@ statement       : setalert
                 | setexpectbuffer
                 | setinit
                 | setlimits
+                | setonreboot
                 | setfips
                 | checkproc optproclist
                 | checkfile optfilelist
@@ -616,6 +617,17 @@ setinit         : SET INIT {
                   }
                 ;
 
+setonreboot     : SET ONREBOOT START {
+                        Run.onreboot = Onreboot_Start;
+                  }
+                | SET ONREBOOT NOSTART {
+                        Run.onreboot = Onreboot_Nostart;
+                  }
+                | SET ONREBOOT LASTSTATE {
+                        Run.onreboot = Onreboot_Laststate;
+                  }
+                ;
+
 setexpectbuffer : SET EXPECTBUFFER NUMBER unit {
                         // Note: deprecated (replaced by "set limits" statement's "sendExpectBuffer" option)
                         Run.limits.sendExpectBuffer = $3 * $<number>4;
@@ -642,10 +654,34 @@ limit           : SENDEXPECTBUFFER ':' NUMBER unit {
                         Run.limits.programOutput = $3 * $<number>4;
                   }
                 | NETWORKTIMEOUT ':' NUMBER MILLISECOND {
-                        Run.limits.networkTimeout= $3;
+                        Run.limits.networkTimeout = $3;
                   }
                 | NETWORKTIMEOUT ':' NUMBER SECOND {
-                        Run.limits.networkTimeout= $3 * 1000;
+                        Run.limits.networkTimeout = $3 * 1000;
+                  }
+                | PROGRAMTIMEOUT ':' NUMBER MILLISECOND {
+                        Run.limits.programTimeout = $3;
+                  }
+                | PROGRAMTIMEOUT ':' NUMBER SECOND {
+                        Run.limits.programTimeout = $3 * 1000;
+                  }
+                | STOPTIMEOUT ':' NUMBER MILLISECOND {
+                        Run.limits.stopTimeout = $3;
+                  }
+                | STOPTIMEOUT ':' NUMBER SECOND {
+                        Run.limits.stopTimeout = $3 * 1000;
+                  }
+                | STARTTIMEOUT ':' NUMBER MILLISECOND {
+                        Run.limits.startTimeout = $3;
+                  }
+                | STARTTIMEOUT ':' NUMBER SECOND {
+                        Run.limits.startTimeout = $3 * 1000;
+                  }
+                | RESTARTTIMEOUT ':' NUMBER MILLISECOND {
+                        Run.limits.restartTimeout = $3;
+                  }
+                | RESTARTTIMEOUT ':' NUMBER SECOND {
+                        Run.limits.restartTimeout = $3 * 1000;
                   }
                 ;
 
@@ -1235,27 +1271,27 @@ checkprogram    : CHECKPROGRAM SERVICENAME PATHTOK argumentlist programtimeout {
                  }
                 ;
 
-start           : START argumentlist exectimeout {
+start           : START argumentlist starttimeout {
                     addcommand(START, $<number>3);
                   }
-                | START argumentlist useroptionlist exectimeout {
+                | START argumentlist useroptionlist starttimeout {
                     addcommand(START, $<number>4);
                   }
                 ;
 
-stop            : STOP argumentlist exectimeout {
+stop            : STOP argumentlist stoptimeout {
                     addcommand(STOP, $<number>3);
                   }
-                | STOP argumentlist useroptionlist exectimeout {
+                | STOP argumentlist useroptionlist stoptimeout {
                     addcommand(STOP, $<number>4);
                   }
                 ;
 
 
-restart         : RESTART argumentlist exectimeout {
+restart         : RESTART argumentlist restarttimeout {
                     addcommand(RESTART, $<number>3);
                   }
-                | RESTART argumentlist useroptionlist exectimeout {
+                | RESTART argumentlist useroptionlist restarttimeout {
                     addcommand(RESTART, $<number>4);
                   }
                 ;
@@ -1687,7 +1723,7 @@ status          : STATUS operator NUMBER {
                 ;
 
 request         : REQUEST PATH {
-                    portset.parameters.http.request = Util_urlEncode($2);
+                    portset.parameters.http.request = Util_urlEncode($2, false);
                     FREE($2);
                   }
                 ;
@@ -1824,19 +1860,35 @@ icmpoutgoing    : ADDRESS STRING {
                   }
                 ;
 
-exectimeout     : /* EMPTY */ {
-                   $<number>$ = EXEC_TIMEOUT;
+stoptimeout     : /* EMPTY */ {
+                   $<number>$ = Run.limits.stopTimeout;
                   }
                 | TIMEOUT NUMBER SECOND {
-                   $<number>$ = $2;
+                   $<number>$ = $2 * 1000; // milliseconds internally
+                  }
+                ;
+
+starttimeout    : /* EMPTY */ {
+                   $<number>$ = Run.limits.startTimeout;
+                  }
+                | TIMEOUT NUMBER SECOND {
+                   $<number>$ = $2 * 1000; // milliseconds internally
+                  }
+                ;
+
+restarttimeout  : /* EMPTY */ {
+                   $<number>$ = Run.limits.restartTimeout;
+                  }
+                | TIMEOUT NUMBER SECOND {
+                   $<number>$ = $2 * 1000; // milliseconds internally
                   }
                 ;
 
 programtimeout  : /* EMPTY */ {
-                   $<number>$ = PROGRAM_TIMEOUT; // Default program status check timeout is 5 min
+                   $<number>$ = Run.limits.programTimeout;
                   }
                 | TIMEOUT NUMBER SECOND {
-                   $<number>$ = $2;
+                   $<number>$ = $2 * 1000; // milliseconds internally
                   }
                 ;
 
@@ -2057,22 +2109,22 @@ resourcesystemopt  : resourceload
                    | resourcecpu
                    ;
 
-resourcecpuproc : CPU operator NUMBER PERCENT {
+resourcecpuproc : CPU operator value PERCENT {
                     resourceset.resource_id = Resource_CpuPercent;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = $3;
+                    resourceset.limit = $<real>3;
                   }
-                | TOTALCPU operator NUMBER PERCENT {
+                | TOTALCPU operator value PERCENT {
                     resourceset.resource_id = Resource_CpuPercentTotal;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = $3;
+                    resourceset.limit = $<real>3;
                   }
                 ;
 
-resourcecpu     : resourcecpuid operator NUMBER PERCENT {
+resourcecpu     : resourcecpuid operator value PERCENT {
                     resourceset.resource_id = $<number>1;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = $3;
+                    resourceset.limit = $<real>3;
                   }
                 ;
 
@@ -2087,20 +2139,20 @@ resourcemem     : MEMORY operator value unit {
                     resourceset.operator = $<number>2;
                     resourceset.limit = $<real>3 * $<number>4;
                   }
-                | MEMORY operator NUMBER PERCENT {
+                | MEMORY operator value PERCENT {
                     resourceset.resource_id = Resource_MemoryPercent;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = $3;
+                    resourceset.limit = $<real>3;
                   }
                 | TOTALMEMORY operator value unit {
                     resourceset.resource_id = Resource_MemoryKbyteTotal;
                     resourceset.operator = $<number>2;
                     resourceset.limit = $<real>3 * $<number>4;
                   }
-                | TOTALMEMORY operator NUMBER PERCENT  {
+                | TOTALMEMORY operator value PERCENT  {
                     resourceset.resource_id = Resource_MemoryPercentTotal;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = $3;
+                    resourceset.limit = $<real>3;
                   }
                 ;
 
@@ -2109,10 +2161,10 @@ resourceswap    : SWAP operator value unit {
                     resourceset.operator = $<number>2;
                     resourceset.limit = $<real>3 * $<number>4;
                   }
-                | SWAP operator NUMBER PERCENT {
+                | SWAP operator value PERCENT {
                     resourceset.resource_id = Resource_SwapPercent;
                     resourceset.operator = $<number>2;
-                    resourceset.limit = $3;
+                    resourceset.limit = $<real>3;
                   }
                 ;
 
@@ -2335,10 +2387,10 @@ inode           : IF INODE operator NUMBER rate1 THEN action1 recovery {
                     addeventaction(&(filesystemset).action, $<number>7, $<number>8);
                     addfilesystem(&filesystemset);
                   }
-                | IF INODE operator NUMBER PERCENT rate1 THEN action1 recovery {
+                | IF INODE operator value PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_Inode;
                     filesystemset.operator = $<number>3;
-                    filesystemset.limit_percent = $4;
+                    filesystemset.limit_percent = $<real>4;
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
@@ -2349,10 +2401,10 @@ inode           : IF INODE operator NUMBER rate1 THEN action1 recovery {
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
-                | IF INODE TFREE operator NUMBER PERCENT rate1 THEN action1 recovery {
+                | IF INODE TFREE operator value PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_InodeFree;
                     filesystemset.operator = $<number>4;
-                    filesystemset.limit_percent = $5;
+                    filesystemset.limit_percent = $<real>5;
                     addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                     addfilesystem(&filesystemset);
                   }
@@ -2367,10 +2419,10 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
-                | IF SPACE operator NUMBER PERCENT rate1 THEN action1 recovery {
+                | IF SPACE operator value PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_Space;
                     filesystemset.operator = $<number>3;
-                    filesystemset.limit_percent = $4;
+                    filesystemset.limit_percent = $<real>4;
                     addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                     addfilesystem(&filesystemset);
                   }
@@ -2383,10 +2435,10 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                     addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                     addfilesystem(&filesystemset);
                   }
-                | IF SPACE TFREE operator NUMBER PERCENT rate1 THEN action1 recovery {
+                | IF SPACE TFREE operator value PERCENT rate1 THEN action1 recovery {
                     filesystemset.resource = Resource_SpaceFree;
                     filesystemset.operator = $<number>4;
-                    filesystemset.limit_percent = $5;
+                    filesystemset.limit_percent = $<real>5;
                     addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                     addfilesystem(&filesystemset);
                   }
@@ -2817,6 +2869,11 @@ static void preparse() {
         Run.limits.httpContentBuffer = LIMIT_HTTPCONTENTBUFFER;
         Run.limits.programOutput     = LIMIT_PROGRAMOUTPUT;
         Run.limits.networkTimeout    = LIMIT_NETWORKTIMEOUT;
+        Run.limits.programTimeout    = LIMIT_PROGRAMTIMEOUT;
+        Run.limits.stopTimeout       = LIMIT_STOPTIMEOUT;
+        Run.limits.startTimeout      = LIMIT_STARTTIMEOUT;
+        Run.limits.restartTimeout    = LIMIT_RESTARTTIMEOUT;
+        Run.onreboot                 = Onreboot_Start;
         Run.mmonitcredentials        = NULL;
         Run.httpd.flags              = Httpd_Disabled | Httpd_Signature;
         Run.httpd.credentials        = NULL;
@@ -2973,13 +3030,13 @@ static Service_T createservice(Service_Type type, char *name, char *value, State
                 NEW(current->program);
                 current->program->args = command;
                 command = NULL;
-                current->program->timeout = PROGRAM_TIMEOUT;
+                current->program->timeout = Run.limits.programTimeout;
         }
 
         /* Set default values */
         current->mode     = Monitor_Active;
         current->monitor  = Monitor_Init;
-        current->onreboot = Onreboot_Start;
+        current->onreboot = Run.onreboot;
         current->name     = name;
         current->check    = check;
         current->path     = value;
@@ -3934,6 +3991,7 @@ static void addmmonit(Mmonit_T mmonit) {
         Mmonit_T c;
         NEW(c);
         c->url = mmonit->url;
+        c->compress = MmonitCompress_Init;
         c->ssl.flags = sslset.flags;
         c->ssl.verify = sslset.verify;
         c->ssl.allowSelfSigned = sslset.allowSelfSigned;
@@ -4554,9 +4612,9 @@ static void reset_icmpset() {
 /*
  * Reset the Rate set to default values
  */
-static void reset_rateset(struct myrate *rate) {
-        rate->count = 1;
-        rate->cycles = 1;
+static void reset_rateset(struct myrate *r) {
+        r->count = 1;
+        r->cycles = 1;
 }
 
 
