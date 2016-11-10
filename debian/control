@@ -3,7 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
 Uploaders: Victor Seva <linuxmaniac@torreviejawireless.org>
-Build-Depends: debhelper (>= 9), libssl-dev, libpam-dev, libkvm-dev [kfreebsd-any], dh-autoreconf
+Build-Depends: debhelper (>= 9), libssl-dev, zlib1g-dev,
+ libpam-dev, libkvm-dev [kfreebsd-any], dh-autoreconf
 Standards-Version: 3.9.7
 Homepage: http://mmonit.com/monit/
 Vcs-Git: git://anonscm.debian.org/collab-maint/monit.git
@@ -44,4 +45,3 @@ Description: utility for monitoring and managing daemons or similar programs
     LDAPv2 and LDAPv3
   * An http interface with optional SSL support to make monit
     accessible from a webbrowser
-
