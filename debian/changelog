@@ -1,3 +1,10 @@
+monit (1:5.20.0-2) unstable; urgency=medium
+
+  * Fix FTBFS, add deps on zlib1g-dev (Closes: #843894)
+  * Bump up Standards-Version (to 3.9.8)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 10 Nov 2016 17:35:09 +0300
+
 monit (1:5.20.0-1) unstable; urgency=medium
 
   * Imported Upstream version 5.20.0
