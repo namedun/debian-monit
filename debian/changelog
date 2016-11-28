@@ -1,3 +1,9 @@
+monit (1:5.20.0-3~bpo8+1) jessie-backports; urgency=medium
+
+  * Rebuild for jessie-backports (Closes: #845417).
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 28 Nov 2016 20:45:50 +0300
+
 monit (1:5.20.0-3) unstable; urgency=medium
 
   * Change openssl detection (fixes #828439 on i386?)
