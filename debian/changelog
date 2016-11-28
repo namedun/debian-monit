@@ -1,8 +1,30 @@
-monit (1:5.18-1~bpo8+1) jessie-backports; urgency=medium
+monit (1:5.20.0-3) unstable; urgency=medium
 
-  * Rebuild for jessie-backports.
+  * Change openssl detection (fixes #828439 on i386?)
 
- -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 28 Jul 2016 11:51:54 +0300
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 14 Nov 2016 12:27:58 +0300
+
+monit (1:5.20.0-2) unstable; urgency=medium
+
+  * Fix FTBFS, add deps on zlib1g-dev (Closes: #843894)
+  * Bump up Standards-Version (to 3.9.8)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Thu, 10 Nov 2016 17:35:09 +0300
+
+monit (1:5.20.0-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.20.0
+  * Refresh patches
+  * Add spelling fixes from lintian
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 22 Oct 2016 02:27:54 +0300
+
+monit (1:5.19.0-1) unstable; urgency=medium
+
+  * Imported Upstream version 5.19.0
+  * Refresh patches
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 08 Aug 2016 17:34:34 +0300
 
 monit (1:5.18-1) unstable; urgency=medium
 
