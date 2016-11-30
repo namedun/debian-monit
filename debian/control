@@ -3,8 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
 DM-Upload-Allowed: yes
-Build-Depends: debhelper (>= 5), byacc, flex, cdbs (>= 0.2.4), libssl-dev, automake1.9, libpam-dev
-Standards-Version: 3.9.1
+Build-Depends: debhelper (>= 9), libssl-dev, libpam-dev, libkvm-dev [kfreebsd-any]
+Standards-Version: 3.9.3
 Homepage: http://mmonit.com/monit/
 Vcs-Git: git://git.debian.org/git/collab-maint/monit.git
 Vcs-Browser: http://git.debian.org/?p=collab-maint/monit.git;a=summary
@@ -37,11 +37,11 @@ Description: utility for monitoring and managing daemons or similar programs
   * Check a file or directory timestamp
   * Alert, stop or restart a process based on its characteristics
   * MD5 checksum for programs started and stopped by monit
-  * Alert notification for program timeout, restart, checksum, stop 
+  * Alert notification for program timeout, restart, checksum, stop
     resource and timestamp error
   * Flexible and customizable email alert messages
-  * Protocol verification. HTTP, FTP, SMTP, POP, IMAP, NNTP, SSH, DWP, 
+  * Protocol verification. HTTP, FTP, SMTP, POP, IMAP, NNTP, SSH, DWP,
     LDAPv2 and LDAPv3
-  * An http interface with optional SSL support to make monit 
+  * An http interface with optional SSL support to make monit
     accessible from a webbrowser
 

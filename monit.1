@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "February 21. 2011" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "May 06. 2012" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -137,12 +137,12 @@ Monit \- utility for monitoring services on a Unix system
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 \&\fBmonit\fR is a utility for managing and monitoring processes,
-files, directories and filesystems on a Unix system. Monit
-conducts automatic maintenance and repair and can execute
+programs, files, directories and filesystems on a Unix system.
+Monit conducts automatic maintenance and repair and can execute
 meaningful causal actions in error situations. E.g. Monit can
 start a process if it does not run, restart a process if it does
 not respond and stop a process if it uses too much resources. You
-may use Monit to monitor files, directories and filesystems for
+can use Monit to monitor files, directories and filesystems for
 changes, such as timestamps changes, checksum changes or size
 changes.
 .PP
@@ -156,33 +156,76 @@ browser to access the Monit program.
 .SH "GENERAL OPERATION"
 .IX Header "GENERAL OPERATION"
 The behavior of Monit is controlled by command-line options
-\&\fIand\fR a run control file, \fI~/.monitrc\fR, the syntax of which we
-describe in a later section. Command-line options override
-\&\fI.monitrc\fR declarations.
+\&\fIand\fR a run control file, monitrc,
+the syntax of which we describe in a later section. Command-line
+options override \fI.monitrc\fR declarations.
 .PP
-The following options are recognized by monit. However, it is
+The default location for \fImonitrc\fR is \fI~/.monitrc\fR. If this
+file does not exist, Monit will try \fI/etc/monitrc\fR and a few
+other places. See \s-1FILES\s0 for details. You can also
+specify the control file directly by using the \fI\-c\fR command-line
+switch to monit. For instance,
+.PP
+.Vb 1
+\& $ monit \-c /var/monit/monitrc
+.Ve
+.PP
+Before Monit is started the first time, you can test the control
+file for syntax errors:
+.PP
+.Vb 2
+\& $ monit \-t 
+\& $ Control file syntax OK
+.Ve
+.PP
+If there was an error, Monit will print an error message to the
+console, including the line number in the control file from where
+the error was found.
+.PP
+Once you have a working Monit control file you can start Monit
+from the console, like so:
+.PP
+.Vb 1
+\& $ monit
+.Ve
+.PP
+You can change some configuration directives via command-line
+switches, but for simplicity it is recommended that you put these
+in the control file.
+.PP
+If all goes well, Monit will now detach from the terminal and run
+as a background process, i.e. as a daemon process. As a daemon,
+Monit runs in cycles; It monitor services, then goes to sleep for
+a configured period, then wakes up and start monitoring again in
+an endless loop.
+.SS "Options"
+.IX Subsection "Options"
+The following options are recognized by Monit. However, it is
 recommended that you set options (when applicable) directly in
 the \fI.monitrc\fR control file.
-.SS "General Options and Arguments"
-.IX Subsection "General Options and Arguments"
+.PP
 \&\fB\-c\fR \fIfile\fR
    Use this control file
 .PP
 \&\fB\-d\fR \fIn\fR
-   Run as a daemon once per \fIn\fR seconds
+   Run Monit as a daemon once per \fIn\fR seconds. Or use \fI\*(L"set
+   daemon\*(R"\fR in monitrc.
 .PP
-\&\fB\-g\fR 
+\&\fB\-g\fR \fIname\fR
    Set group name for start, stop, restart, monitor and
-   unmonitor.
+   unmonitor action.
 .PP
 \&\fB\-l\fR \fIlogfile\fR
-   Print log information to this file
+   Print log information to this file. Or use \fI\*(L"set logfile\*(R"\fR
+    in monitrc.
 .PP
 \&\fB\-p\fR \fIpidfile\fR
-   Use this lock file in daemon mode
+   Use this lock file in daemon mode. Or use \fI\*(L"set pidfile\*(R"\fR
+    in monitrc.
 .PP
 \&\fB\-s\fR \fIstatefile\fR
-   Write state information to this file
+   Write state information to this file. Or use \fI\*(L"set
+   statefile\*(R"\fR in monitrc.
 .PP
 \&\fB\-I\fR
    Do not run in background (needed for run from init)
@@ -193,6 +236,9 @@ the \fI.monitrc\fR control file.
 \&\fB\-v\fR
    Verbose mode, work noisy (diagnostic output)
 .PP
+\&\fB\-vv\fR
+   Very verbose mode, same as \-v plus log stack-trace on error
+.PP
 \&\fB\-H\fR \fI[filename]\fR
    Print \s-1MD5\s0 and \s-1SHA1\s0 hashes of the file or of stdin if the 
    filename is omitted; Monit will exit afterwards
@@ -202,128 +248,142 @@ the \fI.monitrc\fR control file.
 .PP
 \&\fB\-h\fR
    Print a help text
-.PP
-In addition to the options above, Monit can be started with one
-of the following action arguments; Monit will then execute the
-action and exit without transforming itself to a daemon.
-.PP
-\&\fBstart all\fR
-   Start all services listed in the control file and 
-   enable monitoring for them. If the group option is 
-   set, only start and enable monitoring of services in
-   the named group (no \*(L"all\*(R" verb is required in this
-   case).
-.PP
-\&\fBstart name\fR
-   Start the named service and enable monitoring for 
-   it. The name is a service entry name from the 
-   monitrc file.
-.PP
-\&\fBstop all\fR     
-   Stop all services listed in the control file and 
-   disable their monitoring. If the group option is 
-   set, only stop and disable monitoring of the services 
-   in the named group (no \*(L"all\*(R" verb is required in this
-   case).
-.PP
-\&\fBstop name\fR
-   Stop the named service and disable its monitoring. 
-   The name is a service entry name from the monitrc 
-   file.
-.PP
-\&\fBrestart all\fR
-   Stop and start \fIall\fR services. If the group option 
-   is set, only restart the services in the named group
-   (no \*(L"all\*(R" verb is required in this case).
-.PP
-\&\fBrestart name\fR
-   Restart the named service. The name is a service entry 
-   name from the monitrc file.
-.PP
-\&\fBmonitor all\fR     
-   Enable monitoring of all services listed in the
-   control file. If the group option is set, only start
-   monitoring of services in the named group (no \*(L"all\*(R"
-   verb is required in this case).
-.PP
-\&\fBmonitor name\fR
-   Enable monitoring of the named service.  The name is
-   a service entry name from the monitrc file. Monit will
-   also enable monitoring of all services this service 
-   depends on.
-.PP
-\&\fBunmonitor all\fR     
-   Disable monitoring of all services listed in the
-   control file. If the group option is set, only disable
-   monitoring of services in the named group (no \*(L"all\*(R"
-   verb is required in this case).
-.PP
-\&\fBunmonitor name\fR
-   Disable monitoring of the named service. The name is
-   a service entry name from the monitrc file. Monit 
-   will also disable monitoring of all services that 
-   depends on this service.
-.PP
-\&\fBstatus\fR
-    Print full status information for each service.
-.PP
-\&\fBsummary\fR
-    Print short status information for each service.
-.PP
-\&\fBreload\fR
-    Reinitialize a running Monit daemon, the daemon will
-    reread its configuration, close and reopen log files.
-.PP
-\&\fBquit\fR
-    Kill a Monit daemon process
-.PP
-\&\fBvalidate\fR
-   Check all services listed in the control file. This 
-   action is also the default behavior when Monit runs 
-   in daemon mode.
-.SH "WHAT TO MONITOR"
-.IX Header "WHAT TO MONITOR"
-You may use Monit to monitor daemon processes or similar programs
-running on localhost. Monit is particular useful for monitoring
-daemon processes, such as those started at system boot time from
-/etc/init.d/. For instance sendmail, sshd, apache and mysql. In
-difference to many monitoring systems, Monit can act if an error
-situation should occur, e.g.; if sendmail is not running, monit
-can start sendmail or if apache is using too much resources (e.g.
-if a DoS attack is in progress) Monit can stop or restart apache
-and send you an alert message. Monit can also monitor process
-characteristics, such as; if a process has become a zombie and
+.SS "Arguments"
+.IX Subsection "Arguments"
+Once you have Monit running as a daemon process, you can call
+Monit with one of the following arguments. Monit will then
+connect to the Monit daemon (on \s-1TCP\s0 port 127.0.0.1:2812 by
+default) and ask the Monit daemon to perform the requested
+action. In other words; calling monit without arguments starts
+the Monit daemon, and calling monit \fIwith\fR arguments enables you
+to communicate with the Monit daemon process.
+.IP "start all" 4
+.IX Item "start all"
+Start all services listed in the control file and enable
+monitoring for them. If the group option is set (\fI\-g\fR), only
+start and enable monitoring of services in the named group (\*(L"all\*(R"
+is not required in this case).
+.IP "start name" 4
+.IX Item "start name"
+Start the named service and enable monitoring for it. The name is
+a service entry name from the monitrc file.
+.IP "stop all" 4
+.IX Item "stop all"
+Stop all services listed in the control file and disable their
+monitoring. If the group option is set, only stop and disable
+monitoring of the services in the named group (all" is not
+required in this case).
+.IP "stop name" 4
+.IX Item "stop name"
+Stop the named service and disable its monitoring. The name is a
+service entry name from the monitrc file.
+.IP "restart all" 4
+.IX Item "restart all"
+Stop and start \fIall\fR services. If the group option is set, only
+restart the services in the named group (\*(L"all\*(R" is not required in
+this case).
+.IP "restart name" 4
+.IX Item "restart name"
+Restart the named service. The name is a service entry name from
+the monitrc file.
+.IP "monitor all" 4
+.IX Item "monitor all"
+Enable monitoring of all services listed in the control file. If
+the group option is set, only start monitoring of services in the
+named group (\*(L"all\*(R" is not required in this case).
+.IP "monitor name" 4
+.IX Item "monitor name"
+Enable monitoring of the named service. The name is a service
+entry name from the monitrc file. Monit will also enable
+monitoring of all services this service depends on.
+.IP "unmonitor all" 4
+.IX Item "unmonitor all"
+Disable monitoring of all services listed in the control file. If
+the group option is set, only disable monitoring of services in
+the named group (\*(L"all\*(R" is not required in this case).
+.IP "unmonitor name" 4
+.IX Item "unmonitor name"
+Disable monitoring of the named service. The name is a service
+entry name from the monitrc file. Monit will also disable
+monitoring of all services that depends on this service.
+.IP "status" 4
+.IX Item "status"
+Print status information of each service.
+.IP "summary" 4
+.IX Item "summary"
+Print a short status summary.
+.IP "reload" 4
+.IX Item "reload"
+Reinitialize a running Monit daemon, the daemon will reread its
+configuration, close and reopen log files.
+.IP "quit" 4
+.IX Item "quit"
+Kill the Monit daemon process
+.IP "validate" 4
+.IX Item "validate"
+Check all services listed in the control file. This action is
+also the default behavior when Monit runs in daemon mode.
+.IP "procmatch regex" 4
+.IX Item "procmatch regex"
+Allows for easy testing of pattern for process match check. The
+command takes regular expression as an argument and displays all
+running processes matching the pattern.
+.SH "WHAT TO MONITOR?"
+.IX Header "WHAT TO MONITOR?"
+You can use Monit to monitor daemon \fBprocesses\fR or similar
+programs running on localhost. Monit is particular useful for
+monitoring daemon processes, such as those started at system boot
+time from /etc/init.d/. For instance sendmail, sshd, apache and
+mysql. In contrast to many other monitoring systems, Monit can act if
+an error situation should occur, e.g.; if sendmail is not
+running, monit can start sendmail again automatically or if
+apache is using too many resources (e.g. if a DoS attack is in
+progress) Monit can stop or restart apache and send you an alert
+message. Monit can also monitor process characteristics, such as
 how much memory or cpu cycles a process is using.
 .PP
-You may also use Monit to monitor files, directories and
-filesystems on localhost. Monit can monitor these items for
+You can also use Monit to monitor \fBfiles\fR, \fBdirectories\fR and
+\&\fBfilesystems\fR on localhost. Monit can monitor these items for
 changes, such as timestamps changes, checksum changes or size
 changes. This is also useful for security reasons \- you can
-monitor the md5 checksum of files that should not change.
+monitor the md5 or sha1 checksum of files that should not change
+and get an alert or perform an action if they should change.
 .PP
-You may even use Monit to monitor remote hosts. First and
-foremost Monit is a utility for monitoring and mending services
-on localhost, but if a service depends on a remote service, e.g.
-a database server or an application server, it might by useful to
-be able to test a remote host as well.
+Monit can monitor \fBnetwork connections\fR to various servers,
+either on localhost or on remote hosts. \s-1TCP\s0, \s-1UDP\s0 and Unix Domain
+Sockets are supported. Network test can be performed on a
+protocol level; Monit has built-in tests for the main Internet
+protocols, such as \s-1HTTP\s0, \s-1SMTP\s0 etc. Even if a protocol is not
+supported you can still test the server because you can configure
+Monit to send any data and test the response from the server.
 .PP
-You may monitor the general system-wide resources such as cpu
-usage, memory and load average.
-.SH "HOW TO MONITOR"
-.IX Header "HOW TO MONITOR"
+Monit can be used to test \fBprograms\fR or scripts at certain
+times, much like cron, but in addition, you can test the exit
+value of a program and perform an action or send an alert if the
+exit value indicate an error. This means that you can use Monit
+to perform any type of check you can write a script for.
+.PP
+Finally, Monit can be used to monitor general \fBsystem\fR resources
+on localhost such as overall \s-1CPU\s0 usage, Memory and Load Average.
+.SH "THE MONIT CONTROL FILE"
+.IX Header "THE MONIT CONTROL FILE"
 Monit is configured and controlled via a control file called
-\&\fBmonitrc\fR. The default location for this file is ~/.monitrc. If
+\&\fImonitrc\fR. The default location for this file is ~/.monitrc. If
 this file does not exist, Monit will try /etc/monitrc, then
-\&\f(CW@sysconfdir\fR@/monitrc and finally ./monitrc.
+\&\f(CW@sysconfdir\fR@/monitrc and finally ./monitrc. The value of
+\&\f(CW@sysconfdir\fR@ is given at configure time as ./configure
+\&\-\-sysconfdir. For instance, using  \fI./configure \-\-sysconfdir
+/var/monit/etc\fR will make Monit search for \fImonitrc\fR in
+\&\fI/var/monit/etc\fR
 .PP
-A Monit control file consists of a series of service entries and
-global option statements in a free-format, token-oriented syntax.
-Comments begin with a # and extend through the end of the line.
-There are three kinds of tokens in the control file: grammar
-keywords, numbers and strings.
+Monit uses its own Domain Specific Language (\s-1DSL\s0); The control
+file consists of a series of service entries and global option
+statements in a free-format, token-oriented syntax.
 .PP
-On a semantic level, the control file consists of three types of
-statements:
+Comments begin with a \fB#\fR and extend through the end of the
+line. There are three kinds of tokens in the control file:
+\&\fIkeywords\fR, \fInumbers\fR and \fIstrings\fR. On a semantic level, the
+control file consists of only three type of entries:
 .IP "1. Global set-statements" 4
 .IX Item "1. Global set-statements"
 A global set-statement starts with the keyword \fIset\fR and the
@@ -337,60 +397,8 @@ a glob string.
 A service entry starts with the keyword \fIcheck\fR followed by the
 service type.
 .PP
-A Monit control file example:
-.PP
-.Vb 3
-\& #
-\& # Monit control file
-\& # 
-\&
-\& set daemon 120 # Poll at 2\-minute intervals
-\& set logfile syslog facility log_daemon
-\& set alert foo@bar.baz
-\& set httpd port 2812 and use address localhost
-\&     allow localhost   # Allow localhost to connect
-\&     allow admin:Monit # Allow Basic Auth
-\&
-\& check system myhost.mydomain.tld
-\&    if loadavg (1min) > 4 then alert
-\&    if loadavg (5min) > 2 then alert
-\&    if memory usage > 75% then alert
-\&    if swap usage > 25% then alert
-\&    if cpu usage (user) > 70% then alert
-\&    if cpu usage (system) > 30% then alert
-\&    if cpu usage (wait) > 20% then alert
-\&
-\& check process apache 
-\&    with pidfile "/usr/local/apache/logs/httpd.pid"
-\&    start program = "/etc/init.d/httpd start" with timeout 60 seconds
-\&    stop program = "/etc/init.d/httpd stop"
-\&    if 2 restarts within 3 cycles then timeout
-\&    if totalmem > 100 Mb then alert
-\&    if children > 255 for 5 cycles then stop
-\&    if cpu usage > 95% for 3 cycles then restart
-\&    if failed port 80 protocol http then restart
-\&    group server
-\&    depends on httpd.conf, httpd.bin
-\&
-\& check file httpd.conf 
-\&     with path /usr/local/apache/conf/httpd.conf
-\&     # Reload apache if the httpd.conf file was changed
-\&     if changed checksum 
-\&        then exec "/usr/local/apache/bin/apachectl graceful"
-\&
-\& check file httpd.bin 
-\&     with path /usr/local/apache/bin/httpd
-\&     # Run /watch/dog in the case that the binary was changed
-\&     if failed checksum then exec "/watch/dog"
-\&
-\& include /etc/monit/mysql.monitrc
-\& include /etc/monit/mail/*.monitrc
-.Ve
-.PP
-The above example illustrates a service entry for monitoring the
-apache web server process as well as related files. The meaning
-of the various statements will be explained in the following
-sections.
+The meaning of the various statements will be explained in the
+following sections.
 .SH "LOGGING"
 .IX Header "LOGGING"
 Monit will log status and error messages to a log file. Use the
@@ -405,67 +413,51 @@ logfile in the control file (and of course, do not use the \-l
 switch)
 .SH "DAEMON MODE"
 .IX Header "DAEMON MODE"
-The \fI\-d interval\fR command-line switch runs Monit in daemon
+Use
+.PP
+.Vb 1
+\& set daemon n (where n is a number in seconds)
+.Ve
+.PP
+to specify Monit's poll cycle length and run Monit in daemon
 mode. You must specify a numeric argument which is a polling
-interval in seconds.
+interval in seconds. In daemon mode, Monit detaches from the
+console, puts itself in the background and runs continuously,
+monitoring each specified service and then goes to sleep for the
+given poll interval, wakes up and start monitoring again in an
+endless cycle.
 .PP
-In daemon mode, Monit detaches from the console, puts itself in
-the background and runs continuously, monitoring each specified
-service and then goes to sleep for the given poll interval.
+Alternatively, you can use the \fI\-d\fR command line switch to set
+the poll interval, but it is strongly recommended to set the poll
+interval in your \fI~/.monitrc\fR file, by using \fIset daemon\fR.
 .PP
-Simply invoking
+Monit will then always start in daemon mode. If you do not use
+this statement and do not start monit with the \-d option, Monit
+will just run through the service checks once and then exit. This
+may be useful in some situations, but Monit is primarily designed
+to run as a daemon process.
 .PP
-.Vb 1
-\&              Monit \-d 300
-.Ve
-.PP
-will poll all services described in your \fI~/.monitrc\fR file every
-5 minutes.
-.PP
-It is strongly recommended to set the poll interval in your
-~/.monitrc file instead, by using \fIset daemon \f(BIn\fI\fR, where \fBn\fR
-is an integer number of seconds. If you do this, Monit will
-always start in daemon mode (as long as no action arguments are
-given). Example (check every 5 minutes):
-.PP
-.Vb 1
-\&  set daemon 300
-.Ve
-.PP
-If you need Monit to wait some time at startup before it start
-checking services you can use the delay statement. Example (check
-every 5 minutes, wait 1 minute on start before first monitoring
-cycle):
-.PP
-.Vb 1
-\&  set daemon 300 with start delay 60
-.Ve
-.PP
-Monit makes a per-instance lock-file in daemon mode. If you need
-more Monit instances, you will need more configuration files,
-each pointing to its own lock-file.
-.PP
-Calling \fImonit\fR with a Monit daemon running in the background
-sends a wake-up signal to the daemon, forcing it to check
-services immediately.
-.PP
-The \fIquit\fR argument will kill a running daemon process instead
-of waking it up.
+Calling monit with a Monit daemon running in the background sends
+a wake-up signal to the daemon, forcing it to check services
+immediately. Calling monit with the quit argument will kill a
+running Monit daemon process instead of waking it up.
 .SH "INIT SUPPORT"
 .IX Header "INIT SUPPORT"
-Monit can run and be controlled from \fIinit\fR. If Monit should
-crash, \fIinit\fR will re-spawn a new Monit process. Using init to
-start Monit is probably the best way to run Monit if you want to
-be certain that you always have a running Monit daemon on your
-system. (It's obvious, but never the less worth to stress; Make
-sure that the control file does not have any syntax errors before
-you start Monit from init. Also, make sure that if you run monit
-from init, that you do not start Monit from a startup scripts as
-well).
+The \fIset init\fR statement prevents Monit from transforming itself
+into a daemon process. Instead Monit will run as a foreground
+process. (You should still use set daemon to specify the poll
+cycle).
 .PP
-To setup Monit to run from init, you can either use the 'set
-init' statement in monit's control file or use the \-I option from
-the command line and here is what you must add to /etc/inittab:
+This is required to run Monit from init. Using init to start
+Monit is probably the best way to run Monit if you want to be
+certain that you always have a running Monit daemon on your
+system. Another option is to run Monit from crontab. In any case,
+you should make sure that the control file does not have any
+syntax errors before you start Monit from init or crontab.
+.PP
+To setup Monit to run from init, you can either use the set init
+statement in Monit's control file or use the \-I option from the
+command line. Here is what you must add to /etc/inittab:
 .PP
 .Vb 2
 \&  # Run Monit in standard run\-levels
@@ -473,7 +465,7 @@ the command line and here is what you must add to /etc/inittab:
 .Ve
 .PP
 After you have modified init's configuration file, you can run
-the following command to re-examine /etc/inittab and start monit:
+the following command to re-examine /etc/inittab and start Monit:
 .PP
 .Vb 1
 \&  telinit q
@@ -491,39 +483,42 @@ inittab) then, in some cases, a race condition could occur. That
 is; if a service is slow to start, Monit can assume that the
 service is not running and possibly try to start it and raise an
 alert, while, in fact the service is already about to start or
-already in its startup sequence. Please see the \s-1FAQ\s0 for solutions
-to this problem.
+already in its startup sequence. Please see the \s-1FAQ\s0 for a
+solution to this problem.
 .SH "INCLUDE FILES"
 .IX Header "INCLUDE FILES"
 The Monit control file, \fImonitrc\fR, can include additional
-configuration files. This feature helps to maintain a certain
+configuration files. This feature helps one to maintain a certain
 structure or to place repeating settings into one file. Include
 statements can be placed at virtually any spot. The syntax is the
 following:
 .PP
 .Vb 1
-\&  INCLUDE globstring
+\&  include globstring
 .Ve
 .PP
-The globstring is any kind of string as defined in \fIglob\fR\|(7).
-Thus, you can refer to a single file or you can load several
-files at once.  In case you want to use whitespace in your string
-the globstring need to be embedded into quotes (') or double
-quotes ("). For example,
+The globstring is any kind of string as defined in \fIglob\fR\|(7). Thus,
+you can refer to a single file or you can load several files at
+once. If you want to use whitespace in your string the globstring
+need to be embedded into quotes (') or double quotes ("). If the
+globstring matches a directory instead of a file, it is silently
+ignored.
 .PP
-.Vb 1
-\& INCLUDE "/etc/monit/Monit configuration files/printer.*.monitrc"
-.Ve
-.PP
-loads any file matching the single globstring.  If the globstring
-matches a directory instead of a file, it is silently ignored.
-.PP
-\&\fI\s-1INCLUDE\s0\fR statements in included files are parsed as in the main
-control file.
+Any \fIinclude\fR statements in included files are parsed as in the
+main control file.
 .PP
 If the globstring matches several results, the files are included
-in a non sorted manner.  If you need to rely on a certain order,
+in a non sorted manner. If you need to rely on a certain order,
 you might need to use single \fIinclude\fR statements.
+.PP
+An example,
+.PP
+.Vb 1
+\& include /etc/monit.d/*.cfg
+.Ve
+.PP
+This will load any file matching the globstring. That is, all
+files in \fI/etc/monit.d\fR that ends with the prefix \fI.cfg\fR.
 .SH "GROUP SUPPORT"
 .IX Header "GROUP SUPPORT"
 Service entries in the control file, \fImonitrc\fR, can be grouped
@@ -640,6 +635,7 @@ Monit will raise an email alert in the following situations:
 \& o A service related data access problem
 \& o A service related program execution problem
 \& o A service is of invalid object type
+\& o A program status failed
 \& o A icmp problem
 \& o A port connection problem
 \& o A resource statement match
@@ -764,20 +760,25 @@ instead of:
 .Vb 10
 \&   alert foo@bar on { action
 \&                      checksum
+\&                      connection
 \&                      content
 \&                      data
 \&                      exec
+\&                      fsflags
 \&                      gid
 \&                      icmp
 \&                      invalid
-\&                      fsflags
 \&                      nonexist
 \&                      permission
 \&                      pid
 \&                      ppid
+\&                      resource
 \&                      size
+\&                      status
 \&                      timeout
-\&                      timestamp }
+\&                      timestamp
+\&                      uid
+\&                      uptime }
 .Ve
 .PP
 This will send alerts for all events to foo@bar, except Monit
@@ -799,12 +800,12 @@ security@bar if a checksum, permission, uid or gid problem
 occurs. And finally, a message to manager@bar whenever any error
 event occurs.
 .PP
-Here is the list of events you can use in a mail-filter: \fIuid,
-gid, size, nonexist, data, icmp, instance, invalid, exec,
-content, timeout, resource, checksum, fsflags, timestamp,
-connection, permission, pid, ppid, action\fR
+Here is the list of events you can use in a mail-filter: \fIaction,
+checksum, connection, content, data, exec, fsflags, gid, icmp,
+instance, invalid, nonexist, permission, pid, ppid, resource, size, 
+status, timeout, timestamp, uid, uptime\fR
 .PP
-You can also disable the alerts localy using the \s-1NOALERT\s0
+You can also disable the alerts locally using the \s-1NOALERT\s0
 statement. This is useful if you have lots of services monitored
 and are using the global alert statement, but don't want to
 receive alerts for some minor subset of services:
@@ -872,7 +873,7 @@ statement is as follows:
 .PP
 Where the keyword \fIfrom:\fR is the email address Monit should
 pretend it is sending from. It does not have to be a real mail
-address, but it must be a proper formated mail address, on the
+address, but it must be a proper formatted mail address, on the
 form: name@domain. The \fIreply-to:\fR keyword can be used to set
 the reply-to mail header. The keyword \fIsubject:\fR is for the
 email subject line. The subject must be on only \fIone\fR line. The
@@ -918,9 +919,11 @@ expanded into the text with these values:
 \& PPID      | "PPID failed"            | "PPID succeeded"
 \& RESOURCE  | "Resource limit matched" | "Resource limit succeeded"  
 \& SIZE      | "Size failed"            | "Size succeeded"            
+\& STATUS    | "Status failed"          | "Status succeeded"            
 \& TIMEOUT   | "Timeout"                | "Timeout recovery"          
 \& TIMESTAMP | "Timestamp failed"       | "Timestamp succeeded"       
-\& UID       | "UID failed"             | "UID succeeded"
+\& UID       | "UID failed"             | "UID succeeded"             
+\& UPTIME    | "Uptime failed"          | "Uptime succeeded"
 .Ve
 .IP "\(bu" 4
 \&\fI\f(CI$SERVICE\fI\fR
@@ -951,7 +954,6 @@ expanded into the text with these values:
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 \& ALERT    | "alert"
 \& EXEC     | "exec"
-\& MONITOR  | "monitor"
 \& RESTART  | "restart"
 \& START    | "start"
 \& STOP     | "stop"
@@ -1015,7 +1017,7 @@ optional statements in [brackets]):
 \&                [using HOSTNAME hostname]
 .Ve
 .PP
-The port statement allows to use \s-1SMTP\s0 servers other then those
+The port statement allows one to use \s-1SMTP\s0 servers other then those
 listening on port 25. If omitted, port 25 is used unless ssl or
 tls is used, in which case port 465 is used by default.
 .PP
@@ -1037,7 +1039,7 @@ for setting several mail servers:
 .PP
 .Vb 3
 \& set mailserver mail.tildeslash.com, mail.foo.bar port 10025
-\&     username "Rabbi" password "Loewe" using tlsv1, localhost
+\&     username "Rabbi" password "Loew" using tlsv1, localhost
 \&     with timeout 15 seconds
 .Ve
 .PP
@@ -1071,7 +1073,7 @@ original timestamp so the events are not lost. This feature is
 most useful if Monit is used together with M/Monit and when event
 history is important.
 .PP
-The event queue is persistent across monit restarts and provided
+The event queue is persistent across Monit restarts and provided
 that the back-end filesystem is persistent too, across system
 restart as well.
 .PP
@@ -1114,15 +1116,15 @@ If you want to purge the queue by hand, that is, remove queued
 event-files, Monit should be stopped before the removal.
 .SH "SERVICE TIMEOUT"
 .IX Header "SERVICE TIMEOUT"
-\&\fBmonit\fR provides a service timeout mechanism for situations
+\&\fBMonit\fR provides a service timeout mechanism for situations
 where a service simply refuses to start or respond over a longer
 period.
 .PP
-The timeout mechanism is based on number if service restarts and
+The timeout mechanism is based on number of service restarts and
 number of poll-cycles. For example, if a service had \fIx\fR
 restarts within \fIy\fR poll-cycles (where \fIx\fR <= \fIy\fR) then Monit
 will perform an action (for example unmonitor the service). If a
-timeout occurs Monit will send an alert message if you have
+timeout occurs, Monit will send an alert message if you have
 register interest for this event.
 .PP
 The syntax for the timeout statement is as follows (keywords are
@@ -1154,10 +1156,10 @@ Example for stopping the service:
 .Ve
 .SH "SERVICE TESTS"
 .IX Header "SERVICE TESTS"
-Monit provides several tests you may utilize in a service entry
-to test a service. There are two classes of tests: variable and
-constant tests. That is, the condition we test is either constant
-e.g. a number or it can vary.
+Monit provides several tests you can use in a 'check service'
+entry to test a service. There are two classes of tests:
+variable and constant tests. That is, the condition we test
+is either constant e.g. a number or it can vary.
 .PP
 A constant test has this general format:
 .IP "\s-1IF\s0 <\s-1TEST\s0> [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0 [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0]" 4
@@ -1168,8 +1170,9 @@ selected action is executed each cycle the test condition remains
 true. The comparison value is constant. Recovery action is
 evaluated only once (on a failed to succeeded state change only).
 The '\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0' part is optional, if omitted, Monit will
-send an alert on recovery. The alert is sent only once on each
-state change unless overridden by the 'reminder' alert option.
+still send an alert on recovery. The alert is sent only once for
+each state change unless overridden by the 'reminder' alert
+option.
 .PP
 A variable test has this general format:
 .IP "\s-1IF\s0 \s-1CHANGED\s0 <\s-1TEST\s0> [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] \s-1THEN\s0 \s-1ACTION\s0" 4
@@ -1177,9 +1180,9 @@ A variable test has this general format:
 .PP
 If the <\s-1TEST\s0> should evaluate to true, then the selected action
 is executed once. The comparison value is a variable where the
-last result becomes the new value and is compared in future
-cycles. The alert is delivered each time the condition becomes
-true.
+last result becomes the new value and is used for comparisons in
+future cycles. An alert is delivered each time the condition
+becomes true.
 .PP
 You can use this test for alerts or for some automatic action,
 for example to reload monitored process after its configuration
@@ -1188,7 +1191,7 @@ file was changed. Variable tests are supported for 'checksum',
 .IP "... [[<X>] [\s-1TIMES\s0 \s-1WITHIN\s0] <Y> \s-1CYCLES\s0] ..." 4
 .IX Item "... [[<X>] [TIMES WITHIN] <Y> CYCLES] ..."
 .PP
-If a test match, its action is executed at once. This behaviour
+If a test match, its action is executed at once. This behavior
 can optionally be changed and you can for instance require that a
 test must match over several poll cycles before the action is
 executed by using the statement above. You can use this in
@@ -1207,16 +1210,16 @@ or
 If you don't specify <X> times, it equals <Y> by default, thus
 the test match if it evaluate to true for <Y> consecutive cycles.
 .PP
-It is possible to use this option for failed, succeeded,
+It is possible to use this option to tune and prevent a rush of
+notifications. You can use this option for failed, succeeded,
 recovered or changed rules. Here is a more complex example:
 .PP
-.Vb 6
+.Vb 5
 \& check filesystem rootfs with path /dev/hda1
 \&  if space usage > 80% for 5 times within 15 cycles 
 \&     then alert else if succeeded for 10 cycles then alert
 \&  if space usage > 90% for 5 cycles then 
 \&     exec \*(Aq/try/to/free/the/space\*(Aq
-\&  if space usage > 99% then exec \*(Aq/stop/processess\*(Aq
 .Ve
 .PP
 In each test you must select the action to be executed from this
@@ -1258,9 +1261,6 @@ the superuser, then all programs executed by Monit will be
 started with superuser privileges unless the uid and gid
 extension was used.
 .IP "\(bu" 4
-\&\fB\s-1MONITOR\s0\fR will enable monitoring of the service \fIand\fR send
-an alert.
-.IP "\(bu" 4
 \&\fB\s-1UNMONITOR\s0\fR will disable monitoring of the service \fIand\fR send
 an alert. The service will not be checked by Monit anymore nor
 restarted again later.  To reactivate monitoring of the service
@@ -1268,16 +1268,16 @@ you must explicitly enable monitoring from monit's web interface
 or from the console using the monitor argument.
 .SS "\s-1EXISTENCE\s0 \s-1TESTING\s0"
 .IX Subsection "EXISTENCE TESTING"
-Monit's default action when service doesn't exist (for example
-process is not running, file doesn't exist, etc.) is to perform
-service restart action.
+Monit's default action when services does not exist (for example
+a process is not running, a file doesn't exist, etc.) is to
+perform service restart action.
 .PP
 The default action can be overrided with following statement:
 .IP "\s-1IF\s0 [\s-1DOES\s0] \s-1NOT\s0 \s-1EXIST\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
 .IX Item "IF [DOES] NOT EXIST [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 Example:
 .PP
@@ -1287,7 +1287,7 @@ Example:
 .Ve
 .SS "\s-1RESOURCE\s0 \s-1TESTING\s0"
 .IX Subsection "RESOURCE TESTING"
-Monit can examine how much system resources a service are using.
+Monit can examine how much system resources a service is using.
 This test can only be used within a system or process service
 entry in the Monit control file.
 .PP
@@ -1296,7 +1296,7 @@ stopped or restarted and alerts can be generated. Thus it is
 possible to utilize systems which are idle and to spare system
 under high load.
 .PP
-The full syntax for the resource-statements used for resource
+The full syntax for a resource-statement used for resource
 testing is as follows (keywords are in capital and optional
 statements in [brackets]),
 .IP "\s-1IF\s0 resource operator value [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
@@ -1323,7 +1323,7 @@ Process only resource tests:
 .PP
 \&\s-1TOTALCPU\s0 is the total \s-1CPU\s0 usage of the process and its children
 in (percent). You will want to use \s-1TOTALCPU\s0 typically for
-services like Apache webserver where one master process forks the
+services like Apache web server where one master process forks the
 child processes as workers.
 .PP
 \&\s-1CHILDREN\s0 is the number of child processes of the process.
@@ -1352,7 +1352,7 @@ specify a \fIunit\fR. This could be \*(L"%\*(R" or if applicable \*(L"B\*(R" (By
 \&\*(L"kB\*(R" (1024 Byte), \*(L"\s-1MB\s0\*(R" (1024 KiloByte) or \*(L"\s-1GB\s0\*(R" (1024 MegaByte).
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 To calculate the cycles, a counter is raised whenever the
 expression above is true and it is lowered whenever it is false
@@ -1404,7 +1404,7 @@ You can, for example, use the \s-1GNU\s0 utility \fI\fImd5sum\fI\|(1)\fR or
 use this string in the expect-statement.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The checksum statement in variable form may be used to check a
 file for changes and if changed, do a specified action. For
@@ -1453,7 +1453,7 @@ specified, default is \s-1EQUAL\s0).
 possible to use \*(L"\s-1SECONDS\s0\*(R", \*(L"\s-1MINUTES\s0\*(R", \*(L"\s-1HOURS\s0\*(R", or \*(L"\s-1DAYS\s0\*(R").
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The variable timestamp statement is useful for checking a file
 for changes and then execute an action. This version was written
@@ -1520,9 +1520,9 @@ third-party applications, until the vendor fix a problem:
 .Ve
 .SS "\s-1FILE\s0 \s-1SIZE\s0 \s-1TESTING\s0"
 .IX Subsection "FILE SIZE TESTING"
-The size statement may only be used in a file service entry. If
-specified in the control file, Monit will compute a size for a
-file.
+The size statement may only be used in a check file service
+entry. If specified in the control file, Monit will compute
+a size for a file.
 .PP
 The size test in constant form is used to verify various size
 conditions. Syntax (keywords are in capital):
@@ -1547,7 +1547,7 @@ specified, default is \s-1EQUAL\s0).
 specified, \*(L"byte\*(R" unit is assumed by default.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The variable size test form is useful for checking a file for
 changes and send an alert or execute an action. Monit will
@@ -1632,7 +1632,7 @@ See also \fIregex\fR\|(7).
 regular expression on every line. See also \fIregex\fR\|(7).
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 You can use the \fI\s-1NOT\s0\fR statement to invert a match.
 .PP
@@ -1688,7 +1688,7 @@ The syntax for the fsflags statement is:
 .IX Item "IF CHANGED FSFLAGS [[<X>] <Y> CYCLES] THEN action"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 Example:
 .PP
@@ -1699,9 +1699,9 @@ Example:
 .Ve
 .SS "\s-1SPACE\s0 \s-1TESTING\s0"
 .IX Subsection "SPACE TESTING"
-Monit can test file systems for space usage. This test may only
-be used within a filesystem service entry in the Monit control
-file.
+Monit can test file systems for space usage. This test may
+only be used within a check filesystem service entry in the
+Monit control file.
 .PP
 Monit will check a filesystem's total space usage. If you only
 want to check available space for non-superuser, you must set the
@@ -1728,12 +1728,12 @@ alternatives \*(L"byte\*(R", \*(L"kilobyte\*(R", \*(L"megabyte\*(R", \*(L"gigaby
 \&\*(L"percent\*(R".
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .SS "\s-1INODE\s0 \s-1TESTING\s0"
 .IX Subsection "INODE TESTING"
-If supported by the file-system, you can use Monit to test for
-inodes usage. This test may only be used within a filesystem
-service entry in the Monit control file.
+If supported by the file-system, you can use Monit to test
+for inodes usage. This test may only be used within a check
+filesystem service entry in the Monit control file.
 .PP
 If the filesystem becomes unavailable, Monit will call the
 service's registered start method, if it is defined and if Monit
@@ -1755,7 +1755,7 @@ count of inodes. You can use the \*(L"%\*(R" character or the longer
 alternative \*(L"percent\*(R" as a unit.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .SS "\s-1PERMISSION\s0 \s-1TESTING\s0"
 .IX Subsection "PERMISSION TESTING"
 Monit can monitor the permission of file objects. This test may
@@ -1772,7 +1772,7 @@ can omit the leading zeros, Monit will add the zeros to the left
 thus for example \*(L"640\*(R" is valid value and matches \*(L"0640\*(R").
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The web interface will show a permission warning if the test
 failed.
@@ -1792,9 +1792,10 @@ monitoring the file and propagate an unmonitor action upward in
 a depend tree.
 .SS "\s-1UID\s0 \s-1TESTING\s0"
 .IX Subsection "UID TESTING"
-Monit can monitor the owner user id (uid) of a file object. This
-test may only be used within a file, fifo, directory or
-filesystem service entry in the Monit control file.
+Monit can monitor the owner user id (uid) of a file object.
+This test may only be used within a check \- file, fifo,
+directory or filesystem service entry in the Monit control
+file.
 .PP
 The syntax for the uid statement is:
 .IP "\s-1IF\s0 \s-1FAILED\s0 \s-1UID\s0 user [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
@@ -1803,7 +1804,7 @@ The syntax for the uid statement is:
 \&\fIuser\fR defines a user id either in numeric or in string form.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The web interface will show a uid warning if the test should
 fail.
@@ -1834,7 +1835,7 @@ The syntax for the gid statement is:
 \&\fIuser\fR defines a group id either in numeric or in string form.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 The web interface will show a gid warning if the test should
 fail.
@@ -1863,7 +1864,7 @@ The syntax for the pid statement is:
 .IX Item "IF CHANGED PID [[<X>] <Y> CYCLES] THEN action"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 This test is useful to detect possible process restarts which has
 occurred in the timeframe between two Monit testing cycles. In
@@ -1898,7 +1899,7 @@ The syntax for the ppid statement is:
 .IX Item "IF CHANGED PPID [[<X>] <Y> CYCLES] THEN action"
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 This test is useful for detecting changes of a process parent.
 .PP
@@ -1908,11 +1909,43 @@ Example:
 \& check process myproc with pidfile /var/run/myproc.pid
 \&       if changed ppid then exec "/my/script"
 .Ve
+.SS "\s-1UPTIME\s0 \s-1TESTING\s0"
+.IX Subsection "UPTIME TESTING"
+The uptime statement may only be used in a check process service
+entry. If specified in the control file, Monit will test the
+process uptime.
+.PP
+Syntax (keywords are in capital):
+.IP "\s-1IF\s0 \s-1UPTIME\s0 [[operator] value [unit]] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
+.IX Item "IF UPTIME [[operator] value [unit]] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
+.PP
+\&\fIoperator\fR is a choice of \*(L"<\*(R", \*(L">\*(R", \*(L"!=\*(R", \*(L"==\*(R" in C notation,
+\&\*(L"\s-1GT\s0\*(R", \*(L"\s-1LT\s0\*(R", \*(L"\s-1EQ\s0\*(R", \*(L"\s-1NE\s0\*(R" in shell sh notation and \*(L"\s-1GREATER\s0\*(R",
+\&\*(L"\s-1LESS\s0\*(R", \*(L"\s-1EQUAL\s0\*(R", \*(L"\s-1NOTEQUAL\s0\*(R" in human readable form (if not
+specified, default is \s-1EQUAL\s0).
+.PP
+\&\fIvalue\fR is a uptime watermark.
+.PP
+\&\fIunit\fR is either \*(L"\s-1SECOND\s0\*(R", \*(L"\s-1MINUTE\s0\*(R", \*(L"\s-1HOUR\s0\*(R" or \*(L"\s-1DAY\s0\*(R" (it is also
+possible to use \*(L"\s-1SECONDS\s0\*(R", \*(L"\s-1MINUTES\s0\*(R", \*(L"\s-1HOURS\s0\*(R", or \*(L"\s-1DAYS\s0\*(R").
+.PP
+\&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+.PP
+Example of restarting the process if the uptime exceeded 3 days:
+.PP
+.Vb 4
+\& check process myapp with pidfile /var/run/myapp.pid
+\&    start program = "/etc/init.d/myapp start"
+\&    stop program = "/etc/init.d/myapp stop"
+\&    if uptime > 3 days then restart
+.Ve
 .SS "\s-1CONNECTION\s0 \s-1TESTING\s0"
 .IX Subsection "CONNECTION TESTING"
-Monit is able to perform connection testing via networked ports
-or via Unix sockets. A connection test may only be used within a
-process or within a host service entry in the Monit control file.
+Monit is able to perform connection testing via networked
+ports or via Unix sockets. A connection test may only be
+used within a check process or within a check host service
+entry in the Monit control file.
 .PP
 If a service listens on one or more sockets, Monit can connect to
 the port (using either tcp or udp) and verify that the service
@@ -1925,12 +1958,12 @@ openssl, then ssl based network services can also be tested.
 The full syntax for the statement used for connection testing is
 as follows (keywords are in capital and optional statements in
 [brackets]),
-.IP "\s-1IF\s0 \s-1FAILED\s0 [host] port [type] [protocol|{send/expect}+] [timeout] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
-.IX Item "IF FAILED [host] port [type] [protocol|{send/expect}+] [timeout] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
+.IP "\s-1IF\s0 \s-1FAILED\s0 [host] port [type] [protocol|{send/expect}+] [timeout] [retry] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
+.IX Item "IF FAILED [host] port [type] [protocol|{send/expect}+] [timeout] [retry] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
 .PP
 or for Unix sockets,
-.IP "\s-1IF\s0 \s-1FAILED\s0 [unixsocket] [type] [protocol|{send/expect}+] [timeout] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
-.IX Item "IF FAILED [unixsocket] [type] [protocol|{send/expect}+] [timeout] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
+.IP "\s-1IF\s0 \s-1FAILED\s0 [unixsocket] [type] [protocol|{send/expect}+] [timeout] [retry] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
+.IX Item "IF FAILED [unixsocket] [type] [protocol|{send/expect}+] [timeout] [retry] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
 .PP
 \&\fBhost:HOST hostname\fR. Optionally specify the host to connect to.
 If the host is not given then localhost is assumed if this test
@@ -1948,14 +1981,14 @@ alert.
 \&\fBport:PORT number\fR. The port number to connect to
 .PP
 \&\fBunixsocket:UNIXSOCKET \s-1PATH\s0\fR. Specifies the path to a Unix
-socket. Servers based on Unix sockets, always runs on the local
-machine and does not use a port.
+socket. Servers based on Unix sockets always run on the local
+machine and do not use a port.
 .PP
 \&\fBtype:TYPE {TCP|UDP|TCPSSL}\fR. Optionally specify the socket type
 Monit should use when trying to connect to the port. The
 different socket types are; \s-1TCP\s0, \s-1UDP\s0 or \s-1TCPSSL\s0, where \s-1TCP\s0 is a
 regular stream based socket, \s-1UDP\s0 is a datagram socket and \s-1TCPSSL\s0
-specify that Monit should use a \s-1TCP\s0 socket with \s-1SSL\s0 when
+specifies that Monit should use a \s-1TCP\s0 socket with \s-1SSL\s0 when
 connecting to a port. The default socket type is \s-1TCP\s0. If \s-1TCPSSL\s0
 is used you may optionally specify the \s-1SSL/TLS\s0 protocol to be
 used and the md5 sum of the server's certificate. The \s-1TCPSSL\s0
@@ -2024,13 +2057,13 @@ The \s-1HTTP\s0 protocol supports in addition:
 \&\s-1CHECKSUM\s0
 .PP
 .Vb 1
-\& PROTO(COL) HTTP [REQUEST {"/path"} [with HOSTHEADER "string"] [with CHECKSUM checksum]
+\& PROTO(COL) HTTP [REQUEST {"/path"} [with CHECKSUM checksum] [with HOSTHEADER "string"]
 .Ve
 .PP
-The Host header option can be used to explict specify the \s-1HTTP\s0
+The Host header option can be used to explicit specify the \s-1HTTP\s0
 host header in the request. If not used, Monit will use the
 hostname or IP-address of the host as specified in the statement.
-Specifiying a host header is useful if you want to connect to the
+Specifying a host header is useful if you want to connect to the
 host using an IP-address, and the web-server handle name based
 virtual hosts. Examples:
 .PP
@@ -2164,8 +2197,12 @@ connect to the server within this time it will assume that the
 connection failed and execute the specified action. The default
 connect timeout is 5 seconds.
 .PP
+\&\fBretry:RETRY x\fR. Optionally specifies the number of consecutive
+retries within the same testing cycle in the case that the
+connection failed. The default is fail on first error.
+.PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
-\&\*(L"\s-1EXEC\s0\*(R", \*(L"\s-1MONITOR\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
 .PP
 Connection testing using the \s-1URL\s0 notation
 .IX Subsection "Connection testing using the URL notation"
@@ -2178,7 +2215,7 @@ The full syntax for the \s-1URL\s0 statement is as follows (keywords are
 in capital and optional statements in [brackets]):
 .PP
 .Vb 5
-\&  IF FAILED URL ULR\-spec
+\&  IF FAILED URL URL\-spec
 \&     [CONTENT {==|!=} "regular\-expression"]
 \&     [TIMEOUT number SECONDS] [[<X>] <Y> CYCLES] 
 \&     THEN action
@@ -2206,13 +2243,16 @@ you can test if the content \fBmatch\fR or does \fBnot match\fR a
 regular expression. Here's an example on how the \s-1URL\s0 statement
 can be used in a \fIcheck service\fR:
 .PP
-.Vb 5
+.Vb 4
 \& check host FOO with address www.foo.bar
-\&      if failed url 
-\&         http://user:password@www.foo.bar:8080/?querystring
-\&         and content == \*(Aqaction="j_security_check"\*(Aq
+\&      if failed (url http://user:password@www.foo.bar:8080/login?querystring
+\&         and content == \*(Aqup\*(Aq)
 \&      then ...
 .Ve
+.PP
+Note that the content option extends the \s-1URL\s0 by the expected data
+and does not act as standalone failure specification. The syntax is
+\&\*(L"if failed (<\s-1URL\s0> and <content>)\*(R".
 .PP
 Monit will look at the content-length header returned by the
 server and download this amount before testing the content. That
@@ -2538,37 +2578,175 @@ you may specify an alternative secret, default is \*(L"testing123\*(R".
 .PP
 \&\s-1RADIUS\s0 example:
 .PP
-.Vb 5
+.Vb 7
 \& check process radiusd with pidfile /var/run/radiusd.pid
 \&       start program = "/etc/init.d/freeradius start"
 \&       stop program = "/etc/init.d/freeradius stop"
-\&       if failed host 127.0.0.1 port 1812 type udp protocol radius secret testing123 then alert
+\&       if failed host 127.0.0.1 port 1812 type udp protocol radius 
+\&           secret testing123 
+\&       then alert
 \&       if 5 restarts within 5 cycles then timeout
 .Ve
-.SH "SERVICE POLL TIME"
-.IX Header "SERVICE POLL TIME"
-Each service is polled in sequence as they are written in
-\&\fI.monitrc\fR file, unless they are part of a dependecy chain.
-However, a service may specify an individual poll time. Meaning
-that instead of checking the service on each poll cycle, the
-cycle check can be specified individually per service using the
-\&\fIevery\fR statement. The syntax of which is:
-.IP "\s-1EVERY\s0 [number] \s-1CYCLES\s0" 4
-.IX Item "EVERY [number] CYCLES"
+.SS "\s-1PROGRAM\s0 \s-1STATUS\s0 \s-1TESTING\s0"
+.IX Subsection "PROGRAM STATUS TESTING"
+You can check the exit status of a program or a script. This test
+may only be used within a check program service entry in the Monit
+control file.
 .PP
-Example:
+An example:
 .PP
-.Vb 4
-\& check process nginx with pidfile /var/run/nginx.pid every 2 cycles
-\& start program = "/etc/init.d/nginx start"
-\& stop program  = "/etc/init.d/nginx stop"
-\& [...]
+.Vb 2
+\& check program myscript with path "/usr/local/bin/myscript.sh"
+\&       if status != 0 then alert
 .Ve
 .PP
-In the above example, if the global poll time set by \fIset
-daemon\fR is 20 seconds, then the nginx process will be checked
-every 40 second. This is because the every statement specify that
-this process should only be checked every other cycle
+Monit will execute the program periodically and if the exit
+status of the program does not match the expected result, Monit
+can perform an action. In the example above, Monit will raise an
+alert if the exit value of \fImyscript\fR is different from 0. By
+convention, 0 means the program exited normally.
+.PP
+Program checks are asynchronous. Meaning that Monit will not wait
+for the program to exit, but instead, Monit will start the
+program in the background and immediately continue checking the
+next service entry in \fImonitrc\fR. At the next cycle, Monit will
+check if the program has finished and if so, collect the programs
+exit status \- if the status indicate a failure, Monit will raise
+an alert message containing the program's error (stderr) output,
+if any. If the program has not exited after the first cycle,
+Monit will wait another cycle and so on. If the program is still
+running after 5 minutes, Monit will kill it and generate a
+program timeout event. It is possible to override the default
+timeout (see the syntax below).
+.PP
+The asynchronous nature of the program check allows for
+non-blocking behavior in the current Monit design, but it comes
+with a side-effect: when the program has finished executing and
+is waiting for Monit to collect the result, it becomes a
+so-called \*(L"zombie\*(R" process. A zombie process does not consume
+any system resources (only the \s-1PID\s0 remains in use) and it is
+under Monit's control; The zombie process is removed from the
+system as soon as Monit collects the exit status. This means that
+every \*(L"check program\*(R" will be associated with either a running
+process or a temporary zombie. This unwanted zombie side-effect
+will be removed in a later release of Monit.
+.PP
+The syntax of the program status statement is:
+.IP "\s-1IF\s0 \s-1STATUS\s0 operator value [\s-1TIMEOUT\s0 <N> \s-1SECONDS\s0] [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action [\s-1ELSE\s0 \s-1IF\s0 \s-1SUCCEEDED\s0 [[<X>] <Y> \s-1CYCLES\s0] \s-1THEN\s0 action]" 4
+.IX Item "IF STATUS operator value [TIMEOUT <N> SECONDS] [[<X>] <Y> CYCLES] THEN action [ELSE IF SUCCEEDED [[<X>] <Y> CYCLES] THEN action]"
+.PP
+\&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
+\&\*(L"lt\*(R", \*(L"eq\*(R", \*(L"ne\*(R" in shell sh notation and \*(L"greater\*(R", \*(L"less\*(R",
+\&\*(L"equal\*(R", \*(L"notequal\*(R" in human readable form (if not specified,
+default is \s-1EQUAL\s0).
+.PP
+\&\fIaction\fR is a choice of \*(L"\s-1ALERT\s0\*(R", \*(L"\s-1RESTART\s0\*(R", \*(L"\s-1START\s0\*(R", \*(L"\s-1STOP\s0\*(R",
+\&\*(L"\s-1EXEC\s0\*(R" or \*(L"\s-1UNMONITOR\s0\*(R".
+.SH "SERVICE POLL TIME"
+.IX Header "SERVICE POLL TIME"
+Services are checked in regular intervals given by the \fIset
+daemon n\fR statement. Checks are performed in the same order as
+they are written in the \fI.monitrc\fR file, except if dependencies
+are setup between services, in which case the services hierarchy
+may alternate the order of the checks.
+.PP
+It is possible to modify the check schedule using the \fIevery\fR
+statement.
+.PP
+There are three variants:
+.IP "1. custom interval based on poll cycle length multiple" 4
+.IX Item "1. custom interval based on poll cycle length multiple"
+.Vb 1
+\&      EVERY [number] CYCLES
+.Ve
+.IP "2. test schedule based on cron-style string" 4
+.IX Item "2. test schedule based on cron-style string"
+.Vb 1
+\&      EVERY [cron]
+.Ve
+.IP "3. do-not-test schedule based on cron-style string" 4
+.IX Item "3. do-not-test schedule based on cron-style string"
+.Vb 1
+\&      NOT EVERY [cron]
+.Ve
+.PP
+A cron-style string, consist of 5 fields separated with
+white-space. All fields are required:
+.PP
+.Vb 7
+\& Name:        | Allowed values:            | Special characters:              
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& Minutes      | 0\-59                       | * \- ,
+\& Hours        | 0\-23                       | * \- ,
+\& Day of month | 1\-31                       | * \- ,
+\& Month        | 1\-12 (1=jan, 12=dec)       | * \- ,
+\& Day of week  | 0\-6 (0=sunday, 6=saturday) | * \- ,
+.Ve
+.PP
+The special characters:
+.PP
+.Vb 10
+\& Character:   | Description:
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& * (asterisk) | The asterisk indicates that the expression will
+\&              | match for all values of the field; e.g., using
+\&              | an asterisk in the 4th field (month) would
+\&              | indicate every month.
+\& \- (hyphen)   | Hyphens are used to define ranges. For example,
+\&              | 8\-9 in the hour field indicate between 8AM and
+\&              | 9AM. Note that range is from time1 until and
+\&              | including time2. That is, from 8AM and until
+\&              | 10AM unless minutes are set. Another example,
+\&              | 1\-5 in the weekday field, specify from monday to
+\&              | friday (including friday).
+\& , (comma)    | Comma are used to specify a sequence. For example
+\&              | 17,18 in the day field indicate the 17th and 18th
+\&              | day of the month. A sequence can also include
+\&              | ranges. For example, using 1\-5,0 in the weekday
+\&              | field indicate monday to friday and sunday.
+.Ve
+.PP
+Example 1: Check once per two cycles
+.PP
+.Vb 2
+\& check process nginx with pidfile /var/run/nginx.pid
+\&   every 2 cycles
+.Ve
+.PP
+Example 2: Check every workday 8AM\-7PM
+.PP
+.Vb 3
+\& check program checkOracleDatabase with
+\&       path /var/monit/programs/checkoracle.pl
+\&   every "* 8\-19 * * 1\-5"
+.Ve
+.PP
+Example 3: Do not run the check in the backup window on 
+Sunday 0AM\-3AM
+.PP
+.Vb 2
+\& check process mysqld with pidfile /var/run/mysqld.pid
+\&   not every "* 0\-3 * * 0"
+.Ve
+.PP
+Limitations:
+.PP
+The current test scheduler is poll cycle based. When Monit starts
+testing and the service test is constraint with the \fIevery cron\fR
+statement, it checks whether the current time match the
+cron-string pattern. If it does, the test is done, otherwise it
+is skipped. The cron specification thus does not guarantee when
+exactly the test will run \- that depends on the default poll time
+and the length of the testing cycle. In other words, we cannot
+guarantee that Monit will run on a specific time. Therefor we
+\&\fBstrongly\fR recommend to use an asterix in the minute field or at
+minimum a range, e..g. 0\-15. \fBNever\fR use a specific minute as
+Monit may not run on that minute.
+.PP
+We will address this limitation in a future release and convert
+the test scheduler from serial polling into a parallel
+non-blocking scheduler where checks are guaranteed to run on time
+and with seconds resolution.
 .SH "MONIT HTTPD"
 .IX Header "MONIT HTTPD"
 If specified in the control file, Monit will start a Monit daemon
@@ -2689,7 +2867,7 @@ requested to stop and that (any) timeout lock will be removed
 from a service when you start it.
 .SS "\s-1FIPS\s0 support"
 .IX Subsection "FIPS support"
-Monit built-in web-server support the OpenSSL \s-1FIPS\s0 module. 
+Monit built-in web-server supports the OpenSSL \s-1FIPS\s0 module. 
 To enable this mode, your OpenSSL library must first be built
 with \s-1FIPS\s0 support. Then in the Monit control file, simply
 add this \fIset\fR statement at the top;
@@ -2698,7 +2876,7 @@ add this \fIset\fR statement at the top;
 \& set fips
 .Ve
 .PP
-Note that the \s-1FIPS\s0 module may not be supported in the lates 
+Note that the \s-1FIPS\s0 module may not be supported in the latest
 version of OpenSSL. So make sure that your version of OpenSSL
 support the \s-1FIPS\s0 object module before attempting to enable this
 in Monit.
@@ -3001,7 +3179,7 @@ name, which may be freely chosen. This name is used by monit
 to refer to the service internally and in all interactions
 with the user.
 .PP
-Currently, six types of check statements are supported:
+Currently, eight types of check statements are supported:
 .IP "1. \s-1CHECK\s0 \s-1PROCESS\s0 <unique name> <\s-1PIDFILE\s0 <path> | \s-1MATCHING\s0 <regex>>" 4
 .IX Item "1. CHECK PROCESS <unique name> <PIDFILE <path> | MATCHING <regex>>"
 <path> is the absolute path to the program's pidfile. If the
@@ -3066,9 +3244,13 @@ tildeslash.com or \*(L"64.87.72.95\*(R".
 .IP "7. \s-1CHECK\s0 \s-1SYSTEM\s0 <unique name>" 4
 .IX Item "7. CHECK SYSTEM <unique name>"
 The system name is usually hostname, but any descriptive name can be
-used. This test allows to check general system resources such as
+used. This test allows one to check general system resources such as
 \&\s-1CPU\s0 usage (percent of time spent in user, system and wait), total
 memory usage or load average.
+.IP "8. \s-1CHECK\s0 \s-1PROGRAM\s0 <unique name> \s-1PATH\s0 <executable file>" 4
+.IX Item "8. CHECK PROGRAM <unique name> PATH <executable file>"
+<path> is the absolute path to the executable program or script.
+The \fIstatus\fR test allows to check the program's exit status.
 .PP
 You can use noise keywords like 'if', `and', `with(in)', `has',
 `using', 'use', 'on(ly)', `usage' and `program(s)' anywhere in an
@@ -3139,8 +3321,8 @@ insensitive.
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 \& check           Starts an entry and must be followed by the type
 \&                 of monitored service {filesystem|directory|file|host
-\&                 process|system} and a descriptive name for the
-\&                 service.
+\&                 process|system|program} and a descriptive name for
+\&                 the service.
 \& pidfile         Specify the  process pidfile. Every
 \&                 process must create a pidfile with its
 \&                 current process id. This statement should only
@@ -3256,9 +3438,11 @@ insensitive.
 \&                 check directory entry.
 \& changed         Part of a timestamp statement and used as an
 \&                 operator to simply test for a timestamp change.
-\& every           Validate this entry only at every n poll cycle.
-\&                 Useful in daemon mode when the cycle is short
-\&                 and a service takes some time to start.
+\& every           Validate this entry only at every n poll cycle
+\&                 or per cron specification. Useful in daemon mode
+\&                 when the cycle is short and a service takes some
+\&                 time to start or to suppress monitoring during
+\&                 backup windows.
 \& mode            Must be followed either by the keyword active,
 \&                 passive or manual. If active, Monit will restart
 \&                 the service if it is not running (this is the
@@ -3308,6 +3492,9 @@ insensitive.
 \& size            Must be followed by a compare operator, a
 \&                 number, unit {B|KB|MB|GB|byte|kilobyte|
 \&                 megabyte|gigabyte} and an action.
+\& uptime          Must be followed by a compare operator, a
+\&                 number, unit {second(s)|minute(s)|hour(s)|day(s)}
+\&                 and an action.
 \& depends (on)    Must be followed by the name of a service this
 \&                 service depends on.
 .Ve
@@ -3333,7 +3520,7 @@ Here's the complete list of reserved \fBkeywords\fR used by monit:
 \&\fInonexist\fR, \fIpolicy\fR, \fIreminder\fR, \fIinstance\fR, \fIeventqueue\fR,
 \&\fIbasedir\fR, \fIslot(s)\fR, \fIsystem\fR, \fIidfile\fR, \fIgps\fR, \fIradius\fR,
 \&\fIsecret\fR, \fItarget\fR, \fImaxforward\fR, \fIhostheader\fR, \fIregister\fR,
-\&\fIcredentials\fR, \fIfips\fR and \fIfailed\fR
+\&\fIcredentials\fR, \fIfips\fR, \fIstatus\fR, \fIuptime\fR and \fIfailed\fR
 .PP
 And here is a complete list of \fBnoise keywords\fR ignored by
 monit:
@@ -3366,7 +3553,7 @@ check to see if the server is running and log a message if not:
 Checking process without pidfile:
 .PP
 .Vb 1
-\& check process matching "/sbin/dynamic_pager \-F /private/var/vm/swapfile"
+\& check process pager matching "/sbin/dynamic_pager \-F /private/var/vm/swapfile"
 .Ve
 .PP
 To have Monit start the server if it's not running, add a start
@@ -3791,7 +3978,7 @@ Finally an example with all statements:
 \&            subject: The gnu server may be hacked again! }
 .Ve
 .PP
-Note; only the \fBcheck statement\fR is mandatory, the other
+Note: only the \fBcheck statement\fR is mandatory, the other
 statements are optional and the order of the optional statements
 is not important.
 .SH "FILES"
@@ -3823,7 +4010,7 @@ is not important.
    systems without /var/run).
 .PP
 \&\fI~/.monit.state\fR  
-   Monit save its state to this file and utilize 
+   Monit saves its state to this file and utilizes
    information found in this file to recover from 
    a crash. This is a binary file and its content is 
    only of interest to monit. You may set the location
@@ -3903,21 +4090,14 @@ console.
 .PP
 The syntax (and parser) of the control file was inspired by Eric
 S. Raymond et al. excellent fetchmail program. Some portions of
-this man page does also receive inspiration from the same
-authors.
-.SH "AUTHORS"
-.IX Header "AUTHORS"
-Jan-Henrik Haukeland <hauk@tildeslash.com>, 
-Martin Pala <martinp@tildeslash.com>, 
-Christian Hopp <chopp@iei.tu\-clausthal.de>, 
-Rory Toma <rory@digeo.com>
+this man page also receive inspiration from the same authors.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2011 by Tildeslash Ltd. All Rights Reserved. This
-product is distributed in the hope that it will be useful, but
-\&\s-1WITHOUT\s0 any warranty; without even the implied warranty of
+Copyright (C) 2001\-2012 by Tildeslash Ltd. All Rights Reserved.
+This product is distributed in the hope that it will be useful,
+but \s-1WITHOUT\s0 any warranty; without even the implied warranty of
 \&\s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 for a particular purpose.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\s-1GNU\s0 text utilities; \fImd5sum\fR\|(1); \fIsha1sum\fR\|(1); \fIopenssl\fR\|(1); \fIglob\fR\|(7);
-\&\fIregex\fR\|(7); \fIhttp://mmonit.com/\fR
+\&\fIregex\fR\|(7); \fIhttp://www.mmonit.com/\fR

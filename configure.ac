@@ -1,37 +1,84 @@
-# Process this file with autoconf to produce a configure script.
-# Mark Ferlatte, <ferlatte@cryptio.net>
-#
+# Process this file with bootstrap to produce a configure script.
 
 # autoconf requirement
 AC_PREREQ([2.53])
 
-# Init autoconf and automake
-
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.2.4], [monit-general@nongnu.org])
+AC_INIT([monit], [5.4], [monit-general@nongnu.org])
+AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([src/monit.c])
+AC_CONFIG_SUBDIRS([libmonit])
+AC_CONFIG_COMMANDS([libtool_patch],[test `uname` = "OpenBSD" && perl -p -i -e "s/deplibs_check_method=.*/deplibs_check_method=pass_all/g" libtool])
 
-# Package info
-AC_REVISION([$Revision: 1.194 $])
-AC_CONFIG_SRCDIR([monitor.c])
 
 # ------------------------------------------------------------------------
 # Programs 
 # ------------------------------------------------------------------------
 
 AC_PROG_CC
-AC_PROG_GCC_TRADITIONAL
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-AC_PROG_LEX
-	if test "$LEX" != flex; then
-		AC_MSG_ERROR([monit requires flex, not lex])
+AC_CHECK_PROGS([YACC], ['bison -y' byacc yacc], [no], [$PATH:/usr/local/bin:/usr/bin])
+if test "x$YACC" = "xno"; then
+	# Require bison unless y.tab.c already is built
+	if test ! -f src/y.tab.c; then
+                AC_MSG_ERROR([Monit require bison, byacc or yacc. Download bison from http://www.gnu.org/software/bison/])
 	fi
-AC_CHECK_PROGS(YACC, 'bison -y' byacc yacc)
-if test "x$YACC" = "x"; then
-		AC_MSG_ERROR([monit requires bison, byacc or yacc])
 fi
+AC_PATH_PROG([FLEX], [flex], [no], [$PATH:/usr/local/bin:/usr/bin])
+if test "x$FLEX" = "xno"; then
+	# Require flex unless lex.yy.c already is built
+	if test ! -f src/lex.yy.c; then
+                AC_MSG_RESULT([flex is required. Download from http://www.gnu.org/software/flex/])
+	fi
+fi
+AC_PATH_PROG([POD2MAN], [pod2man], [no], [$PATH:/usr/local/bin:/usr/bin])
+if test "x$POD2MAN" = "xno"; then
+	# Require pod2man unless monit.1 already is built
+	if test ! -f monit.1; then
+		AC_MSG_ERROR([pod2man is required to build the monit.1 man file.])
+	fi
+else
+	d=`date  '+%B %d. %Y'`
+	POD2MANFLAGS="--center 'User Commands' --release '${d}' --date='www.mmonit.com' --lax"
+	AC_SUBST([POD2MANFLAGS])
+fi
+
+
+# ------------------------------------------------------------------------
+# Libtool 
+# ------------------------------------------------------------------------
+
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
+
+
+# ---------------------------------------------------------------------------
+# Build options
+# ---------------------------------------------------------------------------
+
+AC_ARG_ENABLE(optimized,
+        AS_HELP_STRING([--enable-optimized],
+                [Build software optimized]),
+    [
+        CFLAGS=`echo $CFLAGS|sed 's/-O.//'`
+        if test "x$enableval" = "xyes" ; then
+                CFLAGS=`echo $CFLAGS|sed 's/-g//'`
+                CFLAGS="$CFLAGS -O3"
+                OPTIMIZED=1
+        else
+                OPTIMIZED=0
+        fi
+    ],
+    [
+        OPTIMIZED=0
+    ]
+)
+
 
 # ------------------------------------------------------------------------
 # Libraries 
@@ -42,30 +89,14 @@ AC_CHECK_LIB([socket], [socket])
 AC_CHECK_LIB([inet],   [socket])
 AC_CHECK_LIB([nsl],    [inet_addr])
 AC_CHECK_LIB([resolv], [inet_aton])
-AC_CHECK_LIB([crypt],  [crypt])
+AC_CHECK_LIB([c], [crypt], [:], [AC_CHECK_LIB([crypt], [crypt])])
 
-# Wacky pthread madness
-pthread_libs=""
-AC_CHECK_LIB([pthread], 
-	     [pthread_create],
-	     [pthread_libs="-lpthread"])
-AC_CHECK_LIB([c_r],
-	     [pthread_create],
-	     [pthread_libs="-pthread"])
-if test `uname` = "FreeBSD" -a `uname -r | cut -c1` = "6"
-then
-	pthread_libs="-lthr"
-fi
-if test "$pthread_libs"
-then
-	LIBS="$pthread_libs $LIBS"
-fi
+AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([POSIX thread library is required])])
 
 # ------------------------------------------------------------------------
 # Header files 
 # ------------------------------------------------------------------------
 
-# Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_HEADER_STAT
@@ -90,7 +121,7 @@ AC_CHECK_HEADERS([ \
 	kvm.h \
 	paths.h \
 	kstat.h \
-	libperfstat.h \
+	sys/protosw.h \
 	limits.h \
 	loadavg.h \
 	locale.h \
@@ -104,6 +135,7 @@ AC_CHECK_HEADERS([ \
 	netinet/in.h \
         netinet/in_systm.h \
         pam/pam_appl.h \
+        security/pam_appl.h \
 	poll.h \
 	procfs.h \
 	sys/procfs.h \
@@ -111,7 +143,6 @@ AC_CHECK_HEADERS([ \
 	pthread.h \
 	pwd.h \
 	regex.h \
-        security/pam_appl.h \
 	setjmp.h \
 	signal.h \
 	stdarg.h \
@@ -137,6 +168,7 @@ AC_CHECK_HEADERS([ \
 	sys/resource.h \
 	sys/statfs.h \
 	sys/statvfs.h \
+	sys/sysinfo.h \
 	sys/systemcfg.h \
 	sys/time.h \
 	sys/tree.h \
@@ -151,6 +183,17 @@ AC_CHECK_HEADERS([ \
         uvm/uvm_extern.h \
         vm/vm.h \
 	])
+
+AC_CHECK_HEADERS([ \
+	libperfstat.h \
+        ],
+        [],
+        [],
+        [
+         #ifdef HAVE_SYS_PROTOSW_H
+         #include <sys/protosw.h>
+         #endif
+        ])
 
 AC_CHECK_HEADERS([ \
 	netinet/ip.h \
@@ -286,29 +329,14 @@ AC_TYPE_SIGNAL
 AC_STRUCT_TM
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff])
 
-# ------------------------------------------------------------------------
-# Compiler 
-# ------------------------------------------------------------------------
 
-# Compiler characteristics
-AC_C_CONST
-AC_C_BIGENDIAN
-
-# If the compiler is gcc, turn on warnings
-if test "x$GCC" = "xyes"; then
-	case " $CFLAGS " in
-		*[\ \	]-Wall[\ \	]*)
-			;;
-		*)
-			CFLAGS="$CFLAGS -Wall"
-			;;
-	esac
-fi
+# ------------------------------------------------------------------------
+# Functions 
+# ------------------------------------------------------------------------
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
-AC_FUNC_MALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(statfs)
@@ -318,30 +346,17 @@ AC_CHECK_FUNCS(getaddrinfo)
 AC_CHECK_FUNCS(syslog)
 AC_CHECK_FUNCS(vsyslog)
 AC_CHECK_FUNCS(backtrace)
-
-jm_FUNC_GNU_STRFTIME
-
-EXTERNALS=""
-if test "$jm_cv_func_working_gnu_strftime" = "no"; then
-	# We do not have have a working strftime supporting %z
-	EXTERNALS="$EXTERNALS external/strftime.c"
-fi
-
-AC_SUBST(EXTERNALS)
+AC_CHECK_FUNCS(getloadavg)
 
 # Check for SOL_IP
 AC_MSG_CHECKING(for SOL_IP)
 AC_TRY_COMPILE([
 	#include <netdb.h>
-	#include <sys/socket.h>
-], [
-	int level = SOL_IP;
-], [
-	AC_MSG_RESULT(yes)
-	AC_DEFINE([HAVE_SOL_IP], [1], [Define to 1 if SOL_IP is defined.])
-], [
-	AC_MSG_RESULT(no)
-])
+	#include <sys/socket.h>], 
+	[int level = SOL_IP;], 
+	[AC_MSG_RESULT(yes)
+	AC_DEFINE([HAVE_SOL_IP], [1], [Define to 1 if SOL_IP is defined.])], 
+	[AC_MSG_RESULT(no)])
 
 AC_MSG_CHECKING(for va_copy)
 AC_TRY_LINK([
@@ -356,6 +371,32 @@ AC_TRY_LINK([
 ], [
 	AC_MSG_RESULT(no)
 ])
+
+
+# ------------------------------------------------------------------------
+# Compiler 
+# ------------------------------------------------------------------------
+
+# Compiler characteristics
+AC_C_CONST
+AC_C_BIGENDIAN
+
+# If the compiler is gcc, tune warnings and make the char type unsigned 
+# and enable C99 support
+if test "x$GCC" = "xyes"; then
+	CFLAGS="$CFLAGS -Wall -Wunused -Wno-unused-label -funsigned-char";
+        # Add C99 support
+        CFLAGS="$CFLAGS -D_GNU_SOURCE -std=c99"
+        # does this compiler support -Wno-pointer-sign ?
+        svd_CFLAGS="$CFLAGS"
+        CFLAGS="-Wno-pointer-sign $CFLAGS"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])        
+        # does this compiler support -Wno-address ?
+        svd_CFLAGS="$CFLAGS"
+        CFLAGS="-Wno-address $CFLAGS"
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
+fi
+
 
 # ------------------------------------------------------------------------
 # Paths 
@@ -388,13 +429,35 @@ fi
 # ------------------------------------------------------------------------
 
 # Backward compatibility until we get ride of arch settings
-if test `uname` = "SunOS" 
+architecture=`uname`
+if test "$architecture" = "SunOS" 
 then
    ARCH="SOLARIS"
-   CFLAGS="$CFLAGS -D _REENTRANT -D_POSIX_PTHREAD_SEMANTICS"
+   CFLAGS="$CFLAGS -D _REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64"
+   LDFLAGS="$LDFLAGS -m64"
    test_kstat="true"
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
-elif test `uname` = "Linux" 
+   if test `uname -m` = "i86pc"
+   then
+      if test "x$GCC" = "xyes"
+      then
+            CFLAGS="$CFLAGS -mtune=opteron"
+            LDFLAGS="$LDFLAGS -mtune=opteron"
+      else
+            CFLAGS="$CFLAGS -xarch=sse2"
+            LDFLAGS="$LDFLAGS -xarch=sse2"
+      fi
+   else
+      if test "x$GCC" = "xyes"
+      then
+            CFLAGS="$CFLAGS -mtune=v9"
+            LDFLAGS="$LDFLAGS -mtune=v9"
+      else
+            CFLAGS="$CFLAGS -xarch=sparc"
+            LDFLAGS="$LDFLAGS -xarch=sparc"
+      fi
+   fi
+elif test "$architecture" = "Linux" 
 then
    ARCH="LINUX"
    CFLAGS="$CFLAGS -D _REENTRANT"
@@ -403,36 +466,42 @@ then
    then
    	AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
    fi
-elif test `uname` = "HP-UX"
+elif test "$architecture" = "HP-UX"
 then
    ARCH="HPUX"
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
-elif test `uname` = "OpenBSD"
+elif test "$architecture" = "OpenBSD"
 then
    ARCH="OPENBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
-elif test `uname` = "FreeBSD"
+   use_pam=0 # No PAM on OpenBSD (supports BSD Auth API instead of PAM)
+elif test "$architecture" = "FreeBSD"
 then
    ARCH="FREEBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
-elif test `uname` = "NetBSD"
+elif test "$architecture" = "GNU/kFreeBSD"
+then
+   ARCH="FREEBSD"
+   CFLAGS="$CFLAGS -D _REENTRANT"
+   test_kvm="true"
+elif test "$architecture" = "NetBSD"
 then
    ARCH="NETBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    test_kvm="true"
-elif test `uname` = "Darwin"
+elif test "$architecture" = "Darwin"
 then
    ARCH="DARWIN"
    CFLAGS="$CFLAGS -DREENTRANT -no-cpp-precomp -DNEED_SOCKLEN_T_DEFINED"
    test_kvm="true"
    LIBS="$LIBS -framework System -multiply_defined suppress"
-elif test `uname` = "AIX"
+elif test "$architecture" = "AIX"
 then
    ARCH="AIX"
-   CFLAGS="$CFLAGS -D _REENTRANT"
+   CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
    LIBS="$LIBS -lodm"	
    # AIX v. 5.2
    LIBS="$LIBS -lcfg"	
@@ -440,7 +509,7 @@ then
    LIBS="$LIBS -lperfstat"	
    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 else
-   AC_MSG_WARN([Architecture not supported: `uname`.])
+   AC_MSG_WARN([Architecture not supported: ${architecture}])
    CFLAGS="$CFLAGS -D _REENTRANT"
    ARCH="UNKNOWN"
 fi
@@ -506,17 +575,6 @@ AC_ARG_WITH(largefiles,
 
 # Settings for largefiles support
 if test "$use_largefiles" = 1; then
-        if test "$ARCH" = "SOLARIS"; then
-            if ! ( echo $CFLAGS | egrep '(64|v9)' >/dev/null 2>&1); then
-                echo "###############################################################################"
-                echo "### Solaris requires 64-bit support for large files and resource monitoring ###"
-                echo "### enabled.                                                                ###"
-                echo "###                                                                         ###"
-                echo "### Compile monit with 64-bit support (see PLATFORMS file for details)      ###"
-                echo "###############################################################################"
-		AC_MSG_ERROR([Solaris requires 64-bit support for large files and resource monitoring enabled])
-            fi
-        fi
         AC_SYS_LARGEFILE
 fi
 
@@ -540,13 +598,15 @@ AC_ARG_WITH(pam,
         fi
     ],
     [
-        use_pam=1
-        AC_MSG_RESULT([enabled])
+        if test "x$use_pam" = "x" ; then
+            use_pam=1
+            AC_MSG_RESULT([enabled])
+        fi
     ]
 )
 
 if test "$use_pam" = "1"; then
-        AC_CHECK_LIB([pam],    [pam_start])
+        AC_CHECK_LIB([pam], [pam_start], [], [AC_MSG_ERROR([PAM enabled but headers or library not found, install the PAM development support or run configure --without-pam])])
 fi
 
 
@@ -554,7 +614,7 @@ fi
 # SSL Code
 # ------------------------------------------------------------------------
 
-# Check for ssl includes (taken from the stunnel project)
+# Check for ssl includes
 checksslincldir() { :
     if test -f "$1/openssl/ssl.h"; then
         sslincldir="$1"
@@ -565,8 +625,10 @@ checksslincldir() { :
 
 # Check for ssl libraries 
 checkssllibdirdynamic() { :
-    if test "(" -f "$1/libcrypto.so" -o -f "$1/libcrypto.dylib" ")"  -a \
-            "(" -f "$1/libssl.so"    -o -f "$1/libssl.dylib" ")" ; then
+    CRYPTOLIB=`ls -1 $1/libcrypto.so* $1/libcrypto.dylib* 2>/dev/null | wc -l`
+    SSLLIB=`ls -1 $1/libssl.so* $1/libssl.dylib* 2>/dev/null | wc -l`
+    if test "(" $CRYPTOLIB -gt 0 -a $SSLLIB -gt 0 ")"
+    then
         ssllibdir="$1"
         return 0
     fi
@@ -635,7 +697,7 @@ then
     )
 
 
-    # Check for SSL directory (taken from the stunnel project)
+    # Check for SSL directory
     if test "$use_ssl" = "1"; then
 
         AC_ARG_WITH(ssl-dir,
@@ -661,7 +723,7 @@ then
             [
                 if test -z "$sslincldir"; then	
                     dnl Search default locations of SSL includes
-                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw; do
+                    for maindir in /usr /usr/local /usr/lib /usr/pkg /var /opt /usr/sfw /opt/csw /opt/freeware; do
                         for dir in "$maindir/include"\
                                    "$maindir/include/openssl"\ 
                                    "$maindir/include/ssl"\
@@ -693,11 +755,15 @@ then
             [
                 if test -z "$ssllibdir"; then	
                     dnl Search default locations of SSL libraries
-                    for maindir in /usr \
+                    for maindir in "" \
+                                   /usr \
                                    /usr/local \
                                    /usr/pkg \
-                                   /var /opt \
-                                   /usr/sfw; do
+                                   /var \
+                                   /opt \
+                                   /usr/sfw \
+                                   /opt/csw \
+                                   /opt/freeware; do
                         for dir in $maindir \
                                    $maindir/openssl \
                                    $maindir/ssl \
@@ -712,7 +778,9 @@ then
                                    $maindir/lib64 \
                                    $maindir/lib64/openssl \
                                    $maindir/lib64/ssl \
-                                   $maindir/ssl/lib64; do
+                                   $maindir/ssl/lib64 \
+                                   $maindir/lib/${build} \
+                                   $maindir/lib/${build_alias}; do
                             checkssllibdirdynamic $dir && break 2
                         done
                     done
@@ -756,32 +824,67 @@ fi
 # Outputs
 # ------------------------------------------------------------------------
 
-AC_CONFIG_HEADER([config.h])
+AH_BOTTOM([
+/* Mask out GCC __attribute__ extension for non-gcc compilers. */
+#ifndef __GNUC__
+#define __attribute__(x)
+#endif
+])
+
+AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([contrib/monit.upstart])
+AC_CONFIG_FILES([contrib/monit.service])
+
 AC_OUTPUT
 
-echo ""
-echo "monit has been configured with the following options:"
-
+echo
+echo "Monit Build Information:"
+echo
 echo "                Architecture: ${ARCH}"
-if test "$use_pam" = "1"; then
-    echo "                 PAM support: enabled"
-else
-    echo "                 PAM support: disabled"
-fi
 if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
-    echo "                 SSL support: enabled"
-    echo "       SSL include directory: ${sslincldir}"
-    echo "       SSL library directory: ${ssllibdir}"
-else
-    echo "                 SSL support: disabled"
-fi
-if test "$use_largefiles" = "1"; then
-    echo "         large files support: enabled"  
-else
-    echo "         large files support: disabled"
+echo "       SSL include directory: ${sslincldir}"
+echo "       SSL library directory: ${ssllibdir}"
 fi
 echo "              Compiler flags: ${CFLAGS}"
 echo "                Linker flags: ${LIBS}"
 echo "           pid file location: ${piddir}"
+echo "           Install directory: ${prefix}"
 echo
+
+cat <<EOT
++------------------------------------------------------------+
+| License:                                                   |
+| This is Open Source Software and use is subject to the GNU |
+| AFFERO GENERAL PUBLIC LICENSE version 3, available in this |
+| distribution in the file COPYING.                          |
+|                                                            |
+| By continuing this installation process, you are bound by  | 
+| the terms of this license agreement. If you do not agree   |
+| with the terms of this license, you must abort the         |
+| installation process at this point.                        |
++------------------------------------------------------------+
+| Monit has been configured with the following options:      |
+|                                                            |
+EOT
+if test "$use_pam" = "1"; then
+echo "|   PAM support:                                  ENABLED    |"
+else
+echo "|   PAM support:                                  DISABLED   |"
+fi
+if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
+echo "|   SSL support:                                  ENABLED    |"
+else
+echo "|   SSL support:                                  DISABLED   |"
+fi
+if test "$use_largefiles" = "1"; then
+echo "|   Large files support:                          ENABLED    |"
+else
+echo "|   Large files support:                          DISABLED   |"
+fi
+if test "x1" = "x$OPTIMIZED"; then
+echo "|   Optimized:                                    ENABLED    |"
+else
+echo "|   Optimized:                                    DISABLED   |"
+fi
+echo "+------------------------------------------------------------+"

@@ -1,5 +1,5 @@
-# This is an event.d (upstart) script to keep monit running.
-# To install disable the old way of doing things:
+# This is an upstart script to keep monit running.
+# To install, disable the old way of doing things:
 #
 #   /etc/init.d/monit stop && update-rc.d -f monit remove
 #
@@ -16,8 +16,6 @@
 # start monit
 # stop monit
 #
-# Michael Hale (http://halethegeek.com)
-# Martin Pala (http://www.mmonit.com)
 
 description "Monit service manager"
 
