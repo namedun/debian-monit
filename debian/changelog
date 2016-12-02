@@ -1,3 +1,9 @@
+monit (1:5.20.0-4) unstable; urgency=medium
+
+  * Fix FTCBFS: 07_cross.patch: Fix build/host confusion (Closes: #844693)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 02 Dec 2016 14:49:23 +0300
+
 monit (1:5.20.0-3) unstable; urgency=medium
 
   * Change openssl detection (fixes #828439 on i386?)
