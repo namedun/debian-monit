@@ -1,3 +1,12 @@
+monit (1:5.4-2+deb7u2) wheezy-security; urgency=high
+
+  * Non-maintainer upload by the LTS Team.
+  * Update 09_CVE-2016-7067.patch in order to fix the regression introduced
+    in last upload. Thanks to Marco Innocenti for reporting and Victor Seva
+    for providing a patch. (Closes: #847196)
+
+ -- Jonas Meurer <mejo@debian.org>  Tue, 06 Dec 2016 14:18:25 +0100
+
 monit (1:5.4-2+deb7u1) wheezy-security; urgency=high
 
   * Non-maintainer upload by the LTS Team.
