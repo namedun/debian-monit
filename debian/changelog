@@ -1,3 +1,13 @@
+monit (1:5.4-2+deb7u3) wheezy-security; urgency=high
+
+  * Non-maintainer upload by the LTS Team.
+  * Update 09_CVE-2016-7067.patch in order to fix another regression
+    introduced in 1:5.4-2+deb7u1 upload: remove collector.c from the patch.
+    Thanks to Arthur Hoffmann for reporting and Martin Pala and Sergey B
+    Kirpichev for the patch. (Closes: #847196)
+
+ -- Jonas Meurer <mejo@debian.org>  Mon, 12 Dec 2016 20:29:00 +0100
+
 monit (1:5.4-2+deb7u2) wheezy-security; urgency=high
 
   * Non-maintainer upload by the LTS Team.
