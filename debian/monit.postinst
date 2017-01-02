@@ -5,9 +5,7 @@ set -e
 case "$1" in
   configure)
     # Setup logfile permissions:
-    touch /var/log/monit.log
-    chmod 640 /var/log/monit.log
-    chown root:adm /var/log/monit.log
+    install -o root -g adm -m 0640 /dev/null /var/log/monit.log
 
     # Add monit to /etc/aliases:
     if [ -f /etc/aliases ] || [ -L /etc/aliases ]
