@@ -1,3 +1,11 @@
+monit (1:5.20.0-5) unstable; urgency=medium
+
+  * Fix VCS URL
+  * Cleanup logfile setup, use install (Closes: #849886)
+  * Ignore postfix deps for kfreebsd/hurd
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 09 Jan 2017 17:11:09 +0300
+
 monit (1:5.20.0-4) unstable; urgency=medium
 
   * Fix FTCBFS: 07_cross.patch: Fix build/host confusion (Closes: #844693)
