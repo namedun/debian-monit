@@ -21,7 +21,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure
 +++ b/configure
-@@ -13962,7 +13962,11 @@ then
+@@ -14689,7 +14689,11 @@ then
     LIBS="$LIBS -lodm -lperfstat -lm"
  
  $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
@@ -36,7 +36,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -573,6 +573,11 @@ then
+@@ -596,6 +596,11 @@ then
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     LIBS="$LIBS -lodm -lperfstat -lm"
     AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
@@ -50,7 +50,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
     CFLAGS="$CFLAGS -D _REENTRANT"
 --- a/libmonit/configure
 +++ b/libmonit/configure
-@@ -12345,6 +12345,11 @@ then
+@@ -12220,6 +12220,11 @@ then
  $as_echo "#define AIX 1" >>confdefs.h
  
     LIBS="$LIBS -lcfg -lodm -lperfstat"
@@ -64,7 +64,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  fi
 --- a/libmonit/configure.ac
 +++ b/libmonit/configure.ac
-@@ -269,6 +269,10 @@ then
+@@ -244,6 +244,10 @@ then
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
     LIBS="$LIBS -lcfg -lodm -lperfstat"
@@ -104,7 +104,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +#include "sysdep_LINUX.c"
 --- a/libmonit/src/Config.h
 +++ b/libmonit/src/Config.h
-@@ -125,6 +125,12 @@ typedef enum {
+@@ -126,6 +126,12 @@ typedef enum {
  #define true  1
  #endif
  
@@ -119,7 +119,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/monit.h
 +++ b/src/monit.h
-@@ -392,6 +392,11 @@ Sigfunc *signal(int signo, Sigfunc * fun
+@@ -396,6 +396,11 @@ Sigfunc *signal(int signo, Sigfunc * fun
  #define SIG_ERR ((Sigfunc *)-1)
  #endif
  

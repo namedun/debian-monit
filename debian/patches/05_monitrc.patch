@@ -5,8 +5,8 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: not-needed
 
 ---
- monitrc |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ monitrc |   31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
 --- a/monitrc
 +++ b/monitrc
@@ -59,7 +59,7 @@ Forwarded: not-needed
  #
  #
  ## Send status and events to M/Monit (for more informations about M/Monit
-@@ -152,11 +152,11 @@ set logfile syslog
+@@ -154,13 +154,13 @@ set logfile syslog
  ## commands to a running Monit daemon. See the Monit Wiki if you want to
  ## enable SSL for the HTTP interface.
  #
@@ -67,16 +67,20 @@ Forwarded: not-needed
 -    use address localhost  # only accept connection from localhost
 -    allow localhost        # allow localhost to connect to the server and
 -    allow admin:monit      # require user 'admin' with password 'monit'
--
+-    #with ssl {            # enable SSL/TLS and set path to server certificate
+-    #    pemfile: /etc/ssl/certs/monit.pem
+-    #}
 +# set httpd port 2812 and
 +#     use address localhost  # only accept connection from localhost
 +#     allow localhost        # allow localhost to connect to the server and
 +#     allow admin:monit      # require user 'admin' with password 'monit'
-+#
++#     #with ssl {            # enable SSL/TLS and set path to server certificate
++#     #    pemfile: /etc/ssl/certs/monit.pem
++#     #}
+ 
  ###############################################################################
  ## Services
- ###############################################################################
-@@ -292,5 +292,6 @@ set httpd port 2812 and
+@@ -302,5 +302,6 @@ set httpd port 2812 and
  ## It is possible to include additional configuration parts from other files or
  ## directories.
  #

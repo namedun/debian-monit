@@ -9,7 +9,7 @@ Forwarded: no
 
 --- a/doc/monit.pod
 +++ b/doc/monit.pod
-@@ -1496,11 +1496,11 @@ won't try to start the HA group also. Ev
+@@ -1503,11 +1503,11 @@ won't try to start the HA group also. Ev
  on H1 before it crashed, as HA is running on H2 now.
  
  In I<laststate> mode, a service's monitoring state is persistent across
