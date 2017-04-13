@@ -1270,8 +1270,8 @@ distclean-local:
 	-rm -f monit-[0-9].*tar.gz
 
 cleanall: clean distclean
-	-rm -f libmonit/Makefile.in libmonit/configure libmonit/aclocal.m4 libmonit/src/xconfig.h.in 
-	-rm -f Makefile.in configure aclocal.m4 autom4te.cache src/config.h.in monit.1 
+	-rm -f libmonit/Makefile.in libmonit/configure libmonit/aclocal.m4 libmonit/src/xconfig.h.in
+	-rm -f Makefile.in configure aclocal.m4 autom4te.cache src/config.h.in monit.1
 	-rm -rf libmonit/m4 libmonit/config
 	-rm -rf m4 config
 
@@ -1291,7 +1291,7 @@ src/y.tab.c src/tokens.h: src/p.y
 	-mv src/y.tab.h src/tokens.h
 
 src/lex.yy.c: src/l.l
-	$(FLEX) $(FLEXFLAGS) -o$@ $< 
+	$(FLEX) $(FLEXFLAGS) -o$@ $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

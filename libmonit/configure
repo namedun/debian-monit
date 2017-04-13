@@ -763,7 +763,6 @@ with_sysroot
 enable_libtool_lock
 enable_optimized
 enable_profiling
-enable_openssl
 with_zlib
 '
       ac_precious_vars='build_alias
@@ -1407,10 +1406,6 @@ Optional Features:
   --enable-optimized      Build software optimized. Unit Tests are not enabled
                           with this option
   --enable-profiling      Build with debug and profiling options
-  --enable-openssl(=<path>)
-                          Link Monit with openssl. An optional path argument
-                          may be given to specify the top-level directory to
-                          search for openssl to link with
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -11573,126 +11568,6 @@ else
 fi
 
 
-# Check whether --enable-openssl was given.
-if test "${enable_openssl+set}" = set; then :
-  enableval=$enable_openssl;
-        openssl="true"
-        if test "x$enableval" = "xyes"; then
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSL_library_init in -lssl" >&5
-$as_echo_n "checking for SSL_library_init in -lssl... " >&6; }
-if ${ac_cv_lib_ssl_SSL_library_init+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lssl  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char SSL_library_init ();
-int
-main ()
-{
-return SSL_library_init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_ssl_SSL_library_init=yes
-else
-  ac_cv_lib_ssl_SSL_library_init=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssl_SSL_library_init" >&5
-$as_echo "$ac_cv_lib_ssl_SSL_library_init" >&6; }
-if test "x$ac_cv_lib_ssl_SSL_library_init" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBSSL 1
-_ACEOF
-
-  LIBS="-lssl $LIBS"
-
-else
-  as_fn_error $? "libssl not found" "$LINENO" 5
-fi
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SHA1_Init in -lcrypto" >&5
-$as_echo_n "checking for SHA1_Init in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_SHA1_Init+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char SHA1_Init ();
-int
-main ()
-{
-return SHA1_Init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_crypto_SHA1_Init=yes
-else
-  ac_cv_lib_crypto_SHA1_Init=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_SHA1_Init" >&5
-$as_echo "$ac_cv_lib_crypto_SHA1_Init" >&6; }
-if test "x$ac_cv_lib_crypto_SHA1_Init" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBCRYPTO 1
-_ACEOF
-
-  LIBS="-lcrypto $LIBS"
-
-else
-  as_fn_error $? "libcrypto not found" "$LINENO" 5
-fi
-
-	else
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for openssl in $enableval" >&5
-$as_echo_n "checking for openssl in $enableval... " >&6; }
-                LDFLAGS="-L$enableval/lib -lssl -lcrypto $LDFLAGS "
-                CPPFLAGS="-I$enableval/include $CPPFLAGS"
-                if test -r "$enableval/lib/libssl.a" -a -r "$enableval/lib/libcrypto.a"; then
-                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: ok" >&5
-$as_echo "ok" >&6; }
-                else
-                       as_fn_error $? "openssl not found in $enableval" "$LINENO" 5
-                fi
-        fi
-
-else
-
-        openssl="false"
-
-
-fi
-
-
 
 # Check whether --with-zlib was given.
 if test "${with_zlib+set}" = set; then :
@@ -12333,7 +12208,7 @@ $as_echo "#define HPUX 1" >>confdefs.h
 
 elif test "$architecture" = "NetBSD"
 then
-   CFLAGS="$CFLAGS -D_REENTRANT"
+   CFLAGS="$CFLAGS -D_REENTRANT -Wno-char-subscripts"
 
 $as_echo "#define NETBSD 1" >>confdefs.h
 
@@ -12711,27 +12586,61 @@ fi
 # ------------------------------------------------------------------------
 # Atomic support
 # ------------------------------------------------------------------------
-# AC_MSG_CHECKING(for Atomic support)
-# if test `uname` = "Darwin" -o `uname` = "FreeBSD"
-# then
-#         AC_MSG_RESULT(yes)
-# elif test `uname` = "SunOS"
-# then
-#         AC_CHECK_HEADER([atomic.h],
-#         [AC_MSG_RESULT(yes)],
-#         [AC_MSG_ERROR([atomic.h is required for atomic support])])
-# else
-#         AC_RUN_IFELSE([AC_LANG_PROGRAM([],[
-#              #if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 1)))
-#              return 0;
-#              #else
-#              return 1;
-#              #endif
-# 	])],
-# 	[AC_MSG_RESULT(yes)],
-# 	[AC_MSG_FAILURE([GCC version > 4.1 is required for atomic support])])
-# fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Atomic support" >&5
+$as_echo_n "checking for Atomic support... " >&6; }
+if test `uname` = "Darwin" -o `uname` = "FreeBSD"
+then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+elif test `uname` = "SunOS"
+then
+        ac_fn_c_check_header_mongrel "$LINENO" "atomic.h" "ac_cv_header_atomic_h" "$ac_includes_default"
+if test "x$ac_cv_header_atomic_h" = xyes; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  as_fn_error $? "atomic.h is required for atomic support" "$LINENO" 5
+fi
 
+
+else
+        if test "$cross_compiling" = yes; then :
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "cannot run test program while cross compiling
+See \`config.log' for more details" "$LINENO" 5; }
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+             #if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 1)))
+             return 0;
+             #else
+             return 1;
+             #endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "GCC version > 4.1 is required for atomic support
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+fi
 
 # ------------------------------------------------------------------------
 # IPv6 Support
@@ -15178,11 +15087,6 @@ if test "xfalse" = "x$profile"; then
 echo "|   Profiling:                                    DISABLED   |"
 else
 echo "|   Profiling:                                    ENABLED    |"
-fi
-if test "xtrue" = "x$openssl"; then
-echo "|   Openssl:                                      ENABLED    |"
-else
-echo "|   Openssl:                                      DISABLED   |"
 fi
 if test "xfalse" = "x$zlib"; then
 echo "|   Compression:                                  DISABLED   |"
