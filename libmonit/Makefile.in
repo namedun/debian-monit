@@ -108,7 +108,8 @@ libmonit_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libmonit_la_OBJECTS = src/Bootstrap.lo src/exceptions/assert.lo \
 	src/exceptions/Exception.lo src/io/Dir.lo src/io/File.lo \
-	src/io/InputStream.lo src/io/OutputStream.lo src/system/Mem.lo \
+	src/io/InputStream.lo src/io/OutputStream.lo \
+	src/statistics/Statistics.lo src/system/Mem.lo \
 	src/system/Net.lo src/system/Time.lo src/system/Command.lo \
 	src/system/System.lo src/system/Link.lo src/util/List.lo \
 	src/util/Str.lo src/util/StringBuffer.lo src/thread/Thread.lo
@@ -355,7 +356,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = . $(UNIT_TEST)
 DIST_SUBDIRS = . test
 EXTRA_DIST = README COPYING bootstrap test src config
-AM_CPPFLAGS = $(CPPFLAGS) $(DBCPPFLAGS) -I./src -I./src/exceptions -I./src/io -I./src/net -I./src/util -I./src/thread
+AM_CPPFLAGS = $(CPPFLAGS) $(DBCPPFLAGS) -I./src -I./src/exceptions -I./src/io -I./src/net -I./src/statistics -I./src/util -I./src/thread
 
 # libmonit is built static
 noinst_LTLIBRARIES = libmonit.la
@@ -367,6 +368,7 @@ libmonit_la_SOURCES = \
                   src/io/File.c \
                   src/io/InputStream.c \
                   src/io/OutputStream.c \
+                  src/statistics/Statistics.c \
                   src/system/Mem.c \
                   src/system/Net.c \
                   src/system/Time.c \
@@ -458,6 +460,10 @@ src/io/Dir.lo: src/io/$(am__dirstamp)
 src/io/File.lo: src/io/$(am__dirstamp)
 src/io/InputStream.lo: src/io/$(am__dirstamp)
 src/io/OutputStream.lo: src/io/$(am__dirstamp)
+src/statistics/$(am__dirstamp):
+	@$(MKDIR_P) src/statistics
+	@: > src/statistics/$(am__dirstamp)
+src/statistics/Statistics.lo: src/statistics/$(am__dirstamp)
 src/system/$(am__dirstamp):
 	@$(MKDIR_P) src/system
 	@: > src/system/$(am__dirstamp)
@@ -489,6 +495,8 @@ mostlyclean-compile:
 	-rm -f src/exceptions/*.lo
 	-rm -f src/io/*.$(OBJEXT)
 	-rm -f src/io/*.lo
+	-rm -f src/statistics/*.$(OBJEXT)
+	-rm -f src/statistics/*.lo
 	-rm -f src/system/*.$(OBJEXT)
 	-rm -f src/system/*.lo
 	-rm -f src/thread/*.$(OBJEXT)
@@ -516,6 +524,7 @@ clean-libtool:
 	-rm -rf src/.libs src/_libs
 	-rm -rf src/exceptions/.libs src/exceptions/_libs
 	-rm -rf src/io/.libs src/io/_libs
+	-rm -rf src/statistics/.libs src/statistics/_libs
 	-rm -rf src/system/.libs src/system/_libs
 	-rm -rf src/thread/.libs src/thread/_libs
 	-rm -rf src/util/.libs src/util/_libs
@@ -854,6 +863,7 @@ distclean-generic:
 	-rm -f src/$(am__dirstamp)
 	-rm -f src/exceptions/$(am__dirstamp)
 	-rm -f src/io/$(am__dirstamp)
+	-rm -f src/statistics/$(am__dirstamp)
 	-rm -f src/system/$(am__dirstamp)
 	-rm -f src/thread/$(am__dirstamp)
 	-rm -f src/util/$(am__dirstamp)
