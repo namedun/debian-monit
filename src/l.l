@@ -117,9 +117,9 @@ h16            [0-9A-Fa-f]{1,4}
 ipv4           {dec-octet}\.{dec-octet}\.{dec-octet}\.{dec-octet}
 ls32           {h16}:{h16}|{ipv4}
 ipv6           ({h16}:){6}{ls32}|::({h16}:){5}{ls32}|({h16})?::({h16}:){4}{ls32}|(({h16}:){0,1}{h16})?::({h16}:){3}{ls32}|(({h16}:){0,2}{h16})?::({h16}:){2}{ls32}|(({h16}:){0,3}{h16})?::{h16}:{ls32}|(({h16}:){0,4}{h16})?::{ls32}|(({h16}:){0,5}{h16})?::{h16}|(({h16}:){0,6}{h16})?::
-greater        ("more"|"greater"|"gt"|">")
+greater        ("more"|"greater"|"gt"|">"|"older")
 greaterorequal ("ge"|">=")
-less           ("less"|"lt"|"<")
+less           ("less"|"lt"|"<"|"newer")
 lessorequal    ("le"|"<=")
 equal          ("equal"|"eq"|"=="|"=")
 notequal       ("notequal"|"ne"|"!=")
@@ -145,6 +145,9 @@ minute         ("minute"|"minutes"|"m")
 hour           ("hour"|"hours"|"h")
 day            ("day"|"days")
 month          ("month"|"months")
+atime          ("atime"|"access time"|"access timestamp")
+ctime          ("ctime"|"change time"|"change timestamp")
+mtime          ("mtime"|"modification time"|"modification timestamp"|"modify time"|"modify timestamp")
 
 %x ARGUMENT_COND DEPEND_COND SERVICE_COND URL_COND ADDRESS_COND STRING_COND EVERY_COND HTTP_HEADER_COND INCLUDE
 
@@ -218,6 +221,7 @@ daemon            { return DAEMON; }
 delay             { return DELAY; }
 terminal          { return TERMINAL; }
 batch             { return BATCH; }
+log               { return LOGFILE; }
 logfile           { return LOGFILE; }
 syslog            { return SYSLOG; }
 facility          { return FACILITY; }
@@ -276,6 +280,9 @@ checksum          { return CHECKSUM; }
 mailserver        { return MAILSERVER; }
 host              { return HOST; }
 hostheader        { return HOSTHEADER; }
+method            { return METHOD; }
+get               { return GET; }
+head              { return HEAD; }
 status            { return STATUS; }
 default           { return DEFAULT; }
 http              { return HTTP; }
@@ -344,7 +351,7 @@ cpu               { return CPU; }
 total[ ]?cpu      { return TOTALCPU; }
 child(ren)?       { return CHILDREN; }
 thread(s)?        { return THREADS; }
-timestamp         { return TIMESTAMP; }
+time(stamp)?      { return TIME; }
 changed           { return CHANGED; }
 sslv2             { return SSLV2; }
 sslv3             { return SSLV3; }
@@ -439,6 +446,9 @@ fips              { return FIPS; }
 {hour}            { return HOUR; }
 {day}             { return DAY; }
 {month}           { return MONTH; }
+{atime}           { return ATIME; }
+{ctime}           { return CTIME; }
+{mtime}           { return MTIME; }
 
 include           { BEGIN(INCLUDE); }
 

@@ -86,6 +86,8 @@ AC_ARG_WITH([zlib],
                         zlib="false"
                         AC_MSG_ERROR([zlib not found in $withval])
                 fi
+        else
+                zlib="false"
         fi
      ],[
         AC_CHECK_LIB([z], [zlibVersion], [], [
@@ -270,30 +272,6 @@ if test "x$GCC" = "xyes"; then
         svd_CFLAGS="$CFLAGS"
         CFLAGS="-Wno-address $CFLAGS"
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
-fi
-
-# ------------------------------------------------------------------------
-# Atomic support
-# ------------------------------------------------------------------------
-AC_MSG_CHECKING(for Atomic support)
-if test `uname` = "Darwin" -o `uname` = "FreeBSD" 
-then
-        AC_MSG_RESULT(yes)
-elif test `uname` = "SunOS"
-then
-        AC_CHECK_HEADER([atomic.h], 
-        [AC_MSG_RESULT(yes)],
-        [AC_MSG_ERROR([atomic.h is required for atomic support])])
-else
-        AC_RUN_IFELSE([AC_LANG_PROGRAM([],[
-             #if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 1)))
-             return 0;
-             #else
-             return 1;
-             #endif
-        ])],
-        [AC_MSG_RESULT(yes)],
-        [AC_MSG_FAILURE([GCC version > 4.1 is required for atomic support])])
 fi
 
 # ------------------------------------------------------------------------
