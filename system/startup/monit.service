@@ -26,6 +26,7 @@ ExecStart=/usr/local/bin/monit -I -c ${prefix}/etc/monitrc
 ExecStop=/usr/local/bin/monit -c ${prefix}/etc/monitrc quit
 ExecReload=/usr/local/bin/monit -c ${prefix}/etc/monitrc reload
 Restart=on-abnormal
+StandardOutput=null
 
 [Install]
 WantedBy=multi-user.target

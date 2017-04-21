@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.21.0" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.22.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -257,8 +257,8 @@ the \fI.monitrc\fR control file.
    Set group name for start, stop, restart, monitor, unmonitor,
    status and summary action.
 .PP
-\&\fB\-l\fR \fIlogfile\fR
-   Print log information to this file. Or use \fI\*(L"set logfile\*(R"\fR
+\&\fB\-l\fR \fIfile\fR
+   Print log information to this file. Or use \fI\*(L"set log\*(R"\fR
     in monitrc.
 .PP
 \&\fB\-p\fR \fIpidfile\fR
@@ -270,10 +270,12 @@ the \fI.monitrc\fR control file.
    statefile\*(R"\fR in monitrc.
 .PP
 \&\fB\-B\fR
-   Batch command line mode (nontabular output with no colors)
+   Batch command line mode (no tabular output and no colors). Or
+   use \fI\*(L"set terminal batch\*(R"\fR in monitrc.
 .PP
 \&\fB\-I\fR
-   Do not run in background (needed for run from init)
+   Do not run in background mode (needed to run from init). Or use
+   \fI\*(L"set init\*(R"\fR in monitrc.
 .PP
 \&\fB\-i\fR
    Print Monit's unique \s-1ID\s0
@@ -571,18 +573,21 @@ statement).
 is also possible to use interface name, such as \*(L"eth0\*(R" on Linux.
 .SH "LOGGING"
 .IX Header "LOGGING"
-Monit will log status and error messages to a log file. Use the
-\&\fIset logfile\fR statement in the monitrc control file. To setup
-Monit to log to its own logfile, use e.g. \fIset logfile
-/var/log/monit.log\fR. If \fBsyslog\fR is given as a value for the
-\&\f(CW\*(C`\-l\*(C'\fR command-line switch (or the keyword \fIset logfile syslog\fR
-is found in the control file) Monit will use the \fBsyslog\fR system
-daemon to log messages with a priority assigned to each message
-based on the context. To turn off logging, simply do not set the
-logfile in the control file (and of course, do not use the \-l
-switch)
+Monit will log status and error messages to a file or via syslog. Use
+the \fIset log\fR statement in the monitrc control file.
 .PP
-The format for logfile is:
+To setup Monit to log to its own file, use e.g. \fIset log
+/var/log/monit.log\fR.
+.PP
+If \fBsyslog\fR is given as a value for the \f(CW\*(C`\-l\*(C'\fR command-line switch
+or the keyword \fIset log syslog\fR is found in the control file, Monit
+will use the \fBsyslog\fR system daemon to log messages with a priority
+assigned to each message based on the context.
+.PP
+To turn off logging, simply do not set the log in the control file
+(and of course, do not use the \-l switch)
+.PP
+The format for log file is:
 .PP
 .Vb 1
 \&    [date] priority : message
@@ -2408,22 +2413,46 @@ Reloading a server if its configuration file was changed:
 The timestamp statement may only be used in a file, fifo or
 directory service entry.
 .PP
-Specific timestamp syntax:
+Relative timestamp syntax:
 .PP
 .Vb 1
-\& IF TIMESTAMP [[operator] value [unit]] THEN action
+\& IF <ACCESS TIME | ATIME | MODIFICATION TIME | MTIME | CHANGE TIME | CTIME | TIME[STAMP]> <operator> <value> [unit] THEN <action>
 .Ve
 .PP
-Timestamp changed syntax:
+Timestamp change syntax:
 .PP
 .Vb 1
-\& IF CHANGED TIMESTAMP THEN action
+\& IF CHANGED <ACCESS TIME | ATIME | MODIFICATION TIME | MTIME | CHANGE TIME | CTIME | TIME[STAMP]> THEN action
 .Ve
+.PP
+There are four timestamp test types:
+.IP "\s-1ACCESS \s0(\s-1ATIME\s0)" 12
+.IX Item "ACCESS (ATIME)"
+Test the timestamp which is updated whenever the object is accessed, for
+example the file is read. Filesystem usually allows to disable \fIatime\fR
+updates using mount options, so this test will work only if the filesystem
+performs atime updates.
+.IP "\s-1CHANGE \s0(\s-1CTIME\s0)" 12
+.IX Item "CHANGE (CTIME)"
+Test the timestamp which is updated whenever the object metadata such
+as owner, group, permissions or hard link count are changed.
+.IP "\s-1MODIFICATION \s0(\s-1MTIME\s0)" 12
+.IX Item "MODIFICATION (MTIME)"
+Test the timestamp which is updated whenever the object content is modified.
+The file modification timestamp is updated whenever the file is truncated
+or written to. The directory modification timestamp is updated whenever
+some files/subdirectories were added to the directory or removed from that
+directory.
+.IP "\s-1DEFAULT \s0(\s-1LATEST OF CHANGE AND MODIFICATION TIMES\s0)" 12
+.IX Item "DEFAULT (LATEST OF CHANGE AND MODIFICATION TIMES)"
+If no specific timestamp type is set, the latest of change and modification
+timestamps is checked. This test allows for simple testing of any object
+modification (data and metadata).
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R", \*(L">\*(R", \*(L"!=\*(R", \*(L"==\*(R" in C notation,
-\&\*(L"\s-1GT\*(R", \*(L"LT\*(R", \*(L"EQ\*(R", \*(L"NE\*(R"\s0 in shell sh notation and \*(L"\s-1GREATER\*(R",
-\&\*(L"LESS\*(R", \*(L"EQUAL\*(R", \*(L"NOTEQUAL\*(R"\s0 in human readable form (if not
-specified, default is \s-1EQUAL\s0).
+\&\*(L"\s-1GT\*(R", \*(L"LT\*(R", \*(L"EQ\*(R", \*(L"NE\*(R"\s0 in shell sh notation and \*(L"\s-1NEWER, \*(R"OLDER\*(L",
+\&\*(R"GREATER\*(L", \*(R"LESS\*(L", \*(R"EQUAL\*(L", \*(R"NOTEQUAL"\s0 in human readable form (if
+not specified, default is \s-1EQUAL\s0).
 .PP
 \&\fIvalue\fR is a time watermark.
 .PP
@@ -2432,19 +2461,24 @@ specified, default is \s-1EQUAL\s0).
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
 .PP
-For example to reload apache if the configuration file timestamp
-changed:
+For example to reload apache if the configuration file changed:
 .PP
 .Vb 2
 \& check file apache_conf with path /etc/apache/httpd.conf
 \&   if changed timestamp then exec "/usr/bin/apachectl graceful"
 .Ve
 .PP
-For example testing directory for file addition or removal:
+For example to test directory for file addition or removal:
 .PP
 .Vb 2
 \& check directory bar path /foo/bar
-\&       if timestamp < 1 hour then alert
+\&   if changed timestamp then alert
+.Ve
+.PP
+Example for sending alert if a log file is not updated for more than 1 hour:
+.PP
+.Vb 1
+\&   if timestamp is older than 1 hour then alert
 .Ve
 .SS "\s-1FILE SIZE TEST\s0"
 .IX Subsection "FILE SIZE TEST"
@@ -2657,7 +2691,7 @@ Platforms I/O metrics granularity and filesystem support in Monit:
 \& | AIX          | per\-disk       | Disk io monitoring currently not supported | JFSx   |
 \& | DragonFlyBSD | per\-disk       | UFS                                        | HAMMER |
 \& | FreeBSD      | per\-disk       | UFS                                        | ZFS    |
-\& | Linux        | per\-filesystem | EXTx, XFS, BTRFS, NFS, CIFS                |        |
+\& | Linux        | per\-filesystem | EXTx, XFS, BTRFS, ZFS, NFS, CIFS           |        |
 \& | MacOS        | per\-disk       | HFS                                        |        |
 \& | NetBSD       | per\-disk       | FFS                                        | NFS    |
 \& | OpenBSD      | per\-disk       | FFS                                        |        |
@@ -3580,11 +3614,12 @@ Here is a simple \s-1SMTP\s0 protocol example:
 .PP
 Syntax:
 .PP
-.Vb 8
+.Vb 9
 \& PROTO(COL) HTTP
 \&     [USERNAME "string"]
 \&     [PASSWORD "string"]
 \&     [REQUEST "string"]
+\&     [METHOD <GET|HEAD>]
 \&     [STATUS operator number]
 \&     [CHECKSUM checksum]
 \&     [HTTP HEADERS list of headers]
@@ -3608,6 +3643,11 @@ For example:
 \&    request "/data/show?a=b&c=d"
 \& then restart
 .Ve
+.PP
+\&\fI\s-1METHOD\s0\fR set the \s-1HTTP\s0 request method. If not specified, Monit prefers
+the \s-1HTTP HEAD\s0 request method to save bandwidth, unless a response content
+or response checksum is tested. As some webservers may not support the
+\&\s-1HEAD\s0 method, one may want to set the method explicitly.
 .PP
 \&\fI\s-1STATUS\s0\fR option can be used to explicitly test the \s-1HTTP\s0 status code
 returned by the \s-1HTTP\s0 server. If not used, the \s-1HTTP\s0 protocol test will
