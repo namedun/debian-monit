@@ -3,13 +3,23 @@ Author: Sergey B Kirpichev <skirpichev@gmail.com>
 Forwarded: no
 
 ---
- doc/monit.pod            |    4 ++--
- src/protocols/memcache.c |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ doc/monit.pod             |   10 +++++-----
+ src/device/sysdep_LINUX.c |    2 +-
+ src/protocols/memcache.c  |    2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
 --- a/doc/monit.pod
 +++ b/doc/monit.pod
-@@ -1503,11 +1503,11 @@ won't try to start the HA group also. Ev
+@@ -938,7 +938,7 @@ PAM to access the web interface:
+ 
+ =head4 htpasswd file
+ 
+-Alternatively you store credentials in a C<htpasswd> formated file (one
++Alternatively you store credentials in a C<htpasswd> formatted file (one
+ I<user:passwd> entry per line), like so: I<allow [cleartext|crypt|md5]
+ /path [users]>. The default is cleartext passwords. In case passwords
+ are digested it is necessary to specify the cryptographic method. If
+@@ -1508,11 +1508,11 @@ won't try to start the HA group also. Ev
  on H1 before it crashed, as HA is running on H2 now.
  
  In I<laststate> mode, a service's monitoring state is persistent across
@@ -23,14 +33,43 @@ Forwarded: no
  
    SET ONREBOOT <START | NOSTART | LASTSTATE>
  
+@@ -1859,7 +1859,7 @@ Note: the maximum value for cycles is 64
+ 
+ =head2 EXISTENCE TESTS
+ 
+-This test allows to trigger an action based on the monitored object
++This test allows one to trigger an action based on the monitored object
+ existence. It is supported for I<process>, I<file>, I<directory>,
+ I<filesystem> and I<fifo> services.
+ 
+@@ -2165,7 +2165,7 @@ There are four timestamp test types:
+ =item ACCESS (ATIME)
+ 
+ Test the timestamp which is updated whenever the object is accessed, for
+-example the file is read. Filesystem usually allows to disable I<atime>
++example the file is read. Filesystem usually allows one to disable I<atime>
+ updates using mount options, so this test will work only if the filesystem
+ performs atime updates.
+ 
 --- a/src/protocols/memcache.c
 +++ b/src/protocols/memcache.c
-@@ -112,7 +112,7 @@ void check_memcache(Socket_T socket) {
-                         THROW(IOException, "MEMCACHELEN: Invalid response code -- Key exists");
+@@ -113,7 +113,7 @@ void check_memcache(Socket_T socket) {
+                         THROW(ProtocolException, "MEMCACHELEN: Invalid response code -- Key exists");
                          break;
                  default:
--                        THROW(IOException, "MEMCACHELEN: Unknow response code %u -- error occurred", status);
-+                        THROW(IOException, "MEMCACHELEN: Unknown response code %u -- error occurred", status);
+-                        THROW(ProtocolException, "MEMCACHELEN: Unknow response code %u -- error occurred", status);
++                        THROW(ProtocolException, "MEMCACHELEN: Unknown response code %u -- error occurred", status);
                          break;
          }
  }
+--- a/src/device/sysdep_LINUX.c
++++ b/src/device/sysdep_LINUX.c
+@@ -378,7 +378,7 @@ static boolean_t _getDevice(Info_T inf,
+                 }
+         }
+         if (inf->filesystem->object.generation != _statistics.generation || _statistics.fd == -1) {
+-                DEBUG("Reloading mount informations for filesystem '%s'\n", path);
++                DEBUG("Reloading mount information for filesystem '%s'\n", path);
+                 _setDevice(inf, path, compare);
+         }
+         if (inf->filesystem->object.mounted) {
