@@ -64,7 +64,7 @@ Forwarded: no
  }
 --- a/src/device/sysdep_LINUX.c
 +++ b/src/device/sysdep_LINUX.c
-@@ -378,7 +378,7 @@ static boolean_t _getDevice(Info_T inf,
+@@ -382,7 +382,7 @@ static boolean_t _getDevice(Info_T inf,
                  }
          }
          if (inf->filesystem->object.generation != _statistics.generation || _statistics.fd == -1) {
