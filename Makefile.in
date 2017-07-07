@@ -131,11 +131,11 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/apache_status.$(OBJEXT) \
 	src/protocols/clamav.$(OBJEXT) src/protocols/default.$(OBJEXT) \
 	src/protocols/dns.$(OBJEXT) src/protocols/dwp.$(OBJEXT) \
-	src/protocols/ftp.$(OBJEXT) src/protocols/generic.$(OBJEXT) \
-	src/protocols/gps.$(OBJEXT) src/protocols/http.$(OBJEXT) \
-	src/protocols/imap.$(OBJEXT) src/protocols/ldap2.$(OBJEXT) \
-	src/protocols/ldap3.$(OBJEXT) src/protocols/lmtp.$(OBJEXT) \
-	src/protocols/memcache.$(OBJEXT) \
+	src/protocols/fail2ban.$(OBJEXT) src/protocols/ftp.$(OBJEXT) \
+	src/protocols/generic.$(OBJEXT) src/protocols/gps.$(OBJEXT) \
+	src/protocols/http.$(OBJEXT) src/protocols/imap.$(OBJEXT) \
+	src/protocols/ldap2.$(OBJEXT) src/protocols/ldap3.$(OBJEXT) \
+	src/protocols/lmtp.$(OBJEXT) src/protocols/memcache.$(OBJEXT) \
 	src/protocols/mongodb.$(OBJEXT) src/protocols/mysql.$(OBJEXT) \
 	src/protocols/nntp.$(OBJEXT) src/protocols/ntp3.$(OBJEXT) \
 	src/protocols/pgsql.$(OBJEXT) src/protocols/pop.$(OBJEXT) \
@@ -144,10 +144,11 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/radius.$(OBJEXT) src/protocols/rdate.$(OBJEXT) \
 	src/protocols/redis.$(OBJEXT) src/protocols/rsync.$(OBJEXT) \
 	src/protocols/sieve.$(OBJEXT) src/protocols/sip.$(OBJEXT) \
-	src/protocols/smtp.$(OBJEXT) src/protocols/ssh.$(OBJEXT) \
-	src/protocols/tns.$(OBJEXT) src/protocols/websocket.$(OBJEXT) \
-	src/ssl/Ssl.$(OBJEXT) src/terminal/Box.$(OBJEXT) \
-	src/terminal/Color.$(OBJEXT)
+	src/protocols/smtp.$(OBJEXT) \
+	src/protocols/spamassassin.$(OBJEXT) \
+	src/protocols/ssh.$(OBJEXT) src/protocols/tns.$(OBJEXT) \
+	src/protocols/websocket.$(OBJEXT) src/ssl/Ssl.$(OBJEXT) \
+	src/terminal/Box.$(OBJEXT) src/terminal/Color.$(OBJEXT)
 monit_OBJECTS = $(am_monit_OBJECTS)
 monit_DEPENDENCIES = libmonit/libmonit.la
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -476,6 +477,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/default.c \
 		  src/protocols/dns.c \
 		  src/protocols/dwp.c \
+		  src/protocols/fail2ban.c \
 		  src/protocols/ftp.c \
 		  src/protocols/generic.c \
 		  src/protocols/gps.c \
@@ -500,6 +502,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/sieve.c \
 		  src/protocols/sip.c \
 		  src/protocols/smtp.c \
+		  src/protocols/spamassassin.c \
 		  src/protocols/ssh.c \
 		  src/protocols/tns.c \
 		  src/protocols/websocket.c \
@@ -678,6 +681,7 @@ src/protocols/clamav.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/default.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/dns.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/dwp.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/fail2ban.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ftp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/generic.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/gps.$(OBJEXT): src/protocols/$(am__dirstamp)
@@ -702,6 +706,7 @@ src/protocols/rsync.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/sieve.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/sip.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/smtp.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/spamassassin.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ssh.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/tns.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/websocket.$(OBJEXT): src/protocols/$(am__dirstamp)

@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.22.0" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.23.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -2011,7 +2011,7 @@ cycles. For instance:
 .Sp
 .Vb 3
 \& if failed <test> then exec "/usr/local/bin/sms.sh"
-\&      as uid nobody and gid nobody
+\&      as uid "nobody" and gid "nobody"
 \&      repeat every 5 cycles
 .Ve
 .Sp
@@ -2874,10 +2874,10 @@ or owner and effective user of a process.
 Syntax:
 .PP
 .Vb 1
-\& IF FAILED [E]UID user THEN action
+\& IF FAILED [E]UID <value> THEN action
 .Ve
 .PP
-\&\fIuser\fR defines a user id either in numeric or in string form.
+\&\fIvalue\fR defines a user id either in numeric or in string form.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
@@ -2886,7 +2886,7 @@ Example:
 .PP
 .Vb 2
 \& check file shadow with path /etc/shadow
-\&       if failed uid root then alert
+\&       if failed uid "root" then alert
 .Ve
 .SS "\s-1GID TEST\s0"
 .IX Subsection "GID TEST"
@@ -2896,10 +2896,10 @@ or process.
 Syntax:
 .PP
 .Vb 1
-\& IF FAILED GID group THEN action
+\& IF FAILED GID <value> THEN action
 .Ve
 .PP
-\&\fIgroup\fR defines a group id either in numeric or in string form.
+\&\fIvalue\fR defines a group id either in numeric or in string form.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
@@ -2908,7 +2908,7 @@ Example:
 .PP
 .Vb 2
 \& check file shadow with path /etc/shadow
-\&       if failed gid shadow then alert
+\&       if failed gid "shadow" then alert
 .Ve
 .SS "\s-1PID TEST\s0"
 .IX Subsection "PID TEST"
@@ -3519,6 +3519,7 @@ knows how to speak:
  \fI\s-1SIP\s0\fR
  \fI\s-1SMTP\s0\fR
  \fI\s-1SMTPS\s0\fR
+ \fI\s-1SPAMASSASSIN\s0\fR
  \fI\s-1SSH\s0\fR
  \fI\s-1TNS\s0\fR
  \fI\s-1WEBSOCKET\s0\fR
@@ -4065,7 +4066,7 @@ request to change uid and gid.
 .Vb 7
 \& check process tomcat with pidfile /var/run/tomcat.pid
 \&       start program = "/etc/init.d/tomcat start"
-\&             as uid nobody and gid nobody
+\&             as uid "nobody" and gid "nobody"
 \&       stop program  = "/etc/init.d/tomcat stop"
 \&             # You can also use id numbers instead and write:
 \&             as uid 99 and with gid 99
@@ -4287,8 +4288,8 @@ statement and a file check dependency:
 \&          and expect 8f7f419955cefa0b33a2ba316cba3659
 \&              then unmonitor
 \&       if failed permission 755 then unmonitor
-\&       if failed uid root then unmonitor
-\&       if failed gid root then unmonitor
+\&       if failed uid "root" then unmonitor
+\&       if failed gid "root" then unmonitor
 \&       if changed timestamp then alert
 \&       group apache
 .Ve

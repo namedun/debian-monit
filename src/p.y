@@ -326,7 +326,7 @@ static void _setSSLOptions(SslOptions_T options);
 %token ALERT NOALERT MAILFORMAT UNIXSOCKET SIGNATURE
 %token TIMEOUT RETRY RESTART CHECKSUM EVERY NOTEVERY
 %token DEFAULT HTTP HTTPS APACHESTATUS FTP SMTP SMTPS POP POPS IMAP IMAPS CLAMAV NNTP NTP3 MYSQL DNS WEBSOCKET
-%token SSH DWP LDAP2 LDAP3 RDATE RSYNC TNS PGSQL POSTFIXPOLICY SIP LMTP GPS RADIUS MEMCACHE REDIS MONGODB SIEVE
+%token SSH DWP LDAP2 LDAP3 RDATE RSYNC TNS PGSQL POSTFIXPOLICY SIP LMTP GPS RADIUS MEMCACHE REDIS MONGODB SIEVE SPAMASSASSIN FAIL2BAN
 %token <string> STRING PATH MAILADDR MAILFROM MAILREPLYTO MAILSUBJECT
 %token <string> MAILBODY SERVICENAME STRINGNAME
 %token <number> NUMBER PERCENT LOGLIMIT CLOSELIMIT DNSLIMIT KEEPALIVELIMIT
@@ -451,6 +451,7 @@ optfilesyslist  : /* EMPTY */
 optfilesys      : start
                 | stop
                 | restart
+                | exist
                 | actionrate
                 | every
                 | alert
@@ -1480,6 +1481,9 @@ protocol        : PROTOCOL APACHESTATUS apache_stat_list {
                 | PROTOCOL DWP  {
                         portset.protocol = Protocol_get(Protocol_DWP);
                   }
+                | PROTOCOL FAIL2BAN {
+                        portset.protocol = Protocol_get(Protocol_FAIL2BAN);
+                }
                 | PROTOCOL FTP {
                         portset.protocol = Protocol_get(Protocol_FTP);
                   }
@@ -1546,6 +1550,9 @@ protocol        : PROTOCOL APACHESTATUS apache_stat_list {
                         portset.type = Socket_Tcp;
                         portset.protocol = Protocol_get(Protocol_SMTP);
                  }
+                | PROTOCOL SPAMASSASSIN {
+                        portset.protocol = Protocol_get(Protocol_SPAMASSASSIN);
+                  }
                 | PROTOCOL SSH  {
                         portset.protocol = Protocol_get(Protocol_SSH);
                   }
@@ -2077,7 +2084,7 @@ resourceprocesslist : resourceprocessopt
                     ;
 
 resourceprocessopt  : resourcecpuproc
-                    | resourcemem
+                    | resourcememproc
                     | resourcethreads
                     | resourcechild
                     | resourceload
@@ -2127,6 +2134,18 @@ resourcecpuid   : CPUUSER   { $<number>$ = Resource_CpuUser; }
                 ;
 
 resourcemem     : MEMORY operator value unit {
+                        resourceset.resource_id = Resource_MemoryKbyte;
+                        resourceset.operator = $<number>2;
+                        resourceset.limit = $<real>3 * $<number>4;
+                  }
+                | MEMORY operator value PERCENT {
+                        resourceset.resource_id = Resource_MemoryPercent;
+                        resourceset.operator = $<number>2;
+                        resourceset.limit = $<real>3;
+                  }
+                ;
+
+resourcememproc : MEMORY operator value unit {
                         resourceset.resource_id = Resource_MemoryKbyte;
                         resourceset.operator = $<number>2;
                         resourceset.limit = $<real>3 * $<number>4;
@@ -3569,7 +3588,7 @@ static void addchecksum(Checksum_T cs) {
 
         cs->initialized = true;
 
-        if (! *cs->hash) {
+        if (STR_UNDEF(cs->hash)) {
                 if (cs->type == Hash_Unknown)
                         cs->type = Hash_Default;
                 if (! (Util_getChecksum(current->path, cs->type, cs->hash, sizeof(cs->hash)))) {
