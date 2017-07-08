@@ -1,3 +1,10 @@
+monit (1:5.23.0-2) unstable; urgency=medium
+
+  * Add libdevstat-dev deps, which hopefully fix kFreeBSD builds
+  * Enable hardened build flags
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sat, 08 Jul 2017 13:11:28 +0300
+
 monit (1:5.23.0-1) unstable; urgency=medium
 
   * Imported Upstream version 5.23.0
