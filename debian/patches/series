@@ -2,3 +2,4 @@
  05_monitrc.patch
  07_cross.patch
  11_enable_hurd.patch
+ 12_rvxt_fix.patch

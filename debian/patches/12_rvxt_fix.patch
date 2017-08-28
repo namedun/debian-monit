@@ -1,0 +1,20 @@
+Description: detect rxvt as color terminal
+Origin: https://bitbucket.org/tildeslash/monit/commits/cf945190
+Bug-Debian: http://bugs.debian.org/867669
+Forwarded: not-needed
+
+---
+ src/terminal/Color.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/src/terminal/Color.c
++++ b/src/terminal/Color.c
+@@ -57,7 +57,7 @@ boolean_t Color_support() {
+                         return true;
+                 } else {
+                         char *term = getenv("TERM");
+-                        if (term && (Str_startsWith(term, "screen") || Str_startsWith(term, "xterm") || Str_startsWith(term, "vt100") || Str_startsWith(term, "ansi") || Str_startsWith(term, "linux") || Str_sub(term, "color")))
++                        if (term && (Str_startsWith(term, "screen") || Str_startsWith(term, "xterm") || Str_startsWith(term, "vt100") || Str_startsWith(term, "ansi") || Str_startsWith(term, "linux") || Str_startsWith(term, "rxvt") || Str_sub(term, "color")))
+                                 return true;
+                 }
+         }
