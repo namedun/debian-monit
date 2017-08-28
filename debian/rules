@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 %:
 	dh $@ --with autoreconf
@@ -14,3 +15,5 @@ override_dh_fixperms:
 	chmod 600 debian/monit/etc/monit/monitrc
 	chmod 0700 debian/monit/var/lib/monit/events
 
+override_dh_missing:
+	dh_missing --fail-missing

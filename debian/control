@@ -3,11 +3,11 @@ Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
 Uploaders: Victor Seva <linuxmaniac@torreviejawireless.org>
-Build-Depends: debhelper (>= 9), libssl-dev, zlib1g-dev,
+Build-Depends: debhelper (>= 10), libssl-dev, zlib1g-dev,
  libpam-dev, libkvm-dev [kfreebsd-any], dh-autoreconf,
  libdevstat-dev [kfreebsd-any]
 Standards-Version: 4.0.0
-Homepage: http://mmonit.com/monit/
+Homepage: https://mmonit.com/monit/
 Vcs-Git: git://anonscm.debian.org/collab-maint/monit.git
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/monit.git/
 
