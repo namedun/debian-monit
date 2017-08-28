@@ -1,3 +1,12 @@
+monit (1:5.23.0-3) unstable; urgency=medium
+
+  * Apply patches from Christian Göttsche: switch to debhelper compat level
+    10, strip unneeded linked libraries, use https addresses (Closes: #872715)
+  * Bump up Standards-Version (to 4.1.0)
+  * Detect rxvt as color terminal (Closes: #867669)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 28 Aug 2017 14:57:38 +0300
+
 monit (1:5.23.0-2) unstable; urgency=medium
 
   * Add libdevstat-dev deps, which hopefully fix kFreeBSD builds
