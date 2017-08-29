@@ -1,3 +1,10 @@
+monit (1:5.23.0-4) unstable; urgency=medium
+
+  * Drop dh-autoreconf deps (redundant for debhelper level 10)
+  * Drop quotation marks from arguments of mv_conffile (Closes: #873539)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 29 Aug 2017 18:22:44 +0300
+
 monit (1:5.23.0-3) unstable; urgency=medium
 
   * Apply patches from Christian Göttsche: switch to debhelper compat level
