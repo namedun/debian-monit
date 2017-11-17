@@ -469,6 +469,9 @@
 /* Define to 1 if you have openssl with TLSv1.2 */
 #undef HAVE_TLSV1_2
 
+/* Define to 1 if you have openssl with TLSv1.3 */
+#undef HAVE_TLSV1_3
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
@@ -533,8 +536,7 @@
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
 
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
 /* Name of package */
