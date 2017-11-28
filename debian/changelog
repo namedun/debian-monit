@@ -1,3 +1,12 @@
+monit (1:5.25.1-1) unstable; urgency=medium
+
+  * New upstream version 5.25.1
+  * Refresh patches
+  * Drop inactive uploaders
+  * Bump up Standards-Version (to 4.1.1)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 28 Nov 2017 14:02:23 +0300
+
 monit (1:5.23.0-4) unstable; urgency=medium
 
   * Drop dh-autoreconf deps (redundant for debhelper level 10)
