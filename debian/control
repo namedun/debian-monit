@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
 Build-Depends: debhelper (>= 10), libssl-dev, zlib1g-dev,
  libpam-dev, libkvm-dev [kfreebsd-any], libdevstat-dev [kfreebsd-any]
-Standards-Version: 4.1.0
+Standards-Version: 4.1.1
 Homepage: https://mmonit.com/monit/
 Vcs-Git: git://anonscm.debian.org/collab-maint/monit.git
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/monit.git/
