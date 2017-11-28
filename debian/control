@@ -2,7 +2,6 @@ Source: monit
 Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
-Uploaders: Victor Seva <linuxmaniac@torreviejawireless.org>
 Build-Depends: debhelper (>= 10), libssl-dev, zlib1g-dev,
  libpam-dev, libkvm-dev [kfreebsd-any], libdevstat-dev [kfreebsd-any]
 Standards-Version: 4.1.0
