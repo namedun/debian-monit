@@ -116,7 +116,7 @@ AC_CHECK_HEADERS([ctype.h errno.h fcntl.h limits.h pthread.h setjmp.h \
                   sys/sendfile.h sys/dirent.h poll.h sys/poll.h sys/event.h \
                   stropts.h sys/ioctl.h sys/filio.h kstat.h ifaddrs.h \
                   net/if_media.h netinet/in.h sys/sysctl.h net/if_dl.h \
-                  sys/protosw.h mach/boolean.h uvm/uvm_param.h])
+                  sys/random.h sys/protosw.h mach/boolean.h uvm/uvm_param.h])
 AC_CHECK_HEADERS([net/if.h net/route.h], [], [],
         [
          #ifdef HAVE_SYS_TYPES_H
@@ -192,6 +192,10 @@ AC_CACHE_CHECK([vsnprintf is c99 conformant],
 
 AC_CHECK_FUNCS([timegm])
 
+# random number generators
+AC_CHECK_FUNCS([getrandom])
+AC_CHECK_FUNCS([arc4random_buf])
+
 # ------------------------------------------------------------------------
 # Architecture/OS
 # ------------------------------------------------------------------------
@@ -232,10 +236,6 @@ then
        LDFLAGS="$LDFLAGS -mtune=v9"
    fi
    AC_DEFINE([SOLARIS], 1, [Define to 1 if the system is SOLARIS])
-elif test "$architecture" = "HP-UX"
-then
-   CFLAGS="$CFLAGS -D_REENTRANT -D _INCLUDE_XOPEN_SOURCE -D _INCLUDE_XOPEN_SOURCE_EXTENDED -D _XOPEN_SOURCE_EXTENDED -D _INCLUDE_HPUX_SOURCE"
-   AC_DEFINE([HPUX], 1, [Define to 1 if the system is HPUX])
 elif test "$architecture" = "NetBSD"
 then
    CFLAGS="$CFLAGS -D_REENTRANT -Wno-char-subscripts"

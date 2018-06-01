@@ -1889,6 +1889,11 @@ icmpcount       : COUNT NUMBER {
 
 icmpsize        : SIZE NUMBER {
                         icmpset.size = $<number>2;
+                        if (icmpset.size < 8) {
+                                yyerror2("The minimum ping size is 8 bytes");
+                        } else if (icmpset.size > 1492) {
+                                yyerror2("The maximum ping size is 1492 bytes");
+                        }
                  }
                 ;
 
@@ -2500,11 +2505,9 @@ inode           : IF INODE operator NUMBER rate1 THEN action1 recovery {
                 ;
 
 space           : IF SPACE operator value unit rate1 THEN action1 recovery {
-                        if (! filesystem_usage(current))
-                                yyerror2("Cannot read usage of filesystem %s", current->path);
                         filesystemset.resource = Resource_Space;
                         filesystemset.operator = $<number>3;
-                        filesystemset.limit_absolute = (long long)((double)$<real>4 / (double)current->inf.filesystem->f_bsize * (double)$<number>5);
+                        filesystemset.limit_absolute = $<real>4 * $<number>5;
                         addeventaction(&(filesystemset).action, $<number>8, $<number>9);
                         addfilesystem(&filesystemset);
                   }
@@ -2516,11 +2519,9 @@ space           : IF SPACE operator value unit rate1 THEN action1 recovery {
                         addfilesystem(&filesystemset);
                   }
                 | IF SPACE TFREE operator value unit rate1 THEN action1 recovery {
-                        if (! filesystem_usage(current))
-                                yyerror2("Cannot read usage of filesystem %s", current->path);
                         filesystemset.resource = Resource_SpaceFree;
                         filesystemset.operator = $<number>4;
-                        filesystemset.limit_absolute = (long long)((double)$<real>5 / (double)current->inf.filesystem->f_bsize * (double)$<number>6);
+                        filesystemset.limit_absolute = $<real>5 * $<number>6;
                         addeventaction(&(filesystemset).action, $<number>9, $<number>10);
                         addfilesystem(&filesystemset);
                   }
@@ -3406,11 +3407,7 @@ static void addport(Port_T *list, Port_T port) {
                         p->parameters.http.hashtype = Hash_Unknown;
                 }
                 if (! p->parameters.http.method) {
-                        if ((p->url_request && p->url_request->regex) || p->parameters.http.checksum) {
-                                p->parameters.http.method = Http_Get;
-                        } else {
-                                p->parameters.http.method = Http_Head;
-                        }
+                        p->parameters.http.method = Http_Get;
                 } else if (p->parameters.http.method == Http_Head) {
                         // Sanity check: if content or checksum test is used, the method Http_Head is not allowed, as we need the content
                         if ((p->url_request && p->url_request->regex) || p->parameters.http.checksum) {
@@ -3837,52 +3834,41 @@ static void addmatch(Match_T ms, int actionnumber, int linenumber) {
 
 
 static void addmatchpath(Match_T ms, Action_Type actionnumber) {
-
-        FILE *handle;
-        command_t savecommand = NULL;
-        char buf[2048];
-        int linenumber = 0;
-
         ASSERT(ms->match_path);
 
-        handle = fopen(ms->match_path, "r");
+        FILE *handle = fopen(ms->match_path, "r");
         if (handle == NULL) {
                 yyerror2("Cannot read regex match file (%s)", ms->match_path);
                 return;
         }
 
-        while (! feof(handle)) {
-                size_t len;
+        // The addeventaction() called from addmatch() will reset the command1 to NULL, but we need to duplicate the command for each line, thus need to save it here
+        command_t savecommand = command1;
+        for (int linenumber = 1; ! feof(handle); linenumber++) {
+                char buf[2048];
 
-                linenumber++;
-
-                if (! fgets(buf, 2048, handle))
+                if (! fgets(buf, sizeof(buf), handle))
                         continue;
 
-                len = strlen(buf);
+                size_t len = strlen(buf);
 
                 if (len == 0 || buf[0] == '\n')
                         continue;
 
-                if (buf[len-1] == '\n')
-                        buf[len-1] = 0;
+                if (buf[len - 1] == '\n')
+                        buf[len - 1] = 0;
 
                 ms->match_string = Str_dup(buf);
 
-                /* The addeventaction() called from addmatch() will reset the
-                 * command1 to NULL, but we need to duplicate the command for
-                 * each line, thus need to save it here */
                 if (actionnumber == Action_Exec) {
                         if (command1 == NULL) {
                                 ASSERT(savecommand);
-                                command1 = savecommand;
+                                command1 = copycommand(savecommand);
                         }
-                        savecommand = copycommand(command1);
                 }
                 
                 addmatch(ms, actionnumber, linenumber);
         }
-        
         if (actionnumber == Action_Exec && savecommand)
                 gccmd(&savecommand);
         
@@ -4916,7 +4902,7 @@ static command_t copycommand(command_t source) {
         copy->gid = source->gid;
         copy->timeout = source->timeout;
         for (i = 0; i < copy->length; i++)
-        copy->arg[i] = Str_dup(source->arg[i]);
+                copy->arg[i] = Str_dup(source->arg[i]);
         copy->arg[copy->length] = NULL;
 
         return copy;

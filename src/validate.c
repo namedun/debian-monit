@@ -146,18 +146,18 @@ static State_Type _checkConnection(Service_T s, Port_T p) {
         volatile int retry_count = p->retry;
         volatile State_Type rv = State_Succeeded;
         char buf[STRLEN];
-        char report[STRLEN] = {};
+        char report[1024] = {};
 retry:
         TRY
         {
                 Socket_test(p);
                 rv = State_Succeeded;
-                DEBUG("'%s' succeeded testing protocol [%s] at %s [response time %s]\n", s->name, p->protocol->name, Util_portDescription(p, buf, sizeof(buf)), Str_time2str(p->response, (char[10]){}));
+                DEBUG("'%s' succeeded testing protocol [%s] at %s [response time %s]\n", s->name, p->protocol->name, Util_portDescription(p, buf, sizeof(buf)), Str_time2str(p->response, (char[11]){}));
         }
         ELSE
         {
                 rv = State_Failed;
-                snprintf(report, STRLEN, "failed protocol test [%s] at %s -- %s", p->protocol->name, Util_portDescription(p, buf, sizeof(buf)), Exception_frame.message);
+                snprintf(report, sizeof(report), "failed protocol test [%s] at %s -- %s", p->protocol->name, Util_portDescription(p, buf, sizeof(buf)), Exception_frame.message);
         }
         END_TRY;
         if (rv == State_Failed) {
@@ -238,7 +238,7 @@ static State_Type _checkProcessResources(Service_T s, Resource_T r) {
         ASSERT(s);
         ASSERT(r);
         State_Type rv = State_Succeeded;
-        char report[STRLEN] = {}, buf1[STRLEN], buf2[STRLEN];
+        char report[STRLEN] = {}, buf1[10], buf2[10];
         switch (r->resource_id) {
                 case Resource_CpuPercent:
                         if (s->inf.process->cpu_percent < 0.) {
@@ -409,7 +409,7 @@ static State_Type _checkSystemResources(Service_T s, Resource_T r) {
         ASSERT(s);
         ASSERT(r);
         State_Type rv = State_Succeeded;
-        char report[STRLEN] = {}, buf1[STRLEN], buf2[STRLEN];
+        char report[STRLEN] = {}, buf1[10], buf2[10];
         switch (r->resource_id) {
                 case Resource_CpuPercent:
                         {
@@ -1010,8 +1010,8 @@ static State_Type _checkFilesystemResources(Service_T s, FileSystem_T td) {
                                         return State_Failed;
                                 }
                         } else {
-                                if (Util_evalQExpression(td->operator, s->inf.filesystem->inode_total, td->limit_absolute)) {
-                                        Event_post(s, Event_Resource, State_Failed, td->action, "inode usage %lld matches resource limit [inode usage %s %lld]", s->inf.filesystem->inode_total, operatorshortnames[td->operator], td->limit_absolute);
+                                if (Util_evalQExpression(td->operator, s->inf.filesystem->f_filesused, td->limit_absolute)) {
+                                        Event_post(s, Event_Resource, State_Failed, td->action, "inode usage %lld matches resource limit [inode usage %s %lld]", s->inf.filesystem->f_filesused, operatorshortnames[td->operator], td->limit_absolute);
                                         return State_Failed;
                                 }
                         }
@@ -1044,16 +1044,13 @@ static State_Type _checkFilesystemResources(Service_T s, FileSystem_T td) {
                                         return State_Failed;
                                 }
                         } else {
-                                if (Util_evalQExpression(td->operator, s->inf.filesystem->space_total, td->limit_absolute)) {
-                                        if (s->inf.filesystem->f_bsize > 0) {
-                                                char buf1[STRLEN];
-                                                char buf2[STRLEN];
-                                                Str_bytes2str(s->inf.filesystem->space_total * s->inf.filesystem->f_bsize, buf1);
-                                                Str_bytes2str(td->limit_absolute * s->inf.filesystem->f_bsize, buf2);
-                                                Event_post(s, Event_Resource, State_Failed, td->action, "space usage %s matches resource limit [space usage %s %s]", buf1, operatorshortnames[td->operator], buf2);
-                                        } else {
-                                                Event_post(s, Event_Resource, State_Failed, td->action, "space usage %lld blocks matches resource limit [space usage %s %lld blocks]", s->inf.filesystem->space_total, operatorshortnames[td->operator], td->limit_absolute);
-                                        }
+                                int64_t bytesUsed = s->inf.filesystem->f_blocksused * (s->inf.filesystem->f_bsize > 0 ? s->inf.filesystem->f_bsize : 1);
+                                if (Util_evalQExpression(td->operator, bytesUsed, td->limit_absolute)) {
+                                        char buf1[10];
+                                        char buf2[10];
+                                        Str_bytes2str(bytesUsed, buf1);
+                                        Str_bytes2str(td->limit_absolute, buf2);
+                                        Event_post(s, Event_Resource, State_Failed, td->action, "space usage %s matches resource limit [space usage %s %s]", buf1, operatorshortnames[td->operator], buf2);
                                         return State_Failed;
                                 }
                         }
@@ -1067,16 +1064,13 @@ static State_Type _checkFilesystemResources(Service_T s, FileSystem_T td) {
                                         return State_Failed;
                                 }
                         } else {
-                                if (Util_evalQExpression(td->operator, s->inf.filesystem->f_blocksfreetotal, td->limit_absolute)) {
-                                        if (s->inf.filesystem->f_bsize > 0) {
-                                                char buf1[STRLEN];
-                                                char buf2[STRLEN];
-                                                Str_bytes2str(s->inf.filesystem->f_blocksfreetotal * s->inf.filesystem->f_bsize, buf1);
-                                                Str_bytes2str(td->limit_absolute * s->inf.filesystem->f_bsize, buf2);
-                                                Event_post(s, Event_Resource, State_Failed, td->action, "space free %s matches resource limit [space free %s %s]", buf1, operatorshortnames[td->operator], buf2);
-                                        } else {
-                                                Event_post(s, Event_Resource, State_Failed, td->action, "space free %lld blocks matches resource limit [space free %s %lld blocks]", s->inf.filesystem->f_blocksfreetotal, operatorshortnames[td->operator], td->limit_absolute);
-                                        }
+				int64_t bytesFreeTotal = s->inf.filesystem->f_blocksfreetotal * (s->inf.filesystem->f_bsize > 0 ? s->inf.filesystem->f_bsize : 1);
+                                if (Util_evalQExpression(td->operator, bytesFreeTotal, td->limit_absolute)) {
+                                        char buf1[10];
+                                        char buf2[10];
+                                        Str_bytes2str(bytesFreeTotal, buf1);
+                                        Str_bytes2str(td->limit_absolute, buf2);
+                                        Event_post(s, Event_Resource, State_Failed, td->action, "space free %s matches resource limit [space free %s %s]", buf1, operatorshortnames[td->operator], buf2);
                                         return State_Failed;
                                 }
                         }
@@ -1162,7 +1156,7 @@ static State_Type _checkFilesystemResources(Service_T s, FileSystem_T td) {
                                 double deltaOperations = Statistics_delta(&(s->inf.filesystem->read.operations)) + Statistics_delta(&(s->inf.filesystem->write.operations));
                                 double serviceTime = deltaOperations > 0. ? deltaTime / deltaOperations : 0.;
                                 if (Util_evalDoubleQExpression(td->operator, serviceTime, td->limit_absolute)) {
-                                        Event_post(s, Event_Resource, State_Failed, td->action, "service time %.3fms/operation matches resource limit [service time %s %s/operation]", serviceTime, operatorshortnames[td->operator], Str_time2str(td->limit_absolute, (char[10]){}));
+                                        Event_post(s, Event_Resource, State_Failed, td->action, "service time %.3fms/operation matches resource limit [service time %s %s/operation]", serviceTime, operatorshortnames[td->operator], Str_time2str(td->limit_absolute, (char[11]){}));
                                         return State_Failed;
                                 }
                                 Event_post(s, Event_Resource, State_Succeeded, td->action, "service time test succeeded [current service time = %.3f ms/operations]", serviceTime);
@@ -1235,12 +1229,14 @@ static boolean_t _checkSkip(Service_T s) {
         // Skip if parent is not initialized
         for (Dependant_T d = s->dependantlist; d; d = d->next ) {
                 Service_T parent = Util_getService(d->dependant);
-                if (parent->monitor != Monitor_Yes) {
-                        DEBUG("'%s' test skipped as required service '%s' is %s\n", s->name, parent->name, parent->monitor == Monitor_Init ? "initializing" : "not monitored");
-                        return true;
-                } else if (parent->error) {
-                        DEBUG("'%s' test skipped as required service '%s' has errors\n", s->name, parent->name);
-                        return true;
+                if (parent) {
+                        if (parent->monitor != Monitor_Yes) {
+                                DEBUG("'%s' test skipped as required service '%s' is %s\n", s->name, parent->name, parent->monitor == Monitor_Init ? "initializing" : "not monitored");
+                                return true;
+                        } else if (parent->error) {
+                                DEBUG("'%s' test skipped as required service '%s' has errors\n", s->name, parent->name);
+                                return true;
+                        }
                 }
         }
         return false;
@@ -1287,9 +1283,7 @@ int validate() {
 
         int errors = 0;
         /* Check the services */
-        for (Service_T s = servicelist; s; s = s->next) {
-                if (Run.flags & Run_Stopped)
-                        break;
+        for (Service_T s = servicelist; s && ! interrupt(); s = s->next) {
                 // FIXME: The Service_Program must collect the exit value from last run, even if the program start should be skipped in this cycle => let check program always run the test (to be refactored with new scheduler)
                 if (! _doScheduledAction(s) && s->monitor && (s->type == Service_Program || ! _checkSkip(s))) {
                         _checkTimeout(s); // Can disable monitoring => need to check s->monitor again
@@ -1365,7 +1359,7 @@ State_Type check_process(Service_T s) {
                         rv = State_Failed;
                 }
         }
-        int64_t uptimeMilli = s->inf.process->uptime * 1000;
+        int64_t uptimeMilli = (int64_t)(s->inf.process->uptime) * 1000LL;
         for (Port_T pp = s->portlist; pp; pp = pp->next) {
                 //FIXME: instead of pause, try to test, but ignore any errors in the start timeout timeframe ... will allow to display the port response time as soon as available, instead of waiting for 30+ seconds
                 /* pause port tests in the start timeout timeframe while the process is starting (it may take some time to the process before it starts accepting connections) */
@@ -1374,7 +1368,7 @@ State_Type check_process(Service_T s) {
                                 rv = State_Failed;
                 } else {
                         pp->is_available = Connection_Init;
-                        DEBUG("'%s' connection test paused for %s while the process is starting\n", s->name, Str_time2str(s->start->timeout - (uptimeMilli < 0 ? 0 : uptimeMilli), (char[10]){}));
+                        DEBUG("'%s' connection test paused for %s while the process is starting\n", s->name, Str_time2str(s->start->timeout - (uptimeMilli < 0 ? 0 : uptimeMilli), (char[11]){}));
                 }
         }
         for (Port_T pp = s->socketlist; pp; pp = pp->next) {
@@ -1385,7 +1379,7 @@ State_Type check_process(Service_T s) {
                                 rv = State_Failed;
                 } else {
                         pp->is_available = Connection_Init;
-                        DEBUG("'%s' connection test paused for %s while the process is starting\n", s->name, Str_time2str(s->start->timeout - (uptimeMilli < 0 ? 0 : uptimeMilli), (char[10]){}));
+                        DEBUG("'%s' connection test paused for %s while the process is starting\n", s->name, Str_time2str(s->start->timeout - (uptimeMilli < 0 ? 0 : uptimeMilli), (char[11]){}));
                 }
         }
         return rv;
@@ -1617,7 +1611,7 @@ State_Type check_program(Service_T s) {
                         int64_t execution_time = (now - s->program->started) * 1000;
                         if (execution_time > s->program->timeout) { // Program timed out
                                 rv = State_Failed;
-                                LogError("'%s' program timed out after %s. Killing program with pid %ld\n", s->name, Str_time2str(execution_time, (char[10]){}), (long)Process_getPid(P));
+                                LogError("'%s' program timed out after %s. Killing program with pid %ld\n", s->name, Str_time2str(execution_time, (char[11]){}), (long)Process_getPid(P));
                                 Process_kill(P);
                                 Process_waitFor(P); // Wait for child to exit to get correct exit value
                                 // Fall-through with P and evaluate exit value below.
@@ -1704,7 +1698,7 @@ State_Type check_remote_host(Service_T s) {
                                         Event_post(s, Event_Icmp, State_Failed, icmp->action, "ping test failed");
                                 } else {
                                         icmp->is_available = Connection_Ok;
-                                        Event_post(s, Event_Icmp, State_Succeeded, icmp->action, "ping test succeeded [response time %s]", Str_time2str(icmp->response, (char[10]){}));
+                                        Event_post(s, Event_Icmp, State_Succeeded, icmp->action, "ping test succeeded [response time %s]", Str_time2str(icmp->response, (char[11]){}));
                                 }
                                 last_ping = icmp;
                                 break;
@@ -1759,7 +1753,7 @@ State_Type check_net(Service_T s) {
         if (! havedata)
                 return State_Failed; // Terminate test if no data are available
         for (LinkStatus_T link = s->linkstatuslist; link; link = link->next) {
-                Event_post(s, Event_Size, State_Succeeded, link->action, "link data collection succeeded");
+                Event_post(s, Event_Link, State_Succeeded, link->action, "link data collection succeeded");
         }
         // State
         if (! Link_getState(s->inf.net->stats)) {
@@ -1830,7 +1824,7 @@ State_Type check_net(Service_T s) {
                 }
         }
         // Upload
-        char buf1[STRLEN], buf2[STRLEN];
+        char buf1[10], buf2[10];
         for (Bandwidth_T upload = s->uploadbyteslist; upload; upload = upload->next) {
                 long long obytes;
                 switch (upload->range) {

@@ -15,6 +15,9 @@
 /* Define to 1 if the system is FreeBSD */
 #undef FREEBSD
 
+/* Define to 1 if you have the `arc4random_buf' function. */
+#undef HAVE_ARC4RANDOM_BUF
+
 /* Define to 1 if the system has the type `boolean_t'. */
 #undef HAVE_BOOLEAN_T
 
@@ -32,6 +35,9 @@
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
+
+/* Define to 1 if you have the `getrandom' function. */
+#undef HAVE_GETRANDOM
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #undef HAVE_IFADDRS_H
@@ -129,6 +135,9 @@
 /* Define to 1 if you have the <sys/protosw.h> header file. */
 #undef HAVE_SYS_PROTOSW_H
 
+/* Define to 1 if you have the <sys/random.h> header file. */
+#undef HAVE_SYS_RANDOM_H
+
 /* Define to 1 if you have the <sys/sendfile.h> header file. */
 #undef HAVE_SYS_SENDFILE_H
 
@@ -164,9 +173,6 @@
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
-
-/* Define to 1 if the system is HPUX */
-#undef HPUX
 
 /* Define to 1 if the system supports IPv6 */
 #undef IPV6

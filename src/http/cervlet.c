@@ -250,7 +250,7 @@ static void _formatStatus(const char *name, Event_Type errorType, Output_Type ty
                         StringBuffer_append(res->outputbuffer, type == HTML ? "<td>" : COLOR_DEFAULT);
                 if (type == HTML) {
                         // If the output contains multiple line, wrap use <pre>, otherwise keep as is
-                        int multiline = strrchr(_value, '\n') > 0;
+                        boolean_t multiline = strrchr(_value, '\n') ? true : false;
                         if (multiline)
                                 StringBuffer_append(res->outputbuffer, "<pre>");
                         escapeHTML(res->outputbuffer, _value);
@@ -448,7 +448,7 @@ static void _printStatus(Output_Type type, HttpResponse res, Service_T s) {
                         if (i->is_available == Connection_Failed)
                                 _formatStatus("ping response time", Event_Icmp, type, res, s, true, "connection failed");
                         else
-                                _formatStatus("ping response time", Event_Null, type, res, s, i->is_available != Connection_Init && i->response >= 0., "%s", Str_time2str(i->response, (char[23]){}));
+                                _formatStatus("ping response time", Event_Null, type, res, s, i->is_available != Connection_Init && i->response >= 0., "%s", Str_time2str(i->response, (char[11]){}));
                 }
                 for (Port_T p = s->portlist; p; p = p->next) {
                         if (p->is_available == Connection_Failed) {
@@ -457,14 +457,14 @@ static void _printStatus(Output_Type type, HttpResponse res, Service_T s) {
                                 char buf[STRLEN] = {};
                                 if (p->target.net.ssl.options.flags)
                                         snprintf(buf, sizeof(buf), "using TLS (certificate valid for %d days) ", p->target.net.ssl.certificate.validDays);
-                                _formatStatus("port response time", p->target.net.ssl.certificate.validDays < p->target.net.ssl.certificate.minimumDays ? Event_Timestamp : Event_Null, type, res, s, p->is_available != Connection_Init, "%s to %s:%d%s type %s/%s %sprotocol %s", Str_time2str(p->response, (char[23]){}), p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), buf, p->protocol->name);
+                                _formatStatus("port response time", p->target.net.ssl.certificate.validDays < p->target.net.ssl.certificate.minimumDays ? Event_Timestamp : Event_Null, type, res, s, p->is_available != Connection_Init, "%s to %s:%d%s type %s/%s %sprotocol %s", Str_time2str(p->response, (char[11]){}), p->hostname, p->target.net.port, Util_portRequestDescription(p), Util_portTypeDescription(p), Util_portIpDescription(p), buf, p->protocol->name);
                         }
                 }
                 for (Port_T p = s->socketlist; p; p = p->next) {
                         if (p->is_available == Connection_Failed) {
                                 _formatStatus("unix socket response time", Event_Connection, type, res, s, true, "FAILED to %s type %s protocol %s", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name);
                         } else {
-                                _formatStatus("unix socket response time", Event_Null, type, res, s, p->is_available != Connection_Init, "%s to %s type %s protocol %s", Str_time2str(p->response, (char[23]){}), p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name);
+                                _formatStatus("unix socket response time", Event_Null, type, res, s, p->is_available != Connection_Init, "%s to %s type %s protocol %s", Str_time2str(p->response, (char[11]){}), p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name);
                         }
                 }
         }
@@ -556,7 +556,9 @@ static void printFavicon(HttpResponse res) {
                 Socket_print(S, "Content-length: %lu\r\n", (unsigned long)l);
                 Socket_print(S, "Content-Type: image/x-icon\r\n");
                 Socket_print(S, "Connection: close\r\n\r\n");
-                Socket_write(S, favicon, l);
+                if (Socket_write(S, favicon, l) < 0) {
+                        LogError("Error sending favicon data -- %s\n", STRERROR);
+                }
         }
 }
 
@@ -631,7 +633,7 @@ static void do_foot(HttpResponse res) {
         StringBuffer_append(res->outputbuffer,
                             "</center></div></div>"
                             "<div id='footer'>"
-                            "Copyright &copy; 2001-2017 <a href=\"http://tildeslash.com/\">Tildeslash</a>. All rights reserved. "
+                            "Copyright &copy; 2001-2018 <a href=\"http://tildeslash.com/\">Tildeslash</a>. All rights reserved. "
                             "<span style='margin-left:5px;'></span>"
                             "<a href=\"http://mmonit.com/monit/\">Monit web site</a> | "
                             "<a href=\"http://mmonit.com/wiki/\">Monit Wiki</a> | "
@@ -673,7 +675,7 @@ static void do_about(HttpResponse res) {
                             "monit " VERSION "</a></center></h1>");
         StringBuffer_append(res->outputbuffer,
                             "<ul>"
-                            "<li style='padding-bottom:10px;'>Copyright &copy; 2001-2017 <a "
+                            "<li style='padding-bottom:10px;'>Copyright &copy; 2001-2018 <a "
                             "href='http://tildeslash.com/'>Tildeslash Ltd"
                             "</a>. All Rights Reserved.</li></ul>");
         StringBuffer_append(res->outputbuffer, "<hr size='1'>");
@@ -755,7 +757,7 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
                 StringBuffer_append(res->outputbuffer, "<tr><td>M/Monit server(s)</td><td>");
                 for (Mmonit_T c = Run.mmonits; c; c = c->next)
                 {
-                        StringBuffer_append(res->outputbuffer, "%s with timeout %s", c->url->url, Str_time2str(c->timeout, (char[23]){}));
+                        StringBuffer_append(res->outputbuffer, "%s with timeout %s", c->url->url, Str_time2str(c->timeout, (char[11]){}));
 #ifdef HAVE_OPENSSL
                         if (c->ssl.flags) {
                                 StringBuffer_append(res->outputbuffer, " using TLS");
@@ -816,11 +818,11 @@ static void do_runtime(HttpRequest req, HttpResponse res) {
         StringBuffer_append(res->outputbuffer, "<tr><td>Limit for file content buffer</td><td>%s</td></tr>", Str_bytes2str(Run.limits.fileContentBuffer, buf));
         StringBuffer_append(res->outputbuffer, "<tr><td>Limit for HTTP content buffer</td><td>%s</td></tr>", Str_bytes2str(Run.limits.httpContentBuffer, buf));
         StringBuffer_append(res->outputbuffer, "<tr><td>Limit for program output</td><td>%s</td></tr>", Str_bytes2str(Run.limits.programOutput, buf));
-        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for network timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.networkTimeout, (char[23]){}));
-        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for check program timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.programTimeout, (char[23]){}));
-        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for service stop timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.stopTimeout, (char[23]){}));
-        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for service start timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.startTimeout, (char[23]){}));
-        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for service restart timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.restartTimeout, (char[23]){}));
+        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for network timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.networkTimeout, (char[11]){}));
+        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for check program timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.programTimeout, (char[11]){}));
+        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for service stop timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.stopTimeout, (char[11]){}));
+        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for service start timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.startTimeout, (char[11]){}));
+        StringBuffer_append(res->outputbuffer, "<tr><td>Limit for service restart timeout</td><td>%s</td></tr>", Str_time2str(Run.limits.restartTimeout, (char[11]){}));
         StringBuffer_append(res->outputbuffer,
                             "<tr><td>On reboot</td><td>%s</td></tr>", onrebootnames[Run.onreboot]);
         StringBuffer_append(res->outputbuffer,
@@ -897,25 +899,19 @@ static void do_viewlog(HttpRequest req, HttpResponse res) {
         }
         do_head(res, "_viewlog", "View log", 100);
         if ((Run.flags & Run_Log) && ! (Run.flags & Run_UseSyslog)) {
-                struct stat sb;
-                if (! stat(Run.files.log, &sb)) {
-                        FILE *f = fopen(Run.files.log, "r");
-                        if (f) {
-#define BUFSIZE 512
-                                size_t n;
-                                char buf[BUFSIZE+1];
-                                StringBuffer_append(res->outputbuffer, "<br><p><form><textarea cols=120 rows=30 readonly>");
-                                while ((n = fread(buf, sizeof(char), BUFSIZE, f)) > 0) {
-                                        buf[n] = 0;
-                                        StringBuffer_append(res->outputbuffer, "%s", buf);
-                                }
-                                fclose(f);
-                                StringBuffer_append(res->outputbuffer, "</textarea></form>");
-                        } else {
-                                StringBuffer_append(res->outputbuffer, "Error opening logfile: %s", STRERROR);
+                FILE *f = fopen(Run.files.log, "r");
+                if (f) {
+                        size_t n;
+                        char buf[512];
+                        StringBuffer_append(res->outputbuffer, "<br><p><form><textarea cols=120 rows=30 readonly>");
+                        while ((n = fread(buf, sizeof(char), sizeof(buf) - 1, f)) > 0) {
+                                buf[n] = 0;
+                                StringBuffer_append(res->outputbuffer, "%s", buf);
                         }
+                        fclose(f);
+                        StringBuffer_append(res->outputbuffer, "</textarea></form>");
                 } else {
-                        StringBuffer_append(res->outputbuffer, "Error stating logfile: %s", STRERROR);
+                        StringBuffer_append(res->outputbuffer, "Error opening logfile: %s", STRERROR);
                 }
         } else {
                 StringBuffer_append(res->outputbuffer,
@@ -931,9 +927,13 @@ static void do_viewlog(HttpRequest req, HttpResponse res) {
 
 static void handle_service(HttpRequest req, HttpResponse res) {
         char *name = req->url;
+        if (! name) {
+                send_error(req, res, SC_NOT_FOUND, "Service name required");
+                return;
+        }
         Service_T s = Util_getService(++name);
         if (! s) {
-                send_error(req, res, SC_NOT_FOUND, "There is no service named \"%s\"", name ? name : "");
+                send_error(req, res, SC_NOT_FOUND, "There is no service named \"%s\"", name);
                 return;
         }
         do_service(req, res, s);
@@ -942,9 +942,13 @@ static void handle_service(HttpRequest req, HttpResponse res) {
 
 static void handle_service_action(HttpRequest req, HttpResponse res) {
         char *name = req->url;
+        if (! name) {
+                send_error(req, res, SC_NOT_FOUND, "Service name required");
+                return;
+        }
         Service_T s = Util_getService(++name);
         if (! s) {
-                send_error(req, res, SC_NOT_FOUND, "There is no service named \"%s\"", name ? name : "");
+                send_error(req, res, SC_NOT_FOUND, "There is no service named \"%s\"", name);
                 return;
         }
         const char *action = get_parameter(req, "action");
@@ -1093,7 +1097,7 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
                         StringBuffer_append(res->outputbuffer, " as uid %d", s->start->uid);
                 if (s->start->has_gid)
                         StringBuffer_append(res->outputbuffer, " as gid %d", s->start->gid);
-                StringBuffer_append(res->outputbuffer, " timeout %s", Str_time2str(s->start->timeout, (char[23]){}));
+                StringBuffer_append(res->outputbuffer, " timeout %s", Str_time2str(s->start->timeout, (char[11]){}));
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
         if (s->stop) {
@@ -1102,7 +1106,7 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
                         StringBuffer_append(res->outputbuffer, " as uid %d", s->stop->uid);
                 if (s->stop->has_gid)
                         StringBuffer_append(res->outputbuffer, " as gid %d", s->stop->gid);
-                StringBuffer_append(res->outputbuffer, " timeout %s", Str_time2str(s->stop->timeout, (char[23]){}));
+                StringBuffer_append(res->outputbuffer, " timeout %s", Str_time2str(s->stop->timeout, (char[11]){}));
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
         if (s->restart) {
@@ -1111,7 +1115,7 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
                         StringBuffer_append(res->outputbuffer, " as uid %d", s->restart->uid);
                 if (s->restart->has_gid)
                         StringBuffer_append(res->outputbuffer, " as gid %d", s->restart->gid);
-                StringBuffer_append(res->outputbuffer, " timeout %s", Str_time2str(s->restart->timeout, (char[23]){}));
+                StringBuffer_append(res->outputbuffer, " timeout %s", Str_time2str(s->restart->timeout, (char[11]){}));
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
         if (s->every.type != Every_Cycle) {
@@ -1170,45 +1174,37 @@ static void do_home_system(HttpResponse res) {
                             "<table id='header-row'>"
                             "<tr>"
                             "<th class='left first'>System</th>"
-                            "<th class='left'>Status</th>");
-
-        if (Run.flags & Run_ProcessEngineEnabled) {
-                StringBuffer_append(res->outputbuffer,
-                                    "<th class='right column'>Load</th>"
-                                    "<th class='right column'>CPU</th>"
-                                    "<th class='right column'>Memory</th>"
-                                    "<th class='right column'>Swap</th>");
-        }
-        StringBuffer_append(res->outputbuffer,
+                            "<th class='left'>Status</th>"
+                            "<th class='right column'>Load</th>"
+                            "<th class='right column'>CPU</th>"
+                            "<th class='right column'>Memory</th>"
+                            "<th class='right column'>Swap</th>"
                             "</tr>"
                             "<tr class='stripe'>"
                             "<td class='left'><a href='%s'>%s</a></td>"
-                            "<td class='left'>%s</td>",
+                            "<td class='left'>%s</td>"
+                            "<td class='right column'>[%.2f]&nbsp;[%.2f]&nbsp;[%.2f]</td>"
+                            "<td class='right column'>"
+                            "%.1f%%us,&nbsp;%.1f%%sy"
+#ifdef HAVE_CPU_WAIT
+                            ",&nbsp;%.1f%%wa"
+#endif
+                            "</td>",
                             s->name, s->name,
-                            get_service_status(HTML, s, buf, sizeof(buf)));
-        if (Run.flags & Run_ProcessEngineEnabled) {
-                StringBuffer_append(res->outputbuffer,
-                                    "<td class='right column'>[%.2f]&nbsp;[%.2f]&nbsp;[%.2f]</td>"
-                                    "<td class='right column'>"
-                                    "%.1f%%us,&nbsp;%.1f%%sy"
+                            get_service_status(HTML, s, buf, sizeof(buf)),
+                            systeminfo.loadavg[0], systeminfo.loadavg[1], systeminfo.loadavg[2],
+                            systeminfo.cpu.usage.user > 0. ? systeminfo.cpu.usage.user : 0.,
+                            systeminfo.cpu.usage.system > 0. ? systeminfo.cpu.usage.system : 0.
 #ifdef HAVE_CPU_WAIT
-                                    ",&nbsp;%.1f%%wa"
+                            , systeminfo.cpu.usage.wait > 0. ? systeminfo.cpu.usage.wait : 0.
 #endif
-                                    "</td>",
-                                    systeminfo.loadavg[0], systeminfo.loadavg[1], systeminfo.loadavg[2],
-                                    systeminfo.cpu.usage.user > 0. ? systeminfo.cpu.usage.user : 0.,
-                                    systeminfo.cpu.usage.system > 0. ? systeminfo.cpu.usage.system : 0.
-#ifdef HAVE_CPU_WAIT
-                                    , systeminfo.cpu.usage.wait > 0. ? systeminfo.cpu.usage.wait : 0.
-#endif
-                                    );
-                StringBuffer_append(res->outputbuffer,
-                                    "<td class='right column'>%.1f%% [%s]</td>",
-                                    systeminfo.memory.usage.percent, Str_bytes2str(systeminfo.memory.usage.bytes, buf));
-                StringBuffer_append(res->outputbuffer,
-                                    "<td class='right column'>%.1f%% [%s]</td>",
-                                    systeminfo.swap.usage.percent, Str_bytes2str(systeminfo.swap.usage.bytes, buf));
-        }
+                            );
+        StringBuffer_append(res->outputbuffer,
+                            "<td class='right column'>%.1f%% [%s]</td>",
+                            systeminfo.memory.usage.percent, Str_bytes2str(systeminfo.memory.usage.bytes, buf));
+        StringBuffer_append(res->outputbuffer,
+                            "<td class='right column'>%.1f%% [%s]</td>",
+                            systeminfo.swap.usage.percent, Str_bytes2str(systeminfo.swap.usage.bytes, buf));
         StringBuffer_append(res->outputbuffer,
                             "</tr>"
                             "</table>");
@@ -1435,13 +1431,13 @@ static void do_home_filesystem(HttpResponse res) {
                                             "<td class='right column%s'>%.1f%% [%s]</td>",
                                             (s->error & Event_Resource) ? " red-text" : "",
                                             s->inf.filesystem->space_percent,
-                                            s->inf.filesystem->f_bsize > 0 ? Str_bytes2str(s->inf.filesystem->space_total * s->inf.filesystem->f_bsize, buf) : "0 MB");
+                                            s->inf.filesystem->f_bsize > 0 ? Str_bytes2str(s->inf.filesystem->f_blocksused * s->inf.filesystem->f_bsize, buf) : "0 MB");
                         if (s->inf.filesystem->f_files > 0) {
                                 StringBuffer_append(res->outputbuffer,
                                                     "<td class='right column%s'>%.1f%% [%lld objects]</td>",
                                                     (s->error & Event_Resource) ? " red-text" : "",
                                                     s->inf.filesystem->inode_percent,
-                                                    s->inf.filesystem->inode_total);
+                                                    s->inf.filesystem->f_filesused);
                         } else {
                                 StringBuffer_append(res->outputbuffer,
                                                     "<td class='right column'>not supported by filesystem</td>");
@@ -1859,7 +1855,7 @@ static void print_service_rules_port(HttpResponse res, Service_T s) {
                 if (p->outgoing.ip)
                         StringBuffer_append(buf, " via address %s", p->outgoing.ip);
                 StringBuffer_append(buf, " type %s/%s protocol %s with timeout %s",
-                        Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name, Str_time2str(p->timeout, (char[23]){}));
+                        Util_portTypeDescription(p), Util_portIpDescription(p), p->protocol->name, Str_time2str(p->timeout, (char[11]){}));
                 if (p->retry > 1)
                         StringBuffer_append(buf, " and retry %d times", p->retry);
 #ifdef HAVE_OPENSSL
@@ -1885,9 +1881,9 @@ static void print_service_rules_socket(HttpResponse res, Service_T s) {
         for (Port_T p = s->socketlist; p; p = p->next) {
                 StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Unix Socket</td><td>");
                 if (p->retry > 1)
-                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %s and retry %d time(s)", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, Str_time2str(p->timeout, (char[23]){}), p->retry);
+                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %s and retry %d time(s)", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, Str_time2str(p->timeout, (char[11]){}), p->retry);
                 else
-                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %s", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, Str_time2str(p->timeout, (char[23]){}));
+                        Util_printRule(res->outputbuffer, p->action, "If failed %s type %s protocol %s with timeout %s", p->target.unix.pathname, Util_portTypeDescription(p), p->protocol->name, Str_time2str(p->timeout, (char[11]){}));
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
 }
@@ -1906,7 +1902,7 @@ static void print_service_rules_icmp(HttpResponse res, Service_T s) {
                                 StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Ping</td><td>");
                                 break;
                 }
-                Util_printRule(res->outputbuffer, i->action, "If failed [count %d size %d with timeout %s%s%s]", i->count, i->size, Str_time2str(i->timeout, (char[23]){}), i->outgoing.ip ? " via address " : "", i->outgoing.ip ? i->outgoing.ip : "");
+                Util_printRule(res->outputbuffer, i->action, "If failed [count %d size %d with timeout %s%s%s]", i->count, i->size, Str_time2str(i->timeout, (char[11]){}), i->outgoing.ip ? " via address " : "", i->outgoing.ip ? i->outgoing.ip : "");
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
 }
@@ -1966,7 +1962,7 @@ static void print_service_rules_timestamp(HttpResponse res, Service_T s) {
                 if (t->test_changes)
                         Util_printRule(res->outputbuffer, t->action, "If changed");
                 else
-                        Util_printRule(res->outputbuffer, t->action, "If %s %s", operatornames[t->operator], Str_time2str(t->time * 1000., (char[23]){}));
+                        Util_printRule(res->outputbuffer, t->action, "If %s %s", operatornames[t->operator], Str_time2str(t->time * 1000., (char[11]){}));
                 StringBuffer_append(res->outputbuffer, "</td></tr>");
         }
 }
@@ -2000,10 +1996,7 @@ static void print_service_rules_filesystem(HttpResponse res, Service_T s) {
                 } else if (dl->resource == Resource_Space) {
                         StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Space usage limit</td><td>");
                         if (dl->limit_absolute > -1) {
-                                if (s->inf.filesystem->f_bsize > 0)
-                                        Util_printRule(res->outputbuffer, dl->action, "If %s %s", operatornames[dl->operator], Str_bytes2str(dl->limit_absolute * s->inf.filesystem->f_bsize, (char[10]){}));
-                                else
-                                        Util_printRule(res->outputbuffer, dl->action, "If %s %lld blocks", operatornames[dl->operator], dl->limit_absolute);
+                                Util_printRule(res->outputbuffer, dl->action, "If %s %s", operatornames[dl->operator], Str_bytes2str(dl->limit_absolute, (char[10]){}));
                         } else {
                                 Util_printRule(res->outputbuffer, dl->action, "If %s %.1f%%", operatornames[dl->operator], dl->limit_percent);
                         }
@@ -2011,10 +2004,7 @@ static void print_service_rules_filesystem(HttpResponse res, Service_T s) {
                 } else if (dl->resource == Resource_SpaceFree) {
                         StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Space free limit</td><td>");
                         if (dl->limit_absolute > -1) {
-                                if (s->inf.filesystem->f_bsize > 0)
-                                        Util_printRule(res->outputbuffer, dl->action, "If %s %s", operatornames[dl->operator], Str_bytes2str(dl->limit_absolute * s->inf.filesystem->f_bsize, (char[10]){}));
-                                else
-                                        Util_printRule(res->outputbuffer, dl->action, "If %s %lld blocks", operatornames[dl->operator], dl->limit_absolute);
+                                Util_printRule(res->outputbuffer, dl->action, "If %s %s", operatornames[dl->operator], Str_bytes2str(dl->limit_absolute, (char[10]){}));
                         } else {
                                 Util_printRule(res->outputbuffer, dl->action, "If %s %.1f%%", operatornames[dl->operator], dl->limit_percent);
                         }
@@ -2037,7 +2027,7 @@ static void print_service_rules_filesystem(HttpResponse res, Service_T s) {
                         StringBuffer_append(res->outputbuffer, "</td></tr>");
                 } else if (dl->resource == Resource_ServiceTime) {
                         StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Service time limit</td><td>");
-                        Util_printRule(res->outputbuffer, dl->action, "If service time %s %s/operation", operatornames[dl->operator], Str_time2str(dl->limit_absolute, (char[23]){}));
+                        Util_printRule(res->outputbuffer, dl->action, "If service time %s %s/operation", operatornames[dl->operator], Str_time2str(dl->limit_absolute, (char[11]){}));
                         StringBuffer_append(res->outputbuffer, "</td></tr>");
                 }
         }
@@ -2195,7 +2185,7 @@ static void print_service_rules_ppid(HttpResponse res, Service_T s) {
 
 static void print_service_rules_program(HttpResponse res, Service_T s) {
         if (s->type == Service_Program) {
-                StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Program timeout</td><td>Terminate the program if not finished within %s</td></tr>", Str_time2str(s->program->timeout, (char[23]){}));
+                StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Program timeout</td><td>Terminate the program if not finished within %s</td></tr>", Str_time2str(s->program->timeout, (char[11]){}));
                 for (Status_T status = s->statuslist; status; status = status->next) {
                         StringBuffer_append(res->outputbuffer, "<tr class='rule'><td>Test Exit value</td><td>");
                         if (status->operator == Operator_Changed)

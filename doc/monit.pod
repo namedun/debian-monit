@@ -1706,7 +1706,7 @@ control file.
 
 =head1 SERVICE TESTS
 
-=head3 LIMITS
+=head2 LIMITS
 
 You can configure and set various limits to tweak buffer sizes and
 timeouts used by Monit. In most situations the default values are
@@ -1748,7 +1748,7 @@ Options legend:
  ----------------------------------------------------------------------------------
 
 
-=head3 GENERAL SYNTAX
+=head2 GENERAL SYNTAX
 
 Monit offers several if-tests you can use in a 'check' statement to test
 various aspects of a service.
@@ -1773,7 +1773,7 @@ The action is executed each time the value changes. Monit will remember
 the new value and will trigger event if the value change again.
 
 
-=head3 ACTION
+=head2 ACTION
 
 In each test you must select the action to be executed from this
 list:
@@ -1834,7 +1834,7 @@ from the console.
 =back
 
 
-=head3 FAULT TOLERANCE
+=head2 FAULT TOLERANCE
 
 By default an action is executed if it matches and the corresponding
 service is set in an error state. However, you can require a test to
@@ -2813,7 +2813,25 @@ Multiple status tests can be used, for example:
        if status = 3 for 5 cycles then exec "/usr/local/bin/emergency.sh"
 
 
-=head2 NETWORK LINK STATUS TEST
+=head2 NETWORK INTERFACE TESTS
+
+Monit can check network interfaces for:
+
+=over 3
+
+=item L<Status|/"Link status">
+
+=item L<Capacity|/"Link capacity">
+
+=item L<Saturation|/"Link saturation">
+
+=item L<Upload and download [bytes]|/"Link upload and download [bytes]">
+
+=item L<Upload and download [packets]|/"Link upload and download [packets]">
+
+=back
+
+=head3 Link status
 
 You can check the network link state. This test may only be used
 within a check network service entry in the Monit control file.
@@ -2842,7 +2860,7 @@ commands for your system)
        if failed link then restart
 
 
-=head2 NETWORK LINK CAPACITY TEST
+=head3 Link capacity
 
 You can check the network link mode capacity for changes. This test
 may only be used within a check network service entry in the Monit
@@ -2868,7 +2886,7 @@ Example:
        if changed link capacity then alert
 
 
-=head2 NETWORK SATURATION TEST
+=head3 Link saturation
 
 You can check the network link saturation. Monit then computes the link
 utilisation based on the current transfer rate vs. link capacity.
@@ -2897,7 +2915,7 @@ Example:
        if saturation > 90% then alert
 
 
-=head2 NETWORK BANDWIDTH TEST
+=head3 Link upload and download [bytes]
 
 You can check a network link upload and download bandwidth usage, current
 transfer speed and total data transferred in the last 24 hours. This test may
@@ -2943,7 +2961,7 @@ Examples:
        if total downloaded > 10 GB in last day then alert
 
 
-=head2 NETWORK PACKETS TEST
+=head3 Link upload and download [packets]
 
 You can check the network link upload and download packets count, current
 transfer rate and total data transferred in last 24 hours. This test may
@@ -3012,8 +3030,8 @@ using the PING4 or the PING6 keyword instead of PING.
 The B<COUNT> parameter specifies how many consecutive ping requests
 will be sent to the host in one cycle at maximum. The default value is 3.
 
-The B<SIZE> parameter specifies the ping request data size. Default
-is 64 bytes.
+The B<SIZE> parameter specifies the ping request payload size. Default
+is 64 bytes, minimum is 8 bytes, maximum 1492 bytes.
 
 If no reply arrive within B<TIMEOUT> seconds, Monit reports an error.
 If at least one reply was received, the ping test is considered a
@@ -3124,7 +3142,7 @@ multiple addresses are available and connection to one address failed,
 Monit will try the next address and so on until a connection succeed or
 until there are no more addresses left to try.
 
-I<TYPE <TCP | UDP>]>. Optionally specify the socket type Monit
+I<TYPE [TCP | UDP]>. Optionally specify the socket type Monit
 should use when trying to connect to the port. The different socket
 types are: TCP or UDP, where TCP is a regular stream based socket, UDP,
 a datagram socket. The default socket type is TCP.
@@ -3315,9 +3333,9 @@ For example:
  then restart
 
 I<METHOD> set the HTTP request method. If not specified, Monit prefers
-the HTTP HEAD request method to save bandwidth, unless a response content
-or response checksum is tested. As some webservers may not support the
-HEAD method, one may want to set the method explicitly.
+the HTTP GET request method, which is more common then the HEAD method.
+One may want to set the method explicitly to HEAD to save the network
+bandwidth.
 
 I<STATUS> option can be used to explicitly test the HTTP status code
 returned by the HTTP server. If not used, the HTTP protocol test will
@@ -3591,7 +3609,7 @@ I<HOST> you may specify an alternative Host header
 
 I<REQUEST> you may specify an alternative request, default is "/"
 
-I<ORIGIN> you may specify an alternative origin, default is "http://www.mmonit.com"
+I<ORIGIN> you may specify an alternative origin, default is "https://mmonit.com"
 
 I<VERSION> you may specify an alternative version, default is "0"
 
@@ -4086,7 +4104,7 @@ of this man page also receive inspiration from the same authors.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2001-2017 by Tildeslash Ltd. All Rights Reserved.
+Copyright (C) 2001-2018 by Tildeslash Ltd. All Rights Reserved.
 This product is distributed in the hope that it will be useful,
 but WITHOUT any warranty; without even the implied warranty of
 MERCHANTABILITY or FITNESS for a particular purpose.
@@ -4095,7 +4113,7 @@ MERCHANTABILITY or FITNESS for a particular purpose.
 =head1 SEE ALSO
 
 GNU text utilities; md5sum(1); sha1sum(1); openssl(1); glob(7);
-regex(7); I<http://www.mmonit.com/>
+regex(7); I<https://mmonit.com>
 
 
 =cut

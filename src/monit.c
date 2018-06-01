@@ -54,6 +54,10 @@
 #include <strings.h>
 #endif
 
+#ifdef HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -104,8 +108,8 @@
 
 static void  do_init(void);                   /* Initialize this application */
 static void  do_reinit(void);       /* Re-initialize the runtime application */
-static void  do_action(char **);         /* Dispatch to the submitted action */
-static void  do_exit(void);                                /* Finalize monit */
+static void  do_action(int, char **);    /* Dispatch to the submitted action */
+static void  do_exit(boolean_t);                           /* Finalize monit */
 static void  do_default(void);                          /* Do default action */
 static void  handle_options(int, char **);         /* Handle program options */
 static void  help(void);             /* Print program help message to stdout */
@@ -166,8 +170,8 @@ int main(int argc, char **argv) {
         init_env();
         handle_options(argc, argv);
         do_init();
-        do_action(argv);
-        do_exit();
+        do_action(argc, argv);
+        do_exit(false);
         return 0;
 }
 
@@ -187,6 +191,11 @@ boolean_t do_wakeupcall() {
         }
 
         return false;
+}
+
+
+boolean_t interrupt() {
+        return Run.flags & Run_Stopped || Run.flags & Run_DoReload;
 }
 
 
@@ -396,7 +405,7 @@ static void do_reinit() {
 /**
  * Dispatch to the submitted action - actions are program arguments
  */
-static void do_action(char **args) {
+static void do_action(int argc, char **args) {
         char *action = args[optind];
 
         Run.flags |= Run_Once;
@@ -483,7 +492,7 @@ static void do_action(char **args) {
 /**
  * Finalize monit
  */
-static void do_exit() {
+static void do_exit(boolean_t saveState) {
         set_signal_block();
         Run.flags |= Run_Stopped;
         if ((Run.flags & Run_Daemon) && ! (Run.flags & Run_Once)) {
@@ -500,6 +509,9 @@ static void do_exit() {
 
                 /* send the monit stop notification */
                 Event_post(Run.system, Event_Instance, State_Changed, Run.system->action_MONIT_STOP, "Monit %s stopped", VERSION);
+        }
+        if (saveState) {
+                State_save();
         }
         gc();
 #ifdef HAVE_OPENSSL
@@ -554,7 +566,7 @@ static void do_default() {
                         while (now < delay) {
                                 sleep((unsigned int)(delay - now));
                                 if (Run.flags & Run_Stopped)
-                                        do_exit();
+                                        do_exit(false);
                                 now = Time_now();
                         }
                 }
@@ -572,10 +584,9 @@ static void do_default() {
 
                 while (true) {
                         validate();
-                        State_save();
 
                         /* In the case that there is no pending action then sleep */
-                        if (! (Run.flags & Run_ActionPending) && ! (Run.flags & Run_Stopped))
+                        if (! (Run.flags & Run_ActionPending) && ! interrupt())
                                 sleep(Run.polltime);
 
                         if (Run.flags & Run_DoWakeup) {
@@ -583,10 +594,13 @@ static void do_default() {
                                 LogInfo("Awakened by User defined signal 1\n");
                         }
 
-                        if (Run.flags & Run_Stopped)
-                                do_exit();
-                        else if (Run.flags & Run_DoReload)
+                        if (Run.flags & Run_Stopped) {
+                                do_exit(true);
+                        } else if (Run.flags & Run_DoReload) {
                                 do_reinit();
+                        } else {
+                                State_saveIfDirty();
+                        }
                 }
         } else {
                 _validateOnce();
@@ -647,8 +661,7 @@ static void handle_options(int argc, char **argv) {
                                 case 'd':
                                 {
                                         Run.flags |= Run_Daemon;
-                                        sscanf(optarg, "%d", &Run.polltime);
-                                        if (Run.polltime < 1) {
+                                        if (sscanf(optarg, "%d", &Run.polltime) != 1 || Run.polltime < 1) {
                                                 LogError("Option -%c requires a natural number\n", opt);
                                                 exit(1);
                                         }
@@ -767,8 +780,8 @@ static void handle_options(int argc, char **argv) {
                 {
                         do_init();
                         assert(Run.id);
-                        printf("Reset Monit Id? [y/n]> ");
-                        if (getchar() == 'y') {
+                        printf("Reset Monit Id? [y/N]> ");
+                        if (tolower(getchar()) == 'y') {
                                 File_delete(Run.files.id);
                                 Util_monitId(Run.files.id);
                                 kill_daemon(SIGHUP); // make any running Monit Daemon reload the new ID-File
@@ -859,7 +872,7 @@ static void version() {
         printf("out");
 #endif
         printf(" large files\n");
-        printf("Copyright (C) 2001-2017 Tildeslash Ltd. All Rights Reserved.\n");
+        printf("Copyright (C) 2001-2018 Tildeslash Ltd. All Rights Reserved.\n");
 }
 
 
@@ -871,7 +884,7 @@ static void *heartbeat(void *args) {
         LogInfo("M/Monit heartbeat started\n");
         LOCK(heartbeatMutex)
         {
-                while (! (Run.flags & Run_Stopped) && ! (Run.flags & Run_DoReload)) {
+                while (! interrupt()) {
                         MMonit_send(NULL);
                         struct timespec wait = {.tv_sec = Time_now() + Run.polltime, .tv_nsec = 0};
                         Sem_timeWait(heartbeatCond, heartbeatMutex, wait);
