@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.25.1], [monit-general@nongnu.org])
+AC_INIT([monit], [5.25.2], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -567,11 +567,6 @@ then
    then
    	AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
    fi
-elif test "$architecture" = "HP-UX"
-then
-   ARCH="HPUX"
-   CFLAGS="$CFLAGS -D _REENTRANT -D _INCLUDE_XOPEN_SOURCE -D _INCLUDE_XOPEN_SOURCE_EXTENDED -D _XOPEN_SOURCE_EXTENDED -D _INCLUDE_HPUX_SOURCE"
-   AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 elif test "$architecture" = "OpenBSD"
 then
    ARCH="OPENBSD"
@@ -583,16 +578,12 @@ then
    ARCH="FREEBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_CHECK_LIB([devstat], [devstat_getnumdevs])
-   AC_CHECK_LIB([zfs], [libzfs_init])
-   AC_CHECK_LIB([nvpair], [nvlist_free])
    AC_CHECK_LIB([kvm], [kvm_open])
 elif test "$architecture" = "GNU/kFreeBSD"
 then
    ARCH="FREEBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_CHECK_LIB([devstat], [devstat_getnumdevs])
-   AC_CHECK_LIB([zfs], [libzfs_init])
-   AC_CHECK_LIB([nvpair], [nvlist_free])
    AC_CHECK_LIB([kvm], [kvm_open])
 elif test "$architecture" = "NetBSD"
 then

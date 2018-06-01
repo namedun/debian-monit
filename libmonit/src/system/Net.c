@@ -55,6 +55,7 @@
 #endif
 
 #include "system/Net.h"
+#include "system/System.h"
 
 
 /**
@@ -158,7 +159,9 @@ int Net_close(int socket) {
 int Net_abort(int socket) {
    	int r;
         struct linger linger = {1, 0};
-        setsockopt(socket, SOL_SOCKET, SO_LINGER, &linger, sizeof linger);
+        if (setsockopt(socket, SOL_SOCKET, SO_LINGER, &linger, sizeof linger) < 0) {
+                ERROR("Net: setsockopt failed -- %s\n", System_getLastError());
+        }
         do {
                 r = close(socket);
         } while (r == -1 && errno == EINTR);

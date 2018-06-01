@@ -12456,7 +12456,7 @@ for ac_header in ctype.h errno.h fcntl.h limits.h pthread.h setjmp.h \
                   sys/sendfile.h sys/dirent.h poll.h sys/poll.h sys/event.h \
                   stropts.h sys/ioctl.h sys/filio.h kstat.h ifaddrs.h \
                   net/if_media.h netinet/in.h sys/sysctl.h net/if_dl.h \
-                  sys/protosw.h mach/boolean.h uvm/uvm_param.h
+                  sys/random.h sys/protosw.h mach/boolean.h uvm/uvm_param.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -12657,6 +12657,30 @@ fi
 done
 
 
+# random number generators
+for ac_func in getrandom
+do :
+  ac_fn_c_check_func "$LINENO" "getrandom" "ac_cv_func_getrandom"
+if test "x$ac_cv_func_getrandom" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_GETRANDOM 1
+_ACEOF
+
+fi
+done
+
+for ac_func in arc4random_buf
+do :
+  ac_fn_c_check_func "$LINENO" "arc4random_buf" "ac_cv_func_arc4random_buf"
+if test "x$ac_cv_func_arc4random_buf" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_ARC4RANDOM_BUF 1
+_ACEOF
+
+fi
+done
+
+
 # ------------------------------------------------------------------------
 # Architecture/OS
 # ------------------------------------------------------------------------
@@ -12710,12 +12734,6 @@ then
    fi
 
 $as_echo "#define SOLARIS 1" >>confdefs.h
-
-elif test "$architecture" = "HP-UX"
-then
-   CFLAGS="$CFLAGS -D_REENTRANT -D _INCLUDE_XOPEN_SOURCE -D _INCLUDE_XOPEN_SOURCE_EXTENDED -D _XOPEN_SOURCE_EXTENDED -D _INCLUDE_HPUX_SOURCE"
-
-$as_echo "#define HPUX 1" >>confdefs.h
 
 elif test "$architecture" = "NetBSD"
 then

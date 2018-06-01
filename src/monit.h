@@ -202,11 +202,12 @@ typedef enum {
 
 
 typedef enum {
-        State_Succeeded = 0,
-        State_Failed,
-        State_Changed,
-        State_ChangedNot,
-        State_Init
+        State_Succeeded  = 0x0,
+        State_Failed     = 0x1,
+        State_Changed    = 0x2,
+        State_ChangedNot = 0x4,
+        State_Init       = 0x8,
+        State_None       = State_Init // Alias
 } __attribute__((__packed__)) State_Type;
 
 
@@ -1022,10 +1023,10 @@ typedef struct FileSystemInfo_T {
         long long  f_blocks;              /**< Total data blocks in filesystem */
         long long  f_blocksfree;   /**< Free blocks available to non-superuser */
         long long  f_blocksfreetotal;           /**< Free blocks in filesystem */
+        long long  f_blocksused;                  /**< Used space total blocks */
         long long  f_files;                /**< Total file nodes in filesystem */
         long long  f_filesfree;             /**< Free file nodes in filesystem */
-        long long  inode_total;                  /**< Used inode total objects */
-        long long  space_total;                   /**< Used space total blocks */
+        long long  f_filesused;                  /**< Used inode total objects */
         float inode_percent;                        /**< Used inode percentage */
         float space_percent;                        /**< Used space percentage */
         int f_bsize;                                  /**< Transfer block size */
@@ -1390,5 +1391,6 @@ State_Type check_net(Service_T);
 int  check_URL(Service_T s);
 void status_xml(StringBuffer_T, Event_T, int, const char *);
 boolean_t  do_wakeupcall(void);
+boolean_t interrupt(void);
 
 #endif

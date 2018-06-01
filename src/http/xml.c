@@ -293,7 +293,7 @@ static void status_service(Service_T S, StringBuffer_T B, int V) {
                                         (int)S->inf.filesystem->uid,
                                         (int)S->inf.filesystem->gid,
                                         S->inf.filesystem->space_percent,
-                                        S->inf.filesystem->f_bsize > 0 ? (double)S->inf.filesystem->space_total / 1048576. * (double)S->inf.filesystem->f_bsize : 0.,
+                                        S->inf.filesystem->f_bsize > 0 ? (double)S->inf.filesystem->f_blocksused / 1048576. * (double)S->inf.filesystem->f_bsize : 0.,
                                         S->inf.filesystem->f_bsize > 0 ? (double)S->inf.filesystem->f_blocks / 1048576. * (double)S->inf.filesystem->f_bsize : 0.);
                                 if (S->inf.filesystem->f_files > 0) {
                                         StringBuffer_append(B,
@@ -303,7 +303,7 @@ static void status_service(Service_T S, StringBuffer_T B, int V) {
                                                 "<total>%lld</total>"
                                                 "</inode>",
                                                 S->inf.filesystem->inode_percent,
-                                                S->inf.filesystem->inode_total,
+                                                S->inf.filesystem->f_filesused,
                                                 S->inf.filesystem->f_files);
                                 }
                                 _ioStatistics(B, "read", &(S->inf.filesystem->read));
@@ -466,7 +466,7 @@ static void status_service(Service_T S, StringBuffer_T B, int V) {
                                             p->protocol->name ? p->protocol->name : "",
                                             p->is_available == Connection_Ok ? p->response / 1000. : -1.); // We send the response time in [s] for backward compatibility (with microseconds precision)
                 }
-                if (S->type == Service_System && (Run.flags & Run_ProcessEngineEnabled)) {
+                if (S->type == Service_System) {
                         StringBuffer_append(B,
                                             "<system>"
                                             "<load>"
@@ -559,7 +559,8 @@ static void status_event(Event_T E, StringBuffer_T B) {
                             E->id,
                             E->state,
                             Event_get_action(E));
-        _escapeCDATA(B, E->message);
+        if (E->message)
+                _escapeCDATA(B, E->message);
         StringBuffer_append(B, "]]></message>");
         if (E->source->token)
                 StringBuffer_append(B, "<token>%s</token>", E->source->token);

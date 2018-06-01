@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.25.1" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.25.2" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -1931,9 +1931,8 @@ depend statement was used that does not point to a service in the
 control file.
 .SH "SERVICE TESTS"
 .IX Header "SERVICE TESTS"
-\fI\s-1LIMITS\s0\fR
+.SS "\s-1LIMITS\s0"
 .IX Subsection "LIMITS"
-.PP
 You can configure and set various limits to tweak buffer sizes and
 timeouts used by Monit. In most situations the default values are
 fine. If needed, below are the limits you can currently modify in
@@ -1976,10 +1975,8 @@ Options legend:
 \& | restartTimeout    | timeout for service restart                      | 30 s    |
 \& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 .Ve
-.PP
-\fI\s-1GENERAL SYNTAX\s0\fR
+.SS "\s-1GENERAL SYNTAX\s0"
 .IX Subsection "GENERAL SYNTAX"
-.PP
 Monit offers several if-tests you can use in a 'check' statement to test
 various aspects of a service.
 .PP
@@ -2005,10 +2002,8 @@ General syntax for a value change test:
 .PP
 The action is executed each time the value changes. Monit will remember
 the new value and will trigger event if the value change again.
-.PP
-\fI\s-1ACTION\s0\fR
+.SS "\s-1ACTION\s0"
 .IX Subsection "ACTION"
-.PP
 In each test you must select the action to be executed from this
 list:
 .IP "\(bu" 4
@@ -2052,10 +2047,8 @@ an alert. The service will not be checked by Monit anymore nor
 restarted again later.  To reactivate monitoring of the service
 you must explicitly enable monitoring from the web interface or
 from the console.
-.PP
-\fI\s-1FAULT TOLERANCE\s0\fR
+.SS "\s-1FAULT TOLERANCE\s0"
 .IX Subsection "FAULT TOLERANCE"
-.PP
 By default an action is executed if it matches and the corresponding
 service is set in an error state. However, you can require a test to
 fail more than once before the error event is triggered and the
@@ -3172,8 +3165,25 @@ Multiple status tests can be used, for example:
 \&       if status = 1 then alert
 \&       if status = 3 for 5 cycles then exec "/usr/local/bin/emergency.sh"
 .Ve
-.SS "\s-1NETWORK LINK STATUS TEST\s0"
-.IX Subsection "NETWORK LINK STATUS TEST"
+.SS "\s-1NETWORK INTERFACE TESTS\s0"
+.IX Subsection "NETWORK INTERFACE TESTS"
+Monit can check network interfaces for:
+.IP "Status" 3
+.IX Item "Status"
+.PD 0
+.IP "Capacity" 3
+.IX Item "Capacity"
+.IP "Saturation" 3
+.IX Item "Saturation"
+.IP "Upload and download [bytes]" 3
+.IX Item "Upload and download [bytes]"
+.IP "Upload and download [packets]" 3
+.IX Item "Upload and download [packets]"
+.PD
+.PP
+\fILink status\fR
+.IX Subsection "Link status"
+.PP
 You can check the network link state. This test may only be used
 within a check network service entry in the Monit control file.
 .PP
@@ -3205,8 +3215,10 @@ commands for your system)
 \&       stop program = \*(Aq/sbin/ipdown eth0\*(Aq
 \&       if failed link then restart
 .Ve
-.SS "\s-1NETWORK LINK CAPACITY TEST\s0"
-.IX Subsection "NETWORK LINK CAPACITY TEST"
+.PP
+\fILink capacity\fR
+.IX Subsection "Link capacity"
+.PP
 You can check the network link mode capacity for changes. This test
 may only be used within a check network service entry in the Monit
 control file.
@@ -3233,8 +3245,10 @@ Example:
 \& check network eth0 with interface eth0
 \&       if changed link capacity then alert
 .Ve
-.SS "\s-1NETWORK SATURATION TEST\s0"
-.IX Subsection "NETWORK SATURATION TEST"
+.PP
+\fILink saturation\fR
+.IX Subsection "Link saturation"
+.PP
 You can check the network link saturation. Monit then computes the link
 utilisation based on the current transfer rate vs. link capacity.
 This test may only be used within a check network service entry in the
@@ -3264,8 +3278,10 @@ Example:
 \& check network eth0 with interface eth0
 \&       if saturation > 90% then alert
 .Ve
-.SS "\s-1NETWORK BANDWIDTH TEST\s0"
-.IX Subsection "NETWORK BANDWIDTH TEST"
+.PP
+\fILink upload and download [bytes]\fR
+.IX Subsection "Link upload and download [bytes]"
+.PP
 You can check a network link upload and download bandwidth usage, current
 transfer speed and total data transferred in the last 24 hours. This test may
 only be used within a \fIcheck network\fR service entry in the Monit control file.
@@ -3318,8 +3334,10 @@ Examples:
 \&       if total downloaded > 1 GB in last 2 hours then alert
 \&       if total downloaded > 10 GB in last day then alert
 .Ve
-.SS "\s-1NETWORK PACKETS TEST\s0"
-.IX Subsection "NETWORK PACKETS TEST"
+.PP
+\fILink upload and download [packets]\fR
+.IX Subsection "Link upload and download [packets]"
+.PP
 You can check the network link upload and download packets count, current
 transfer rate and total data transferred in last 24 hours. This test may
 only be used within a check network service entry in the Monit control file.
@@ -3397,8 +3415,8 @@ using the \s-1PING4\s0 or the \s-1PING6\s0 keyword instead of \s-1PING.\s0
 The \fB\s-1COUNT\s0\fR parameter specifies how many consecutive ping requests
 will be sent to the host in one cycle at maximum. The default value is 3.
 .PP
-The \fB\s-1SIZE\s0\fR parameter specifies the ping request data size. Default
-is 64 bytes.
+The \fB\s-1SIZE\s0\fR parameter specifies the ping request payload size. Default
+is 64 bytes, minimum is 8 bytes, maximum 1492 bytes.
 .PP
 If no reply arrive within \fB\s-1TIMEOUT\s0\fR seconds, Monit reports an error.
 If at least one reply was received, the ping test is considered a
@@ -3519,7 +3537,7 @@ multiple addresses are available and connection to one address failed,
 Monit will try the next address and so on until a connection succeed or
 until there are no more addresses left to try.
 .PP
-\&\fI\s-1TYPE\s0 <\s-1TCP\s0 | \s-1UDP\s0\fR]>. Optionally specify the socket type Monit
+\&\fI\s-1TYPE\s0 [\s-1TCP\s0 | \s-1UDP\s0]\fR. Optionally specify the socket type Monit
 should use when trying to connect to the port. The different socket
 types are: \s-1TCP\s0 or \s-1UDP,\s0 where \s-1TCP\s0 is a regular stream based socket, \s-1UDP,\s0
 a datagram socket. The default socket type is \s-1TCP.\s0
@@ -3726,9 +3744,9 @@ For example:
 .Ve
 .PP
 \&\fI\s-1METHOD\s0\fR set the \s-1HTTP\s0 request method. If not specified, Monit prefers
-the \s-1HTTP HEAD\s0 request method to save bandwidth, unless a response content
-or response checksum is tested. As some webservers may not support the
-\&\s-1HEAD\s0 method, one may want to set the method explicitly.
+the \s-1HTTP GET\s0 request method, which is more common then the \s-1HEAD\s0 method.
+One may want to set the method explicitly to \s-1HEAD\s0 to save the network
+bandwidth.
 .PP
 \&\fI\s-1STATUS\s0\fR option can be used to explicitly test the \s-1HTTP\s0 status code
 returned by the \s-1HTTP\s0 server. If not used, the \s-1HTTP\s0 protocol test will
@@ -4043,7 +4061,7 @@ Syntax:
 .PP
 \&\fI\s-1REQUEST\s0\fR you may specify an alternative request, default is \*(L"/\*(R"
 .PP
-\&\fI\s-1ORIGIN\s0\fR you may specify an alternative origin, default is \*(L"http://www.mmonit.com\*(R"
+\&\fI\s-1ORIGIN\s0\fR you may specify an alternative origin, default is \*(L"https://mmonit.com\*(R"
 .PP
 \&\fI\s-1VERSION\s0\fR you may specify an alternative version, default is \*(L"0\*(R"
 .PP
@@ -4540,11 +4558,11 @@ S. Raymond et al.'s excellent fetchmail program. Some portions
 of this man page also receive inspiration from the same authors.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2001\-2017 by Tildeslash Ltd. All Rights Reserved.
+Copyright (C) 2001\-2018 by Tildeslash Ltd. All Rights Reserved.
 This product is distributed in the hope that it will be useful,
 but \s-1WITHOUT\s0 any warranty; without even the implied warranty of
 \&\s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 for a particular purpose.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\s-1GNU\s0 text utilities; \fImd5sum\fR\|(1); \fIsha1sum\fR\|(1); \fIopenssl\fR\|(1); \fIglob\fR\|(7);
-\&\fIregex\fR\|(7); \fIhttp://www.mmonit.com/\fR
+\&\fIregex\fR\|(7); \fIhttps://mmonit.com\fR

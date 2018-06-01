@@ -304,7 +304,7 @@ boolean_t ProcessTree_updateProcess(Service_T s, pid_t pid) {
                 s->inf.process->threads           = ptree[leaf].threads.self;
                 s->inf.process->children          = ptree[leaf].children.total;
                 s->inf.process->zombie            = ptree[leaf].zombie;
-                snprintf(s->inf.process->secattr, STRLEN, "%s", ptree[leaf].secattr);
+                snprintf(s->inf.process->secattr, STRLEN, "%s", NVLSTR(ptree[leaf].secattr));
                 if (ptree[leaf].cpu.usage.self >= 0) {
                         // compute only if initialized (delta between current and previous snapshot is available)
                         s->inf.process->cpu_percent = _cpuUsage(ptree[leaf].cpu.usage.self, ptree[leaf].threads.self);
@@ -438,6 +438,8 @@ void ProcessTree_testMatch(char *pattern) {
                                "Multiple processes match the pattern. Monit will select the process with the\n"
                                "highest uptime, the one highlighted.\n");
         }
+        regfree(regex_comp);
+        FREE(regex_comp);
 }
 
 
@@ -483,26 +485,24 @@ boolean_t init_system_info(void) {
 
 //FIXME: move to standalone system class
 boolean_t update_system_info() {
-        if (Run.flags & Run_ProcessEngineEnabled) {
-                if (getloadavg_sysdep(systeminfo.loadavg, 3) == -1) {
-                        LogError("'%s' statistic error -- load average data collection failed\n", Run.system->name);
-                        goto error1;
-                }
-
-                if (! used_system_memory_sysdep(&systeminfo)) {
-                        LogError("'%s' statistic error -- memory usage data collection failed\n", Run.system->name);
-                        goto error2;
-                }
-                systeminfo.memory.usage.percent  = systeminfo.memory.size > 0ULL ? (100. * (double)systeminfo.memory.usage.bytes / (double)systeminfo.memory.size) : 0.;
-                systeminfo.swap.usage.percent = systeminfo.swap.size > 0ULL ? (100. * (double)systeminfo.swap.usage.bytes / (double)systeminfo.swap.size) : 0.;
-
-                if (! used_system_cpu_sysdep(&systeminfo)) {
-                        LogError("'%s' statistic error -- cpu usage data collection failed\n", Run.system->name);
-                        goto error3;
-                }
-
-                return true;
+        if (getloadavg_sysdep(systeminfo.loadavg, 3) == -1) {
+                LogError("'%s' statistic error -- load average data collection failed\n", Run.system->name);
+                goto error1;
         }
+
+        if (! used_system_memory_sysdep(&systeminfo)) {
+                LogError("'%s' statistic error -- memory usage data collection failed\n", Run.system->name);
+                goto error2;
+        }
+        systeminfo.memory.usage.percent  = systeminfo.memory.size > 0ULL ? (100. * (double)systeminfo.memory.usage.bytes / (double)systeminfo.memory.size) : 0.;
+        systeminfo.swap.usage.percent = systeminfo.swap.size > 0ULL ? (100. * (double)systeminfo.swap.usage.bytes / (double)systeminfo.swap.size) : 0.;
+
+        if (! used_system_cpu_sysdep(&systeminfo)) {
+                LogError("'%s' statistic error -- cpu usage data collection failed\n", Run.system->name);
+                goto error3;
+        }
+
+        return true;
 
 error1:
         systeminfo.loadavg[0] = 0;

@@ -305,13 +305,17 @@ static void _setPingOptions(int socket, struct addrinfo *addr) {
         int ttl = 255;
         switch (addr->ai_family) {
                 case AF_INET:
-                        setsockopt(socket, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl));
+                        if (setsockopt(socket, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0)
+                                LogError("Ping: setsockopt for TTL failed -- %s\n", System_getLastError());
                         break;
 #ifdef HAVE_IPV6
                 case AF_INET6:
-                        setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl));
-                        setsockopt(socket, IPPROTO_IPV6, IPV6_UNICAST_HOPS, &ttl, sizeof(ttl));
-                        setsockopt(socket, IPPROTO_ICMPV6, ICMP6_FILTER, &filter, sizeof(struct icmp6_filter));
+                        if (setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(ttl)) < 0)
+                                LogError("Ping: setsockopt for multicast hops failed -- %s\n", System_getLastError());
+                        if (setsockopt(socket, IPPROTO_IPV6, IPV6_UNICAST_HOPS, &ttl, sizeof(ttl)) < 0)
+                                LogError("Ping: setsockopt for unicast hops failed -- %s\n", System_getLastError());
+                        if (setsockopt(socket, IPPROTO_ICMPV6, ICMP6_FILTER, &filter, sizeof(struct icmp6_filter)) < 0)
+                                LogError("Ping: setsockopt for filter failed -- %s\n", System_getLastError());
                         break;
 #endif
                 default:
@@ -389,7 +393,7 @@ static double _receivePing(const char *hostname, int socket, struct addrinfo *ad
         char buf[ICMP_MAXSIZE] = {};
         switch (addr->ai_family) {
                 case AF_INET:
-                        in_len = sizeof(struct ip) + sizeof(struct icmp);
+                        in_len = 36; // 20 bytes for IP header + 8 bytes for minimum ICMP fields (type, code, checksum, id, seq) + 8 bytes for data payload
                         break;
 #ifdef HAVE_IPV6
                 case AF_INET6:
@@ -399,7 +403,10 @@ static double _receivePing(const char *hostname, int socket, struct addrinfo *ad
                 default:
                         break;
         }
-        while (read_timeout > 0 && Net_canRead(socket, read_timeout) && ! (Run.flags & Run_Stopped)) {
+        while (read_timeout > 0 && Net_canRead(socket, read_timeout)) {
+                if (Run.flags & Run_Stopped) {
+                        return -1.;
+                }
                 int64_t stopped = Time_micro();
                 struct sockaddr_storage in_addr;
                 socklen_t addrlen = sizeof(in_addr);
@@ -448,11 +455,11 @@ static double _receivePing(const char *hostname, int socket, struct addrinfo *ad
                 } else {
                         memcpy(&started, data, sizeof(int64_t));
                         double response = (double)(stopped - started) / 1000.; // Convert microseconds to milliseconds
-                        DEBUG("Ping response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%s\n", hostname, retry, maxretries, in_id, in_seq, Str_time2str(response, (char[10]){}));
+                        DEBUG("Ping response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%s\n", hostname, retry, maxretries, in_id, in_seq, Str_time2str(response, (char[11]){}));
                         return response; // Wait for one response only
                 }
         }
-        _LogWarningOrError(retry, maxretries, "Ping response for %s %d/%d timed out -- no response within %s\n", hostname, retry, maxretries, Str_time2str(timeout, (char[10]){}));
+        _LogWarningOrError(retry, maxretries, "Ping response for %s %d/%d timed out -- no response within %s\n", hostname, retry, maxretries, Str_time2str(timeout, (char[11]){}));
         return -1.;
 }
 
@@ -500,7 +507,7 @@ double icmp_echo(const char *hostname, Socket_Family family, Outgoing_T *outgoin
                                 default:
                                         break;
                         }
-                        if (outgoing->ip) {
+                        if (s >= 0 && outgoing->ip) {
                                 if (bind(s, (struct sockaddr *)&(outgoing->addr), outgoing->addrlen) < 0) {
                                         LogError("Cannot bind to outgoing address -- %s\n", STRERROR);
                                         goto error1;
@@ -521,7 +528,7 @@ double icmp_echo(const char *hostname, Socket_Family family, Outgoing_T *outgoin
         }
         _setPingOptions(s, addr);
         uint16_t id = getpid() & 0xFFFF;
-        for (int retry = 1; retry <= maxretries; retry++) {
+        for (int retry = 1; retry <= maxretries && ! (Run.flags & Run_Stopped); retry++) {
                 int64_t started = Time_micro();
                 if (_sendPing(hostname, s, addr, size, retry, maxretries, id, started) && (response = _receivePing(hostname, s, addr, retry, maxretries, id, started, timeout)) >= 0.)
                         break;
