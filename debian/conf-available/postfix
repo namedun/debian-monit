@@ -13,7 +13,7 @@
    depend master_cf
    depend main_cf
 
- check file master_bin with path /usr/lib/postfix/master
+ check file master_bin with path /usr/lib/postfix/sbin/master
    group postfix
    include /etc/monit/templates/rootbin
 
