@@ -140,6 +140,7 @@
 #include "net.h"
 
 // libmonit
+#include "util/Fmt.h"
 #include "system/Net.h"
 #include "system/Time.h"
 #include "exceptions/AssertException.h"
@@ -455,11 +456,11 @@ static double _receivePing(const char *hostname, int socket, struct addrinfo *ad
                 } else {
                         memcpy(&started, data, sizeof(int64_t));
                         double response = (double)(stopped - started) / 1000.; // Convert microseconds to milliseconds
-                        DEBUG("Ping response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%s\n", hostname, retry, maxretries, in_id, in_seq, Str_time2str(response, (char[11]){}));
+                        DEBUG("Ping response for %s %d/%d succeeded -- received id=%d sequence=%d response_time=%s\n", hostname, retry, maxretries, in_id, in_seq, Fmt_time2str(response, (char[11]){}));
                         return response; // Wait for one response only
                 }
         }
-        _LogWarningOrError(retry, maxretries, "Ping response for %s %d/%d timed out -- no response within %s\n", hostname, retry, maxretries, Str_time2str(timeout, (char[11]){}));
+        _LogWarningOrError(retry, maxretries, "Ping response for %s %d/%d timed out -- no response within %s\n", hostname, retry, maxretries, Fmt_time2str(timeout, (char[11]){}));
         return -1.;
 }
 
@@ -467,7 +468,6 @@ static double _receivePing(const char *hostname, int socket, struct addrinfo *ad
 double icmp_echo(const char *hostname, Socket_Family family, Outgoing_T *outgoing, int size, int timeout, int maxretries) {
         ASSERT(hostname);
         ASSERT(size > 0);
-        int rv;
         double response = -1.;
         struct addrinfo *result, hints = {};
         switch (family) {
@@ -491,9 +491,8 @@ double icmp_echo(const char *hostname, Socket_Family family, Outgoing_T *outgoin
                 LogError("Ping for %s -- getaddrinfo failed: %s\n", hostname, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
                 return response;
         }
-        struct addrinfo *addr = result;
         int s = -1;
-        while (addr && s < 0) {
+        for (struct addrinfo *addr = result; addr && response < 0.; addr = addr->ai_next) {
                 if (outgoing->addrlen == 0 || outgoing->addrlen == addr->ai_addrlen) {
                         switch (addr->ai_family) {
                                 case AF_INET:
@@ -507,39 +506,34 @@ double icmp_echo(const char *hostname, Socket_Family family, Outgoing_T *outgoin
                                 default:
                                         break;
                         }
-                        if (s >= 0 && outgoing->ip) {
-                                if (bind(s, (struct sockaddr *)&(outgoing->addr), outgoing->addrlen) < 0) {
+                        if (s >= 0) {
+                                if (outgoing->ip && bind(s, (struct sockaddr *)&(outgoing->addr), outgoing->addrlen) < 0) {
                                         LogError("Cannot bind to outgoing address -- %s\n", STRERROR);
-                                        goto error1;
+                                } else {
+                                        _setPingOptions(s, addr);
+                                        uint16_t id = getpid() & 0xFFFF;
+                                        for (int retry = 1; retry <= maxretries && ! (Run.flags & Run_Stopped); retry++) {
+                                                int64_t started = Time_micro();
+                                                if (_sendPing(hostname, s, addr, size, retry, maxretries, id, started) && (response = _receivePing(hostname, s, addr, retry, maxretries, id, started, timeout)) >= 0.) {
+                                                        // Success
+                                                        break;
+                                                }
+                                        }
                                 }
+                                Net_close(s);
+                        } else {
+                                // Cannot create a socket -> return error
+                                if (errno == EACCES || errno == EPERM) {
+                                        DEBUG("Ping for %s -- cannot create socket: %s\n", hostname, STRERROR);
+                                        response = -2.;
+                                } else {
+                                        LogError("Ping for %s -- cannot create socket: %s\n", hostname, STRERROR);
+                                }
+                                goto error;
                         }
                 }
-                if (s < 0)
-                        addr = addr->ai_next;
         }
-        if (s < 0) {
-                if (errno == EACCES || errno == EPERM) {
-                        DEBUG("Ping for %s -- cannot create socket: %s\n", hostname, STRERROR);
-                        response = -2.;
-                } else {
-                        LogError("Ping for %s -- cannot create socket: %s\n", hostname, STRERROR);
-                }
-                goto error2;
-        }
-        _setPingOptions(s, addr);
-        uint16_t id = getpid() & 0xFFFF;
-        for (int retry = 1; retry <= maxretries && ! (Run.flags & Run_Stopped); retry++) {
-                int64_t started = Time_micro();
-                if (_sendPing(hostname, s, addr, size, retry, maxretries, id, started) && (response = _receivePing(hostname, s, addr, retry, maxretries, id, started, timeout)) >= 0.)
-                        break;
-        }
-error1:
-        do {
-                rv = close(s);
-        } while (rv == -1 && errno == EINTR);
-        if (rv == -1)
-                LogError("Socket %d close failed -- %s\n", s, STRERROR);
-error2:
+error:
         freeaddrinfo(result);
         return response;
 }
