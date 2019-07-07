@@ -9,7 +9,7 @@ Forwarded: no
 
 --- a/doc/monit.pod
 +++ b/doc/monit.pod
-@@ -754,7 +754,7 @@ usually setup on port 2812. Example:
+@@ -753,7 +753,7 @@ usually setup on port 2812. Example:
  You can now use L<http://localhost:2812/|http://localhost:2812/> to
  access Monit's web interface from a browser, after you have entered
  username and password as credentials. You might need to use double
@@ -18,7 +18,7 @@ Forwarded: no
  "p@ssw:r#".
  
  B<ADDRESS> make Monit listen on a specific interface only. For example
-@@ -892,7 +892,7 @@ server will allow the client access to t
+@@ -891,7 +891,7 @@ server will allow the client access to t
  
  The biggest weakness with Basic Authentication is that username and
  password is sent in clear-text over the network (i.e. base64 encoded).
@@ -27,7 +27,7 @@ Forwarded: no
  method unless you run Monit with I<ssl> support. With ssl, it is safe
  to use Basic Authentication since I<all> HTTP data, including Basic
  Authentication headers will be encrypted.
-@@ -1452,7 +1452,7 @@ current time match the cron-string patte
+@@ -1451,7 +1451,7 @@ current time match the cron-string patte
  is performed otherwise it is skipped. The cron specification does not
  guarantee when exactly the test will run, this depends on the default
  poll time and the length of the check cycle. In other words, we cannot
@@ -36,7 +36,7 @@ Forwarded: no
  B<strongly> recommend to use an asterix in the minute field or at
  minimum a range, e..g. 0-15. B<Never> use a specific minute as Monit
  may not run on that minute.
-@@ -2947,7 +2947,7 @@ I<unit> is a choice of "B","KB","MB","GB
+@@ -2949,7 +2949,7 @@ I<unit> is a choice of "B","KB","MB","GB
  
  I<time-unit> is a choice of "MINUTE(S)", "HOUR(S)", "DAY".
  NOTE: Monit maintains a rolling count of total uploaded and downloaded
@@ -45,7 +45,7 @@ Forwarded: no
  specify a range wider than one day.
  
  I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
-@@ -2990,7 +2990,7 @@ default is EQUAL).
+@@ -2992,7 +2992,7 @@ default is EQUAL).
  
  I<time-unit> is a choice of "MINUTE(S)", "HOUR(S)", "DAY".
  NOTE: Monit keeps total upload/download statistics only for the last
@@ -56,7 +56,7 @@ Forwarded: no
  "EXEC" or "UNMONITOR".
 --- a/monit.1
 +++ b/monit.1
-@@ -892,7 +892,7 @@ usually setup on port 2812. Example:
+@@ -891,7 +891,7 @@ usually setup on port 2812. Example:
  You can now use <http://localhost:2812/> to
  access Monit's web interface from a browser, after you have entered
  username and password as credentials. You might need to use double
@@ -65,7 +65,7 @@ Forwarded: no
  \&\*(L"p@ssw:r#\*(R".
  .PP
  \&\fB\s-1ADDRESS\s0\fR make Monit listen on a specific interface only. For example
-@@ -1047,7 +1047,7 @@ server will allow the client access to t
+@@ -1046,7 +1046,7 @@ server will allow the client access to t
  .PP
  The biggest weakness with Basic Authentication is that username and
  password is sent in clear-text over the network (i.e. base64 encoded).
@@ -74,7 +74,7 @@ Forwarded: no
  method unless you run Monit with \fIssl\fR support. With ssl, it is safe
  to use Basic Authentication since \fIall\fR \s-1HTTP\s0 data, including Basic
  Authentication headers will be encrypted.
-@@ -1667,7 +1667,7 @@ current time match the cron-string patte
+@@ -1666,7 +1666,7 @@ current time match the cron-string patte
  is performed otherwise it is skipped. The cron specification does not
  guarantee when exactly the test will run, this depends on the default
  poll time and the length of the check cycle. In other words, we cannot
@@ -83,7 +83,7 @@ Forwarded: no
  \&\fBstrongly\fR recommend to use an asterix in the minute field or at
  minimum a range, e..g. 0\-15. \fBNever\fR use a specific minute as Monit
  may not run on that minute.
-@@ -3316,7 +3316,7 @@ default is \s-1EQUAL\s0).
+@@ -3318,7 +3318,7 @@ default is \s-1EQUAL\s0).
  .PP
  \&\fItime-unit\fR is a choice of \*(L"\s-1MINUTE\s0(S)\*(R", \*(L"\s-1HOUR\s0(S)\*(R", \*(L"\s-1DAY\*(R".
  NOTE:\s0 Monit maintains a rolling count of total uploaded and downloaded
@@ -92,7 +92,7 @@ Forwarded: no
  specify a range wider than one day.
  .PP
  \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
-@@ -3369,7 +3369,7 @@ default is \s-1EQUAL\s0).
+@@ -3371,7 +3371,7 @@ default is \s-1EQUAL\s0).
  .PP
  \&\fItime-unit\fR is a choice of \*(L"\s-1MINUTE\s0(S)\*(R", \*(L"\s-1HOUR\s0(S)\*(R", \*(L"\s-1DAY\*(R".
  NOTE:\s0 Monit keeps total upload/download statistics only for the last
