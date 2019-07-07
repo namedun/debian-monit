@@ -1,3 +1,10 @@
+monit (1:5.26.0-1) unstable; urgency=medium
+
+  * New upstream version 5.26.0
+  * Refresh patches
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 07 Jul 2019 08:57:16 +0300
+
 monit (1:5.25.3-1) unstable; urgency=medium
 
   * New upstream version 5.25.3.  Closes: #927775 (CVE-2019-11454
