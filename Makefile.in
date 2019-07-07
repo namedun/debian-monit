@@ -137,9 +137,10 @@ am_monit_OBJECTS = src/y.tab.$(OBJEXT) src/lex.yy.$(OBJEXT) \
 	src/protocols/http.$(OBJEXT) src/protocols/imap.$(OBJEXT) \
 	src/protocols/ldap2.$(OBJEXT) src/protocols/ldap3.$(OBJEXT) \
 	src/protocols/lmtp.$(OBJEXT) src/protocols/memcache.$(OBJEXT) \
-	src/protocols/mongodb.$(OBJEXT) src/protocols/mysql.$(OBJEXT) \
-	src/protocols/nntp.$(OBJEXT) src/protocols/ntp3.$(OBJEXT) \
-	src/protocols/pgsql.$(OBJEXT) src/protocols/pop.$(OBJEXT) \
+	src/protocols/mongodb.$(OBJEXT) src/protocols/mqtt.$(OBJEXT) \
+	src/protocols/mysql.$(OBJEXT) src/protocols/nntp.$(OBJEXT) \
+	src/protocols/ntp3.$(OBJEXT) src/protocols/pgsql.$(OBJEXT) \
+	src/protocols/pop.$(OBJEXT) \
 	src/protocols/postfix_policy.$(OBJEXT) \
 	src/protocols/protocol.$(OBJEXT) \
 	src/protocols/radius.$(OBJEXT) src/protocols/rdate.$(OBJEXT) \
@@ -500,6 +501,7 @@ monit_SOURCES = src/y.tab.c \
 		  src/protocols/lmtp.c \
 		  src/protocols/memcache.c \
 		  src/protocols/mongodb.c \
+		  src/protocols/mqtt.c \
 		  src/protocols/mysql.c \
 		  src/protocols/nntp.c \
 		  src/protocols/ntp3.c \
@@ -703,6 +705,7 @@ src/protocols/ldap3.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/lmtp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/memcache.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/mongodb.$(OBJEXT): src/protocols/$(am__dirstamp)
+src/protocols/mqtt.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/mysql.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/nntp.$(OBJEXT): src/protocols/$(am__dirstamp)
 src/protocols/ntp3.$(OBJEXT): src/protocols/$(am__dirstamp)

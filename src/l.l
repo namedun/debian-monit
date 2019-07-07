@@ -316,6 +316,7 @@ rsync             { return RSYNC; }
 tns               { return TNS; }
 pgsql             { return PGSQL; }
 websocket         { return WEBSOCKET; }
+mqtt              { return MQTT; }
 origin            { return ORIGIN; }
 version           { return VERSIONOPT; }
 sip               { return SIP; }
@@ -351,6 +352,7 @@ cleanuplimit      { return CLEANUPLIMIT; }
 mem(ory)?         { return MEMORY; }
 swap              { return SWAP; }
 total[ ]?mem(ory)? { return TOTALMEMORY; }
+core              { return CORE; }
 cpu               { return CPU; }
 total[ ]?cpu      { return TOTALCPU; }
 child(ren)?       { return CHILDREN; }
@@ -683,21 +685,21 @@ group[ \t]+       {
                     return SERVICENAME;
                   }
 
-  \"{str}\"       {
+  \"[^\000-\037\"\n]+\" {
                     yylval.string = handle_quoted_string(yytext);
                     BEGIN(INITIAL);
                     save_arg();
                     return SERVICENAME;
                   }
 
-  \'{str}\'       {
+  \'[^\000-\037\"\n]+\' {
                     yylval.string = handle_quoted_string(yytext);
                     BEGIN(INITIAL);
                     save_arg();
                     return SERVICENAME;
                   }
 
-  [\"\']          {
+  [\"]|[\']       {
                       yyerror("unbalanced quotes");
                   }
 
@@ -717,13 +719,13 @@ group[ \t]+       {
                     return SERVICENAME;
                   }
 
-  \"{str}\"       {
+  \"[^\000-\037\"\n]+\" {
                     yylval.string = handle_quoted_string(yytext);
                     save_arg();
                     return SERVICENAME;
                   }
 
-  \'{str}\'       {
+  \'[^\000-\037\"\n]+\' {
                     yylval.string = handle_quoted_string(yytext);
                     save_arg();
                     return SERVICENAME;

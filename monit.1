@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.25.3" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.26.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -643,9 +643,8 @@ immediately. Calling \f(CW\*(C`monit\*(C'\fR with the quit argument will kill a
 running Monit daemon process instead of waking it up.
 .PP
 The start delay option can be used to wait (once) before Monit starts
-checking services. This can be useful for example when the system
-boots. Monit will by default start checking services immediately at
-startup.
+checking services after system reboot. Monit will by default start
+checking services immediately at startup.
 .SH "INIT SUPPORT"
 .IX Header "INIT SUPPORT"
 The \f(CW\*(C`set init\*(C'\fR statement prevents Monit from transforming itself into
@@ -2192,15 +2191,18 @@ specified, default is \s-1EQUAL\s0).
 \fISystem resource tests\fR
 .IX Subsection "System resource tests"
 .PP
-\&\fI\s-1LOADAVG\s0([1min|5min|15min])\fR refers to the system's load average.
+\&\fI\s-1LOADAVG\s0([1min|5min|15min]) [\s-1PER CORE\s0]\fR refers to the system's load average.
 The load average is the number of processes in the system run
-queue, averaged over the specified time period. Example:
+queue per \s-1CPU\s0 core, averaged over the specified time period. Example:
 .PP
 .Vb 3
-\& if loadavg (1min) > 90 for 15 cycles then alert
-\& if loadavg (5min) > 80 for 10 cycles then alert
-\& if loadavg (15min) > 70 for 8 cycles then alert
+\& if loadavg (1min) per core > 2 for 15 cycles then alert
+\& if loadavg (5min) per core > 1.5 for 10 cycles then alert
+\& if loadavg (15min) per core > 1 for 8 cycles then alert
 .Ve
+.PP
+If you'll omit the \fIper core\fR option, the test will check the total load average
+regardless of \s-1CPU\s0 cores count.
 .PP
 \&\fI\s-1CPU\s0([user|system|wait])\fR is the percent of time the system spend
 in user or kernel space and I/O. The user/system/wait modifier is
@@ -3598,6 +3600,7 @@ knows how to speak:
  \fI\s-1LMTP\s0\fR
  \fI\s-1MEMCACHE\s0\fR
  \fI\s-1MONGODB\s0\fR
+ \fI\s-1MQTT\s0\fR
  \fI\s-1MYSQL\s0\fR
  \fI\s-1NNTP\s0\fR
  \fI\s-1NTP3\s0\fR
@@ -3885,6 +3888,30 @@ Example:
 \&        dnslimit > 50% or
 \&        waitlimit < 20%
 \& then alert
+.Ve
+.PP
+\s-1MQTT\s0
+.IX Subsection "MQTT"
+.PP
+Syntax:
+.PP
+.Vb 1
+\& PROTOCOL MQTT [USERNAME string PASSWORD string]
+.Ve
+.PP
+\&\fI\s-1USERNAME\s0\fR \s-1MQTT\s0 username
+.PP
+\&\fI\s-1PASSWORD\s0\fR \s-1MQTT\s0 password
+.PP
+Username and password (credentials) are \fBoptional\fR.
+.PP
+Example:
+.PP
+.Vb 4
+\& check process mosquitto with pidfile /var/run/mosquitto.pid
+\&     start program = "/sbin/start mosquitto"
+\&     stop program = "/sbin/stop mosquitto"
+\&     if failed port 1883 protocol mqtt then alert
 .Ve
 .PP
 \s-1MYSQL\s0

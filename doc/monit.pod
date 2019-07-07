@@ -518,9 +518,8 @@ immediately. Calling C<monit> with the quit argument will kill a
 running Monit daemon process instead of waking it up.
 
 The start delay option can be used to wait (once) before Monit starts
-checking services. This can be useful for example when the system
-boots. Monit will by default start checking services immediately at
-startup.
+checking services after system reboot. Monit will by default start
+checking services immediately at startup.
 
 
 =head1 INIT SUPPORT
@@ -1962,13 +1961,16 @@ I<resource> set depends on the service type:
 
 =head3 System resource tests
 
-I<LOADAVG([1min|5min|15min])> refers to the system's load average.
+I<LOADAVG([1min|5min|15min]) [PER CORE]> refers to the system's load average.
 The load average is the number of processes in the system run
-queue, averaged over the specified time period. Example:
+queue per CPU core, averaged over the specified time period. Example:
 
- if loadavg (1min) > 90 for 15 cycles then alert
- if loadavg (5min) > 80 for 10 cycles then alert
- if loadavg (15min) > 70 for 8 cycles then alert
+ if loadavg (1min) per core > 2 for 15 cycles then alert
+ if loadavg (5min) per core > 1.5 for 10 cycles then alert
+ if loadavg (15min) per core > 1 for 8 cycles then alert
+
+If you'll omit the I<per core> option, the test will check the total load average
+regardless of CPU cores count.
 
 I<CPU([user|system|wait])> is the percent of time the system spend
 in user or kernel space and I/O. The user/system/wait modifier is
@@ -3203,6 +3205,7 @@ knows how to speak:
  I<LMTP>
  I<MEMCACHE>
  I<MONGODB>
+ I<MQTT>
  I<MYSQL>
  I<NNTP>
  I<NTP3>
@@ -3462,6 +3465,26 @@ Example:
         dnslimit > 50% or
         waitlimit < 20%
  then alert
+
+
+=head4 MQTT
+
+Syntax:
+
+ PROTOCOL MQTT [USERNAME string PASSWORD string]
+
+I<USERNAME> MQTT username
+
+I<PASSWORD> MQTT password
+
+Username and password (credentials) are B<optional>.
+
+Example:
+
+ check process mosquitto with pidfile /var/run/mosquitto.pid
+     start program = "/sbin/start mosquitto"
+     stop program = "/sbin/stop mosquitto"
+     if failed port 1883 protocol mqtt then alert
 
 
 =head4 MYSQL

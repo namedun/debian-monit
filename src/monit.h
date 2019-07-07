@@ -159,8 +159,6 @@ typedef enum {
 #define SSL_TIMEOUT        15000
 #define SMTP_TIMEOUT       30000
 
-#define START_DELAY        0
-
 
 //FIXME: refactor Run_Flags to bit field
 typedef enum {
@@ -335,7 +333,10 @@ typedef enum {
         Resource_ReadOperations,
         Resource_WriteBytes,
         Resource_WriteOperations,
-        Resource_ServiceTime
+        Resource_ServiceTime,
+        Resource_LoadAveragePerCore1m,
+        Resource_LoadAveragePerCore5m,
+        Resource_LoadAveragePerCore15m
 } __attribute__((__packed__)) Resource_Type;
 
 
@@ -695,6 +696,10 @@ typedef struct Port_T {
                 struct {
                         char *username;
                         char *password;
+                } mqtt;
+                struct {
+                        char *username;
+                        char *password;
                 } mysql;
                 struct {
                         char *secret;
@@ -741,6 +746,7 @@ typedef struct Icmp_T {
 
 typedef struct Dependant_T {
         char *dependant;                            /**< name of dependant service */
+        char *dependant_escaped;        /**< URL escaped name of dependant service */
 
         /** For internal use */
         struct Dependant_T *next;             /**< next dependant service in chain */
@@ -1123,6 +1129,7 @@ typedef struct Service_T {
 
         /** Common parameters */
         char *name;                                  /**< Service descriptive name */
+        char *name_escaped;                          /**< Service name URL escaped */
         State_Type (*check)(struct Service_T *);/**< Service verification function */
         boolean_t visited; /**< Service visited flag, set if dependencies are used */
         Service_Type type;                             /**< Monitored service type */
@@ -1250,7 +1257,7 @@ struct Run_T {
         Limits_T limits;                                       /**< Default limits */
         struct SslOptions_T ssl;                          /**< Default SSL options */
         int  polltime;        /**< In deamon mode, the sleeptime (sec) between run */
-        int  startdelay;                    /**< the sleeptime (sec) after startup */
+        int  startdelay;  /**< the sleeptime [s] on first start after machine boot */
         int  facility;              /** The facility to use when running openlog() */
         int  eventlist_slots;          /**< The event queue size - number of slots */
         int mailserver_timeout; /**< Connect and read timeout ms for a SMTP server */

@@ -387,7 +387,8 @@ static void _printStatus(Output_Type type, HttpResponse res, Service_T s) {
                                         s->inf.filesystem->f_blocks > 0 ? ((float)100 * (float)s->inf.filesystem->f_blocksfreetotal / (float)s->inf.filesystem->f_blocks) : 0);
                                 if (s->inf.filesystem->f_files > 0) {
                                         _formatStatus("inodes total", Event_Null, type, res, s, true, "%lld", s->inf.filesystem->f_files);
-                                        _formatStatus("inodes free", Event_Resource, type, res, s, true, "%lld [%.1f%%]", s->inf.filesystem->f_filesfree, (float)100 * (float)s->inf.filesystem->f_filesfree / (float)s->inf.filesystem->f_files);
+                                        if (s->inf.filesystem->f_filesfree > 0)
+                                                _formatStatus("inodes free", Event_Resource, type, res, s, true, "%lld [%.1f%%]", s->inf.filesystem->f_filesfree, (float)100 * (float)s->inf.filesystem->f_filesfree / (float)s->inf.filesystem->f_files);
                                 }
                                 _printIOStatistics(type, res, s, &(s->inf.filesystem->read), "read", "read");
                                 _printIOStatistics(type, res, s, &(s->inf.filesystem->write), "write", "write");
@@ -1052,7 +1053,7 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
 
         ASSERT(s);
 
-        do_head(res, s->name, s->name, Run.polltime);
+        do_head(res, s->name_escaped, s->name, Run.polltime);
         StringBuffer_append(res->outputbuffer,
                             "<h2>%s status</h2>"
                             "<table id='status-table'>"
@@ -1089,7 +1090,7 @@ static void do_service(HttpRequest req, HttpResponse res, Service_T s) {
                 if (d->dependant != NULL) {
                         StringBuffer_append(res->outputbuffer,
                                             "<tr><td>Depends on service </td><td> <a href=%s> %s </a></td></tr>",
-                                            d->dependant, d->dependant);
+                                            d->dependant_escaped, d->dependant);
                 }
         }
         if (s->start) {
@@ -1191,7 +1192,7 @@ static void do_home_system(HttpResponse res) {
                             ",&nbsp;%.1f%%wa"
 #endif
                             "</td>",
-                            s->name, s->name,
+                            s->name_escaped, s->name,
                             get_service_status(HTML, s, buf, sizeof(buf)),
                             systeminfo.loadavg[0], systeminfo.loadavg[1], systeminfo.loadavg[2],
                             systeminfo.cpu.usage.user > 0. ? systeminfo.cpu.usage.user : 0.,
@@ -1239,7 +1240,7 @@ static void do_home_process(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? " class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! (Run.flags & Run_ProcessEngineEnabled) || ! Util_hasServiceStatus(s) || s->inf.process->uptime < 0) {
                         StringBuffer_append(res->outputbuffer, "<td class='right'>-</td>");
@@ -1307,7 +1308,7 @@ static void do_home_program(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s)) {
                         StringBuffer_append(res->outputbuffer, "<td class='left'>-</td>");
@@ -1376,7 +1377,7 @@ static void do_home_net(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s) || Link_getState(s->inf.net->stats) != 1) {
                         StringBuffer_append(res->outputbuffer, "<td class='right'>-</td>");
@@ -1419,7 +1420,7 @@ static void do_home_filesystem(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s)) {
                         StringBuffer_append(res->outputbuffer,
@@ -1486,7 +1487,7 @@ static void do_home_file(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s) || s->inf.file->size < 0)
                         StringBuffer_append(res->outputbuffer, "<td class='right'>-</td>");
@@ -1537,7 +1538,7 @@ static void do_home_fifo(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s) || s->inf.fifo->mode < 0)
                         StringBuffer_append(res->outputbuffer, "<td class='right'>-</td>");
@@ -1584,7 +1585,7 @@ static void do_home_directory(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s) || s->inf.directory->mode < 0)
                         StringBuffer_append(res->outputbuffer, "<td class='right'>-</td>");
@@ -1629,7 +1630,7 @@ static void do_home_host(HttpResponse res) {
                                     "<td class='left'><a href='%s'>%s</a></td>"
                                     "<td class='left'>%s</td>",
                                     on ? "class='stripe'" : "",
-                                    s->name, s->name,
+                                    s->name_escaped, s->name,
                                     get_service_status(HTML, s, buf, sizeof(buf)));
                 if (! Util_hasServiceStatus(s)) {
                         StringBuffer_append(res->outputbuffer,
@@ -1782,7 +1783,7 @@ static void print_buttons(HttpRequest req, HttpResponse res, Service_T s) {
                                     "<input type=hidden value='start' name=action>"
                                     "<input type=submit value='Start service'>"
                                     "</form>"
-                                    "</td>", s->name, res->token);
+                                    "</td>", s->name_escaped, res->token);
         /* Stop program */
         if (s->stop)
                 StringBuffer_append(res->outputbuffer,
@@ -1792,7 +1793,7 @@ static void print_buttons(HttpRequest req, HttpResponse res, Service_T s) {
                                     "<input type=hidden value='stop' name=action>"
                                     "<input type=submit value='Stop service'>"
                                     "</form>"
-                                    "</td>", s->name, res->token);
+                                    "</td>", s->name_escaped, res->token);
         /* Restart program */
         if ((s->start && s->stop) || s->restart)
                 StringBuffer_append(res->outputbuffer,
@@ -1802,7 +1803,7 @@ static void print_buttons(HttpRequest req, HttpResponse res, Service_T s) {
                                     "<input type=hidden value='restart' name=action>"
                                     "<input type=submit value='Restart service'>"
                                     "</form>"
-                                    "</td>", s->name, res->token);
+                                    "</td>", s->name_escaped, res->token);
         /* (un)monitor */
         StringBuffer_append(res->outputbuffer,
                                     "<td>"
@@ -1812,7 +1813,7 @@ static void print_buttons(HttpRequest req, HttpResponse res, Service_T s) {
                                     "<input type=submit value='%s'>"
                                     "</form>"
                                     "</td>",
-                                    s->name,
+                                    s->name_escaped,
                                     res->token,
                                     s->monitor ? "unmonitor" : "monitor",
                                     s->monitor ? "Disable monitoring" : "Enable monitoring");
@@ -2241,15 +2242,27 @@ static void print_service_rules_resource(HttpResponse res, Service_T s) {
                                 break;
 
                         case Resource_LoadAverage1m:
-                                StringBuffer_append(res->outputbuffer, "Load average (1min)");
+                                StringBuffer_append(res->outputbuffer, "Load average (1m)");
                                 break;
 
                         case Resource_LoadAverage5m:
-                                StringBuffer_append(res->outputbuffer, "Load average (5min)");
+                                StringBuffer_append(res->outputbuffer, "Load average (5m)");
                                 break;
 
                         case Resource_LoadAverage15m:
-                                StringBuffer_append(res->outputbuffer, "Load average (15min)");
+                                StringBuffer_append(res->outputbuffer, "Load average (15m)");
+                                break;
+
+                        case Resource_LoadAveragePerCore1m:
+                                StringBuffer_append(res->outputbuffer, "Load average per core (1m)");
+                                break;
+
+                        case Resource_LoadAveragePerCore5m:
+                                StringBuffer_append(res->outputbuffer, "Load average per core (5m)");
+                                break;
+
+                        case Resource_LoadAveragePerCore15m:
+                                StringBuffer_append(res->outputbuffer, "Load average per core (15m)");
                                 break;
 
                         case Resource_Threads:
@@ -2309,6 +2322,9 @@ static void print_service_rules_resource(HttpResponse res, Service_T s) {
                         case Resource_LoadAverage1m:
                         case Resource_LoadAverage5m:
                         case Resource_LoadAverage15m:
+                        case Resource_LoadAveragePerCore1m:
+                        case Resource_LoadAveragePerCore5m:
+                        case Resource_LoadAveragePerCore15m:
                                 Util_printRule(res->outputbuffer, q->action, "If %s %.1f", operatornames[q->operator], q->limit);
                                 break;
 
