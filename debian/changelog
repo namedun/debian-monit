@@ -813,7 +813,7 @@ monit (1:4.4-3) unstable; urgency=low
 
 monit (1:4.4-2) unstable; urgency=low
 
-  * Moved from priority extra to optional 
+  * Moved from priority extra to optional
   * Removed coreutils dependency since its part of base and required (and is
     thus installed).
   * Removed stat dependency alltogether, sets correct perms instead
@@ -870,7 +870,7 @@ monit (1:4.1.1-1) unstable; urgency=low
 
 monit (1:4.0-2) experimental; urgency=low
 
-  * Updated monit package to use cdbs 
+  * Updated monit package to use cdbs
 
  -- Fredrik Steen <stone@debian.org>  Tue, 21 Oct 2003 13:34:31 +0200
 
@@ -882,13 +882,13 @@ monit (1:4.0-1) experimental; urgency=low
   * Added stat line in init.d script making it easier for backports of monit
     to woody. (Closes:#198130)
   * Now compiled with SSL-support (LICENSE now permits linking with OpenSSL)
-  * The startup is now denied via /etc/default/monit configuration. 
+  * The startup is now denied via /etc/default/monit configuration.
 
  -- Fredrik Steen <stone@debian.org>  Wed, 24 Sep 2003 15:46:31 +0200
 
 monit (1:3.2-1) unstable; urgency=low
 
-  * New upstream release 
+  * New upstream release
   * Now changing permission on configfile when installing/configuring
    - (Closes:#173348)
   * This relase has a new license which grant linking with OpenSSL.
@@ -910,7 +910,7 @@ monit (1:3.0-2) unstable; urgency=low
     error messages go to syslog and this is not needed anymore.
     Unfortunately the startup messages of monit is too chatty
     until that is fixed upstream the need to redirect stderr,stdout
-    to devnull from init-script is still needed. (Closes:#173348) 
+    to devnull from init-script is still needed. (Closes:#173348)
   * /etc/init.d/monit is now a conffile.
   * No need for conffiles file when using debhelper 3 or greater.
 
@@ -925,7 +925,7 @@ monit (1:3.0-1) unstable; urgency=low
 
 monit (1:2.5.1-3) unstable; urgency=low
 
-  * Fixes the old bug wich made monit start/stop to 
+  * Fixes the old bug wich made monit start/stop to
     early/late (#158388)
 
  -- Fredrik Steen <stone@debian.org>  Wed, 16 Oct 2002 12:14:21 +0200
@@ -941,7 +941,7 @@ monit (1:2.5.1-2) unstable; urgency=low
 monit (1:2.5.1-1) unstable; urgency=low
 
   * New upstram release
-  * Upstream now do correct rfc 821 envelopes Closes:#153520  
+  * Upstream now do correct rfc 821 envelopes Closes:#153520
   * Controlfiles updated so monit will start late and stop early in the
     init-process Closes:#158388, thanks to Mark Ferlatte.
   * Updated Standards-Version.
