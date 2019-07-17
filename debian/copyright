@@ -1,7 +1,7 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Monit
-Upstream-Contact: http://mmonit.com/monit/
-Source: http://mmonit.com/monit/download/
+Upstream-Contact: https://mmonit.com/monit/
+Source: https://mmonit.com/monit/#download
 
 Files: *
 Copyright: Tildeslash Ltd. All rights reserved.
