@@ -1,3 +1,9 @@
+monit (1:5.20.0-6+deb9u1) stretch; urgency=medium
+
+  * Implement position independent CSRF cookie value (Closes: #941895).
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 09 Oct 2019 15:47:31 +0300
+
 monit (1:5.20.0-6) unstable; urgency=medium
 
   * Fix regression from #849886, test monit.log existence (Closes: #850829)
