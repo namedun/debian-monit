@@ -8,3 +8,5 @@ monit: spelling-error-in-binary usr/bin/monit dependant dependent
 # see thread https://lists.debian.org/debian-devel/2014/02/msg00160.html
 monit: init.d-script-depends-on-all-virtual-facility etc/init.d/monit should-start
 monit: init.d-script-depends-on-all-virtual-facility etc/init.d/monit should-stop
+# Not supported, see README.Debian
+monit: missing-systemd-service-for-init.d-script monit
