@@ -1,3 +1,11 @@
+monit (1:5.26.0-4) unstable; urgency=medium
+
+  * Bump up Standards-Version (to 4.5.0)
+  * Fix FTBFS for Hurd
+  * Add lintian override for missing-systemd-service-for-init.d-script
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 05 Feb 2020 17:54:14 +0300
+
 monit (1:5.26.0-3) unstable; urgency=medium
 
   * Trigger new release to fix binary upload.
