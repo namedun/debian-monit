@@ -2,7 +2,7 @@ Source: monit
 Section: admin
 Priority: optional
 Maintainer: Sergey B Kirpichev <skirpichev@gmail.com>
-Build-Depends: debhelper (>= 12~), libssl-dev, zlib1g-dev,
+Build-Depends: debhelper-compat (= 12), libssl-dev, zlib1g-dev,
  libpam-dev, libkvm-dev [kfreebsd-any], libdevstat-dev [kfreebsd-any]
 Standards-Version: 4.5.0
 Homepage: https://mmonit.com/monit/

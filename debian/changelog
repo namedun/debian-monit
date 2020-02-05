@@ -2,6 +2,7 @@ monit (1:5.26.0-5) UNRELEASED; urgency=medium
 
   * Trim trailing whitespace.
   * Bump debhelper from old 10 to 12.
+  * Set debhelper-compat version in Build-Depends.
 
  -- Debian Janitor <janitor@jelmer.uk>  Wed, 05 Feb 2020 20:46:12 +0000
 
