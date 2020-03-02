@@ -1,3 +1,13 @@
+monit (1:5.26.0-5) UNRELEASED; urgency=medium
+
+  * Trim trailing whitespace.
+  * Bump debhelper from old 10 to 12.
+  * Set debhelper-compat version in Build-Depends.
+  * Set upstream metadata fields: Bug-Submit (from ./configure),
+    Repository.
+
+ -- Debian Janitor <janitor@jelmer.uk>  Wed, 05 Feb 2020 20:46:12 +0000
+
 monit (1:5.26.0-4) unstable; urgency=medium
 
   * Bump up Standards-Version (to 4.5.0)
@@ -1009,4 +1019,3 @@ monit (2.3-1) unstable; urgency=low
   * Initial Release.
 
  -- Fredrik Steen <stone@debian.org>  Tue, 21 May 2002 09:52:55 +0200
-
