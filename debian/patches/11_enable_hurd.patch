@@ -165,7 +165,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
          }
 -        return Time_now() - info.uptime;
 +        if (sscanf(buf, "%lf", &up) != 1) {
-+                LogError("system statistic error -- invalid uptime\n", STRERROR);
++                LogError("system statistic error -- invalid uptime\n");
 +                return 0;
 +        }
 +        return Time_now() - (time_t)up;
