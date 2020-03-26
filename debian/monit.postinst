@@ -7,7 +7,7 @@ case "$1" in
     # Setup logfile permissions:
     if [ ! -e /var/log/monit.log ]
     then
-      install -o root -g adm -m 0640 /dev/null /var/log/monit.log
+      install -o root -g adm -m 0640 -Z /dev/null /var/log/monit.log
     fi
 
     # Add monit to /etc/aliases:
