@@ -1,12 +1,18 @@
-monit (1:5.26.0-5) UNRELEASED; urgency=medium
+monit (1:5.26.0-5) unstable; urgency=medium
 
+  [ Debian Janitor ]
   * Trim trailing whitespace.
   * Bump debhelper from old 10 to 12.
   * Set debhelper-compat version in Build-Depends.
   * Set upstream metadata fields: Bug-Submit (from ./configure),
     Repository.
 
- -- Debian Janitor <janitor@jelmer.uk>  Wed, 05 Feb 2020 20:46:12 +0000
+  [ Christian Göttsche ]
+  * Correct printf format arguments in hurd patch
+  * Add Rules-Requires-Root: no
+  * Create /var/log/monit.log with correct SELinux context
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Mon, 20 Apr 2020 12:23:50 +0300
 
 monit (1:5.26.0-4) unstable; urgency=medium
 
