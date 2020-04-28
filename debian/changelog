@@ -1,3 +1,9 @@
+monit (1:5.26.0-6) unstable; urgency=medium
+
+  * Fix superfluous alerts when the link is down (Closes: #902204)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Tue, 28 Apr 2020 08:32:19 +0300
+
 monit (1:5.26.0-5) unstable; urgency=medium
 
   [ Debian Janitor ]
