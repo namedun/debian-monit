@@ -27,6 +27,14 @@
    group sshd
    include /etc/monit/templates/rootstrict
 
+ check file sshd_ecdsa_key with path /etc/ssh/ssh_host_ecdsa_key
+   group sshd
+   include /etc/monit/templates/rootstrict
+
+ check file sshd_ed25519_key with path /etc/ssh/ssh_host_ed25519_key
+   group sshd
+   include /etc/monit/templates/rootstrict
+
  check file sshd_rc with path /etc/ssh/sshd_config
    group sshd
    include /etc/monit/templates/rootrc
