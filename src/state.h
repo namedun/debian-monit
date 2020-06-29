@@ -35,7 +35,7 @@
  * restarted or reloaded, it restores the state of the services from this file.
  *
  * The location of the state file defaults to ~/.monit.state and can be
- * overriden on the command line or using the "set statefile" statement in the
+ * overridden on the command line or using the "set statefile" statement in the
  * configuration file.
  *
  *  @file
@@ -46,7 +46,7 @@
  * Open the state file
  * @return true if succeeded, otherwise false
  */
-boolean_t State_open(void);
+bool State_open(void);
 
 
 /**
@@ -99,7 +99,7 @@ void State_restore(void);
   * Check if the system rebooted since last cycle.
  * @return true if reboot occurred since last cycle, otherwise false
   */
-boolean_t State_reboot(void);
+bool State_reboot(void);
 
 
 #endif

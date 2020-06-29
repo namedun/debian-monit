@@ -60,7 +60,7 @@
  *  The status code must be between 200 and 300.
  *
  *  In this current version, redirection is not supported. This code is
- * a rewrite of a patch we recieved from Pierrick Grasland and Bret McDanel
+ * a rewrite of a patch we received from Pierrick Grasland and Bret McDanel
  * to check the SIP protocol.
  *
  *  @file
@@ -77,10 +77,10 @@ void check_sip(Socket_T socket) {
         const char *target = P->parameters.sip.target ? P->parameters.sip.target : "monit@foo.bar";
 
         int port = Socket_getLocalPort(socket);
-        char *proto = Socket_isSecure(socket) ? "sips" : "sip";
+        const char *proto = Socket_isSecure(socket) ? "sips" : "sip";
 
-        char *transport = "";
-        char *rport = "";
+        const char *transport = "";
+        const char *rport = "";
         switch (Socket_getType(socket)) {
                 case Socket_Udp:
                         transport = "UDP";
@@ -99,11 +99,11 @@ void check_sip(Socket_T socket) {
 
         if (Socket_print(socket,
                          "OPTIONS %s:%s SIP/2.0\r\n"
-                         "Via: SIP/2.0/%s %s:%d;branch=z9hG4bKh%"PRIx64"%s\r\n"
+                         "Via: SIP/2.0/%s %s:%d;branch=z9hG4bKh%llx%s\r\n"
                          "Max-Forwards: %d\r\n"
                          "To: <%s:%s>\r\n"
-                         "From: monit <%s:monit@%s>;tag=%"PRIx64"\r\n"
-                         "Call-ID: %"PRIx64"\r\n"
+                         "From: monit <%s:monit@%s>;tag=%llx\r\n"
+                         "Call-ID: %llx\r\n"
                          "CSeq: 63104 OPTIONS\r\n"
                          "Contact: <%s:%s:%d>\r\n"
                          "Accept: application/sdp\r\n"

@@ -9,6 +9,9 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
+/* Define to 1 if you have address sanitizer. */
+#undef HAVE_ASAN
+
 /* Define to 1 if you have the <asm/page.h> header file. */
 #undef HAVE_ASM_PAGE_H
 
@@ -21,18 +24,12 @@
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
-/* Define to 1 if the system has the type `boolean_t'. */
-#undef HAVE_BOOLEAN_T
-
 /* Define to 1 if you have the <cf.h> header file. */
 #undef HAVE_CF_H
 
 /* Define to 1 if you have the <CoreFoundation/CoreFoundation.h> header file.
    */
 #undef HAVE_COREFOUNDATION_COREFOUNDATION_H
-
-/* Define to 1 if CPU wait information is available. */
-#undef HAVE_CPU_WAIT
 
 /* Define to 1 if you have the <crt_externs.h> header file. */
 #undef HAVE_CRT_EXTERNS_H
@@ -186,9 +183,6 @@
 /* Define to 1 if you have the <machine/vmparam.h> header file. */
 #undef HAVE_MACHINE_VMPARAM_H
 
-/* Define to 1 if you have the <mach/boolean.h> header file. */
-#undef HAVE_MACH_BOOLEAN_H
-
 /* Define to 1 if you have the <mach/host_info.h> header file. */
 #undef HAVE_MACH_HOST_INFO_H
 
@@ -231,8 +225,17 @@
 /* Define to 1 if you have the <netinet/tcp.h> header file. */
 #undef HAVE_NETINET_TCP_H
 
+/* Define to 1 if you have the <net/if_dl.h> header file. */
+#undef HAVE_NET_IF_DL_H
+
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
+
+/* Define to 1 if you have the <net/if_media.h> header file. */
+#undef HAVE_NET_IF_MEDIA_H
+
+/* Define to 1 if you have the <net/route.h> header file. */
+#undef HAVE_NET_ROUTE_H
 
 /* Define to 1 if you have openssl. */
 #undef HAVE_OPENSSL
@@ -245,6 +248,9 @@
 
 /* Define to 1 if you have the <poll.h> header file. */
 #undef HAVE_POLL_H
+
+/* Define to 1 if you have the `prlimit' function. */
+#undef HAVE_PRLIMIT
 
 /* Define to 1 if you have the <procfs.h> header file. */
 #undef HAVE_PROCFS_H
@@ -288,6 +294,9 @@
 
 /* Define to 1 if you have the <stdarg.h> header file. */
 #undef HAVE_STDARG_H
+
+/* Define to 1 if you have the <stdbool.h> header file. */
+#undef HAVE_STDBOOL_H
 
 /* Define to 1 if you have the <stddef.h> header file. */
 #undef HAVE_STDDEF_H
@@ -423,6 +432,9 @@
 
 /* Define to 1 if you have the <sys/sysinfo.h> header file. */
 #undef HAVE_SYS_SYSINFO_H
+
+/* Define to 1 if you have the <sys/sysmacros.h> header file. */
+#undef HAVE_SYS_SYSMACROS_H
 
 /* Define to 1 if you have the <sys/systemcfg.h> header file. */
 #undef HAVE_SYS_SYSTEMCFG_H

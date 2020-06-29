@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = foreign no-dependencies subdir-objects
 ACLOCAL_AMFLAGS	 = -I m4
 
-EXTRA_DIST	= README COPYING CONTRIBUTORS bootstrap doc src config monitrc system libmonit monit.1
+EXTRA_DIST	= COPYING CONTRIBUTORS bootstrap doc src config monitrc system libmonit monit.1
 
 SUBDIRS		= libmonit
 
@@ -33,10 +33,12 @@ monit_SOURCES	= src/y.tab.c \
 		  src/log.c \
 		  src/md5.c \
 		  src/md5_crypt.c \
-		  src/net.c \
+		  src/net/net.c \
+                  src/net/socket.c \
+                  src/net/Link.c \
 		  src/sha1.c \
+		  src/checksum.c \
 		  src/signal.c \
-		  src/socket.c \
 		  src/spawn.c \
 		  src/state.c \
 		  src/util.c \
@@ -91,14 +93,15 @@ monit_SOURCES	= src/y.tab.c \
 		  src/protocols/websocket.c \
 		  src/ssl/Ssl.c \
 		  src/terminal/Box.c \
-		  src/terminal/Color.c
+		  src/terminal/Color.c \
+                  src/statistics/Statistics.c
 
 monit_LDADD 	= libmonit/libmonit.la
 monit_LDFLAGS 	= -static $(EXTLDFLAGS)
 
 man_MANS 	= monit.1
 
-BUILT_SOURCES   = src/lex.yy.c src/y.tab.c src/tokens.h
+BUILT_SOURCES   = src/lex.yy.c src/y.tab.c src/y.tab.h
 
 CLEANFILES	= src/y.output
 DISTCLEANFILES	= *~ $(BUILT_SOURCES)
@@ -122,6 +125,7 @@ dist-hook::
 	-rm -f $(distdir)/src/stamp-*
 	-rm -f $(distdir)/src/y.output
 	-rm -f $(distdir)/README.md
+	-rm -f $(distdir)/libmonit/README*
 	-mv $(distdir)/doc/CHANGES $(distdir)/
 	-perl -pi -e 's/^Version: .*/Version: '$(VERSION)'/' $(distdir)/system/packages/redhat/monit.spec
 	-chmod 600 monitrc
@@ -134,10 +138,7 @@ distclean-local:
 	-rm -f monit-[0-9].*tar.gz
 
 cleanall: clean distclean
-	-rm -f libmonit/Makefile.in libmonit/configure libmonit/aclocal.m4 libmonit/src/xconfig.h.in
-	-rm -f Makefile.in configure aclocal.m4 autom4te.cache src/config.h.in monit.1
-	-rm -rf libmonit/m4 libmonit/config
-	-rm -rf m4 config
+	-git clean -fxd
 
 monit.1: doc/monit.pod
 	$(POD2MAN) $(POD2MANFLAGS) $< > $@
@@ -148,13 +149,21 @@ monit.1: doc/monit.pod
 # Grammar rules
 # -------------
 
-src/y.tab.c src/tokens.h: src/p.y
+src/y.tab.c src/y.tab.h: run-yacc
+	
+.INTERMEDIATE: run-yacc
+run-yacc: src/p.y
 	$(YACC) $(YACCFLAGS) -o src/y.tab.c $<
-	-mv src/y.tab.h src/tokens.h
-
-src/tokens.h: src/y.tab.c
 
 src/lex.yy.c: src/l.l
 	$(FLEX) $(FLEXFLAGS) -o$@ $<
 
 
+# --------------
+# MacOS codesign
+# --------------
+if WITH_CODESIGN
+monit_LDFLAGS   += -sectcreate __TEXT __info_plist config/Info.plist
+all-local: $(bin_PROGRAMS)
+	$(foreach file, $(bin_PROGRAMS), codesign -s $(CODESIGN_IDENTITY) -v --deep --timestamp --options runtime $(file))
+endif

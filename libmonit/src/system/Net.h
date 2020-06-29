@@ -54,7 +54,7 @@
  * @param socket A socket
  * @return true if success, otherwise false
  */
-int Net_setNonBlocking(int socket);
+bool Net_setNonBlocking(int socket);
 
 
 /**
@@ -62,7 +62,7 @@ int Net_setNonBlocking(int socket);
  * @param socket A socket
  * @return true if success, otherwise false
  */
-int Net_setBlocking(int socket);
+bool Net_setBlocking(int socket);
 
 
 /**
@@ -70,9 +70,9 @@ int Net_setBlocking(int socket);
  * to be present.
  * @param socket A socket
  * @param milliseconds How long to wait before timeout
- * @return true if the event occured, otherwise false.
+ * @return true if the event occurred, otherwise false.
  */
-int Net_canRead(int socket, time_t milliseconds);
+bool Net_canRead(int socket, time_t milliseconds);
 
 
 /**
@@ -80,9 +80,9 @@ int Net_canRead(int socket, time_t milliseconds);
  * milliseconds for the socket to be ready.
  * @param socket A socket
  * @param milliseconds How long to wait before timeout
- * @return true if the event occured, otherwise false.
+ * @return true if the event occurred, otherwise false.
  */
-int Net_canWrite(int socket, time_t milliseconds);
+bool Net_canWrite(int socket, time_t milliseconds);
 
 
 /**
@@ -93,7 +93,7 @@ int Net_canWrite(int socket, time_t milliseconds);
  * @param buffer The buffer to write the data to
  * @param size Number of bytes to read from the socket
  * @param timeout Milliseconds to wait for data to be available
- * @return The number of bytes read or -1 if an error occured.
+ * @return The number of bytes read or -1 if an error occurred.
  */
 ssize_t Net_read(int socket, void *buffer, size_t size, time_t timeout);
 
@@ -105,7 +105,7 @@ ssize_t Net_read(int socket, void *buffer, size_t size, time_t timeout);
  * @param buffer The buffer to write
  * @param size Number of bytes to send
  * @param timeout Milliseconds to wait for data to be sent
- * @return The number of bytes sent or -1 if an error occured. 
+ * @return The number of bytes sent or -1 if an error occurred.
  */
 ssize_t Net_write(int socket, const void *buffer, size_t size, time_t timeout);
 
@@ -118,7 +118,7 @@ ssize_t Net_write(int socket, const void *buffer, size_t size, time_t timeout);
  * @param socket The socket connection to abort and close
  * @return true if success otherwise false
  */
-int Net_abort(int socket);
+bool Net_abort(int socket);
 
 
 
@@ -130,7 +130,7 @@ int Net_abort(int socket);
  * sends and receives will be disallowed
  * @return true if success otherwise false
  */
-int Net_shutdown(int socket, int how);
+bool Net_shutdown(int socket, int how);
 
 
 /**
@@ -138,7 +138,7 @@ int Net_shutdown(int socket, int how);
  * @param socket The socket connection to close
  * @return true if success otherwise false
  */
-int Net_close(int socket);
+bool Net_close(int socket);
 
 
 #endif

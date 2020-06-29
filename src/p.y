@@ -117,7 +117,10 @@
 #include <unistd.h>
 #endif
 
-#include "net.h"
+#ifdef HAVE_OPENSSL
+#include <openssl/ssl.h>
+#endif
+
 #include "monit.h"
 #include "protocol.h"
 #include "engine.h"
@@ -125,6 +128,10 @@
 #include "ProcessTree.h"
 #include "device.h"
 #include "processor.h"
+#include "md5.h"
+#include "sha1.h"
+#include "checksum.h"
+#include "process_sysdep.h"
 
 // libmonit
 #include "io/File.h"
@@ -136,21 +143,21 @@
 
 
 struct precedence_t {
-        boolean_t daemon;
-        boolean_t logfile;
-        boolean_t pidfile;
+        bool daemon;
+        bool logfile;
+        bool pidfile;
 };
 
 struct rate_t {
-        unsigned count;
-        unsigned cycles;
+        unsigned int count;
+        unsigned int cycles;
 };
 
 /* yacc interface */
-void  yyerror(const char *,...);
-void  yyerror2(const char *,...);
-void  yywarning(const char *,...);
-void  yywarning2(const char *,...);
+void  yyerror(const char *,...) __attribute__((format (printf, 1, 2)));
+void  yyerror2(const char *,...) __attribute__((format (printf, 1, 2)));
+void  yywarning(const char *,...) __attribute__((format (printf, 1, 2)));
+void  yywarning2(const char *,...) __attribute__((format (printf, 1, 2)));
 
 /* lexer interface */
 int yylex(void);
@@ -204,9 +211,9 @@ static struct rate_t rate = {1, 1};
 static struct rate_t rate1 = {1, 1};
 static struct rate_t rate2 = {1, 1};
 static char * htpasswd_file = NULL;
-static unsigned repeat = 0;
-static unsigned repeat1 = 0;
-static unsigned repeat2 = 0;
+static unsigned int repeat = 0;
+static unsigned int repeat1 = 0;
+static unsigned int repeat2 = 0;
 static Digest_Type digesttype = Digest_Cleartext;
 
 #define BITMAP_MAX (sizeof(long long) * 8)
@@ -216,7 +223,7 @@ static Digest_Type digesttype = Digest_Cleartext;
 
 static void  preparse(void);
 static void  postparse(void);
-static boolean_t _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing);
+static bool _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing);
 static void  addmail(char *, Mail_T, Mail_T *);
 static Service_T createservice(Service_Type, char *, char *, State_Type (*)(Service_T));
 static void  addservice(Service_T);
@@ -245,7 +252,7 @@ static void  addcommand(int, unsigned);
 static void  addargument(char *);
 static void  addmmonit(Mmonit_T);
 static void  addmailserver(MailServer_T);
-static boolean_t addcredentials(char *, char *, Digest_Type, boolean_t);
+static bool addcredentials(char *, char *, Digest_Type, bool);
 #ifdef HAVE_LIBPAM
 static void  addpamauth(char *, int);
 #endif
@@ -301,9 +308,14 @@ static void  check_depend(void);
 static void  setsyslog(char *);
 static command_t copycommand(command_t);
 static int verifyMaxForward(int);
-static void _setPEM(char **store, char *path, const char *description, boolean_t isFile);
+static void _setPEM(char **store, char *path, const char *description, bool isFile);
 static void _setSSLOptions(SslOptions_T options);
+#ifdef HAVE_OPENSSL
+static void _setSSLVersion(short version);
+#endif
+static void _unsetSSLVersion(short version);
 static void addsecurityattribute(char *, Action_Type, Action_Type);
+static void addfiledescriptors(Operator_Type, bool, long long, float, Action_Type, Action_Type);
 
 %}
 
@@ -318,15 +330,15 @@ static void addsecurityattribute(char *, Action_Type, Action_Type);
 %token IF ELSE THEN FAILED
 %token SET LOGFILE FACILITY DAEMON SYSLOG MAILSERVER HTTPD ALLOW REJECTOPT ADDRESS INIT TERMINAL BATCH
 %token READONLY CLEARTEXT MD5HASH SHA1HASH CRYPT DELAY
-%token PEMFILE ENABLE DISABLE SSL CIPHER CLIENTPEMFILE ALLOWSELFCERTIFICATION SELFSIGNED VERIFY CERTIFICATE CACERTIFICATEFILE CACERTIFICATEPATH VALID
+%token PEMFILE PEMKEY PEMCHAIN ENABLE DISABLE SSLTOKEN CIPHER CLIENTPEMFILE ALLOWSELFCERTIFICATION SELFSIGNED VERIFY CERTIFICATE CACERTIFICATEFILE CACERTIFICATEPATH VALID
 %token INTERFACE LINK PACKET BYTEIN BYTEOUT PACKETIN PACKETOUT SPEED SATURATION UPLOAD DOWNLOAD TOTAL
 %token IDFILE STATEFILE SEND EXPECT CYCLE COUNT REMINDER REPEAT
 %token LIMITS SENDEXPECTBUFFER EXPECTBUFFER FILECONTENTBUFFER HTTPCONTENTBUFFER PROGRAMOUTPUT NETWORKTIMEOUT PROGRAMTIMEOUT STARTTIMEOUT STOPTIMEOUT RESTARTTIMEOUT
-%token PIDFILE START STOP PATHTOK
+%token PIDFILE START STOP PATHTOK RSAKEY
 %token HOST HOSTNAME PORT IPV4 IPV6 TYPE UDP TCP TCPSSL PROTOCOL CONNECTION
 %token ALERT NOALERT MAILFORMAT UNIXSOCKET SIGNATURE
 %token TIMEOUT RETRY RESTART CHECKSUM EVERY NOTEVERY
-%token DEFAULT HTTP HTTPS APACHESTATUS FTP SMTP SMTPS POP POPS IMAP IMAPS CLAMAV NNTP NTP3 MYSQL DNS WEBSOCKET MQTT
+%token DEFAULT HTTP HTTPS APACHESTATUS FTP SMTP SMTPS POP POPS IMAP IMAPS CLAMAV NNTP NTP3 MYSQL MYSQLS DNS WEBSOCKET MQTT
 %token SSH DWP LDAP2 LDAP3 RDATE RSYNC TNS PGSQL POSTFIXPOLICY SIP LMTP GPS RADIUS MEMCACHE REDIS MONGODB SIEVE SPAMASSASSIN FAIL2BAN
 %token <string> STRING PATH MAILADDR MAILFROM MAILREPLYTO MAILSUBJECT
 %token <string> MAILBODY SERVICENAME STRINGNAME
@@ -337,11 +349,13 @@ static void addsecurityattribute(char *, Action_Type, Action_Type);
 %token CHECKPROC CHECKFILESYS CHECKFILE CHECKDIR CHECKHOST CHECKSYSTEM CHECKFIFO CHECKPROGRAM CHECKNET
 %token THREADS CHILDREN METHOD GET HEAD STATUS ORIGIN VERSIONOPT READ WRITE OPERATION SERVICETIME DISK
 %token RESOURCE MEMORY TOTALMEMORY LOADAVG1 LOADAVG5 LOADAVG15 SWAP
-%token MODE ACTIVE PASSIVE MANUAL ONREBOOT NOSTART LASTSTATE CORE CPU TOTALCPU CPUUSER CPUSYSTEM CPUWAIT
+%token MODE ACTIVE PASSIVE MANUAL ONREBOOT NOSTART LASTSTATE
+%token CORE CPU TOTALCPU CPUUSER CPUSYSTEM CPUWAIT CPUNICE CPUHARDIRQ CPUSOFTIRQ CPUSTEAL CPUGUEST CPUGUESTNICE
 %token GROUP REQUEST DEPENDS BASEDIR SLOT EVENTQUEUE SECRET HOSTHEADER
 %token UID EUID GID MMONIT INSTANCE USERNAME PASSWORD
-%token TIME ATIME CTIME MTIME CHANGED MILLISECOND SECOND MINUTE HOUR DAY MONTH
-%token SSLAUTO SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 TLSV13 CERTMD5 AUTO
+%token TIME ATIME CTIME MTIME CHANGED MILLISECOND SECOND MINUTE HOUR DAY MONTH 
+%token SSLV2 SSLV3 TLSV1 TLSV11 TLSV12 TLSV13 CERTMD5 AUTO
+%token NOSSLV2 NOSSLV3 NOTLSV1 NOTLSV11 NOTLSV12 NOTLSV13
 %token BYTE KILOBYTE MEGABYTE GIGABYTE
 %token INODE SPACE TFREE PERMISSION SIZE MATCH NOT IGNORE ACTION UPTIME
 %token EXEC UNMONITOR PING PING4 PING6 ICMP ICMPECHO NONEXIST EXIST INVALID DATA RECOVERED PASSED SUCCEEDED
@@ -353,6 +367,7 @@ static void addsecurityattribute(char *, Action_Type, Action_Type);
 %token <number> MAXFORWARD
 %token FIPS
 %token SECURITY ATTRIBUTE
+%token FILEDESCRIPTORS
 
 %left GREATER GREATEROREQUAL LESS LESSOREQUAL EQUAL NOTEQUAL
 
@@ -408,6 +423,8 @@ optproc         : start
                 | uid
                 | euid
                 | secattr
+                | filedescriptorsprocess
+                | filedescriptorsprocesstotal
                 | gid
                 | uptime
                 | connection
@@ -550,6 +567,7 @@ optsystem       : start
                 | depend
                 | resourcesystem
                 | uptime
+                | filedescriptorssystem
                 ;
 
 optfifolist     : /* EMPTY */
@@ -783,15 +801,15 @@ credentials     : /* EMPTY */
                   }
                 ;
 
-setssl          : SET SSL '{' ssloptionlist '}' {
+setssl          : SET SSLTOKEN '{' ssloptionlist '}' {
                         _setSSLOptions(&(Run.ssl));
                   }
                 ;
 
-ssl             : SSL {
+ssl             : SSLTOKEN {
                         sslset.flags = SSL_Enabled;
                   }
-                | SSL '{' ssloptionlist '}'
+                | SSLTOKEN '{' ssloptionlist '}'
                 ;
 
 ssloptionlist   : /* EMPTY */
@@ -814,7 +832,7 @@ ssloption       : VERIFY ':' ENABLE {
                         sslset.flags = SSL_Enabled;
                         sslset.allowSelfSigned = false;
                   }
-                | VERSIONOPT ':' sslversion {
+                | VERSIONOPT ':' sslversionlist {
                         sslset.flags = SSL_Enabled;
                   }
                 | CIPHER ':' STRING {
@@ -823,6 +841,12 @@ ssloption       : VERIFY ':' ENABLE {
                   }
                 | PEMFILE ':' PATH {
                         _setPEM(&(sslset.pemfile), $3, "SSL server PEM file", true);
+                  }
+                | PEMCHAIN ':' PATH {
+                        _setPEM(&(sslset.pemchain), $3, "SSL certificate chain PEM file", true);
+                  }
+                | PEMKEY ':' PATH {
+                        _setPEM(&(sslset.pemkey), $3, "SSL server private key PEM file", true);
                   }
                 | CLIENTPEMFILE ':' PATH {
                         _setPEM(&(sslset.clientpemfile), $3, "SSL client PEM file", true);
@@ -879,50 +903,78 @@ checksumoperator : /* EMPTY */
                  | EQUAL
                  ;
 
+sslversionlist  : /* EMPTY */
+                | sslversionlist sslversion
+                ;
+
 sslversion      : SSLV2 {
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_V2;
+#if defined OPENSSL_NO_SSL2 || ! defined HAVE_SSLV2 || ! defined HAVE_OPENSSL
+                        yyerror("Your SSL Library does not support SSL version 2");
+#else
+                        _setSSLVersion(SSL_V2);
+#endif
+                  }
+                | NOSSLV2 {
+                        _unsetSSLVersion(SSL_V2);
                   }
                 | SSLV3 {
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_V3;
+#if defined OPENSSL_NO_SSL3 || ! defined HAVE_OPENSSL
+                        yyerror("Your SSL Library does not support SSL version 3");
+#else
+                        _setSSLVersion(SSL_V3);
+#endif
+                  }
+                | NOSSLV3 {
+                        _unsetSSLVersion(SSL_V3);
                   }
                 | TLSV1 {
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_TLSV1;
+#if defined OPENSSL_NO_TLS1_METHOD || ! defined HAVE_OPENSSL
+                        yyerror("Your SSL Library does not support TLS version 1.0");
+#else
+                        _setSSLVersion(SSL_TLSV1);
+#endif
                   }
-                | TLSV11
-                {
-#ifndef HAVE_TLSV1_1
+                | NOTLSV1 {
+                        _unsetSSLVersion(SSL_TLSV1);
+                  }
+                | TLSV11 {
+#if defined OPENSSL_NO_TLS1_1_METHOD || ! defined HAVE_TLSV1_1 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.1");
+#else
+                        _setSSLVersion(SSL_TLSV11);
 #endif
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_TLSV11;
                 }
-                | TLSV12
-                {
-#ifndef HAVE_TLSV1_2
+                | NOTLSV11 {
+                        _unsetSSLVersion(SSL_TLSV11);
+                  }
+                | TLSV12 {
+#if defined OPENSSL_NO_TLS1_2_METHOD || ! defined HAVE_TLSV1_2 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.2");
+#else
+                        _setSSLVersion(SSL_TLSV12);
 #endif
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_TLSV12;
                 }
-                | TLSV13
-                {
-#ifndef HAVE_TLSV1_3
+                | NOTLSV12 {
+                        _unsetSSLVersion(SSL_TLSV12);
+                  }
+                | TLSV13 {
+#if defined OPENSSL_NO_TLS1_3_METHOD || ! defined HAVE_TLSV1_3 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.3");
+#else
+                        _setSSLVersion(SSL_TLSV13);
 #endif
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_TLSV13;
                 }
-
-                | SSLAUTO {
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_Auto;
+                | NOTLSV13 {
+                        _unsetSSLVersion(SSL_TLSV13);
                   }
                 | AUTO {
-                        sslset.flags = SSL_Enabled;
-                        sslset.version = SSL_Auto;
+                        // Enable just TLS 1.2 and 1.3 by default
+#if ! defined OPENSSL_NO_TLS1_2_METHOD && defined HAVE_TLSV1_2 && defined HAVE_OPENSSL
+                        _setSSLVersion(SSL_TLSV12);
+#endif
+#if ! defined OPENSSL_NO_TLS1_3_METHOD && defined HAVE_TLSV1_3 && defined HAVE_OPENSSL
+                        _setSSLVersion(SSL_TLSV13);
+#endif
                   }
                 ;
 
@@ -962,7 +1014,7 @@ mailserverlist  : mailserver
                 ;
 
 mailserver      : STRING mailserveroptlist {
-                        /* Restore the current text overriden by lookahead */
+                        /* Restore the current text overridden by lookahead */
                         FREE(argyytext);
                         argyytext = Str_dup($1);
 
@@ -971,7 +1023,7 @@ mailserver      : STRING mailserveroptlist {
                         addmailserver(&mailserverset);
                   }
                 | STRING PORT NUMBER mailserveroptlist {
-                        /* Restore the current text overriden by lookahead */
+                        /* Restore the current text overridden by lookahead */
                         FREE(argyytext);
                         argyytext = Str_dup($1);
 
@@ -1000,12 +1052,22 @@ mailserveropt   : username {
 sethttpd        : SET HTTPD httpdlist {
                         if (sslset.flags & SSL_Enabled) {
 #ifdef HAVE_OPENSSL
-                                if (! sslset.pemfile) {
+                                if (sslset.pemfile) {
+                                        if (sslset.pemchain || sslset.pemkey) {
+                                                yyerror("SSL server option pemfile and pemchain|pemkey are mutually exclusive");
+                                        } else if (! file_checkStat(sslset.pemfile, "SSL server PEM file", S_IRWXU)) {
+                                                yyerror("SSL server PEM file permissions check failed");
+                                        } else {
+                                                _setSSLOptions(&(Run.httpd.socket.net.ssl));
+                                        }
+                                } else if (sslset.pemchain && sslset.pemkey) {
+                                        if (! file_checkStat(sslset.pemkey, "SSL server private key PEM file", S_IRWXU)) {
+                                                yyerror("SSL server private key PEM file permissions check failed");
+                                        } else {
+                                                _setSSLOptions(&(Run.httpd.socket.net.ssl));
+                                        }
+                                } else {
                                         yyerror("SSL server PEM file is required (please use ssl pemfile option)");
-                                } else if (! file_checkStat(sslset.pemfile, "SSL server PEM file", S_IRWXU)) {
-                                        yyerror("SSL server PEM file permissions check failed");
-                                } else  {
-                                        _setSSLOptions(&(Run.httpd.socket.net.ssl));
                                 }
 #else
                                 yyerror("SSL is not supported");
@@ -1166,7 +1228,7 @@ allow           : ALLOW STRING':'STRING readonly {
                   }
                 | ALLOW STRING {
                         if (! Engine_addAllow($2))
-                                yywarning2("invalid allow option", $2);
+                                yywarning2("invalid allow option: %s", $2);
                         FREE($2);
                   }
                 ;
@@ -1563,6 +1625,10 @@ protocol        : PROTOCOL APACHESTATUS apache_stat_list {
                 | PROTOCOL MYSQL mysqllist {
                         portset.protocol = Protocol_get(Protocol_MYSQL);
                   }
+                | PROTOCOL MYSQLS mysqllist {
+                        sslset.flags = SSL_StartTLS;
+                        portset.protocol = Protocol_get(Protocol_MYSQL);
+                  }
                 | PROTOCOL SIP siplist {
                         portset.protocol = Protocol_get(Protocol_SIP);
                   }
@@ -1698,16 +1764,37 @@ mysqllist       : /* EMPTY */
                 ;
 
 mysql           : username {
-                        if ($<string>1) {
-                                if (strlen($<string>1) > 16)
-                                        yyerror2("Username too long -- Maximum MySQL username length is 16 characters");
-                                else
-                                        portset.parameters.mysql.username = $<string>1;
-                        }
+                        portset.parameters.mysql.username = $<string>1;
                   }
                 | password {
                         portset.parameters.mysql.password = $<string>1;
                   }
+                | RSAKEY CHECKSUM checksumoperator STRING {
+                        portset.parameters.mysql.rsaChecksum = $<string>4;
+                        switch (cleanup_hash_string(portset.parameters.mysql.rsaChecksum)) {
+                                case 32:
+                                        portset.parameters.mysql.rsaChecksumType = Hash_Md5;
+                                        break;
+                                case 40:
+                                        portset.parameters.mysql.rsaChecksumType = Hash_Sha1;
+                                        break;
+                                default:
+                                        yyerror2("Unknown checksum type: [%s] is not MD5 nor SHA1", portset.parameters.mysql.rsaChecksum);
+                        }
+                  }
+                | RSAKEY CHECKSUM MD5HASH checksumoperator STRING {
+                        portset.parameters.mysql.rsaChecksum = $<string>5;
+                        if (cleanup_hash_string(portset.parameters.mysql.rsaChecksum) != 32)
+                                yyerror2("Unknown checksum type: [%s] is not MD5", portset.parameters.mysql.rsaChecksum);
+                        portset.parameters.mysql.rsaChecksumType = Hash_Md5;
+                  }
+                | RSAKEY CHECKSUM SHA1HASH checksumoperator STRING {
+                        portset.parameters.mysql.rsaChecksum = $<string>5;
+                        if (cleanup_hash_string(portset.parameters.mysql.rsaChecksum) != 40)
+                                yyerror2("Unknown checksum type: [%s] is not SHA1", portset.parameters.mysql.rsaChecksum);
+                        portset.parameters.mysql.rsaChecksumType = Hash_Sha1;
+                  }
+                ;
                 ;
 
 target          : TARGET MAILADDR {
@@ -1896,6 +1983,7 @@ uptime          : IF UPTIME operator NUMBER time rate1 THEN action1 recovery {
                         addeventaction(&(uptimeset).action, $<number>8, $<number>9);
                         adduptime(&uptimeset);
                   }
+                ;
 
 icmpcount       : COUNT NUMBER {
                         icmpset.count = $<number>2;
@@ -2193,10 +2281,63 @@ resourcecpu     : resourcecpuid operator value PERCENT {
                   }
                 ;
 
-resourcecpuid   : CPUUSER   { $<number>$ = Resource_CpuUser; }
-                | CPUSYSTEM { $<number>$ = Resource_CpuSystem; }
-                | CPUWAIT   { $<number>$ = Resource_CpuWait; }
-                | CPU       { $<number>$ = Resource_CpuPercent; }
+resourcecpuid   : CPUUSER {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuUser)
+                                $<number>$ = Resource_CpuUser;
+                        else
+                                yywarning2("The CPU user usage statistics is not available on this system\n");
+                  }
+                | CPUSYSTEM {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuSystem)
+                                $<number>$ = Resource_CpuSystem;
+                        else
+                                yywarning2("The CPU system usage statistics is not available on this system\n");
+                  }
+                | CPUWAIT {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuIOWait)
+                                $<number>$ = Resource_CpuWait;
+                        else
+                                yywarning2("The CPU I/O wait usage statistics is not available on this system\n");
+                  }
+                | CPUNICE {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuNice)
+                                $<number>$ = Resource_CpuNice;
+                        else
+                                yywarning2("The CPU nice usage statistics is not available on this system\n");
+                  }
+                | CPUHARDIRQ {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuHardIRQ)
+                                $<number>$ = Resource_CpuHardIRQ;
+                        else
+                                yywarning2("The CPU hardware IRQ usage statistics is not available on this system\n");
+                  }
+                | CPUSOFTIRQ {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuSoftIRQ)
+                                $<number>$ = Resource_CpuSoftIRQ;
+                        else
+                                yywarning2("The CPU software IRQ usage statistics is not available on this system\n");
+                  }
+                | CPUSTEAL {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuSteal)
+                                $<number>$ = Resource_CpuSteal;
+                        else
+                                yywarning2("The CPU steal usage statistics is not available on this system\n");
+                  }
+                | CPUGUEST {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuGuest)
+                                $<number>$ = Resource_CpuGuest;
+                        else
+                                yywarning2("The CPU guest usage statistics is not available on this system\n");
+                  }
+                | CPUGUESTNICE {
+                        if (systeminfo.statisticsAvailable & Statistics_CpuGuestNice)
+                                $<number>$ = Resource_CpuGuestNice;
+                        else
+                                yywarning2("The CPU guest nice usage statistics is not available on this system\n");
+                  }
+                | CPU {
+                        $<number>$ = Resource_CpuPercent;
+                  }
                 ;
 
 resourcemem     : MEMORY operator value unit {
@@ -2289,8 +2430,13 @@ coremultiplier  : /* EMPTY */ { $<number>$ = 1; }
                 ;
 
 
-resourceread    : DISK READ operator value unit currenttime {
+resourceread    : READ operator value unit currenttime {
                         resourceset.resource_id = Resource_ReadBytes;
+                        resourceset.operator = $<number>2;
+                        resourceset.limit = $<real>3 * $<number>4;
+                  }
+                | DISK READ operator value unit currenttime {
+                        resourceset.resource_id = Resource_ReadBytesPhysical;
                         resourceset.operator = $<number>3;
                         resourceset.limit = $<real>4 * $<number>5;
                   }
@@ -2301,8 +2447,13 @@ resourceread    : DISK READ operator value unit currenttime {
                   }
                 ;
 
-resourcewrite   : DISK WRITE operator value unit currenttime {
+resourcewrite   : WRITE operator value unit currenttime {
                         resourceset.resource_id = Resource_WriteBytes;
+                        resourceset.operator = $<number>2;
+                        resourceset.limit = $<real>3 * $<number>4;
+                  }
+                | DISK WRITE operator value unit currenttime {
+                        resourceset.resource_id = Resource_WriteBytesPhysical;
                         resourceset.operator = $<number>3;
                         resourceset.limit = $<real>4 * $<number>5;
                   }
@@ -2424,8 +2575,8 @@ action2         : action {
                 ;
 
 rateXcycles     : NUMBER CYCLE {
-                        if ($<number>1 < 1 || $<number>1 > BITMAP_MAX) {
-                                yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
+                        if ($<number>1 < 1 || (unsigned long)$<number>1 > BITMAP_MAX) {
+                                yyerror2("The number of cycles must be between 1 and %lu", BITMAP_MAX);
                         } else {
                                 rate.count  = $<number>1;
                                 rate.cycles = $<number>1;
@@ -2434,8 +2585,8 @@ rateXcycles     : NUMBER CYCLE {
                 ;
 
 rateXYcycles    : NUMBER NUMBER CYCLE {
-                        if ($<number>2 < 1 || $<number>2 > BITMAP_MAX) {
-                                yyerror2("The number of cycles must be between 1 and %d", BITMAP_MAX);
+                        if ($<number>2 < 1 || (unsigned long)$<number>2 > BITMAP_MAX) {
+                                yyerror2("The number of cycles must be between 1 and %lu", BITMAP_MAX);
                         } else if ($<number>1 < 1 || $<number>1 > $<number>2) {
                                 yyerror2("The number of events must be between 1 and less then poll cycles");
                         } else {
@@ -2755,6 +2906,42 @@ secattr         : IF FAILED SECURITY ATTRIBUTE STRING rate1 THEN action1 recover
                   }
                 ;
 
+filedescriptorssystem : IF FILEDESCRIPTORS operator NUMBER rate1 THEN action1 recovery {
+                        if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerSystem)
+                                addfiledescriptors($<number>3, false, (long long)$4, -1., $<number>7, $<number>8);
+                        else
+                                yywarning("The per-system filedescriptors statistics is not available on this system\n");
+                  }
+                | IF FILEDESCRIPTORS operator value PERCENT rate1 THEN action1 recovery {
+                        if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerSystem)
+                                addfiledescriptors($<number>3, false, -1LL, $<real>4, $<number>8, $<number>9);
+                        else
+                                yywarning("The per-system filedescriptors statistics is not available on this system\n");
+                  }
+                ;
+
+filedescriptorsprocess : IF FILEDESCRIPTORS operator NUMBER rate1 THEN action1 recovery {
+                        if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerProcess)
+                                addfiledescriptors($<number>3, false, (long long)$4, -1., $<number>7, $<number>8);
+                        else
+                                yywarning("The per-process filedescriptors statistics is not available on this system\n");
+                  }
+                | IF FILEDESCRIPTORS operator value PERCENT rate1 THEN action1 recovery {
+                        if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerProcessMax)
+                                addfiledescriptors($<number>3, false, -1LL, $<real>4, $<number>8, $<number>9);
+                        else
+                                yywarning("The per-process filedescriptors maximum is not exposed on this system, so we cannot compute usage %%, please use the test with absolute value\n");
+                  }
+                ;
+
+filedescriptorsprocesstotal : IF TOTAL FILEDESCRIPTORS operator NUMBER rate1 THEN action1 recovery {
+                        if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerProcess)
+                                addfiledescriptors($<number>4, true, (long long)$5, -1., $<number>8, $<number>9);
+                        else
+                                yywarning("The per-process filedescriptors statistics is not available on this system\n");
+                  }
+                ;
+
 gid             : IF FAILED GID STRING rate1 THEN action1 recovery {
                         gidset.gid = get_gid($4, 0);
                         addeventaction(&(gidset).action, $<number>7, $<number>8);
@@ -2969,7 +3156,7 @@ void yywarning2(const char *s, ...) {
  * The Parser hook - start parsing the control file
  * Returns true if parsing succeeded, otherwise false
  */
-boolean_t parse(char *controlfile) {
+bool parse(char *controlfile) {
         ASSERT(controlfile);
 
         if ((yyin = fopen(controlfile,"r")) == (FILE *)NULL) {
@@ -2978,6 +3165,8 @@ boolean_t parse(char *controlfile) {
         }
 
         currentfile = Str_dup(controlfile);
+
+        available_statistics(&systeminfo);
 
         /*
          * Creation of the global service list is synchronized
@@ -3092,8 +3281,10 @@ static void postparse() {
                 return;
 
         /* If defined - add the last service to the service list */
-        if (current)
+        if (current) {
                 addservice(current);
+                current = NULL;
+        }
 
         /* Check that we do not start monit in daemon mode without having a poll time */
         if (! Run.polltime && ((Run.flags & Run_Daemon) || (Run.flags & Run_Foreground))) {
@@ -3144,7 +3335,7 @@ static void postparse() {
         /* Check the sanity of any dependency graph */
         check_depend();
 
-#ifdef HAVE_OPENSSL
+#if defined HAVE_OPENSSL && defined OPENSSL_FIPS
         Ssl_setFipsMode(Run.flags & Run_FipsEnabled);
 #endif
 
@@ -3152,7 +3343,7 @@ static void postparse() {
 }
 
 
-static boolean_t _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing) {
+static bool _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing) {
         struct addrinfo *result, hints = {.ai_flags = AI_NUMERICHOST};
         int status = getaddrinfo(ip, NULL, &hints, &result);
         if (status == 0) {
@@ -3162,7 +3353,7 @@ static boolean_t _parseOutgoingAddress(const char *ip, Outgoing_T *outgoing) {
                 freeaddrinfo(result);
                 return true;
         } else {
-                yyerror2("IP address parsing failed -- %s", ip, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
+                yyerror2("IP address parsing failed for %s -- %s", ip, status == EAI_SYSTEM ? STRERROR : gai_strerror(status));
         }
         return false;
 }
@@ -3214,11 +3405,13 @@ static Service_T createservice(Service_Type type, char *name, char *value, State
         }
 
         /* Set default values */
+        current->onrebootRestored = false;
         current->mode     = Monitor_Active;
         current->monitor  = Monitor_Init;
         current->onreboot = Run.onreboot;
         current->name     = name;
-        current->name_escaped = Util_urlEncode(name, false);
+        current->name_urlescaped = Util_urlEncode(name, false);
+        current->name_htmlescaped = escapeHTML(StringBuffer_create(16), name);
         current->check    = check;
         current->path     = value;
 
@@ -3357,7 +3550,8 @@ static void adddependant(char *dependant) {
                 d->next = current->dependantlist;
 
         d->dependant = dependant;
-        d->dependant_escaped = Util_urlEncode(dependant, false);
+        d->dependant_urlescaped = Util_urlEncode(dependant, false);
+        d->dependant_htmlescaped = escapeHTML(StringBuffer_create(16), dependant);
         current->dependantlist = d;
 
 }
@@ -3417,7 +3611,7 @@ static void addport(Port_T *list, Port_T port) {
                 if (sslset.flags) {
 #ifdef HAVE_OPENSSL
                         p->target.net.ssl.certificate.minimumDays = port->target.net.ssl.certificate.minimumDays;
-                        if (sslset.flags && (p->target.net.port == 25 || p->target.net.port == 587))
+                        if (sslset.flags && (p->target.net.port == 25 || p->target.net.port == 143 || p->target.net.port == 587))
                                 sslset.flags = SSL_StartTLS;
                         _setSSLOptions(&(p->target.net.ssl.options));
 #else
@@ -3446,6 +3640,13 @@ static void addport(Port_T *list, Port_T port) {
                         if ((p->url_request && p->url_request->regex) || p->parameters.http.checksum) {
                                 yyerror2("if response content or checksum test is enabled, the HEAD method is not allowed");
                         }
+                }
+        } else if (p->protocol->check == check_mysql) {
+                if (p->parameters.mysql.rsaChecksum) {
+                        if (! p->parameters.mysql.username)
+                                yyerror2("the rsakey checksum test requires credentials to be defined");
+                        if (p->target.net.ssl.options.flags != SSL_Disabled)
+                                yyerror2("the rsakey checksum test can be used just with unsecured mysql protocol");
                 }
         }
 
@@ -3551,7 +3752,7 @@ static void addsize(Size_T ss) {
         s->size         = ss->size;
         s->action       = ss->action;
         s->test_changes = ss->test_changes;
-        /* Get the initial size for future comparision, if the file exists */
+        /* Get the initial size for future comparison, if the file exists */
         if (s->test_changes) {
                 s->initialized = ! stat(current->path, &buf);
                 if (s->initialized)
@@ -3675,7 +3876,7 @@ static void addchecksum(Checksum_T cs) {
         if (STR_UNDEF(cs->hash)) {
                 if (cs->type == Hash_Unknown)
                         cs->type = Hash_Default;
-                if (! (Util_getChecksum(current->path, cs->type, cs->hash, sizeof(cs->hash)))) {
+                if (! (Checksum_getChecksum(current->path, cs->type, cs->hash, sizeof(cs->hash)))) {
                         /* If the file doesn't exist, set dummy value */
                         snprintf(cs->hash, sizeof(cs->hash), cs->type == Hash_Md5 ? "00000000000000000000000000000000" : "0000000000000000000000000000000000000000");
                         cs->initialized = false;
@@ -3742,44 +3943,44 @@ static void addperm(Perm_T ps) {
 
 static void addlinkstatus(Service_T s, LinkStatus_T L) {
         ASSERT(L);
-        
+
         LinkStatus_T l;
         NEW(l);
         l->action = L->action;
-        
+
         l->next = s->linkstatuslist;
         s->linkstatuslist = l;
-        
+
         reset_linkstatusset();
 }
 
 
 static void addlinkspeed(Service_T s, LinkSpeed_T L) {
         ASSERT(L);
-        
+
         LinkSpeed_T l;
         NEW(l);
         l->action = L->action;
-        
+
         l->next = s->linkspeedlist;
         s->linkspeedlist = l;
-        
+
         reset_linkspeedset();
 }
 
 
 static void addlinksaturation(Service_T s, LinkSaturation_T L) {
         ASSERT(L);
-        
+
         LinkSaturation_T l;
         NEW(l);
         l->operator = L->operator;
         l->limit = L->limit;
         l->action = L->action;
-        
+
         l->next = s->linksaturationlist;
         s->linksaturationlist = l;
-        
+
         reset_linksaturationset();
 }
 
@@ -3899,12 +4100,12 @@ static void addmatchpath(Match_T ms, Action_Type actionnumber) {
                                 command1 = copycommand(savecommand);
                         }
                 }
-                
+
                 addmatch(ms, actionnumber, linenumber);
         }
         if (actionnumber == Action_Exec && savecommand)
                 gccmd(&savecommand);
-        
+
         fclose(handle);
 }
 
@@ -3974,7 +4175,7 @@ static void addfilesystem(FileSystem_T ds) {
 
         dev->next               = current->filesystemlist;
         current->filesystemlist = dev;
-        
+
         reset_filesystemset();
 
 }
@@ -4081,7 +4282,7 @@ static void addgeneric(Port_T port, char *send, char *expect) {
  * Add the current command object to the current service object's
  * start or stop program.
  */
-static void addcommand(int what, unsigned timeout) {
+static void addcommand(int what, unsigned int timeout) {
 
         switch (what) {
                 case START:   current->start = command; break;
@@ -4090,7 +4291,7 @@ static void addcommand(int what, unsigned timeout) {
         }
 
         command->timeout = timeout;
-        
+
         command = NULL;
 
 }
@@ -4357,9 +4558,9 @@ static void addhtpasswdentry(char *filename, char *username, Digest_Type dtype) 
 
         if (handle == NULL) {
                 if (username != NULL)
-                        yyerror2("Cannot read htpasswd (%s)", filename);
+                        yyerror2("Cannot read htpasswd (%s) for user %s", filename, username);
                 else
-                        yyerror2("Cannot read htpasswd", filename);
+                        yyerror2("Cannot read htpasswd (%s)", filename);
                 return;
         }
 
@@ -4449,14 +4650,14 @@ static void addpamauth(char* groupname, int readonly) {
 /*
  * Add Basic Authentication credentials
  */
-static boolean_t addcredentials(char *uname, char *passwd, Digest_Type dtype, boolean_t readonly) {
+static bool addcredentials(char *uname, char *passwd, Digest_Type dtype, bool readonly) {
         Auth_T c;
 
         ASSERT(uname);
         ASSERT(passwd);
 
-        if (strlen(passwd) > MAX_CONSTANT_TIME_STRING_LENGTH) {
-                yyerror2("Password for user %s is too long, maximum %d allowed", uname, MAX_CONSTANT_TIME_STRING_LENGTH);
+        if (strlen(passwd) > Str_compareConstantTimeStringLength) {
+                yyerror2("Password for user %s is too long, maximum %d allowed", uname, Str_compareConstantTimeStringLength);
                 FREE(uname);
                 FREE(passwd);
                 return false;
@@ -4828,8 +5029,8 @@ static int check_perm(int perm) {
 static void check_depend() {
         Service_T depends_on = NULL;
         Service_T* dlt = &depend_list; /* the current tail of it                                 */
-        boolean_t done;                /* no unvisited nodes left?                               */
-        boolean_t found_some;          /* last iteration found anything new ?                    */
+        bool done;                /* no unvisited nodes left?                               */
+        bool found_some;          /* last iteration found anything new ?                    */
         depend_list = NULL;            /* depend_list will be the topological sorted servicelist */
 
         do {
@@ -4889,7 +5090,7 @@ static void check_exec(char *exec) {
 /* Return a valid max forward value for SIP header */
 static int verifyMaxForward(int mf) {
         if (mf == 0) {
-                return INT_MAX; // Differentiate unitialized (0) and explicit zero
+                return INT_MAX; // Differentiate uninitialized (0) and explicit zero
         } else if (mf > 0 && mf <= 255) {
                 return mf;
         }
@@ -4941,15 +5142,19 @@ static command_t copycommand(command_t source) {
 }
 
 
-static void _setPEM(char **store, char *path, const char *description, boolean_t isFile) {
+static void _setPEM(char **store, char *path, const char *description, bool isFile) {
         if (*store) {
                 yyerror2("Duplicate %s", description);
+                FREE(path);
         } else if (! File_exist(path)) {
                 yyerror2("%s doesn't exist", description);
+                FREE(path);
         } else if (! (isFile ? File_isFile(path) : File_isDirectory(path))) {
                 yyerror2("%s is not a %s", description, isFile ? "file" : "directory");
+                FREE(path);
         } else if (! File_isReadable(path)) {
                 yyerror2("Cannot read %s", description);
+                FREE(path);
         } else {
                 sslset.flags = SSL_Enabled;
                 *store = path;
@@ -4967,10 +5172,30 @@ static void _setSSLOptions(SslOptions_T options) {
         options->clientpemfile = sslset.clientpemfile;
         options->flags = sslset.flags;
         options->pemfile = sslset.pemfile;
+        options->pemchain = sslset.pemchain;
+        options->pemkey = sslset.pemkey;
         options->verify = sslset.verify;
         options->version = sslset.version;
         reset_sslset();
 }
+
+
+#ifdef HAVE_OPENSSL
+static void _setSSLVersion(short version) {
+        sslset.flags = SSL_Enabled;
+        if (sslset.version == -1)
+                sslset.version = version;
+        else
+                sslset.version |= version;
+}
+#endif
+
+
+static void _unsetSSLVersion(short version) {
+        if (sslset.version != -1)
+                sslset.version &= ~version;
+}
+
 
 static void addsecurityattribute(char *value, Action_Type failed, Action_Type succeeded) {
         SecurityAttribute_T attr;
@@ -4979,5 +5204,17 @@ static void addsecurityattribute(char *value, Action_Type failed, Action_Type su
         attr->attribute = value;
         attr->next = current->secattrlist;
         current->secattrlist = attr;
+}
+
+static void addfiledescriptors(Operator_Type operator, bool total, long long value_absolute, float value_percent, Action_Type failed, Action_Type succeeded) {
+        Filedescriptors_T fds;
+        NEW(fds);
+        addeventaction(&(fds->action), failed, succeeded);
+        fds->total = total;
+        fds->limit_absolute = value_absolute;
+        fds->limit_percent = value_percent;
+        fds->operator = operator;
+        fds->next = current->filedescriptorslist;
+        current->filedescriptorslist = fds;
 }
 

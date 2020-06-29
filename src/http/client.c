@@ -53,12 +53,11 @@
 #endif
 
 #include "monit.h"
-#include "net.h"
-#include "socket.h"
 #include "ProcessTree.h"
 #include "device.h"
 #include "Color.h"
 #include "Box.h"
+#include "client.h"
 
 // libmonit
 #include "exceptions/AssertException.h"
@@ -81,7 +80,7 @@ static void _argument(StringBuffer_T data, const char *name, const char *value) 
 }
 
 
-static char *_getBasicAuthHeader() {
+static char *_getBasicAuthHeader(void) {
         Auth_T auth = NULL;
         // Find the first cleartext credential for authorization
         for (Auth_T c = Run.httpd.credentials; c; c = c->next) {
@@ -164,7 +163,7 @@ static void _send(Socket_T S, const char *request, StringBuffer_T data) {
 static void _receive(Socket_T S) {
         char buf[1024];
         _parseHttpResponse(S);
-        boolean_t strip = (Run.flags & Run_Batch || ! Color_support()) ? true : false;
+        bool strip = (Run.flags & Run_Batch || ! Color_support()) ? true : false;
         while (Socket_readLine(S, buf, sizeof(buf))) {
                 if (strip)
                         Color_strip(Box_strip(buf));
@@ -173,8 +172,8 @@ static void _receive(Socket_T S) {
 }
 
 
-static boolean_t _client(const char *request, StringBuffer_T data) {
-        boolean_t status = false;
+static bool _client(const char *request, StringBuffer_T data) {
+        volatile bool status = false;
         if (! exist_daemon()) {
                 LogError("Monit: the monit daemon is not running\n");
                 return status;
@@ -208,7 +207,7 @@ static boolean_t _client(const char *request, StringBuffer_T data) {
 /* ------------------------------------------------------------------ Public */
 
 
-boolean_t HttpClient_action(const char *action, List_T services) {
+bool HttpClient_action(const char *action, List_T services) {
         ASSERT(services);
         ASSERT(action);
         if (Util_getAction(action) == Action_Ignored) {
@@ -219,41 +218,41 @@ boolean_t HttpClient_action(const char *action, List_T services) {
         _argument(data, "action", action);
         for (list_t s = services->head; s; s = s->next)
                 _argument(data, "service", s->e);
-        boolean_t rv = _client("/_doaction", data);
+        bool rv = _client("/_doaction", data);
         StringBuffer_free(&data);
         return rv;
 }
 
 
-boolean_t HttpClient_report(const char *type) {
+bool HttpClient_report(const char *type) {
         StringBuffer_T data = StringBuffer_create(64);
         if (STR_DEF(type))
                 _argument(data, "type", type);
-        boolean_t rv = _client("/_report", data);
+        bool rv = _client("/_report", data);
         StringBuffer_free(&data);
         return rv;
 }
 
 
-boolean_t HttpClient_status(const char *group, const char *service) {
+bool HttpClient_status(const char *group, const char *service) {
         StringBuffer_T data = StringBuffer_create(64);
         if (STR_DEF(service))
                 _argument(data, "service", service);
         if (STR_DEF(group))
                 _argument(data, "group", group);
-        boolean_t rv = _client("/_status", data);
+        bool rv = _client("/_status", data);
         StringBuffer_free(&data);
         return rv;
 }
 
 
-boolean_t HttpClient_summary(const char *group, const char *service) {
+bool HttpClient_summary(const char *group, const char *service) {
         StringBuffer_T data = StringBuffer_create(64);
         if (STR_DEF(service))
                 _argument(data, "service", service);
         if (STR_DEF(group))
                 _argument(data, "group", group);
-        boolean_t rv = _client("/_summary", data);
+        bool rv = _client("/_summary", data);
         StringBuffer_free(&data);
         return rv;
 }

@@ -601,20 +601,31 @@ Common SSL/TLS options can be set using the following statement and
 will apply to all SSL connections made through Monit:
 
   SET <SSL | TLS> [OPTIONS] {
-      VERSION: <AUTO | SSLV2 | SSLV3 | TLSV1 | TLSV11 | TLSV12 | TLSV13>
+      VERSION: <AUTO | [-]SSLV2 | [-]SSLV3 | [-]TLSV1 | [-]TLSV11 | [-]TLSV12 | [-]TLSV13>, ...
       VERIFY: <ENABLE | DISABLE>
       SELFSIGNED: <ALLOW | REJECT>
       CIPHERS: <string>
       PEMFILE: <path>
+      PEMCHAIN: <path>
+      PEMKEY: <path>
       CLIENTPEMFILE: <path>
       CACERTIFICATEFILE: <path>
       CACERTIFICATEPATH: <path>
   }
 
 I<VERSION> set the specific SSL/TLS version to use. By default Monit
-uses AUTO. In AUTO mode, only TLS is used, SSLv2 and SSLv3 is
-considered obsolete. If you have to use SSLv2 or SSLv3, you must
-explicitly set the version.
+uses AUTO. In AUTO mode, only TLS 1.2 and 1.3 are allowed, all other
+protocols are considered obsolete. If you want to use the obsolete
+protocol you must explicitly set the version. You can exclude the protocol
+using the "-" prefix.
+Exclude list example:
+  set ssl {
+      version: auto -sslv2 -sslv3 -tlsv1 -tlsv11
+  }
+Example of allowed protocols list:
+  set ssl {
+      version: tlsv12 tlsv13
+  }
 
 I<VERIFY> enable SSL server certificate verification. This will verify
 and report an error if the server certificate is not trusted, not valid
@@ -632,6 +643,11 @@ I<CIPHERS> override default SSL/TLS ciphers.
 
 I<PEMFILE> set the path to the SSL server certificate
 "database-file" in PEM format. This options has effect only for the
+monit HTTP interface.
+
+As an alternative to setting I<PEMFILE> with a combined chain-key file,
+I<PEMCHAIN> and I<PEMKEY> set the path to the SSL certificate chain respectively
+the server private key file in PEM format. This options has effect only for the
 monit HTTP interface.
 
 I<CLIENTPEMFILE> set the path to the PEM encoded SSL client certificates
@@ -753,7 +769,7 @@ usually setup on port 2812. Example:
 You can now use L<http://localhost:2812/|http://localhost:2812/> to
 access Monit's web interface from a browser, after you have entered
 username and password as credentials. You might need to use double
-quotes around the password if it cointains special chars such as
+quotes around the password if it contains special chars such as
 "p@ssw:r#".
 
 B<ADDRESS> make Monit listen on a specific interface only. For example
@@ -796,17 +812,32 @@ over IP version 4, specify an IPv4 address:
 B<SSL> enable SSL/TLS for Monit's web interface.  See L<options|"SSL OPTIONS">
 for full list of SSL options.
 
-I<PEMFILE> set the path to the PEM encoded file, which contains the
+I<PEMFILE> sets the path to the PEM encoded file, which contains the
 server's private key and certificate. This file should be stored in a
 safe place on the filesystem and should have strict permissions, no
 more than 0700.
 
-Example:
+As an alternative I<PEMCHAIN> and I<PEMKEY> sets the path to separate PEM encoded
+certificate chain and private key file. The key file should be stored in a
+safe place on the filesystem and should have strict permissions, no
+more than 0700.
+
+Example for using pemfile:
 
  set httpd
      port 2812
      with ssl {
         pemfile: /etc/ssl/certs/monit.pem
+     }
+     allow myuser:mypassword
+
+Example for using separate certificate chain and key:
+
+ set httpd
+     port 2812
+     with ssl {
+        pemchain: /etc/ssl/certs/monit.chain.pem
+        pemkey: /etc/ssl/certs/monit.key.pem
      }
      allow myuser:mypassword
 
@@ -891,7 +922,7 @@ server will allow the client access to the requested document.
 
 The biggest weakness with Basic Authentication is that username and
 password is sent in clear-text over the network (i.e. base64 encoded).
-It is therefor recommended that you do not use this authentication
+It is therefore recommended that you do not use this authentication
 method unless you run Monit with I<ssl> support. With ssl, it is safe
 to use Basic Authentication since I<all> HTTP data, including Basic
 Authentication headers will be encrypted.
@@ -1029,8 +1060,8 @@ Monit will raise an alert in the following situations:
  o Permission test failed (e.g. file mode doesn't match)
  o An UID test failed (e.g. file owned by different user)
  o A GID test failed (e.g. file owned by different group)
- o A process' PID changed out of Monit's control
- o A process' PPID changed out of Monit control
+ o A process's PID changed out of Monit's control
+ o A process's PPID changed out of Monit control
  o Too many service recovery attempts failed
  o A file content test found a match
  o Filesystem flags changed
@@ -1451,7 +1482,7 @@ current time match the cron-string pattern. If it does, then the check
 is performed otherwise it is skipped. The cron specification does not
 guarantee when exactly the test will run, this depends on the default
 poll time and the length of the check cycle. In other words, we cannot
-guarantee that Monit will run on a specific time. Therefor we
+guarantee that Monit will run on a specific time. Therefore we
 B<strongly> recommend to use an asterix in the minute field or at
 minimum a range, e..g. 0-15. B<Never> use a specific minute as Monit
 may not run on that minute.
@@ -1972,9 +2003,81 @@ queue per CPU core, averaged over the specified time period. Example:
 If you'll omit the I<per core> option, the test will check the total load average
 regardless of CPU cores count.
 
-I<CPU([user|system|wait])> is the percent of time the system spend
-in user or kernel space and I/O. The user/system/wait modifier is
-optional, if not used, the total system cpu usage is tested. Example:
+I<CPU([user|system|wait|nice|hardirq|softirq|steal|guest|guestnice])> is the percent
+of time the system spend in given type of task:
+
+=over 4
+
+=item user
+
+The CPU is running code in user space mode, which includes any process that doesn't belong
+to the kernel, such as webservers, databases, shells and desktop related programs.
+
+=item system
+
+The CPU is running the kernel, which includes drivers and other kernel modules. The kernel
+also handles requests from user space processes like memory allocation, disk and network I/O
+and creating child processes.
+
+=item wait
+
+I/O wait is when the CPU was idle while waiting for an I/O operation from disk or network to
+complete.
+
+=item nice
+
+The nice statistics accounts for user space processes that are running with altered priority
+(higher or lower then normal).
+
+=item hardirq
+
+The kernel is servicing hardware interrupt requests. Hardware interrupts come from peripherals
+like keyboard, network interfaces, disks, system clock, etc.
+
+=item softirq
+
+The kernel is servicing software interrupt requests. Software interrupts come from processes
+running in the system.
+
+=item steal
+
+This applies only to virtual machines on a hypervisor. The steal time shows the percentage of
+time a virtual machine had to wait the real CPU while the hypervisor was servicing another virtual
+machine. If this number remains high, the host system is too busy and may need more physical
+CPUs or offload some virtual machines to another host.
+
+=item guest
+
+This applies only to host machines running a hypervisor. It shows time spent running a virtual CPU
+for guest operating systems under the control of the Linux kernel. This value is already included in
+"user" statistics.
+
+=item guestnice
+
+This applies only to host machines running a hypervisor. It shows time spent running a virtual CPU
+for guest operating systems under the control of the Linux kernel, with altered priority. This value
+is already included in "nice" statistics.
+
+=back
+
+The user/system/wait/nice/hardirq/softirq/steal/guest/guestnice modifier is optional and the support
+depends on platform (Linux support depends on kernel version, all statistics are available since kernel
+2.6.33):
+
+ -----------------------------------------------------------------------------------------------
+ | Platform     | user | nice | system | wait | hardirq | softirq | steal | guest | guest nice |
+ -----------------------------------------------------------------------------------------------
+ | AIX          |  X   |      |   X    |  X   |         |         |       |       |            |
+ | DragonFlyBSD |  X   |  X   |   X    |      |    X    |         |       |       |            |
+ | FreeBSD      |  X   |  X   |   X    |      |    X    |         |       |       |            |
+ | Linux        |  X   |  X   |   X    |  X   |    X    |    X    |   X   |   X   |    X       |
+ | MacOS        |  X   |  X   |   X    |      |         |         |       |       |            |
+ | NetBSD       |  X   |  X   |   X    |      |    X    |         |       |       |            |
+ | OpenBSD      |  X   |  X   |   X    |      |    X    |         |       |       |            |
+ | Solaris      |  X   |      |   X    |  X   |         |         |       |       |            |
+ -----------------------------------------------------------------------------------------------
+
+Example:
 
  if cpu usage > 95% for 10 cycles then alert
 
@@ -2026,35 +2129,40 @@ processes in either percent or as an amount [B, kB, MB, GB]. Example:
  if total memory usage > 1% for 10 cycles then alert
 
 
-=head2 PROCESS DISK I/O TEST
+=head2 PROCESS I/O ACTIVITY TEST
 
-Monit can test process' filesystem read and write activity. This test
+Monit can test process's filesystem read and write activity. This test
 can only be used in the context of a process service type. Monit will
 normally need to run as the root user to access this metrics.
 
 The OS usually supports the per-process I/O metrics by bytes or by
 operations.
 
+Some platforms allows one to differentiate the I/O subset that required physical
+storage access from generic I/O which was handled by cache. Note that as the
+physical I/O is usually aligned to the filesystem page, there may be difference
+between the total and physical I/O even if the process tried to read just 1 byte.
+
 Per-process I/O activity statistics by platform:
 
- -----------------------------------
- | Platform     | Operation | Byte |
- -----------------------------------
- | AIX          |     x     |      |
- | DragonFlyBSD |     x     |      |
- | FreeBSD      |     x     |      |
- | Linux        |           |  x   |
- | MacOS        |           |  x   |
- | NetBSD       |     x     |      |
- | OpenBSD      |     x     |      |
- | Solaris      |     x     |      |
- -----------------------------------
+ ---------------------------------------------------------------
+ | Platform     | Operation | Byte (physical) | Byte (generic) |
+ ---------------------------------------------------------------
+ | AIX          |     X     |                 |                |
+ | DragonFlyBSD |     X     |                 |                |
+ | FreeBSD      |     X     |                 |                |
+ | Linux        |     X     |        X        |        X       |
+ | MacOS        |           |        X        |                |
+ | NetBSD       |     X     |                 |                |
+ | OpenBSD      |     X     |                 |                |
+ | Solaris      |     X     |                 |                |
+ ---------------------------------------------------------------
 
-=head3 Read: bytes per second
+=head3 Read: bytes per second (generic)
 
 Syntax:
 
- IF DISK READ [RATE] <operator> <number> <unit>/S THEN action
+ IF READ [ACTIVITY] <operator> <number> <unit>/S THEN action
 
 I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
 "lt", "eq", "ne" in shell sh notation and "greater", "less",
@@ -2071,13 +2179,36 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 Example:
 
  check process p...
-       if disk read > 1 MB/s then alert
+       if read activity > 1 MB/s then alert
+
+=head3 Read: bytes per second (physical storage)
+
+Syntax:
+
+ IF DISK READ [ACTIVITY] <operator> <number> <unit>/S THEN action
+
+I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
+"lt", "eq", "ne" in shell sh notation and "greater", "less",
+"equal", "notequal" in human readable form (if not specified,
+default is EQUAL).
+
+I<unit> is a choice of "B","KB","MB","GB" or long
+alternatives "byte", "kilobyte", "megabyte", "gigabyte",
+"percent".
+
+I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
+"EXEC" or "UNMONITOR".
+
+Example:
+
+ check process p...
+       if disk read activity > 1 MB/s then alert
 
 =head3 Read: operations per second
 
 Syntax:
 
- IF DISK READ <operator> <number> operations/S THEN action
+ IF DISK READ [ACTIVITY] <operator> <number> operations/S THEN action
 
 I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
 "lt", "eq", "ne" in shell sh notation and "greater", "less",
@@ -2090,13 +2221,13 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 Example:
 
  check process p...
-       if disk read rate > 500 operations/s then alert
+       if disk read activity > 500 operations/s then alert
 
-=head3 Write: bytes per second
+=head3 Write: bytes per second (generic)
 
 Syntax:
 
- IF DISK WRITE <operator> <number> <unit>/S THEN action
+ IF WRITE [ACTIVITY] <operator> <number> <unit>/S THEN action
 
 I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
 "lt", "eq", "ne" in shell sh notation and "greater", "less",
@@ -2113,13 +2244,36 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 Example:
 
  check process p...
-       if disk write rate > 1 MB/s then alert
+       if write activity > 1 MB/s then alert
+
+=head3 Write: bytes per second (physical storage)
+
+Syntax:
+
+ IF DISK WRITE [ACTIVITY] <operator> <number> <unit>/S THEN action
+
+I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
+"lt", "eq", "ne" in shell sh notation and "greater", "less",
+"equal", "notequal" in human readable form (if not specified,
+default is EQUAL).
+
+I<unit> is a choice of "B","KB","MB","GB" or long
+alternatives "byte", "kilobyte", "megabyte", "gigabyte",
+"percent".
+
+I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
+"EXEC" or "UNMONITOR".
+
+Example:
+
+ check process p...
+       if disk write activity > 1 MB/s then alert
 
 =head3 Write: operations per second
 
 Syntax:
 
- IF DISK WRITE <operator> <number> operations/S THEN action
+ IF DISK WRITE [ACTIVITY] <operator> <number> operations/S THEN action
 
 I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
 "lt", "eq", "ne" in shell sh notation and "greater", "less",
@@ -2132,7 +2286,7 @@ I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 Example:
 
  check process p...
-       if disk write rate > 500 operations/s then alert
+       if disk write activity > 500 operations/s then alert
 
 
 =head2 FILE CHECKSUM TEST
@@ -2628,7 +2782,7 @@ Example:
 
 =head2 PID TEST
 
-Monit can test the process' PID. This test is implicit and Monit will
+Monit can test the process's PID. This test is implicit and Monit will
 send an alert in case the PID changed outside of Monit's control.
 
 Syntax:
@@ -2651,7 +2805,7 @@ replaced by a new instance:
 
 =head2 PPID TEST
 
-Monit can test the process' parent PID (PPID) for changes. This
+Monit can test the process's parent PID (PPID) for changes. This
 test is implicit and Monit will send alert in the case that the
 PPID changed outside of Monit control.
 
@@ -2720,6 +2874,44 @@ Example for AppArmor:
 
  check process ntpd matching "ntpd"
     if failed security attribute "/usr/sbin/ntpd (enforce)" then alert
+
+
+=head2 SYSTEM AND PER-PROCESS FILEDESCRIPTORS TEST
+
+Monit can test the filedescriptors usage on the system and process level. You can check either
+an absolute value or percentual usage of the current maximum. The per-process percentual
+usage can be used only if the system exposes per-process maximum.
+
+Syntax:
+
+ IF FILEDESCRIPTORS <operator> <number> [%] THEN action
+
+For process only, you can also check accumulated number for the process and all its children.
+
+Syntax:
+
+ IF TOTAL FILEDESCRIPTORS <operator> <number> THEN action
+
+I<operator> is a choice of "<",">","!=","==" in c notation, "gt",
+"lt", "eq", "ne" in shell sh notation and "greater", "less",
+"equal", "notequal" in human readable form (if not specified,
+default is EQUAL).
+
+I<number> limit.
+
+
+I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
+"EXEC" or "UNMONITOR".
+
+Examples:
+
+ check system $HOST
+    if filedescriptors >= 90% then alert
+
+ check process myproc with pidfile /var/run/myproc.pid
+    if filedescriptors >= 90% then alert
+    if filedescriptors >= 99% then restart
+    if total filedescriptors > 5000 then alert
 
 
 =head2 PROGRAM STATUS TEST
@@ -2949,7 +3141,7 @@ I<unit> is a choice of "B","KB","MB","GB" or long alternatives
 
 I<time-unit> is a choice of "MINUTE(S)", "HOUR(S)", "DAY".
 NOTE: Monit maintains a rolling count of total uploaded and downloaded
-bytes for the last 24 hours only. The value of time-unit can therefor not
+bytes for the last 24 hours only. The value of time-unit can therefore not
 specify a range wider than one day.
 
 I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
@@ -2992,7 +3184,7 @@ default is EQUAL).
 
 I<time-unit> is a choice of "MINUTE(S)", "HOUR(S)", "DAY".
 NOTE: Monit keeps total upload/download statistics only for the last
-24 hours. The time-unit value cannot therefor span more than one day.
+24 hours. The time-unit value cannot therefore span more than one day.
 
 I<action> is a choice of "ALERT", "RESTART", "START", "STOP",
 "EXEC" or "UNMONITOR".
@@ -3207,6 +3399,7 @@ knows how to speak:
  I<MONGODB>
  I<MQTT>
  I<MYSQL>
+ I<MYSQLS>
  I<NNTP>
  I<NTP3>
  I<PGSQL>
@@ -3477,7 +3670,8 @@ I<USERNAME> MQTT username
 
 I<PASSWORD> MQTT password
 
-Username and password (credentials) are B<optional>.
+Username and password (credentials) are B<optional>. If not used, Monit will try anonymous connect, which may
+trigger authorization error => credentials are recommended unless your server allows anonymous connect.
 
 Example:
 
@@ -3491,22 +3685,25 @@ Example:
 
 Syntax:
 
- PROTOCOL MYSQL [USERNAME string PASSWORD string]
+ PROTOCOL MYSQL[S] [USERNAME string PASSWORD string [RSAKEY CHECKSUM string]]
 
-I<USERNAME> MySQL username (maximum 16 characters).
+I<USERNAME> MySQL username.
 
 I<PASSWORD> MySQL password (special characters can be used, but for non-alphanumerics
 the password has to be quoted).
+
+I<RSKEY CHECKSUM> If you use unsecured connection (plain MYSQL without TLS), you can set
+the expected MD5 or SHA1 checksum of the server's RSA key to protect afainst man-in-the-middle
+attacks. Monit will check the key fingerprint before sending the password to the server.
 
 Username and password (credentials) are B<optional> and if not set,
 Monit will perform the test using anonymous login. This can cause an
 authentication error to be logged in your MySQL log, depending on your
 MySQL configuration.
 
-If credentials are set, Monit will login and perform a MySQL ping test.
-Monit does not require any database privileges, it just needs the
-database user. You might want to create standalone user for Monit to
-use when testing, for example:
+If credentials are set, Monit will try to login. Monit does not require any database
+privileges, it just needs the database user. You might want to create standalone user
+for Monit to use when testing, for example:
 
  CREATE USER 'monit'@'host_from_which_monit_performs_testing' IDENTIFIED BY 'mysecretpassword';
  FLUSH PRIVILEGES;
@@ -3529,6 +3726,13 @@ or with unix-socket start/stop commands
      if failed
         unixsocket /tmp/mysql.sock
         protocol mysql username "foo" password "bar"
+     then alert
+
+You can enable the TLS encryption for the test by using MYSQLS as protocol name:
+
+     if failed
+        port 3306
+        protocol mysqls username "foo" password "bar"
      then alert
 
 
@@ -4127,7 +4331,7 @@ of this man page also receive inspiration from the same authors.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2001-2019 by Tildeslash Ltd. All Rights Reserved.
+Copyright (C) 2001-2020 by Tildeslash Ltd. All Rights Reserved.
 This product is distributed in the hope that it will be useful,
 but WITHOUT any warranty; without even the implied warranty of
 MERCHANTABILITY or FITNESS for a particular purpose.

@@ -105,7 +105,7 @@
 /**
  * Cancel execution of a thread
  * @param thread The thread to cancel
- * @exception AssertException If thread cancelation failed
+ * @exception AssertException If thread cancellation failed
  * @hideinitializer
  */
 #define Thread_cancel(thread) wrapper(pthread_cancel(thread))
@@ -305,13 +305,6 @@
  * Initialize Threads. This method should be called at program startup
  */
 void Thread_init(void);
-
-
-/**
- * Shutdown and cleanup threads. This method should be called at program termination
- */
-void Thread_fini(void);
-
 
 //>> End filter-out
 

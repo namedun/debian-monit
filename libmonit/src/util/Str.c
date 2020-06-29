@@ -34,7 +34,6 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <ctype.h>
 #include <regex.h>
 #include <limits.h>
@@ -87,7 +86,8 @@ char *Str_ltrim(char *s) {
 
 char *Str_rtrim(char *s) {
         if (STR_DEF(s))
-                for (size_t j = strlen(s) - 1; isspace(s[j]); j--) s[j] = 0;
+                for (ssize_t j = strlen(s) - 1; j >= 0 && isspace(s[j]); j--)
+                        s[j] = 0;
         return s;
 }
 
@@ -142,7 +142,7 @@ int Str_parseInt(const char *s) {
 }
 
 
-long long int Str_parseLLong(const char *s) {
+long long Str_parseLLong(const char *s) {
         char *e;
         long long l;
         if (STR_UNDEF(s))
@@ -178,18 +178,21 @@ char *Str_replaceChar(char *s, char o, char n) {
 }
 
 
-int Str_startsWith(const char *a, const char *b) {
+bool Str_startsWith(const char *a, const char *b) {
 	if (a && b) {
-	        do
-	                if (toupper(*a++) != toupper(*b++)) return false;
-                while (*b);
+	        do {
+	                if (toupper(*a) != toupper(*b))
+                                return false;
+                        if (*a++ == 0 || *b++ == 0)
+                                break;
+                } while (*b);
                 return true;
         }
         return false;
 }
 
 
-int Str_endsWith(const char *a, const char *b) {
+bool Str_endsWith(const char *a, const char *b) {
         if (a && b) {
                 size_t i = 0, j = 0;
                 for (i = strlen(a), j = strlen(b); (i && j); i--, j--)
@@ -219,7 +222,7 @@ char *Str_sub(const char *a, const char *b) {
 }
 
 
-int Str_has(const char *charset, const char *s) {
+bool Str_has(const char *charset, const char *s) {
         if (charset && s) {
                 for (int x = 0; s[x]; x++) {
                         for (int y = 0; charset[y]; y++) {
@@ -251,7 +254,7 @@ char *Str_unescape(const char *charset, char *s) {
 }
 
 
-int Str_isEqual(const char *a, const char *b) {
+bool Str_isEqual(const char *a, const char *b) {
         if (a && b) {
                 while (*a && *b)
                         if (toupper(*a++) != toupper(*b++)) return false;
@@ -261,7 +264,7 @@ int Str_isEqual(const char *a, const char *b) {
 }
 
 
-int Str_isByteEqual(const char *a, const char *b) {
+bool Str_isByteEqual(const char *a, const char *b) {
         if (a && b) {
                 while (*a && *b)
                         if (*a++ != *b++) return false;
@@ -299,7 +302,7 @@ char *Str_ndup(const char *s, long n) {
         char *t = NULL;
         assert(n >= 0);
         if (s) {
-                size_t l = strlen(s);
+                long l = (long)strlen(s);
                 n = l < n ? l : n; // Use the actual length of s if shorter than n
                 t = ALLOC(n + 1);
                 memcpy(t, s, n);
@@ -354,7 +357,7 @@ char *Str_trunc(char *s, int n) {
         assert(n >= 0);
         if (s) {
                 size_t sl = strlen(s);
-                if (sl > n) {
+                if (sl > (size_t)n) {
                         if (n - 3 >= 0)
                                 for (int e = n - 3; e < n; e++)
                                         s[e] = '.';
@@ -374,7 +377,7 @@ char *Str_curtail(char *s, char *t) {
 }
 
 
-int Str_lim(const char *s, int limit) {
+bool Str_lim(const char *s, int limit) {
         assert(limit>=0);
         if (s)
                 for (; (*s && limit--); s++) ;
@@ -382,7 +385,7 @@ int Str_lim(const char *s, int limit) {
 }
 
 
-int Str_match(const char *pattern, const char *subject) {
+bool Str_match(const char *pattern, const char *subject) {
         assert(pattern);
         if (STR_DEF(subject)) {
                 regex_t regex = {0};
@@ -402,9 +405,9 @@ int Str_match(const char *pattern, const char *subject) {
 }
 
 
-unsigned int Str_hash(const void *x) {
+int Str_hash(const void *x) {
         const char *s = x;
-        unsigned long h = 0, g;
+        unsigned long long h = 0, g;
         assert(x);
         while (*s) {
                 h = (h << 4) + *s++;
@@ -423,17 +426,13 @@ int Str_cmp(const void *x, const void *y) {
 
 int Str_compareConstantTime(const void *x, const void *y) {
         // Copy input to zero initialized buffers of fixed size, to prevent string length timing attack (handle NULL input as well). If some string exceeds hardcoded buffer size, error is returned.
-        char _x[MAX_CONSTANT_TIME_STRING_LENGTH + 1] = {};
-        char _y[MAX_CONSTANT_TIME_STRING_LENGTH + 1] = {};
-        if (snprintf(_x, sizeof(_x), "%s", x ? (const char *)x : "") > MAX_CONSTANT_TIME_STRING_LENGTH || snprintf(_y, sizeof(_y), "%s", y ? (const char *)y : "") > MAX_CONSTANT_TIME_STRING_LENGTH)
+        char _x[Str_compareConstantTimeStringLength + 1] = {};
+        char _y[Str_compareConstantTimeStringLength + 1] = {};
+        if (snprintf(_x, sizeof(_x), "%s", x ? (const char *)x : "") > Str_compareConstantTimeStringLength || snprintf(_y, sizeof(_y), "%s", y ? (const char *)y : "") > Str_compareConstantTimeStringLength)
                 return 1;
         int rv = 0;
         for (size_t i = 0; i < sizeof(_x); i++)
                 rv |= _x[i] ^ _y[i];
         return rv;
 }
-
-
-
-
 
