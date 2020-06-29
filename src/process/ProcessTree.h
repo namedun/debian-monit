@@ -29,8 +29,8 @@
 
 
 typedef struct ProcessTree_T {
-        boolean_t visited;
-        boolean_t zombie;
+        bool visited;
+        bool zombie;
         pid_t pid;
         pid_t ppid;
         int parent;
@@ -56,22 +56,32 @@ typedef struct ProcessTree_T {
                 int *list;
         } children;
         struct {
-                uint64_t usage;
-                uint64_t usage_total;
+                unsigned long long usage;
+                unsigned long long usage_total;
         } memory;
         struct {
-                uint64_t time;
-                uint64_t bytes;
-                uint64_t operations;
+                unsigned long long time;
+                long long bytes;
+                long long bytesPhysical;
+                long long operations;
         } read;
         struct {
-                uint64_t time;
-                uint64_t bytes;
-                uint64_t operations;
+                unsigned long long time;
+                long long bytes;
+                long long bytesPhysical;
+                long long operations;
         } write;
         time_t uptime;
         char *cmdline;
         char *secattr;
+        struct {
+                long long usage;
+                long long usage_total;
+                struct {
+                        long long soft;
+                        long long hard;
+                } limit;
+        } filedescriptors;
 } ProcessTree_T;
 
 
@@ -90,12 +100,12 @@ void ProcessTree_delete(void);
 
 
 /**
- * Update the process infomation.
+ * Update the process information.
  * @param s A Service object
  * @param pid Process PID to update
  * @return true if succeeded otherwise false.
  */
-boolean_t ProcessTree_updateProcess(Service_T s, pid_t pid);
+bool ProcessTree_updateProcess(Service_T s, pid_t pid);
 
 
 /**
@@ -125,14 +135,14 @@ void ProcessTree_testMatch(char *pattern);
  * Initialize the system information
  * @return true if succeeded otherwise false.
  */
-boolean_t init_system_info(void);
+bool init_system_info(void);
 
 
 /**
  * Update system statistic
  * @return true if successful, otherwise false
  */
-boolean_t update_system_info(void);
+bool update_system_info(void);
 
 
 #endif

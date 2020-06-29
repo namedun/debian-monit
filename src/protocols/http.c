@@ -31,6 +31,7 @@
 #include "md5.h"
 #include "sha1.h"
 #include "base64.h"
+#include "checksum.h"
 #include "protocol.h"
 #include "httpstatus.h"
 #include "util/Str.h"
@@ -61,18 +62,12 @@
 #define BUFSIZE 4096
 
 
-typedef union ChecksumContext_T {
-        md5_context_t  md5;
-        sha1_context_t sha1;
-} *ChecksumContext_T;
-
-
 /* ----------------------------------------------------------------- Private */
 
 
 static void _contentVerify(Port_T P, const char *data) {
         if (P->url_request && P->url_request->regex) {
-                boolean_t rv = false;
+                bool rv = false;
                 char error[512];
                 int regex_return = regexec(P->url_request->regex, data, 0, NULL, 0);
                 switch (P->url_request->operator) {
@@ -104,76 +99,7 @@ static void _contentVerify(Port_T P, const char *data) {
 }
 
 
-static void _checksumInit(Port_T P, ChecksumContext_T context) {
-        if (P->parameters.http.checksum) {
-                switch (P->parameters.http.hashtype) {
-                        case Hash_Md5:
-                                md5_init(&(context->md5));
-                                break;
-                        case Hash_Sha1:
-                                sha1_init(&(context->sha1));
-                                break;
-                        default:
-                                THROW(ProtocolException, "HTTP checksum error: Unknown hash type");
-                }
-        }
-}
-
-
-static void _checksumFinish(Port_T P, ChecksumContext_T context, MD_T hash) {
-        if (P->parameters.http.checksum) {
-                switch (P->parameters.http.hashtype) {
-                        case Hash_Md5:
-                                md5_finish(&(context->md5), (md5_byte_t *)hash);
-                                break;
-                        case Hash_Sha1:
-                                sha1_finish(&(context->sha1), (unsigned char *)hash);
-                                break;
-                        default:
-                                THROW(ProtocolException, "HTTP checksum error: Unknown hash type");
-                }
-        }
-}
-
-
-static void _checksumAppend(Port_T P, ChecksumContext_T context, const char *input, int inputLength) {
-        if (P->parameters.http.checksum) {
-                switch (P->parameters.http.hashtype) {
-                        case Hash_Md5:
-                                md5_append(&(context->md5), (const md5_byte_t *)input, inputLength);
-                                break;
-                        case Hash_Sha1:
-                                sha1_append(&(context->sha1), (const unsigned char *)input, inputLength);
-                                break;
-                        default:
-                                THROW(ProtocolException, "HTTP checksum error: Unknown hash type");
-                }
-        }
-}
-
-
-static void _checksumVerify(Port_T P, MD_T hash) {
-        if (P->parameters.http.checksum) {
-                int keyLength = 0;
-                switch (P->parameters.http.hashtype) {
-                        case Hash_Md5:
-                                keyLength = 16; /* Raw key bytes not string chars! */
-                                break;
-                        case Hash_Sha1:
-                                keyLength = 20; /* Raw key bytes not string chars! */
-                                break;
-                        default:
-                                THROW(ProtocolException, "HTTP checksum error: Unknown hash type");
-                }
-                MD_T hashString = {};
-                if (strncasecmp(Util_digest2Bytes((unsigned char *)hash, keyLength, hashString), P->parameters.http.checksum, keyLength * 2) != 0)
-                        THROW(ProtocolException, "HTTP checksum error: Data checksum mismatch (expected %s got %s)", P->parameters.http.checksum, hashString);
-                DEBUG("HTTP: Succeeded testing data checksum\n");
-        }
-}
-
-
-static boolean_t _hasHeader(List_T list, const char *name) {
+static bool _hasHeader(List_T list, const char *name) {
         if (list) {
                 for (list_t h = list->head; h; h = h->next) {
                         char *header = h->e;
@@ -186,9 +112,9 @@ static boolean_t _hasHeader(List_T list, const char *name) {
 }
 
 
-static unsigned _getChunkSize(Socket_T socket) {
+static unsigned int _getChunkSize(Socket_T socket) {
         char buf[9];
-        unsigned wantBytes = 0;
+        unsigned int wantBytes = 0;
         if (! Socket_readLine(socket, buf, sizeof(buf))) {
                 THROW(IOException, "HTTP error: failed to read chunk size -- %s", STRERROR);
         }
@@ -199,7 +125,7 @@ static unsigned _getChunkSize(Socket_T socket) {
 }
 
 
-static int _readDataFromSocket(Port_T P, Socket_T socket, char *data, int wantBytes) {
+static int _readDataFromSocket(Socket_T socket, char *data, int wantBytes) {
         int readBytes = 0;
         do {
                 int n = Socket_read(socket, data + readBytes, wantBytes - readBytes);
@@ -215,29 +141,31 @@ static int _readDataFromSocket(Port_T P, Socket_T socket, char *data, int wantBy
 }
 
 
-static void _readData(Socket_T socket, Port_T P, volatile char **data, int wantBytes, int *haveBytes, ChecksumContext_T context) {
+static void _readData(Socket_T socket, Port_T P, char **data, unsigned int wantBytes, unsigned int *haveBytes, ChecksumContext_T context) {
         if (P->url_request && P->url_request->regex) {
                 // The content test is required => cache the whole body
-                *data = realloc((void *)*data, *haveBytes + wantBytes + 1);
-                *haveBytes += _readDataFromSocket(P, socket, (void *)*data + *haveBytes, wantBytes);
-                _checksumAppend(P, context, (const char *)*data, wantBytes);
+                *data = realloc(*data, *haveBytes + wantBytes + 1);
+                *haveBytes += _readDataFromSocket(socket, *data + *haveBytes, wantBytes);
+                if (P->parameters.http.checksum)
+                        Checksum_append(context, *data, wantBytes);
                 *(*data + *haveBytes) = 0;
         } else {
                 // No content check is required => use small buffer and compute the checksum on the fly
                 *haveBytes = 0;
                 for (int readBytes = (wantBytes < BUFSIZE) ? wantBytes : BUFSIZE; *haveBytes < wantBytes; readBytes = (wantBytes - *haveBytes) < BUFSIZE ? (wantBytes - *haveBytes) : BUFSIZE) {
-                        _readDataFromSocket(P, socket, (void *)*data, readBytes);
-                        _checksumAppend(P, context, (const char *)*data, readBytes);
+                        _readDataFromSocket(socket, *data, readBytes);
+                        if (P->parameters.http.checksum)
+                                Checksum_append(context, *data, readBytes);
                         *haveBytes += readBytes;
                 }
         }
 }
 
 
-static void _processBodyChunked(Socket_T socket, Port_T P, volatile char **data, int *contentLength, ChecksumContext_T context) {
+static void _processBodyChunked(Socket_T socket, Port_T P, char **data, __attribute__ ((unused)) int *contentLength, ChecksumContext_T context) {
         char crlf[2] = {};
-        int wantBytes = 0;
-        int haveBytes = 0;
+        unsigned int wantBytes = 0;
+        unsigned int haveBytes = 0;
         while ((wantBytes = _getChunkSize(socket)) && haveBytes < Run.limits.httpContentBuffer) {
                 if (haveBytes + wantBytes > Run.limits.httpContentBuffer) {
                         DEBUG("HTTP: content buffer limit exceeded -- limiting the data to %d\n", Run.limits.httpContentBuffer);
@@ -245,22 +173,50 @@ static void _processBodyChunked(Socket_T socket, Port_T P, volatile char **data,
                 }
                 _readData(socket, P, data, wantBytes, &haveBytes, context);
                 // Read the CRLF terminator
-                _readDataFromSocket(P, socket, crlf, 2);
+                _readDataFromSocket(socket, crlf, 2);
         }
 }
 
 
-static void _processBodyContentLength(Socket_T socket, Port_T P, volatile char **data, int *contentLength, ChecksumContext_T context) {
-        int haveBytes = 0;
+static void _processBodyContentLength(Socket_T socket, Port_T P, char **data, int *contentLength, ChecksumContext_T context) {
+        unsigned int haveBytes = 0;
         if (*contentLength < 0) {
                 THROW(ProtocolException, "HTTP error: Missing Content-Length header");
         } else if (*contentLength == 0) {
                 THROW(ProtocolException, "HTTP error: No content returned from server");
-        } else if (*contentLength > Run.limits.httpContentBuffer) {
+        } else if (*contentLength > (int)Run.limits.httpContentBuffer) {
                 DEBUG("HTTP: content buffer limit exceeded -- limiting the data to %d\n", Run.limits.httpContentBuffer);
                 *contentLength = Run.limits.httpContentBuffer;
         }
         _readData(socket, P, data, *contentLength, &haveBytes, context);
+}
+
+
+static void _processBodyUntilEOF(Socket_T socket, Port_T P, char **data, __attribute__ ((unused)) int *contentLength, ChecksumContext_T context) {
+        int readBytes = 0;
+        if (P->url_request && P->url_request->regex) {
+                // The content test is required => cache the whole body
+                unsigned int haveBytes = 0;
+                unsigned int wantBytes = STRLEN;
+                while (haveBytes < Run.limits.httpContentBuffer && (readBytes = Socket_read(socket, *data + haveBytes, wantBytes)) > 0)  {
+                        if (P->parameters.http.checksum)
+                                Checksum_append(context, *data + haveBytes, readBytes);
+                        haveBytes += readBytes;
+                        if (haveBytes + wantBytes > Run.limits.httpContentBuffer)
+                                wantBytes = Run.limits.httpContentBuffer - haveBytes;
+                        *data = realloc(*data, haveBytes + wantBytes + 1);
+                }
+                *(*data + haveBytes) = 0;
+        } else {
+                // No content check is required => use small buffer and compute the checksum on the fly
+                while ((readBytes = Socket_read(socket, *data, BUFSIZE)) > 0) {
+                        if (P->parameters.http.checksum)
+                                Checksum_append(context, *data, readBytes);
+                }
+        }
+        if (readBytes < 0) {
+                THROW(ProtocolException, "HTTP error: Receiving data -- %s", STRERROR);
+        }
 }
 
 
@@ -278,8 +234,9 @@ static void _processStatus(Socket_T socket, Port_T P) {
 }
 
 
-static void _processHeaders(Socket_T socket, Port_T P, void (**processBody)(Socket_T socket, Port_T P, volatile char **data, int *contentLength, ChecksumContext_T context), int *contentLength) {
+static void _processHeaders(Socket_T socket, void (**processBody)(Socket_T socket, Port_T P, char **data, int *contentLength, ChecksumContext_T context), int *contentLength) {
         char buf[512] = {};
+        *processBody = _processBodyUntilEOF;
 
         while (Socket_readLine(socket, buf, sizeof(buf))) {
                 if ((buf[0] == '\r' && buf[1] == '\n') || (buf[0] == '\n'))
@@ -289,7 +246,7 @@ static void _processHeaders(Socket_T socket, Port_T P, void (**processBody)(Sock
                         if (! sscanf(buf, "%*s%*[: ]%d", contentLength))
                                 THROW(ProtocolException, "HTTP error: Parsing Content-Length response header '%s'", buf);
                         if (*contentLength < 0)
-                                THROW(ProtocolException, "HTTP error: Ilegal Content-Length response header '%s'", buf);
+                                THROW(ProtocolException, "HTTP error: Illegal Content-Length response header '%s'", buf);
                         *processBody = _processBodyContentLength;
                 } else if (Str_startsWith(buf, "Transfer-Encoding")) {
                         if (Str_sub(buf, "chunked")) {
@@ -307,28 +264,27 @@ static void _processHeaders(Socket_T socket, Port_T P, void (**processBody)(Sock
  */
 static void _checkResponse(Socket_T socket, Port_T P) {
         int contentLength = -1;
-        void (*processBody)(Socket_T socket, Port_T P, volatile char **data, int *contentLength, ChecksumContext_T context) = NULL;
-
+        void (*processBody)(Socket_T socket, Port_T P, char **data, int *contentLength, ChecksumContext_T context);
         _processStatus(socket, P);
-        _processHeaders(socket, P, &processBody, &contentLength);
+        _processHeaders(socket, &processBody, &contentLength);
         if ((P->url_request && P->url_request->regex) || P->parameters.http.checksum) {
                 if (processBody) {
-                        MD_T hash = {};
-                        volatile char *data = CALLOC(1, BUFSIZE);
-                        union ChecksumContext_T context = {};
+                        char *data = CALLOC(1, BUFSIZE);
+                        struct ChecksumContext_T context;
                         TRY
                         {
                                 // Read data
-                                _checksumInit(P, &context);
+                                if (P->parameters.http.checksum)
+                                        Checksum_init(&context, P->parameters.http.hashtype);
                                 processBody(socket, P, &data, &contentLength, &context);
-                                _checksumFinish(P, &context, hash);
                                 // Perform tests
-                                _checksumVerify(P, hash);
-                                _contentVerify(P, (char *)data);
+                                if (P->parameters.http.checksum)
+                                        Checksum_verify(&context, P->parameters.http.checksum);
+                                _contentVerify(P, data);
                         }
                         FINALLY
                         {
-                                free((void *)data);
+                                FREE(data);
                         }
                         END_TRY;
                 } else {
@@ -378,7 +334,7 @@ static void _sendRequest(Socket_T socket, Port_T P) {
                 }
         }
         StringBuffer_append(sb, "\r\n");
-        int send_status = Socket_write(socket, (void*)StringBuffer_toString(sb), StringBuffer_length(sb));
+        int send_status = Socket_write(socket, StringBuffer_toString(sb), StringBuffer_length(sb));
         StringBuffer_free(&sb);
         if (send_status < 0)
                 THROW(IOException, "HTTP: error sending data -- %s", STRERROR);

@@ -50,7 +50,7 @@
 #endif
 
 #include "monit.h"
-#include "tokens.h"
+#include "y.tab.h"
 
 // libmonit
 #include "util/Str.h"
@@ -129,6 +129,12 @@ loadavg15      load(avg)[ ]*\([ ]*15[ ]*(m|min)?[ ]*\)
 cpuuser        cpu[ ]*(usage)*[ ]*\([ ]*(us|usr|user)?[ ]*\)
 cpusyst        cpu[ ]*(usage)*[ ]*\([ ]*(sy|sys|system)?[ ]*\)
 cpuwait        cpu[ ]*(usage)*[ ]*\([ ]*(wa|wait)?[ ]*\)
+cpunice        cpu[ ]*(usage)*[ ]*\([ ]*nice[ ]*\)
+cpuhardirq     cpu[ ]*(usage)*[ ]*\([ ]*hardirq[ ]*\)
+cpusoftirq     cpu[ ]*(usage)*[ ]*\([ ]*softirq[ ]*\)
+cpusteal       cpu[ ]*(usage)*[ ]*\([ ]*steal[ ]*\)
+cpuguest       cpu[ ]*(usage)*[ ]*\([ ]*guest[ ]*\)
+cpuguestnice   cpu[ ]*(usage)*[ ]*\([ ]*guestnice[ ]*\)
 startarg       start{ws}?(program)?{ws}?([=]{ws})?["]
 stoparg        stop{ws}?(program)?{ws}?([=]{ws})?["]
 restartarg     restart{ws}?(program)?{ws}?([=]{ws})?["]
@@ -184,6 +190,7 @@ in                {/* EMPTY */}
 last              {/* EMPTY */}
 rate              {/* EMPTY */}
 capacity          {/* EMPTY */}
+activity          {/* EMPTY */}
 option(s)?        {/* EMPTY */}
 ssl[ \t]+disable  {/* EMPTY */}
 disable[ \t]+ssl  {/* EMPTY */}
@@ -205,10 +212,10 @@ disable[ \t]+ssl  {/* EMPTY */}
 if                { return IF; }
 then              { return THEN; }
 failed            { return FAILED; }
-tls               { return SSL; }
-ssl               { return SSL; }
-ssl[ \t]+enable   { return SSL; }
-enable[ ]+ssl     { return SSL; }
+tls               { return SSLTOKEN; }
+ssl               { return SSLTOKEN; }
+ssl[ \t]+enable   { return SSLTOKEN; }
+enable[ ]+ssl     { return SSLTOKEN; }
 enable            { return ENABLE; }
 disable           { return DISABLE; }
 verify            { return VERIFY; }
@@ -244,6 +251,9 @@ allowselfcertification  { return ALLOWSELFCERTIFICATION; }
 selfsigned        { return SELFSIGNED; }
 certmd5           { return CERTMD5; }
 pemfile           { return PEMFILE; }
+pemchain          { return PEMCHAIN; }
+pemkey            { return PEMKEY; }
+rsakey            { return RSAKEY; }
 init              { return INIT; }
 allow             { return ALLOW; }
 reject            { return REJECTOPT; }
@@ -299,6 +309,7 @@ imaps             { return IMAPS; }
 clamav            { return CLAMAV; }
 dns               { return DNS; }
 mysql             { return MYSQL; }
+mysqls            { return MYSQLS; }
 nntp              { return NNTP; }
 ntp3              { return NTP3; }
 ssh               { return SSH; }
@@ -359,6 +370,12 @@ child(ren)?       { return CHILDREN; }
 thread(s)?        { return THREADS; }
 time(stamp)?      { return TIME; }
 changed           { return CHANGED; }
+-sslv2            { return NOSSLV2; }
+-sslv3            { return NOSSLV3; }
+-tlsv1            { return NOTLSV1; }
+-tlsv11           { return NOTLSV11; }
+-tlsv12           { return NOTLSV12; }
+-tlsv13           { return NOTLSV13; }
 sslv2             { return SSLV2; }
 sslv3             { return SSLV3; }
 tlsv1             { return TLSV1; }
@@ -367,7 +384,7 @@ tlsv12            { return TLSV12; }
 tlsv13            { return TLSV13; }
 cipher(s)?        { return CIPHER; }
 auto              { return AUTO; }
-sslauto           { return SSLAUTO; }
+sslauto           { return AUTO; }
 inode(s)?         { return INODE; }
 space             { return SPACE; }
 free              { return TFREE; }
@@ -431,6 +448,7 @@ credentials       { return CREDENTIALS; }
 register          { return REGISTER; }
 fsflag(s)?        { return FSFLAG; }
 fips              { return FIPS; }
+filedescriptors   { return FILEDESCRIPTORS; }
 {byte}            { return BYTE; }
 {kilobyte}        { return KILOBYTE; }
 {megabyte}        { return MEGABYTE; }
@@ -441,6 +459,12 @@ fips              { return FIPS; }
 {cpuuser}         { return CPUUSER; }
 {cpusyst}         { return CPUSYSTEM; }
 {cpuwait}         { return CPUWAIT; }
+{cpunice}         { return CPUNICE; }
+{cpuhardirq}      { return CPUHARDIRQ; }
+{cpusoftirq}      { return CPUSOFTIRQ; }
+{cpusteal}        { return CPUSTEAL; }
+{cpuguest}        { return CPUGUEST; }
+{cpuguestnice}    { return CPUGUESTNICE; }
 {greater}         { return GREATER; }
 {greaterorequal}  { return GREATEROREQUAL; }
 {less}            { return LESS; }
@@ -844,8 +868,13 @@ group[ \t]+       {
 
   {addrname}    {
                         char *name = Str_unquote(Str_dup(yytext));
-                        if (name && *name)
-                                yylval.address->name = Str_unquote(Str_dup(yytext));
+                        if (name) {
+                                if (*name)
+                                        yylval.address->name = name;
+                                else
+                                        // Empty quoted string
+                                        FREE(name);
+                        }
                 }
 
   [<>:\[\]]     {
@@ -1036,7 +1065,7 @@ static void include_file(char *pattern) {
         glob_t globbuf;
         errno = 0;
         if (glob(pattern, GLOB_MARK, NULL, &globbuf) == 0) {
-                for (int i = 0; i < globbuf.gl_pathc; i++) {
+                for (size_t i = 0; i < globbuf.gl_pathc; i++) {
                         size_t filename_length = strlen(globbuf.gl_pathv[i]);
                         if ((filename_length == 0) || (globbuf.gl_pathv[i][filename_length - 1] == '~' ) || (globbuf.gl_pathv[i][filename_length - 1] == '/'))
                                 continue; // skip subdirectories and file backup copies

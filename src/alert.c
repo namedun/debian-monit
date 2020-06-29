@@ -50,7 +50,6 @@
 
 #include "monit.h"
 #include "event.h"
-#include "net.h"
 #include "alert.h"
 #include "SMTP.h"
 
@@ -182,7 +181,7 @@ static void _appendMail(List_T list, Mail_T m, Event_T e, char *host) {
 }
 
 
-static MailServer_T _connectMTA() {
+static MailServer_T _connectMTA(void) {
         if (! Run.mailservers)
                 THROW(IOException, "No mail servers are defined -- please see the 'set mailserver' statement in the manual");
         MailServer_T mta = NULL;
@@ -191,7 +190,7 @@ static MailServer_T _connectMTA() {
                 if (mta->ssl.flags == SSL_Enabled)
                         mta->socket = Socket_create(mta->host, mta->port, Socket_Tcp, Socket_Ip, &(mta->ssl), Run.mailserver_timeout);
                 else
-                        mta->socket = Socket_new(mta->host, mta->port, Socket_Tcp, Socket_Ip, false, Run.mailserver_timeout);
+                        mta->socket = Socket_new(mta->host, mta->port, Socket_Tcp, Socket_Ip, SSL_Disabled, Run.mailserver_timeout);
                 if (mta->socket)
                         break;
                 else
@@ -203,8 +202,8 @@ static MailServer_T _connectMTA() {
 }
 
 
-static boolean_t _send(List_T list) {
-        boolean_t failed = false;
+static bool _send(List_T list) {
+        volatile bool failed = false;
         if (List_length(list)) {
                 volatile Mail_T m = NULL;
                 volatile SMTP_T smtp = NULL;
@@ -238,7 +237,7 @@ static boolean_t _send(List_T list) {
                                                 "MIME-Version: 1.0\r\n"
                                                 "Content-Type: text/plain; charset=utf-8\r\n"
                                                 "Content-Transfer-Encoding: 8bit\r\n"
-                                                "Message-Id: <%lld.%"PRIx64"@%s>\r\n"
+                                                "Message-Id: <%lld.%llx@%s>\r\n"
                                                 "\r\n"
                                                 "%s",
                                                 m->to,
@@ -276,7 +275,7 @@ static boolean_t _send(List_T list) {
 }
 
 
-boolean_t _hasRecipient(Mail_T list, const char *recipient) {
+static bool _hasRecipient(Mail_T list, const char *recipient) {
         for (Mail_T l = list; l; l = l->next)
                 if (IS(recipient, l->to))
                         return true;

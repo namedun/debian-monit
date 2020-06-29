@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.26.0" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.27.0" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -729,13 +729,15 @@ files in \fI/etc/monit.d\fR that ends with the prefix \fI.cfg\fR.
 Common \s-1SSL/TLS\s0 options can be set using the following statement and
 will apply to all \s-1SSL\s0 connections made through Monit:
 .PP
-.Vb 10
+.Vb 12
 \&  SET <SSL | TLS> [OPTIONS] {
-\&      VERSION: <AUTO | SSLV2 | SSLV3 | TLSV1 | TLSV11 | TLSV12 | TLSV13>
+\&      VERSION: <AUTO | [\-]SSLV2 | [\-]SSLV3 | [\-]TLSV1 | [\-]TLSV11 | [\-]TLSV12 | [\-]TLSV13>, ...
 \&      VERIFY: <ENABLE | DISABLE>
 \&      SELFSIGNED: <ALLOW | REJECT>
 \&      CIPHERS: <string>
 \&      PEMFILE: <path>
+\&      PEMCHAIN: <path>
+\&      PEMKEY: <path>
 \&      CLIENTPEMFILE: <path>
 \&      CACERTIFICATEFILE: <path>
 \&      CACERTIFICATEPATH: <path>
@@ -743,9 +745,18 @@ will apply to all \s-1SSL\s0 connections made through Monit:
 .Ve
 .PP
 \&\fI\s-1VERSION\s0\fR set the specific \s-1SSL/TLS\s0 version to use. By default Monit
-uses \s-1AUTO.\s0 In \s-1AUTO\s0 mode, only \s-1TLS\s0 is used, SSLv2 and SSLv3 is
-considered obsolete. If you have to use SSLv2 or SSLv3, you must
-explicitly set the version.
+uses \s-1AUTO.\s0 In \s-1AUTO\s0 mode, only \s-1TLS 1.2\s0 and 1.3 are allowed, all other
+protocols are considered obsolete. If you want to use the obsolete
+protocol you must explicitly set the version. You can exclude the protocol
+using the \*(L"\-\*(R" prefix.
+Exclude list example:
+  set ssl {
+      version: auto \-sslv2 \-sslv3 \-tlsv1 \-tlsv11
+  }
+Example of allowed protocols list:
+  set ssl {
+      version: tlsv12 tlsv13
+  }
 .PP
 \&\fI\s-1VERIFY\s0\fR enable \s-1SSL\s0 server certificate verification. This will verify
 and report an error if the server certificate is not trusted, not valid
@@ -763,6 +774,11 @@ or \s-1DNS\s0 hijacking are possible).
 .PP
 \&\fI\s-1PEMFILE\s0\fR set the path to the \s-1SSL\s0 server certificate
 \&\*(L"database-file\*(R" in \s-1PEM\s0 format. This options has effect only for the
+monit \s-1HTTP\s0 interface.
+.PP
+As an alternative to setting \fI\s-1PEMFILE\s0\fR with a combined chain-key file,
+\&\fI\s-1PEMCHAIN\s0\fR and \fI\s-1PEMKEY\s0\fR set the path to the \s-1SSL\s0 certificate chain respectively
+the server private key file in \s-1PEM\s0 format. This options has effect only for the
 monit \s-1HTTP\s0 interface.
 .PP
 \&\fI\s-1CLIENTPEMFILE\s0\fR set the path to the \s-1PEM\s0 encoded \s-1SSL\s0 client certificates
@@ -891,7 +907,7 @@ usually setup on port 2812. Example:
 You can now use <http://localhost:2812/> to
 access Monit's web interface from a browser, after you have entered
 username and password as credentials. You might need to use double
-quotes around the password if it cointains special chars such as
+quotes around the password if it contains special chars such as
 \&\*(L"p@ssw:r#\*(R".
 .PP
 \&\fB\s-1ADDRESS\s0\fR make Monit listen on a specific interface only. For example
@@ -943,18 +959,35 @@ over \s-1IP\s0 version 4, specify an IPv4 address:
 \&\fB\s-1SSL\s0\fR enable \s-1SSL/TLS\s0 for Monit's web interface.  See options
 for full list of \s-1SSL\s0 options.
 .PP
-\&\fI\s-1PEMFILE\s0\fR set the path to the \s-1PEM\s0 encoded file, which contains the
+\&\fI\s-1PEMFILE\s0\fR sets the path to the \s-1PEM\s0 encoded file, which contains the
 server's private key and certificate. This file should be stored in a
 safe place on the filesystem and should have strict permissions, no
 more than 0700.
 .PP
-Example:
+As an alternative \fI\s-1PEMCHAIN\s0\fR and \fI\s-1PEMKEY\s0\fR sets the path to separate \s-1PEM\s0 encoded
+certificate chain and private key file. The key file should be stored in a
+safe place on the filesystem and should have strict permissions, no
+more than 0700.
+.PP
+Example for using pemfile:
 .PP
 .Vb 6
 \& set httpd
 \&     port 2812
 \&     with ssl {
 \&        pemfile: /etc/ssl/certs/monit.pem
+\&     }
+\&     allow myuser:mypassword
+.Ve
+.PP
+Example for using separate certificate chain and key:
+.PP
+.Vb 7
+\& set httpd
+\&     port 2812
+\&     with ssl {
+\&        pemchain: /etc/ssl/certs/monit.chain.pem
+\&        pemkey: /etc/ssl/certs/monit.key.pem
 \&     }
 \&     allow myuser:mypassword
 .Ve
@@ -1046,7 +1079,7 @@ server will allow the client access to the requested document.
 .PP
 The biggest weakness with Basic Authentication is that username and
 password is sent in clear-text over the network (i.e. base64 encoded).
-It is therefor recommended that you do not use this authentication
+It is therefore recommended that you do not use this authentication
 method unless you run Monit with \fIssl\fR support. With ssl, it is safe
 to use Basic Authentication since \fIall\fR \s-1HTTP\s0 data, including Basic
 Authentication headers will be encrypted.
@@ -1204,8 +1237,8 @@ Monit will raise an alert in the following situations:
 \& o Permission test failed (e.g. file mode doesn\*(Aqt match)
 \& o An UID test failed (e.g. file owned by different user)
 \& o A GID test failed (e.g. file owned by different group)
-\& o A process\*(Aq PID changed out of Monit\*(Aqs control
-\& o A process\*(Aq PPID changed out of Monit control
+\& o A process\*(Aqs PID changed out of Monit\*(Aqs control
+\& o A process\*(Aqs PPID changed out of Monit control
 \& o Too many service recovery attempts failed
 \& o A file content test found a match
 \& o Filesystem flags changed
@@ -1666,7 +1699,7 @@ current time match the cron-string pattern. If it does, then the check
 is performed otherwise it is skipped. The cron specification does not
 guarantee when exactly the test will run, this depends on the default
 poll time and the length of the check cycle. In other words, we cannot
-guarantee that Monit will run on a specific time. Therefor we
+guarantee that Monit will run on a specific time. Therefore we
 \&\fBstrongly\fR recommend to use an asterix in the minute field or at
 minimum a range, e..g. 0\-15. \fBNever\fR use a specific minute as Monit
 may not run on that minute.
@@ -2204,9 +2237,70 @@ queue per \s-1CPU\s0 core, averaged over the specified time period. Example:
 If you'll omit the \fIper core\fR option, the test will check the total load average
 regardless of \s-1CPU\s0 cores count.
 .PP
-\&\fI\s-1CPU\s0([user|system|wait])\fR is the percent of time the system spend
-in user or kernel space and I/O. The user/system/wait modifier is
-optional, if not used, the total system cpu usage is tested. Example:
+\&\fI\s-1CPU\s0([user|system|wait|nice|hardirq|softirq|steal|guest|guestnice])\fR is the percent
+of time the system spend in given type of task:
+.IP "user" 4
+.IX Item "user"
+The \s-1CPU\s0 is running code in user space mode, which includes any process that doesn't belong
+to the kernel, such as webservers, databases, shells and desktop related programs.
+.IP "system" 4
+.IX Item "system"
+The \s-1CPU\s0 is running the kernel, which includes drivers and other kernel modules. The kernel
+also handles requests from user space processes like memory allocation, disk and network I/O
+and creating child processes.
+.IP "wait" 4
+.IX Item "wait"
+I/O wait is when the \s-1CPU\s0 was idle while waiting for an I/O operation from disk or network to
+complete.
+.IP "nice" 4
+.IX Item "nice"
+The nice statistics accounts for user space processes that are running with altered priority
+(higher or lower then normal).
+.IP "hardirq" 4
+.IX Item "hardirq"
+The kernel is servicing hardware interrupt requests. Hardware interrupts come from peripherals
+like keyboard, network interfaces, disks, system clock, etc.
+.IP "softirq" 4
+.IX Item "softirq"
+The kernel is servicing software interrupt requests. Software interrupts come from processes
+running in the system.
+.IP "steal" 4
+.IX Item "steal"
+This applies only to virtual machines on a hypervisor. The steal time shows the percentage of
+time a virtual machine had to wait the real \s-1CPU\s0 while the hypervisor was servicing another virtual
+machine. If this number remains high, the host system is too busy and may need more physical
+CPUs or offload some virtual machines to another host.
+.IP "guest" 4
+.IX Item "guest"
+This applies only to host machines running a hypervisor. It shows time spent running a virtual \s-1CPU\s0
+for guest operating systems under the control of the Linux kernel. This value is already included in
+\&\*(L"user\*(R" statistics.
+.IP "guestnice" 4
+.IX Item "guestnice"
+This applies only to host machines running a hypervisor. It shows time spent running a virtual \s-1CPU\s0
+for guest operating systems under the control of the Linux kernel, with altered priority. This value
+is already included in \*(L"nice\*(R" statistics.
+.PP
+The user/system/wait/nice/hardirq/softirq/steal/guest/guestnice modifier is optional and the support
+depends on platform (Linux support depends on kernel version, all statistics are available since kernel
+2.6.33):
+.PP
+.Vb 12
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& | Platform     | user | nice | system | wait | hardirq | softirq | steal | guest | guest nice |
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& | AIX          |  X   |      |   X    |  X   |         |         |       |       |            |
+\& | DragonFlyBSD |  X   |  X   |   X    |      |    X    |         |       |       |            |
+\& | FreeBSD      |  X   |  X   |   X    |      |    X    |         |       |       |            |
+\& | Linux        |  X   |  X   |   X    |  X   |    X    |    X    |   X   |   X   |    X       |
+\& | MacOS        |  X   |  X   |   X    |      |         |         |       |       |            |
+\& | NetBSD       |  X   |  X   |   X    |      |    X    |         |       |       |            |
+\& | OpenBSD      |  X   |  X   |   X    |      |    X    |         |       |       |            |
+\& | Solaris      |  X   |      |   X    |  X   |         |         |       |       |            |
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+.Ve
+.PP
+Example:
 .PP
 .Vb 1
 \& if cpu usage > 95% for 10 cycles then alert
@@ -2275,39 +2369,44 @@ processes in either percent or as an amount [B, kB, \s-1MB, GB\s0]. Example:
 .Vb 1
 \& if total memory usage > 1% for 10 cycles then alert
 .Ve
-.SS "\s-1PROCESS DISK I/O TEST\s0"
-.IX Subsection "PROCESS DISK I/O TEST"
-Monit can test process' filesystem read and write activity. This test
+.SS "\s-1PROCESS I/O ACTIVITY TEST\s0"
+.IX Subsection "PROCESS I/O ACTIVITY TEST"
+Monit can test process's filesystem read and write activity. This test
 can only be used in the context of a process service type. Monit will
 normally need to run as the root user to access this metrics.
 .PP
 The \s-1OS\s0 usually supports the per-process I/O metrics by bytes or by
 operations.
 .PP
+Some platforms allows one to differentiate the I/O subset that required physical
+storage access from generic I/O which was handled by cache. Note that as the
+physical I/O is usually aligned to the filesystem page, there may be difference
+between the total and physical I/O even if the process tried to read just 1 byte.
+.PP
 Per-process I/O activity statistics by platform:
 .PP
 .Vb 12
-\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-\& | Platform     | Operation | Byte |
-\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-\& | AIX          |     x     |      |
-\& | DragonFlyBSD |     x     |      |
-\& | FreeBSD      |     x     |      |
-\& | Linux        |           |  x   |
-\& | MacOS        |           |  x   |
-\& | NetBSD       |     x     |      |
-\& | OpenBSD      |     x     |      |
-\& | Solaris      |     x     |      |
-\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& | Platform     | Operation | Byte (physical) | Byte (generic) |
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+\& | AIX          |     X     |                 |                |
+\& | DragonFlyBSD |     X     |                 |                |
+\& | FreeBSD      |     X     |                 |                |
+\& | Linux        |     X     |        X        |        X       |
+\& | MacOS        |           |        X        |                |
+\& | NetBSD       |     X     |                 |                |
+\& | OpenBSD      |     X     |                 |                |
+\& | Solaris      |     X     |                 |                |
+\& \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 .Ve
 .PP
-\fIRead: bytes per second\fR
-.IX Subsection "Read: bytes per second"
+\fIRead: bytes per second (generic)\fR
+.IX Subsection "Read: bytes per second (generic)"
 .PP
 Syntax:
 .PP
 .Vb 1
-\& IF DISK READ [RATE] <operator> <number> <unit>/S THEN action
+\& IF READ [ACTIVITY] <operator> <number> <unit>/S THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -2326,7 +2425,35 @@ Example:
 .PP
 .Vb 2
 \& check process p...
-\&       if disk read > 1 MB/s then alert
+\&       if read activity > 1 MB/s then alert
+.Ve
+.PP
+\fIRead: bytes per second (physical storage)\fR
+.IX Subsection "Read: bytes per second (physical storage)"
+.PP
+Syntax:
+.PP
+.Vb 1
+\& IF DISK READ [ACTIVITY] <operator> <number> <unit>/S THEN action
+.Ve
+.PP
+\&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
+\&\*(L"lt\*(R", \*(L"eq\*(R", \*(L"ne\*(R" in shell sh notation and \*(L"greater\*(R", \*(L"less\*(R",
+\&\*(L"equal\*(R", \*(L"notequal\*(R" in human readable form (if not specified,
+default is \s-1EQUAL\s0).
+.PP
+\&\fIunit\fR is a choice of \*(L"B\*(R",\*(L"\s-1KB\*(R",\*(L"MB\*(R",\*(L"GB\*(R"\s0 or long
+alternatives \*(L"byte\*(R", \*(L"kilobyte\*(R", \*(L"megabyte\*(R", \*(L"gigabyte\*(R",
+\&\*(L"percent\*(R".
+.PP
+\&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
+\&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
+.PP
+Example:
+.PP
+.Vb 2
+\& check process p...
+\&       if disk read activity > 1 MB/s then alert
 .Ve
 .PP
 \fIRead: operations per second\fR
@@ -2335,7 +2462,7 @@ Example:
 Syntax:
 .PP
 .Vb 1
-\& IF DISK READ <operator> <number> operations/S THEN action
+\& IF DISK READ [ACTIVITY] <operator> <number> operations/S THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -2350,16 +2477,16 @@ Example:
 .PP
 .Vb 2
 \& check process p...
-\&       if disk read rate > 500 operations/s then alert
+\&       if disk read activity > 500 operations/s then alert
 .Ve
 .PP
-\fIWrite: bytes per second\fR
-.IX Subsection "Write: bytes per second"
+\fIWrite: bytes per second (generic)\fR
+.IX Subsection "Write: bytes per second (generic)"
 .PP
 Syntax:
 .PP
 .Vb 1
-\& IF DISK WRITE <operator> <number> <unit>/S THEN action
+\& IF WRITE [ACTIVITY] <operator> <number> <unit>/S THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -2378,7 +2505,35 @@ Example:
 .PP
 .Vb 2
 \& check process p...
-\&       if disk write rate > 1 MB/s then alert
+\&       if write activity > 1 MB/s then alert
+.Ve
+.PP
+\fIWrite: bytes per second (physical storage)\fR
+.IX Subsection "Write: bytes per second (physical storage)"
+.PP
+Syntax:
+.PP
+.Vb 1
+\& IF DISK WRITE [ACTIVITY] <operator> <number> <unit>/S THEN action
+.Ve
+.PP
+\&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
+\&\*(L"lt\*(R", \*(L"eq\*(R", \*(L"ne\*(R" in shell sh notation and \*(L"greater\*(R", \*(L"less\*(R",
+\&\*(L"equal\*(R", \*(L"notequal\*(R" in human readable form (if not specified,
+default is \s-1EQUAL\s0).
+.PP
+\&\fIunit\fR is a choice of \*(L"B\*(R",\*(L"\s-1KB\*(R",\*(L"MB\*(R",\*(L"GB\*(R"\s0 or long
+alternatives \*(L"byte\*(R", \*(L"kilobyte\*(R", \*(L"megabyte\*(R", \*(L"gigabyte\*(R",
+\&\*(L"percent\*(R".
+.PP
+\&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
+\&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
+.PP
+Example:
+.PP
+.Vb 2
+\& check process p...
+\&       if disk write activity > 1 MB/s then alert
 .Ve
 .PP
 \fIWrite: operations per second\fR
@@ -2387,7 +2542,7 @@ Example:
 Syntax:
 .PP
 .Vb 1
-\& IF DISK WRITE <operator> <number> operations/S THEN action
+\& IF DISK WRITE [ACTIVITY] <operator> <number> operations/S THEN action
 .Ve
 .PP
 \&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
@@ -2402,7 +2557,7 @@ Example:
 .PP
 .Vb 2
 \& check process p...
-\&       if disk write rate > 500 operations/s then alert
+\&       if disk write activity > 500 operations/s then alert
 .Ve
 .SS "\s-1FILE CHECKSUM TEST\s0"
 .IX Subsection "FILE CHECKSUM TEST"
@@ -2954,7 +3109,7 @@ Example:
 .Ve
 .SS "\s-1PID TEST\s0"
 .IX Subsection "PID TEST"
-Monit can test the process' \s-1PID.\s0 This test is implicit and Monit will
+Monit can test the process's \s-1PID.\s0 This test is implicit and Monit will
 send an alert in case the \s-1PID\s0 changed outside of Monit's control.
 .PP
 Syntax:
@@ -2979,7 +3134,7 @@ replaced by a new instance:
 .Ve
 .SS "\s-1PPID TEST\s0"
 .IX Subsection "PPID TEST"
-Monit can test the process' parent \s-1PID\s0 (\s-1PPID\s0) for changes. This
+Monit can test the process's parent \s-1PID\s0 (\s-1PPID\s0) for changes. This
 test is implicit and Monit will send alert in the case that the
 \&\s-1PPID\s0 changed outside of Monit control.
 .PP
@@ -3057,6 +3212,47 @@ Example for AppArmor:
 .Vb 2
 \& check process ntpd matching "ntpd"
 \&    if failed security attribute "/usr/sbin/ntpd (enforce)" then alert
+.Ve
+.SS "\s-1SYSTEM AND\s0 PER-PROCESS \s-1FILEDESCRIPTORS TEST\s0"
+.IX Subsection "SYSTEM AND PER-PROCESS FILEDESCRIPTORS TEST"
+Monit can test the filedescriptors usage on the system and process level. You can check either
+an absolute value or percentual usage of the current maximum. The per-process percentual
+usage can be used only if the system exposes per-process maximum.
+.PP
+Syntax:
+.PP
+.Vb 1
+\& IF FILEDESCRIPTORS <operator> <number> [%] THEN action
+.Ve
+.PP
+For process only, you can also check accumulated number for the process and all its children.
+.PP
+Syntax:
+.PP
+.Vb 1
+\& IF TOTAL FILEDESCRIPTORS <operator> <number> THEN action
+.Ve
+.PP
+\&\fIoperator\fR is a choice of \*(L"<\*(R",\*(L">\*(R",\*(L"!=\*(R",\*(L"==\*(R" in c notation, \*(L"gt\*(R",
+\&\*(L"lt\*(R", \*(L"eq\*(R", \*(L"ne\*(R" in shell sh notation and \*(L"greater\*(R", \*(L"less\*(R",
+\&\*(L"equal\*(R", \*(L"notequal\*(R" in human readable form (if not specified,
+default is \s-1EQUAL\s0).
+.PP
+\&\fInumber\fR limit.
+.PP
+\&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
+\&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
+.PP
+Examples:
+.PP
+.Vb 2
+\& check system $HOST
+\&    if filedescriptors >= 90% then alert
+\&
+\& check process myproc with pidfile /var/run/myproc.pid
+\&    if filedescriptors >= 90% then alert
+\&    if filedescriptors >= 99% then restart
+\&    if total filedescriptors > 5000 then alert
 .Ve
 .SS "\s-1PROGRAM STATUS TEST\s0"
 .IX Subsection "PROGRAM STATUS TEST"
@@ -3318,7 +3514,7 @@ default is \s-1EQUAL\s0).
 .PP
 \&\fItime-unit\fR is a choice of \*(L"\s-1MINUTE\s0(S)\*(R", \*(L"\s-1HOUR\s0(S)\*(R", \*(L"\s-1DAY\*(R".
 NOTE:\s0 Monit maintains a rolling count of total uploaded and downloaded
-bytes for the last 24 hours only. The value of time-unit can therefor not
+bytes for the last 24 hours only. The value of time-unit can therefore not
 specify a range wider than one day.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
@@ -3371,7 +3567,7 @@ default is \s-1EQUAL\s0).
 .PP
 \&\fItime-unit\fR is a choice of \*(L"\s-1MINUTE\s0(S)\*(R", \*(L"\s-1HOUR\s0(S)\*(R", \*(L"\s-1DAY\*(R".
 NOTE:\s0 Monit keeps total upload/download statistics only for the last
-24 hours. The time-unit value cannot therefor span more than one day.
+24 hours. The time-unit value cannot therefore span more than one day.
 .PP
 \&\fIaction\fR is a choice of \*(L"\s-1ALERT\*(R", \*(L"RESTART\*(R", \*(L"START\*(R", \*(L"STOP\*(R",
 \&\*(L"EXEC\*(R"\s0 or \*(L"\s-1UNMONITOR\*(R".\s0
@@ -3602,6 +3798,7 @@ knows how to speak:
  \fI\s-1MONGODB\s0\fR
  \fI\s-1MQTT\s0\fR
  \fI\s-1MYSQL\s0\fR
+ \fI\s-1MYSQLS\s0\fR
  \fI\s-1NNTP\s0\fR
  \fI\s-1NTP3\s0\fR
  \fI\s-1PGSQL\s0\fR
@@ -3903,7 +4100,8 @@ Syntax:
 .PP
 \&\fI\s-1PASSWORD\s0\fR \s-1MQTT\s0 password
 .PP
-Username and password (credentials) are \fBoptional\fR.
+Username and password (credentials) are \fBoptional\fR. If not used, Monit will try anonymous connect, which may
+trigger authorization error => credentials are recommended unless your server allows anonymous connect.
 .PP
 Example:
 .PP
@@ -3920,23 +4118,26 @@ Example:
 Syntax:
 .PP
 .Vb 1
-\& PROTOCOL MYSQL [USERNAME string PASSWORD string]
+\& PROTOCOL MYSQL[S] [USERNAME string PASSWORD string [RSAKEY CHECKSUM string]]
 .Ve
 .PP
-\&\fI\s-1USERNAME\s0\fR MySQL username (maximum 16 characters).
+\&\fI\s-1USERNAME\s0\fR MySQL username.
 .PP
 \&\fI\s-1PASSWORD\s0\fR MySQL password (special characters can be used, but for non-alphanumerics
 the password has to be quoted).
+.PP
+\&\fI\s-1RSKEY CHECKSUM\s0\fR If you use unsecured connection (plain \s-1MYSQL\s0 without \s-1TLS\s0), you can set
+the expected \s-1MD5\s0 or \s-1SHA1\s0 checksum of the server's \s-1RSA\s0 key to protect afainst man-in-the-middle
+attacks. Monit will check the key fingerprint before sending the password to the server.
 .PP
 Username and password (credentials) are \fBoptional\fR and if not set,
 Monit will perform the test using anonymous login. This can cause an
 authentication error to be logged in your MySQL log, depending on your
 MySQL configuration.
 .PP
-If credentials are set, Monit will login and perform a MySQL ping test.
-Monit does not require any database privileges, it just needs the
-database user. You might want to create standalone user for Monit to
-use when testing, for example:
+If credentials are set, Monit will try to login. Monit does not require any database
+privileges, it just needs the database user. You might want to create standalone user
+for Monit to use when testing, for example:
 .PP
 .Vb 2
 \& CREATE USER \*(Aqmonit\*(Aq@\*(Aqhost_from_which_monit_performs_testing\*(Aq IDENTIFIED BY \*(Aqmysecretpassword\*(Aq;
@@ -3964,6 +4165,15 @@ or with unix-socket start/stop commands
 \&     if failed
 \&        unixsocket /tmp/mysql.sock
 \&        protocol mysql username "foo" password "bar"
+\&     then alert
+.Ve
+.PP
+You can enable the \s-1TLS\s0 encryption for the test by using \s-1MYSQLS\s0 as protocol name:
+.PP
+.Vb 4
+\&     if failed
+\&        port 3306
+\&        protocol mysqls username "foo" password "bar"
 \&     then alert
 .Ve
 .PP
@@ -4581,7 +4791,7 @@ S. Raymond et al.'s excellent fetchmail program. Some portions
 of this man page also receive inspiration from the same authors.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2001\-2019 by Tildeslash Ltd. All Rights Reserved.
+Copyright (C) 2001\-2020 by Tildeslash Ltd. All Rights Reserved.
 This product is distributed in the hope that it will be useful,
 but \s-1WITHOUT\s0 any warranty; without even the implied warranty of
 \&\s-1MERCHANTABILITY\s0 or \s-1FITNESS\s0 for a particular purpose.

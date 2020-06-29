@@ -59,7 +59,7 @@ struct T {
         int offset;
         int length;
         time_t timeout;
-        boolean_t isclosed;
+        bool isclosed;
         uchar_t buffer[BUFFER_SIZE];
 };
 
@@ -69,9 +69,9 @@ struct T {
 
 /* Fill the internal buffer. Only read once, since we may have read all and an
 extra read would just be an extra system call. Returns true (the length of
-data read), -1 if an error occured or if the connection was closed by the
+data read), -1 if an error occurred or if the connection was closed by the
 client. 0 is returned if a read returned 0 (eof) and read should be retried
-because it would block. If an error occured the stream is also set in closed
+because it would block. If an error occurred the stream is also set in closed
 mode. */
 static inline int fill(T S) {
         if (S->isclosed)
@@ -145,7 +145,7 @@ time_t InputStream_getTimeout(T S) {
 }
 
 
-int InputStream_isClosed(T S) {
+bool InputStream_isClosed(T S) {
         assert(S);
         return S->isclosed;
 }

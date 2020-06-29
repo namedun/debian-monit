@@ -29,7 +29,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -106,12 +105,12 @@ int System_getDescriptorsGuarded() {
 }
 
 
-boolean_t System_random(void *buf, size_t nbytes) {
+bool System_random(void *buf, size_t nbytes) {
 #ifdef HAVE_ARC4RANDOM_BUF
         arc4random_buf(buf, nbytes);
         return true;
 #elif defined HAVE_GETRANDOM
-        return (getrandom(buf, nbytes, 0) == nbytes);
+        return (getrandom(buf, nbytes, 0) == (ssize_t)nbytes);
 #else
         int fd = open("/dev/urandom", O_RDONLY);
         if (fd >= 0) {
@@ -131,8 +130,8 @@ boolean_t System_random(void *buf, size_t nbytes) {
 }
 
 
-uint64_t System_randomNumber() {
-        uint64_t random;
+unsigned long long System_randomNumber() {
+        unsigned long long random;
         System_random(&random, sizeof(random));
         return random;
 }

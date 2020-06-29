@@ -210,10 +210,14 @@ static const char *_describeConnectionCode(int code) {
 
 static void _payload(mqtt_connect_request_t *request, const char *data, MQTT_ConnectRequest_Flags flags) {
         size_t dataLength = strlen(data);
-        mqtt_payload_t payload = (mqtt_payload_t)(request->data + request->header.messageLength);
-        strncpy(payload->data, data, dataLength);
-        payload->length = htons(dataLength);
-        request->header.messageLength += sizeof(payload->length) + dataLength;
+        uint16_t dataLengthNetworkOrder = htons(dataLength);
+
+        // length
+        memcpy(request->data + request->header.messageLength, &dataLengthNetworkOrder, sizeof(dataLengthNetworkOrder));
+        // data
+        memcpy(request->data + request->header.messageLength + sizeof(uint16_t), data, dataLength);
+
+        request->header.messageLength += sizeof(dataLengthNetworkOrder) + dataLength;
         request->flags |= flags;
 }
 
@@ -229,7 +233,8 @@ static void _connectRequest(mqtt_t *mqtt) {
                 .protocolName[3]                    = 'T',
                 .protocolLevel                      = 4,    // protocol for version 3.1.1
                 .flags                              = MQTT_ConnectRequest_CleanSession,
-                .keepAlive                          = htons(1)
+                .keepAlive                          = htons(1),
+                .data[0]                            = 0
         };
 
         // Client ID
@@ -258,7 +263,7 @@ static void _connectRequest(mqtt_t *mqtt) {
 
 static void _connectResponse(mqtt_t *mqtt) {
         mqtt_connect_response_t response = {};
-        if (Socket_read(mqtt->socket, &response, sizeof(mqtt_connect_response_t)) < sizeof(mqtt_connect_response_t)) {
+        if ((long)Socket_read(mqtt->socket, &response, sizeof(mqtt_connect_response_t)) < (long)sizeof(mqtt_connect_response_t)) {
                 THROW(IOException, "Error receiving connection response -- %s", STRERROR);
         }
         if (response.header.messageType != MQTT_Type_ConnectResponse) {

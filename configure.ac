@@ -6,7 +6,7 @@ AC_PREREQ([2.53])
 # Note: in  case of beta subversion, use underscore "_" rather then dash "-"
 # since RPM doesn't allow dash in Version
 # Example: 5.0_beta2
-AC_INIT([monit], [5.26.0], [monit-general@nongnu.org])
+AC_INIT([monit], [5.27.0], [monit-general@nongnu.org])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
@@ -45,6 +45,13 @@ if test "x$POD2MAN" = "xno"; then
 else
 	POD2MANFLAGS="--center 'User Commands' --release AC_PACKAGE_VERSION --date='www.mmonit.com' --lax"
 	AC_SUBST([POD2MANFLAGS])
+fi
+
+AX_CHECK_COMPILE_FLAG([-Wextra], [CFLAGS="$CFLAGS -Wextra"])
+if test `uname` != "AIX"; then
+        AX_CHECK_COMPILE_FLAG([-fstack-protector-all], [CFLAGS="$CFLAGS -fstack-protector-all"])
+        AX_CHECK_COMPILE_FLAG([-fcf-protection=full], [CFLAGS="$CFLAGS -fcf-protection=full"])
+        AX_CHECK_COMPILE_FLAG([-fstack-clash-protection], [CFLAGS="$CFLAGS -fstack-clash-protection"])
 fi
 
 
@@ -111,7 +118,6 @@ AC_CHECK_HEADERS([ \
 	loadavg.h \
 	locale.h \
 	lvm.h \
-        mach/boolean.h \
         mach/host_info.h \
         mach/mach.h \
         mach/mach_host.h \
@@ -164,6 +170,7 @@ AC_CHECK_HEADERS([ \
 	sys/statfs.h \
 	sys/statvfs.h \
 	sys/sysinfo.h \
+	sys/sysmacros.h \
 	sys/systemcfg.h \
 	sys/time.h \
 	sys/tree.h \
@@ -180,7 +187,9 @@ AC_CHECK_HEADERS([ \
         uvm/uvm_extern.h \
         uvm/uvm_param.h \
         vm/vm.h \
-        inttypes.h \
+        net/if_media.h \
+        net/if_dl.h \
+        net/route.h
 	])
 
 AC_CHECK_HEADERS([ \
@@ -234,7 +243,7 @@ AC_CHECK_HEADERS([ \
          #include <netinet/ip.h>
          #endif
         ])
-
+        
 AC_CHECK_HEADERS([ \
 	netinet/icmp6.h \
         ],
@@ -355,25 +364,6 @@ AC_CHECK_HEADERS([ \
 # Types
 # ------------------------------------------------------------------------
 
-AC_CHECK_TYPES([boolean_t], [], [],
-        [
-         #ifdef HAVE_SYS_TYPES_H
-         #include <sys/types.h>
-         #endif
-         #ifdef HAVE_MACH_BOOLEAN_H
-         #include <mach/boolean.h>
-         #endif
-         #ifdef HAVE_UVM_UVM_PARAM_H
-         #include <uvm/uvm_param.h>
-         #endif
-         #ifdef HAVE_VM_VM_H
-         #include <vm/vm.h>
-         #endif
-         #ifdef HAVE_KINFO_H
-         #include <kinfo.h>
-         #endif
-        ])
-
 AC_TYPE_MODE_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
@@ -403,6 +393,7 @@ AC_CHECK_FUNCS(vsyslog)
 AC_CHECK_FUNCS(backtrace)
 AC_CHECK_FUNCS(getloadavg)
 AC_CHECK_FUNCS(getopt_long)
+AC_CHECK_FUNCS(prlimit)
 
 AC_MSG_CHECKING(for va_copy)
 AC_TRY_LINK([
@@ -423,25 +414,36 @@ AC_TRY_LINK([
 # Compiler
 # ------------------------------------------------------------------------
 
-# Compiler characteristics
+AC_PROG_CC
+AC_PROG_CXX
 AC_C_CONST
 AC_C_BIGENDIAN
+# Define _GNU_SOURCE so we can have Posix headers etc included. We use the
+# -std=cXX compiler switch which only include a minimum of C headers
+CFLAGS="$CFLAGS -D_GNU_SOURCE"
 
-# If the compiler is gcc, tune warnings and make the char type unsigned
-# and enable C99 support
-if test "x$GCC" = "xyes"; then
-	CFLAGS="$CFLAGS -Wall -Wunused -Wno-unused-label -funsigned-char";
-        # Add C99 support
-        CFLAGS="$CFLAGS -D_GNU_SOURCE -std=c99"
-        # does this compiler support -Wno-pointer-sign ?
-        svd_CFLAGS="$CFLAGS"
-        CFLAGS="-Wno-pointer-sign $CFLAGS"
-        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
-        # does this compiler support -Wno-address ?
-        svd_CFLAGS="$CFLAGS"
-        CFLAGS="-Wno-address $CFLAGS"
-        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
-fi
+# Compiler; tune warnings and make the char type unsigned
+CFLAGS="$CFLAGS -Wall -Wunused -Wno-unused-label -funsigned-char";
+# does this compiler support -Wno-pointer-sign ?
+svd_CFLAGS="$CFLAGS"
+CFLAGS="-Wno-pointer-sign $CFLAGS"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
+# does this compiler support -Wno-address ?
+svd_CFLAGS="$CFLAGS"
+CFLAGS="-Wno-address $CFLAGS"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])], [], [CFLAGS="$svd_CFLAGS"])
+
+# Require at least C99 and use C11 if available
+AC_RUN_IFELSE(
+[AC_LANG_PROGRAM([], [dnl
+        #ifdef __STDC_VERSION__
+        #if __STDC_VERSION__ >= 201112L
+        return 0;
+        #endif
+        #endif
+        return 1;
+        ])], [CFLAGS="$CFLAGS -std=c11"], [CFLAGS="$CFLAGS -std=c99"])
+AC_CHECK_HEADERS([stdint.h stdbool.h], [], [AC_MSG_ERROR([toolchain does not have C99 headers])])
 
 
 # ------------------------------------------------------------------------
@@ -453,18 +455,19 @@ AC_ARG_WITH(ipv6,
     [
         if test "x$withval" = "xno"
         then
-            use_ipv6=0
+            with_ipv6=0
         elif test "x$withval" = "xyes"
         then
-            use_ipv6=1
+            with_ipv6=1
         fi
     ],
     [
-        use_ipv6=1
+        # Note inverse test. On by default
+        with_ipv6=1
     ]
 )
 
-if test $use_ipv6 = 1
+if test $with_ipv6 -eq 1
 then
         AC_MSG_CHECKING(for IPv6 support)
         AC_CACHE_VAL(ac_cv_ipv6,
@@ -490,7 +493,7 @@ then
         then
                 AC_DEFINE([HAVE_IPV6], 1, [Define to 1 if the system supports IPv6])
         else
-                use_ipv6=0
+                with_ipv6=0
         fi
 fi
 
@@ -537,7 +540,6 @@ then
    AC_CHECK_LIB([zfs], [libzfs_init])
    AC_CHECK_LIB([nvpair], [nvlist_free])
    AC_CHECK_LIB([kstat], [kstat_open])
-   AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
    if test `uname -m` = "i86pc"
    then
       if test "x$GCC" = "xyes"
@@ -563,16 +565,12 @@ then
    ARCH="LINUX"
    CFLAGS="$CFLAGS -D _REENTRANT"
    LDFLAGS="$LDFLAGS -rdynamic"
-   if test `uname -r | awk -F '.' '{print$1$2}'` -ge "26"
-   then
-   	AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
-   fi
 elif test "$architecture" = "OpenBSD"
 then
    ARCH="OPENBSD"
    CFLAGS="$CFLAGS -D _REENTRANT"
    AC_CHECK_LIB([kvm], [kvm_open])
-   use_pam=0 # No PAM on OpenBSD (supports BSD Auth API instead of PAM)
+   with_pam=0 # No PAM on OpenBSD (supports BSD Auth API instead of PAM)
 elif test "$architecture" = "FreeBSD"
 then
    ARCH="FREEBSD"
@@ -609,13 +607,13 @@ then
    CFLAGS=`echo $CFLAGS|sed 's/-g//g'`
    CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
    LIBS="$LIBS -lodm -lperfstat -lm"
-   AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 else
    AC_MSG_WARN([Architecture not supported: ${architecture}])
    CFLAGS="$CFLAGS -D _REENTRANT"
    ARCH="UNKNOWN"
 fi
 AC_SUBST(ARCH)
+
 
 # ------------------------------------------------------------------------
 # Large files code
@@ -628,28 +626,28 @@ AC_ARG_WITH(largefiles,
     [
         dnl Check the withvalue
         if test "x$withval" = "xno" ; then
-            use_largefiles=0
+            with_largefiles=0
             AC_MSG_RESULT([disabled])
         fi
         if test "x$withval" = "xyes" ; then
-            use_largefiles=1
+            with_largefiles=1
             AC_MSG_RESULT([enabled])
         fi
     ],
     [
 	if test `uname` = "AIX"
 	then
-	    use_largefiles=0
+	    with_largefiles=0
 	    AC_MSG_RESULT([disabled])
 	else
-	    use_largefiles=1
+	    with_largefiles=1
 	    AC_MSG_RESULT([enabled])
 	fi
     ]
 )
 
 # Settings for largefiles support
-if test "$use_largefiles" = 1; then
+if test $with_largefiles -eq 1; then
         AC_SYS_LARGEFILE
         AC_DEFINE([HAVE_LARGEFILES], 1, [Define to 1 if you have large files support])
 fi
@@ -666,29 +664,28 @@ AC_ARG_WITH([zlib],
                 zlib to link with]),
      [
         if test "x$withval" = "xyes"; then
-                AC_CHECK_LIB([z], [zlibVersion], [], [
-                        zlib="false"
-                        AC_MSG_ERROR([libz not found])
-                ])
+                AC_CHECK_LIB([z], [zlibVersion], [], [AC_MSG_ERROR([libz not found])])
+                with_zlib=1
                 AC_CHECK_HEADERS([zlib.h])
         elif test "x$withval" != "xno"; then
                 AC_MSG_CHECKING([for zlib in $withval])
                 LDFLAGS="-L$withval/lib -lz $LDFLAGS "
                 CFLAGS="-I$withval/include $CFLAGS"
                 if test -r "$withval/lib/libz.a" -a -r "$withval/include/zlib.h"; then
+                        with_zlib=1
                         AC_DEFINE([HAVE_LIBZ], [1], [Define if you have zlib library])
                         AC_DEFINE([HAVE_ZLIB_H], [1], [Define if you have zlib header])
                         AC_MSG_RESULT([ok])
                 else
-                        zlib="false"
+                        with_zlib=0
                         AC_MSG_ERROR([zlib not found in $withval])
                 fi
+        else
+                with_zlib=0
         fi
      ],[
-        AC_CHECK_LIB([z], [zlibVersion], [], [
-                zlib="false"
-                AC_MSG_ERROR([libz not found])
-        ])
+        AC_CHECK_LIB([z], [zlibVersion], [], [AC_MSG_ERROR([libz not found])])
+        with_zlib=1
         AC_CHECK_HEADERS([zlib.h])
      ]
 )
@@ -702,27 +699,64 @@ AC_ARG_WITH(pam,
     [  --without-pam           disable the use of pam (default: enabled)],
     [
         dnl Check the withvalue
+        if test "x$withval" = "xno" || test "x$with_pam" = "x0"; then
+                with_pam=0
+                AC_MSG_RESULT([disabled])
+        else
+                with_pam=1
+                AC_MSG_RESULT([enabled])
+        fi
+    ],
+    [
+        # Note inverse test. On by default
+        with_pam=1
+        AC_MSG_RESULT([enabled])
+    ]
+)
+
+if test $with_pam -eq 1; then
+        AC_CHECK_LIB([pam], [pam_start], [], [AC_MSG_ERROR([PAM enabled but headers or library not found, install the PAM development support or run configure --without-pam])])
+fi
+
+
+# ------------------------------------------------------------------------
+# AddressSanitizer
+# ------------------------------------------------------------------------
+
+AC_MSG_CHECKING([for AddressSanitizer support])
+AC_ARG_WITH(asan,
+    [  --with-asan             enable the use of AddressSanitizer (default: disabled)],
+    [
+        dnl Check the withvalue
         if test "x$withval" = "xno" ; then
-            use_pam=0
+            with_asan=0
             AC_MSG_RESULT([disabled])
         fi
         if test "x$withval" = "xyes" ; then
-            use_pam=1
+            with_asan=1
             AC_MSG_RESULT([enabled])
         fi
     ],
     [
-        if test "$use_pam" = "0"; then
-            AC_MSG_RESULT([disabled])
-        else
-            use_pam=1
-            AC_MSG_RESULT([enabled])
-        fi
+        with_asan=0
+        AC_MSG_RESULT([disabled])
     ]
 )
 
-if test "$use_pam" = "1"; then
-        AC_CHECK_LIB([pam], [pam_start], [], [AC_MSG_ERROR([PAM enabled but headers or library not found, install the PAM development support or run configure --without-pam])])
+if test $with_asan -eq 1; then
+        AX_CHECK_COMPILE_FLAG([-fsanitize=address], [CFLAGS="$CFLAGS -fsanitize=address"])
+        AX_CHECK_COMPILE_FLAG([-fno-omit-frame-pointer], [CFLAGS="$CFLAGS -fno-omit-frame-pointer"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=bool], [CFLAGS="$CFLAGS -fsanitize=bool"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=enum], [CFLAGS="$CFLAGS -fsanitize=enum"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=float-divide-by-zero], [CFLAGS="$CFLAGS -fsanitize=float-divide-by-zero"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize-address-use-after-scope], [CFLAGS="$CFLAGS -fsanitize-address-use-after-scope"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=signed-integer-overflow], [CFLAGS="$CFLAGS -fsanitize=signed-integer-overflow"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=vla-bound], [CFLAGS="$CFLAGS -fsanitize=vla-bound"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=bounds-strict], [CFLAGS="$CFLAGS -fsanitize=bounds-strict"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=null], [CFLAGS="$CFLAGS -fsanitize=null "])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=object-size], [CFLAGS="$CFLAGS -fsanitize=object-size"])
+        AX_CHECK_COMPILE_FLAG([-fsanitize=undefined], [CFLAGS="$CFLAGS -fsanitize=undefined"])
+        AC_DEFINE([HAVE_ASAN], 1, [Define to 1 if you have address sanitizer.])
 fi
 
 
@@ -774,7 +808,7 @@ AC_ARG_WITH(ssl-static,
         for dir in "$withval" "$withval/lib"; do
             checkssllibdirstatic "$dir" && break
         done
-        use_sslstatic=1
+        with_sslstatic=1
         LDFLAGS="`echo $LDFLAGS | sed -e 's/-rdynamic/-ldl/g'`"
         AC_MSG_RESULT([enabled])
         AC_DEFINE([HAVE_OPENSSL], 1, [Define to 1 if you have openssl.])
@@ -782,14 +816,17 @@ AC_ARG_WITH(ssl-static,
         AC_SUBST(ssllibdir)
         CFLAGS="$CFLAGS -I$sslincldir"
         LIBS="$LIBS $ssllibdir/libssl.a $ssllibdir/libcrypto.a"
+        if test `uname` = "Linux" && test `uname -m` = "aarch64"; then
+            LIBS="$LIBS -ldl"
+        fi
     ],
     [
-	use_sslstatic=0
+	with_sslstatic=0
         AC_MSG_RESULT([disabled])
     ]
 )
 
-if test "$use_sslstatic" = "0"
+if test $with_sslstatic -eq 0
 then
     AC_MSG_CHECKING([for SSL support])
 
@@ -798,23 +835,24 @@ then
         [
             dnl Check the withvalue
             if test "x$withval" = "xno" ; then
-                use_ssl=0
+                with_ssl=0
                 AC_MSG_RESULT([disabled])
             fi
             if test "x$withval" = "xyes" ; then
-                use_ssl=1
+                with_ssl=1
                 AC_MSG_RESULT([enabled])
             fi
         ],
         [
-            use_ssl=1
-            AC_MSG_RESULT([enabled])
+                # Note inverse test. On by default
+                with_ssl=1
+                AC_MSG_RESULT([enabled])
         ]
     )
 
 
     # Check for SSL directory
-    if test "$use_ssl" = "1"; then
+    if test $with_ssl -eq 1; then
 
         AC_ARG_WITH(ssl-dir,
             [  --with-ssl-dir=DIR       location of SSL installation],
@@ -934,7 +972,7 @@ then
     fi
 fi
 # Check TLS version
-if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
+if test $with_sslstatic -eq 1 || test $with_ssl -eq 1; then
         if test "x$sslincldir" != "x"; then
                 CFLAGS="$CFLAGS -I$sslincldir"
         fi
@@ -991,13 +1029,13 @@ AC_ARG_ENABLE(optimized,
                 CFLAGS=`echo $CFLAGS|sed 's/-g[[^ ]]*//g'`
                 CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
                 CFLAGS="$CFLAGS -O3 -DNDEBUG"
-                OPTIMIZED=1
+                enable_optimized=1
         else
-                OPTIMIZED=0
+                enable_optimized=0
         fi
     ],
     [
-        OPTIMIZED=0
+        enable_optimized=0
     ]
 )
 
@@ -1008,17 +1046,40 @@ AC_ARG_ENABLE(profiling,
         if test "x$enableval" = "xyes" ; then
                 CFLAGS=`echo $CFLAGS|sed 's/-g.//g'`
                 CFLAGS=`echo $CFLAGS|sed 's/-O.//g'`
-                CFLAGS="$CFLAGS -g -pg"
-                profile="true"
+                CFLAGS="$CFLAGS -g -pg -fprofile-arcs -ftest-coverage"
+                enable_profile=1
         else
-                profile="false"
+                enable_profile=0
         fi
     ],
     [
-        profile="false"
+        enable_profile=0
     ]
 )
-AM_CONDITIONAL([ENABLE_PROFILING], [test x$profile = xtrue])
+
+AC_ARG_ENABLE([codesign],
+        AS_HELP_STRING([--enable-codesign=identity],
+                [Add code signature to the monit binary on macOS]),
+     [
+        if test "x$enableval" = "xno" ; then
+                enable_codesign=0
+        else
+                AC_MSG_CHECKING([for validity of signing identity])
+                if test "x$enableval" = "xyes"; then
+                        AC_MSG_ERROR([Please provide a signing identity])
+                else
+                        if test -n "$(security find-identity -v|grep $enableval)"; then
+                                enable_codesign=1
+                                AC_SUBST([CODESIGN_IDENTITY], [$enableval])
+                                AC_MSG_RESULT(yes)
+                        else
+                                AC_MSG_ERROR([Signing identity not found])
+                        fi
+                fi
+        fi
+     ],[enable_codesign=0]
+)
+AM_CONDITIONAL([WITH_CODESIGN], [test $enable_codesign -eq 1])
 
 
 # ------------------------------------------------------------------------
@@ -1043,7 +1104,7 @@ echo
 echo "Monit Build Information:"
 echo
 echo "                Architecture: ${ARCH}"
-if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
+if test $with_sslstatic -eq 1 || test $with_ssl -eq 1; then
 echo "       SSL include directory: ${sslincldir}"
 echo "       SSL library directory: ${ssllibdir}"
 fi
@@ -1053,54 +1114,18 @@ echo "           pid file location: ${piddir}"
 echo "           Install directory: ${prefix}"
 echo
 
-cat <<EOT
-+------------------------------------------------------------+
-| License:                                                   |
-| This is Open Source Software and use is subject to the GNU |
-| AFFERO GENERAL PUBLIC LICENSE version 3, available in this |
-| distribution in the file COPYING.                          |
-|                                                            |
-| By continuing this installation process, you are bound by  |
-| the terms of this license agreement. If you do not agree   |
-| with the terms of this license, you must abort the         |
-| installation process at this point.                        |
-+------------------------------------------------------------+
-| Monit has been configured with the following options:      |
-|                                                            |
-EOT
-if test "xfalse" = "x$zlib"; then
-echo "|   Compression:                                  DISABLED   |"
-else
-echo "|   Compression:                                  ENABLED    |"
+AX_INFO_AGPL()
+AX_INFO_TITLE([Monit has been configured with the following options:])
+AX_INFO_ENABLED([Compression:],           [test $with_zlib -eq 1])
+AX_INFO_ENABLED([PAM support:],           [test $with_pam -eq 1])
+AX_INFO_ENABLED([SSL support:],           [test $with_sslstatic -eq 1 || test $with_ssl -eq 1])
+AX_INFO_ENABLED([Large files support:],   [test $with_largefiles -eq 1])
+AX_INFO_ENABLED([ASAN support:],          [test $with_asan -eq 1])
+AX_INFO_ENABLED([IPv6 support:],          [test $with_ipv6 -eq 1])
+AX_INFO_ENABLED([Optimized:],             [test $enable_optimized -eq 1])
+AX_INFO_ENABLED([Profiling:],             [test $enable_profile -eq 1])
+if test "x$ARCH" = "xDARWIN"; then
+AX_INFO_SEPARATOR()
+AX_INFO_ENABLED([MacOS Code Signing:],    [test $enable_codesign -eq 1])
 fi
-if test "$use_pam" = "1"; then
-echo "|   PAM support:                                  ENABLED    |"
-else
-echo "|   PAM support:                                  DISABLED   |"
-fi
-if test "$use_sslstatic" = "1" -o "$use_ssl" = "1"; then
-echo "|   SSL support:                                  ENABLED    |"
-else
-echo "|   SSL support:                                  DISABLED   |"
-fi
-if test "$use_largefiles" = "1"; then
-echo "|   Large files support:                          ENABLED    |"
-else
-echo "|   Large files support:                          DISABLED   |"
-fi
-if test "$use_ipv6" = "1"; then
-echo "|   IPv6 support:                                 ENABLED    |"
-else
-echo "|   IPv6 support:                                 DISABLED   |"
-fi
-if test "x1" = "x$OPTIMIZED"; then
-echo "|   Optimized:                                    ENABLED    |"
-else
-echo "|   Optimized:                                    DISABLED   |"
-fi
-if test "xfalse" = "x$profile"; then
-echo "|   Profiling:                                    DISABLED   |"
-else
-echo "|   Profiling:                                    ENABLED    |"
-fi
-echo "+------------------------------------------------------------+"
+AX_INFO_BREAK()

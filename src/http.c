@@ -57,7 +57,6 @@
 #endif
 
 #include "monit.h"
-#include "net.h"
 #include "engine.h"
 
 // libmonit
@@ -70,7 +69,7 @@ static void *thread_wrapper(void *arg);
 /* The HTTP Thread */
 static Thread_T thread;
 
-static volatile boolean_t running = false;
+static volatile bool running = false;
 
 
 /**
@@ -89,7 +88,7 @@ static volatile boolean_t running = false;
  * controlfile to start, otherwise return false. Print an error
  * message if monit httpd _should_ start but can't.
  */
-boolean_t can_http() {
+bool can_http() {
         if ((Run.httpd.flags & Httpd_Net || Run.httpd.flags & Httpd_Unix) && (Run.flags & Run_Daemon)) {
                 if (! Engine_hasAllow() && ! Run.httpd.credentials && ! ((Run.httpd.socket.net.ssl.flags & SSL_Enabled) && (Run.httpd.flags & Httpd_Net) && Run.httpd.socket.net.ssl.clientpemfile)) {
                         LogError("%s: monit httpd not started since no connections are allowed\n", prog);
@@ -120,7 +119,7 @@ void monit_http(Httpd_Action action) {
                 case Httpd_Start:
                         if (Run.httpd.flags & Httpd_Net)
                                 LogDebug("Starting Monit HTTP server at [%s]:%d\n", Run.httpd.socket.net.address ? Run.httpd.socket.net.address : "*", Run.httpd.socket.net.port);
-                        else if (Run.httpd.flags & Httpd_Unix)
+                        if (Run.httpd.flags & Httpd_Unix)
                                 LogDebug("Starting Monit HTTP server at %s\n", Run.httpd.socket.unix.path);
                         Thread_create(thread, thread_wrapper, NULL);
                         LogDebug("Monit HTTP server started\n");
@@ -136,7 +135,7 @@ void monit_http(Httpd_Action action) {
 /* ----------------------------------------------------------------- Private */
 
 
-static void *thread_wrapper(void *arg) {
+static void *thread_wrapper(__attribute__ ((unused)) void *arg) {
         set_signal_block();
         Engine_start();
 #ifdef HAVE_OPENSSL

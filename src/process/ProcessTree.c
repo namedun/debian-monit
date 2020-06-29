@@ -126,7 +126,7 @@ static int _findProcess(int pid, ProcessTree_T *pt, int size) {
 
 
 /**
- * Fill data in the process tree by recusively walking through it
+ * Fill data in the process tree by recursively walking through it
  * @param pt process tree
  * @param i process index
  */
@@ -137,6 +137,7 @@ static void _fillProcessTree(ProcessTree_T *pt, int index) {
                 pt[index].threads.children = 0;
                 pt[index].cpu.usage.children = 0.;
                 pt[index].memory.usage_total = pt[index].memory.usage;
+                pt[index].filedescriptors.usage_total = pt[index].filedescriptors.usage;
                 for (int i = 0; i < pt[index].children.count; i++) {
                         _fillProcessTree(pt, pt[index].children.list[i]);
                 }
@@ -150,7 +151,8 @@ static void _fillProcessTree(ProcessTree_T *pt, int index) {
                         if (pt[index].cpu.usage.children >= 0) {
                                 parent_pt->cpu.usage.children += pt[index].cpu.usage.children;
                         }
-                        parent_pt->memory.usage_total  += pt[index].memory.usage_total;
+                        parent_pt->memory.usage_total     += pt[index].memory.usage_total;
+                        parent_pt->filedescriptors.usage_total += pt[index].filedescriptors.usage_total;
                 }
         }
 }
@@ -159,16 +161,16 @@ static void _fillProcessTree(ProcessTree_T *pt, int index) {
 /**
  * Adjust the CPU usage based on the available system resources: number of CPU cores the application may utilize. Single threaded application may utilized only one CPU core, 4 threaded application 4 cores, etc.. If the application
  * has more threads then the machine has cores, it is limited by number of cores, not threads.
- * @param now Current process informations
- * @param prev Process informations from previous cycle
+ * @param now Current process information
+ * @param prev Process information from previous cycle
  * @param delta The delta of system time between current and previous cycle
- * @return Process' CPU usage [%] since last cycle
+ * @return Process's CPU usage [%] since last cycle
  */
-static float _cpuUsage(float rawUsage, unsigned threads) {
+static float _cpuUsage(float rawUsage, unsigned int threads) {
         if (systeminfo.cpu.count > 0 && rawUsage > 0) {
                 int divisor;
                 if (threads > 1) {
-                        if (threads >= systeminfo.cpu.count) {
+                        if (threads >= (unsigned)systeminfo.cpu.count) {
                                 // Multithreaded application with more threads then CPU cores
                                 divisor = systeminfo.cpu.count;
                         } else {
@@ -209,7 +211,7 @@ int ProcessTree_init(ProcessEngine_Flags pflags) {
         if (oldptree) {
                 ptree = NULL;
                 ptreesize = 0;
-                // We need only process' cpu.time from the old ptree, so free dynamically allocated parts which we don't need before initializing new ptree (so the memory can be reused, otherwise the memory footprint will hold two ptrees)
+                // We need only process's cpu.time from the old ptree, so free dynamically allocated parts which we don't need before initializing new ptree (so the memory can be reused, otherwise the memory footprint will hold two ptrees)
                 for (int i = 0; i < oldptreesize; i++) {
                         FREE(oldptree[i].cmdline);
                         FREE(oldptree[i].children.list);
@@ -247,7 +249,7 @@ int ProcessTree_init(ProcessEngine_Flags pflags) {
                 if ((pt[i].pid == pt[i].ppid) || (pt[i].ppid == -1)) {
                         root = pt[i].parent = i;
                 } else {
-                        // Find this process' parent
+                        // Find this process's parent
                         int parent = _findProcess(pt[i].ppid, pt, ptreesize);
                         if (parent == -1) {
                                 /* Parent process wasn't found - on Linux this is normal: main process with PID 0 is not listed, similarly in FreeBSD jail.
@@ -285,7 +287,7 @@ void ProcessTree_delete() {
 }
 
 
-boolean_t ProcessTree_updateProcess(Service_T s, pid_t pid) {
+bool ProcessTree_updateProcess(Service_T s, pid_t pid) {
         ASSERT(s);
 
         /* save the previous pid and set actual one */
@@ -318,17 +320,25 @@ boolean_t ProcessTree_updateProcess(Service_T s, pid_t pid) {
                 }
                 s->inf.process->mem               = ptree[leaf].memory.usage;
                 s->inf.process->total_mem         = ptree[leaf].memory.usage_total;
+                s->inf.process->filedescriptors.open        = ptree[leaf].filedescriptors.usage;
+                s->inf.process->filedescriptors.openTotal   = ptree[leaf].filedescriptors.usage_total;
+                s->inf.process->filedescriptors.limit.soft  = ptree[leaf].filedescriptors.limit.soft;
+                s->inf.process->filedescriptors.limit.hard  = ptree[leaf].filedescriptors.limit.hard;
                 if (systeminfo.memory.size > 0) {
                         s->inf.process->total_mem_percent = ptree[leaf].memory.usage_total >= systeminfo.memory.size ? 100. : (100. * (double)ptree[leaf].memory.usage_total / (double)systeminfo.memory.size);
                         s->inf.process->mem_percent       = ptree[leaf].memory.usage >= systeminfo.memory.size ? 100. : (100. * (double)ptree[leaf].memory.usage / (double)systeminfo.memory.size);
                 }
-                if (ptree[leaf].read.bytes)
+                if (ptree[leaf].read.bytes >= 0)
                         Statistics_update(&(s->inf.process->read.bytes), ptree[leaf].read.time, ptree[leaf].read.bytes);
-                if (ptree[leaf].read.operations)
+                if (ptree[leaf].read.bytesPhysical >= 0)
+                        Statistics_update(&(s->inf.process->read.bytesPhysical), ptree[leaf].read.time, ptree[leaf].read.bytesPhysical);
+                if (ptree[leaf].read.operations >= 0)
                         Statistics_update(&(s->inf.process->read.operations), ptree[leaf].read.time, ptree[leaf].read.operations);
-                if (ptree[leaf].write.bytes)
+                if (ptree[leaf].write.bytes >= 0)
                         Statistics_update(&(s->inf.process->write.bytes), ptree[leaf].write.time, ptree[leaf].write.bytes);
-                if (ptree[leaf].write.operations)
+                if (ptree[leaf].write.bytesPhysical >= 0)
+                        Statistics_update(&(s->inf.process->write.bytesPhysical), ptree[leaf].write.time, ptree[leaf].write.bytesPhysical);
+                if (ptree[leaf].write.operations >= 0)
                         Statistics_update(&(s->inf.process->write.operations), ptree[leaf].write.time, ptree[leaf].write.operations);
                 return true;
         }
@@ -401,9 +411,9 @@ void ProcessTree_testMatch(char *pattern) {
                 StringBuffer_T output = StringBuffer_create(256);
                 Box_T t = Box_new(output, 4, (BoxColumn_T []){
                                 {.name = "",        .width = 1,  .wrap = false, .align = BoxAlign_Left},
-                                {.name = "PID",     .width = 5,  .wrap = false, .align = BoxAlign_Right},
-                                {.name = "PPID",    .width = 5,  .wrap = false, .align = BoxAlign_Right},
-                                {.name = "Command", .width = 56, .wrap = true,  .align = BoxAlign_Left}
+                                {.name = "PID",     .width = 8,  .wrap = false, .align = BoxAlign_Right},
+                                {.name = "PPID",    .width = 8,  .wrap = false, .align = BoxAlign_Right},
+                                {.name = "Command", .width = 50, .wrap = true,  .align = BoxAlign_Left}
                           }, true);
                 // Select the process matching the pattern
                 int pid = _match(regex_comp);
@@ -444,7 +454,7 @@ void ProcessTree_testMatch(char *pattern) {
 
 
 //FIXME: move to standalone system class
-boolean_t init_system_info(void) {
+bool init_system_info(void) {
         memset(&systeminfo, 0, sizeof(SystemInfo_T));
         gettimeofday(&systeminfo.collected, NULL);
         if (uname(&systeminfo.uname) < 0) {
@@ -478,13 +488,13 @@ boolean_t init_system_info(void) {
 #endif
         systeminfo.cpu.usage.user = -1.;
         systeminfo.cpu.usage.system = -1.;
-        systeminfo.cpu.usage.wait = -1.;
+        systeminfo.cpu.usage.iowait = -1.;
         return (init_process_info_sysdep());
 }
 
 
 //FIXME: move to standalone system class
-boolean_t update_system_info() {
+bool update_system_info() {
         if (getloadavg_sysdep(systeminfo.loadavg, 3) == -1) {
                 LogError("'%s' statistic error -- load average data collection failed\n", Run.system->name);
                 goto error1;
@@ -502,6 +512,11 @@ boolean_t update_system_info() {
                 goto error3;
         }
 
+        if (! used_system_filedescriptors_sysdep(&systeminfo)) {
+                LogError("'%s' statistic error -- filedescriptors usage data collection failed\n", Run.system->name);
+                goto error4;
+        }
+
         return true;
 
 error1:
@@ -516,7 +531,11 @@ error2:
 error3:
         systeminfo.cpu.usage.user = 0.;
         systeminfo.cpu.usage.system = 0.;
-        systeminfo.cpu.usage.wait = 0.;
+        systeminfo.cpu.usage.iowait = 0.;
+error4:
+        systeminfo.filedescriptors.allocated = 0LL;
+        systeminfo.filedescriptors.unused = 0LL;
+        systeminfo.filedescriptors.maximum = 0LL;
 
         return false;
 }

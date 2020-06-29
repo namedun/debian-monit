@@ -1,6 +1,6 @@
 Name: monit
 Summary: Process monitor and restart utility
-Version: 5.26.0
+Version: 5.27.0
 Release: 1
 URL: http://mmonit.com/monit/
 Source: http://mmonit.com/monit/dist/%{name}-%{version}.tar.gz
@@ -60,13 +60,16 @@ fi
 
 %files
 %defattr(-,root,root)
-%doc COPYING README CHANGES
+%doc COPYING CHANGES
 %config(noreplace) /etc/monitrc
 %config /etc/init.d/%{name}
 %{_bindir}/%{name}
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Jan 16 2020 Martin Pala <martinp@tildeslash.com>
+- Upgraded to monit-5.27.0
+
 * Sat Jul 06 2019 Martin Pala <martinp@tildeslash.com>
 - Upgraded to monit-5.26.0
 
@@ -243,6 +246,6 @@ fi
 - Fixed the monit homepage URL
 
 * Thu Feb 01 2001 Clinton Work <work@scripty.com>
-- Create the inital spec file
+- Create the initial spec file
 - Created a sample config file and a rc startup script
 

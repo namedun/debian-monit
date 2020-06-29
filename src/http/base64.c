@@ -85,7 +85,7 @@ static unsigned char decode(char c) {
 /**
  * Return true if 'c' is a valid base64 character, otherwise false
  */
-static boolean_t is_base64(char c) {
+static bool is_base64(char c) {
         return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c == '+') || (c == '/') || (c == '=')) ? true : false;
 }
 
@@ -107,7 +107,7 @@ char *encode_base64(size_t size, unsigned char *src) {
                 size = strlen((char *)src);
         char *out = CALLOC(sizeof(char), size * 4 / 3 + 4);
         char *p = out;
-        for (int i = 0; i < size; i += 3) {
+        for (size_t i = 0; i < size; i += 3) {
                 unsigned char b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0, b7 = 0;
                 b1 = src[i];
                 if (i + 1 < size)
@@ -137,7 +137,7 @@ char *encode_base64(size_t size, unsigned char *src) {
  * Decode the base64 encoded string 'src' into the memory pointed to by
  * 'dest'. The dest buffer is <b>not</b> NUL terminated.
  * @param dest Pointer to memory for holding the decoded string.
- * Must be large enough to recieve the decoded string.
+ * Must be large enough to receive the decoded string.
  * @param src A base64 encoded string.
  * @return the length of the decoded string if decode
  * succeeded otherwise 0.

@@ -47,7 +47,7 @@ typedef struct BoxColumn_T {
         char *value;
         // Options
         int width;
-        boolean_t wrap;
+        bool wrap;
         BoxAlign_T align;
         // Internal
         int _colorLength;
@@ -69,7 +69,7 @@ typedef struct T *T;
  * @param printHeader true if the header should be printed otherwise false
  * @return A new terminal table object
  */
-T Box_new(StringBuffer_T b, int columnsCount, BoxColumn_T *columns, boolean_t printHeader); //FIXME: when OutputStream is added, use it instead of StringBuffer
+T Box_new(StringBuffer_T b, int columnsCount, BoxColumn_T *columns, bool printHeader); //FIXME: when OutputStream is added, use it instead of StringBuffer
 
 
 /**
@@ -85,7 +85,7 @@ void Box_free(T *t);
  * @param index Column index
  * @param format A format string with optional var args
  */
-void Box_setColumn(T t, int index, const char *format, ...) __attribute__((format (printf, 3, 4)));
+void Box_setColumn(T t, unsigned int index, const char *format, ...) __attribute__((format (printf, 3, 4)));
 
 
 /**
