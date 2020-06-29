@@ -8,7 +8,7 @@ Forwarded: no
 
 --- a/configure.ac
 +++ b/configure.ac
-@@ -895,8 +895,8 @@ then
+@@ -933,8 +933,8 @@ then
                                     $maindir/lib64/openssl \
                                     $maindir/lib64/ssl \
                                     $maindir/ssl/lib64 \

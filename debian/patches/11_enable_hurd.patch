@@ -9,40 +9,22 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
     version (function was get_starttime())
 
 ---
- configure                            |    6 +++++-
  configure.ac                         |    5 +++++
- libmonit/configure                   |    5 +++++
  libmonit/configure.ac                |    4 ++++
  libmonit/src/Config.h                |    6 ++++++
- libmonit/src/system/Link.c           |    2 ++
  libmonit/src/system/os/hurd/Link.inc |    1 +
  src/device/sysdep_HURD.c             |    1 +
  src/monit.h                          |    5 +++++
  src/process/sysdep_HURD.c            |   20 ++++++++++++++++++++
  src/process/sysdep_LINUX.c           |   11 ++++++++---
- 11 files changed, 62 insertions(+), 4 deletions(-)
+ 8 files changed, 50 insertions(+), 3 deletions(-)
 
---- a/configure
-+++ b/configure
-@@ -15086,7 +15086,11 @@ then
-    LIBS="$LIBS -lodm -lperfstat -lm"
- 
- $as_echo "#define HAVE_CPU_WAIT 1" >>confdefs.h
--
-+elif test "$architecture" = "GNU"
-+then
-+   ARCH="HURD"
-+   CFLAGS="$CFLAGS -D _REENTRANT"
-+   LDFLAGS="$LDFLAGS -rdynamic"
- else
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Architecture not supported: ${architecture}" >&5
- $as_echo "$as_me: WARNING: Architecture not supported: ${architecture}" >&2;}
 --- a/configure.ac
 +++ b/configure.ac
-@@ -610,6 +610,11 @@ then
+@@ -607,6 +607,11 @@ then
+    CFLAGS=`echo $CFLAGS|sed 's/-g//g'`
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     LIBS="$LIBS -lodm -lperfstat -lm"
-    AC_DEFINE([HAVE_CPU_WAIT], [1], [Define to 1 if CPU wait information is available.])
 +elif test "$architecture" = "GNU"
 +then
 +   ARCH="HURD"
@@ -51,23 +33,9 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  else
     AC_MSG_WARN([Architecture not supported: ${architecture}])
     CFLAGS="$CFLAGS -D _REENTRANT"
---- a/libmonit/configure
-+++ b/libmonit/configure
-@@ -12749,6 +12749,11 @@ then
- $as_echo "#define AIX 1" >>confdefs.h
- 
-    LIBS="$LIBS -lcfg -lodm -lperfstat"
-+elif test "$architecture" = "GNU"
-+then
-+    CFLAGS="$CFLAGS -D _REENTRANT"
-+
-+$as_echo "#define HURD 1" >>confdefs.h
- else
-    as_fn_error $? "Architecture not supported: ${architecture}" "$LINENO" 5
- fi
 --- a/libmonit/configure.ac
 +++ b/libmonit/configure.ac
-@@ -246,6 +246,10 @@ then
+@@ -300,6 +300,10 @@ then
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
     LIBS="$LIBS -lcfg -lodm -lperfstat"
@@ -107,8 +75,8 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +#include "sysdep_LINUX.c"
 --- a/libmonit/src/Config.h
 +++ b/libmonit/src/Config.h
-@@ -126,6 +126,12 @@ typedef enum {
- #define true  1
+@@ -91,6 +91,12 @@
+ typedef unsigned char uchar_t;
  #endif
  
 +/**
@@ -122,7 +90,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
  
 --- a/src/monit.h
 +++ b/src/monit.h
-@@ -415,6 +415,11 @@ Sigfunc *signal(int signo, Sigfunc * fun
+@@ -417,6 +417,11 @@ Sigfunc *signal(int signo, Sigfunc * fun
  #define SIG_ERR ((Sigfunc *)-1)
  #endif
  
@@ -138,23 +106,12 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +++ b/libmonit/src/system/os/hurd/Link.inc
 @@ -0,0 +1 @@
 +#include "../linux/Link.inc"
---- a/libmonit/src/system/Link.c
-+++ b/libmonit/src/system/Link.c
-@@ -161,6 +161,8 @@ static void _updateValue(LinkData_T *dat
- #include "os/solaris/Link.inc"
- #elif defined AIX
- #include "os/aix/Link.inc"
-+#elif defined HURD
-+#include "os/hurd/Link.inc"
- #endif
- 
- 
 --- a/src/process/sysdep_LINUX.c
 +++ b/src/process/sysdep_LINUX.c
-@@ -144,12 +144,17 @@ static double hz = 0.;
+@@ -179,12 +179,17 @@ static double hz = 0.;
   * @return seconds since unix epoch
   */
- static time_t _getStartTime() {
+ static time_t _getStartTime(void) {
 -        struct sysinfo info;
 -        if (sysinfo(&info) < 0) {
 +        char buf[STRLEN];

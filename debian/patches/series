@@ -1,5 +1,3 @@
- 01_spelling.patch
  05_monitrc.patch
  07_cross.patch
  11_enable_hurd.patch
- 12_fix_link_alerts.patch

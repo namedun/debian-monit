@@ -57,7 +57,7 @@ Forwarded: not-needed
 +      slots 100                     # optionally limit the queue size
  #
  #
- ## Send status and events to M/Monit (for more informations about M/Monit
+ ## Send status and events to M/Monit (for more information about M/Monit
 @@ -154,13 +155,13 @@ set log syslog
  ## commands to a running Monit daemon. See the Monit Wiki if you want to
  ## enable SSL for the HTTP interface.
