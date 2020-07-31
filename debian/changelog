@@ -1,3 +1,16 @@
+monit (1:5.27.0-1) unstable; urgency=medium
+
+  * Support for monitoring the ecdsa and ed25519 ssh keys (Closes: #961030)
+  * New upstream version 5.27.0 (Closes: #966185)
+  * Adapt patches (11_enable_hurd.patch wasn't tested)
+  * Override dh_autoreconf (suggested by Christian Göttsche)
+  * Drop README
+  * Remove support for START option in default (lintian
+    init.d-script-should-always-start-service)
+  * Add Pre-Depends (fix skip-systemd-native-flag-missing-pre-depends)
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Fri, 31 Jul 2020 14:12:44 +0300
+
 monit (1:5.26.0-6) unstable; urgency=medium
 
   * Fix superfluous alerts when the link is down (Closes: #902204)
