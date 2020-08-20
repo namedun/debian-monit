@@ -21,7 +21,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure.ac
 +++ b/configure.ac
-@@ -607,6 +607,11 @@ then
+@@ -600,6 +600,11 @@ then
     CFLAGS=`echo $CFLAGS|sed 's/-g//g'`
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     LIBS="$LIBS -lodm -lperfstat -lm"
