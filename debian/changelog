@@ -1,3 +1,13 @@
+monit (1:5.27.0-2) unstable; urgency=medium
+
+  * Restore cross-build compatibility.  Closes: #968482,
+    thanks to Helmut Grohne.
+  * Update debhelper-compat version
+  * Drop obsoleted (in bullseye) DEB_LDFLAGS_MAINT_APPEND
+  * Fix Forwarded header in 07_cross.patch
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Wed, 23 Sep 2020 08:43:03 +0300
+
 monit (1:5.27.0-1) unstable; urgency=medium
 
   * Support for monitoring the ecdsa and ed25519 ssh keys (Closes: #961030)
