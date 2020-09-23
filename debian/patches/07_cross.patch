@@ -1,6 +1,6 @@
 Description: Fix build/host confusion
 Author: Helmut Grohne <helmut@subdivi.de>
-Forwarded: no
+Forwarded: not-needed
 
 ---
  configure.ac |    4 ++--
