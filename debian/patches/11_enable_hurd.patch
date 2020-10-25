@@ -21,7 +21,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 
 --- a/configure.ac
 +++ b/configure.ac
-@@ -600,6 +600,11 @@ then
+@@ -583,6 +583,11 @@ then
     CFLAGS=`echo $CFLAGS|sed 's/-g//g'`
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     LIBS="$LIBS -lodm -lperfstat -lm"
@@ -35,7 +35,7 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
     CFLAGS="$CFLAGS -D _REENTRANT"
 --- a/libmonit/configure.ac
 +++ b/libmonit/configure.ac
-@@ -300,6 +300,10 @@ then
+@@ -285,6 +285,10 @@ then
     CFLAGS="$CFLAGS -D_THREAD_SAFE -D_REENTRANT"
     AC_DEFINE([AIX], 1, [Define to 1 if the system is AIX])
     LIBS="$LIBS -lcfg -lodm -lperfstat"
@@ -117,12 +117,12 @@ Forwarded: https://bitbucket.org/tildeslash/monit/pull-request/3
 +        char buf[STRLEN];
 +        double up = 0;
 +        if (! file_readProc(buf, sizeof(buf), "uptime", -1, NULL)) {
-                 LogError("system statistic error -- cannot get system uptime: %s\n", STRERROR);
+                 Log_error("system statistic error -- cannot get system uptime: %s\n", STRERROR);
                  return 0;
          }
 -        return Time_now() - info.uptime;
 +        if (sscanf(buf, "%lf", &up) != 1) {
-+                LogError("system statistic error -- invalid uptime\n");
++                Log_error("system statistic error -- invalid uptime\n");
 +                return 0;
 +        }
 +        return Time_now() - (time_t)up;
