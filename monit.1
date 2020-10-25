@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "MONIT 1"
-.TH MONIT 1 "www.mmonit.com" "5.27.0" "User Commands"
+.TH MONIT 1 "www.mmonit.com" "5.27.1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -584,7 +584,7 @@ assigned to each message based on the context.
 To turn off logging, simply do not set the log in the control file
 (and of course, do not use the \-l switch)
 .PP
-The format for log file is:
+The format for an entry in the log file is:
 .PP
 .Vb 1
 \&    [date] priority : message
@@ -593,7 +593,7 @@ The format for log file is:
 for example:
 .PP
 .Vb 1
-\&    [CET Jan  5 18:49:29] info : \*(Aqlocalhost\*(Aq Monit started
+\&    [2020\-08\-12T16:35:00+0200] info : \*(Aqlocalhost\*(Aq Monit started
 .Ve
 .SH "TERMINAL OUTPUT"
 .IX Header "TERMINAL OUTPUT"

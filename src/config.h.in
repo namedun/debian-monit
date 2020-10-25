@@ -249,9 +249,6 @@
 /* Define to 1 if you have the <poll.h> header file. */
 #undef HAVE_POLL_H
 
-/* Define to 1 if you have the `prlimit' function. */
-#undef HAVE_PRLIMIT
-
 /* Define to 1 if you have the <procfs.h> header file. */
 #undef HAVE_PROCFS_H
 
@@ -508,9 +505,6 @@
 /* Define to 1 if you have the <uvm/uvm_pmap.h> header file. */
 #undef HAVE_UVM_UVM_PMAP_H
 
-/* Define to 1 if VA_COPY is defined. */
-#undef HAVE_VA_COPY
-
 /* Define to 1 if you have the `vfork' function. */
 #undef HAVE_VFORK
 
@@ -574,9 +568,6 @@
 
 /* Define to the pid storage directory. */
 #undef PIDDIR
-
-/* Define as the return type of signal handlers (`int' or `void'). */
-#undef RETSIGTYPE
 
 /* Define to 1 if the `S_IS*' macros in <sys/stat.h> do not work properly. */
 #undef STAT_MACROS_BROKEN
