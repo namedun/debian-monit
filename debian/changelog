@@ -1,3 +1,11 @@
+monit (1:5.27.1-1) unstable; urgency=medium
+
+  * New upstream version 5.27.1
+  * Refresh patches
+  * Add lintian override for debian-watch-does-not-check-gpg-signature
+
+ -- Sergey B Kirpichev <skirpichev@gmail.com>  Sun, 25 Oct 2020 07:20:12 +0300
+
 monit (1:5.27.0-2) unstable; urgency=medium
 
   * Restore cross-build compatibility.  Closes: #968482,
