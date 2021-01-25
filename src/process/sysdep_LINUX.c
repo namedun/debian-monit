@@ -384,7 +384,8 @@ static bool _parseProcFdCount(Proc_T proc) {
         snprintf(path, sizeof(path), "/proc/%d/fd", proc->data.pid);
         DIR *dirp = opendir(path);
         if (! dirp) {
-                DEBUG("system statistic error -- opendir %s: %s\n", path, STRERROR);
+                if (Run.debug >= 2)
+                        DEBUG("system statistic error -- opendir %s: %s\n", path, STRERROR);
                 return false;
         }
         errno = 0;
@@ -478,21 +479,7 @@ bool init_process_info_sysdep(void) {
                 DEBUG("system statistic error -- cannot open /proc/meminfo\n");
         }
 
-        f = fopen("/proc/stat", "r");
-        if (f) {
-                char line[STRLEN];
-                systeminfo.booted = 0;
-                while (fgets(line, sizeof(line), f)) {
-                        if (sscanf(line, "btime %llu", &systeminfo.booted) == 1) {
-                                break;
-                        }
-                }
-                fclose(f);
-                if (! systeminfo.booted)
-                        DEBUG("system statistic error -- cannot get system boot time\n");
-        } else {
-                DEBUG("system statistic error -- cannot open /proc/stat\n");
-        }
+        systeminfo.booted = (long long)_getStartTime();
 
         return true;
 }
