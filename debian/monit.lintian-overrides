@@ -10,5 +10,3 @@ monit: init.d-script-depends-on-all-virtual-facility etc/init.d/monit should-sta
 monit: init.d-script-depends-on-all-virtual-facility etc/init.d/monit should-stop
 # Not supported, see README.Debian
 monit: missing-systemd-service-for-init.d-script monit
-# There is no gpg signature (and most likely newer be)
-monit: debian-watch-does-not-check-gpg-signature
