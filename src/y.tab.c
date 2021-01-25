@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,11 +41,14 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.5.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -61,8 +65,8 @@
 
 
 
-/* Copy the first part of user declarations.  */
-#line 26 "src/p.y" /* yacc.c:339  */
+/* First part of user prologue.  */
+#line 26 "src/p.y"
 
 
 /*
@@ -358,13 +362,26 @@ static void addsecurityattribute(char *, Action_Type, Action_Type);
 static void addfiledescriptors(Operator_Type, bool, long long, float, Action_Type, Action_Type);
 
 
-#line 362 "src/y.tab.c" /* yacc.c:339  */
+#line 366 "src/y.tab.c"
 
-# ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+# ifndef YY_CAST
+#  ifdef __cplusplus
+#   define YY_CAST(Type, Val) static_cast<Type> (Val)
+#   define YY_REINTERPRET_CAST(Type, Val) reinterpret_cast<Type> (Val)
 #  else
-#   define YY_NULLPTR 0
+#   define YY_CAST(Type, Val) ((Type) (Val))
+#   define YY_REINTERPRET_CAST(Type, Val) ((Type) (Val))
+#  endif
+# endif
+# ifndef YY_NULLPTR
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
+#  else
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -376,8 +393,8 @@ static void addfiledescriptors(Operator_Type, bool, long long, float, Action_Typ
 # define YYERROR_VERBOSE 0
 #endif
 
-/* In a future release of Bison, this section will be replaced
-   by #include "y.tab.h".  */
+/* Use api.header.include to #include this header
+   instead of duplicating it here.  */
 #ifndef YY_YY_SRC_Y_TAB_H_INCLUDED
 # define YY_YY_SRC_Y_TAB_H_INCLUDED
 /* Debug traces.  */
@@ -989,10 +1006,9 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
 union YYSTYPE
 {
-#line 322 "src/p.y" /* yacc.c:355  */
+#line 322 "src/p.y"
 
         URL_T url;
         Address_T address;
@@ -1000,9 +1016,9 @@ union YYSTYPE
         int   number;
         char *string;
 
-#line 1004 "src/y.tab.c" /* yacc.c:355  */
-};
+#line 1020 "src/y.tab.c"
 
+};
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -1015,36 +1031,81 @@ int yyparse (void);
 
 #endif /* !YY_YY_SRC_Y_TAB_H_INCLUDED  */
 
-/* Copy the second part of user declarations.  */
 
-#line 1021 "src/y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
 #endif
 
-#ifdef YYTYPE_UINT8
-typedef YYTYPE_UINT8 yytype_uint8;
-#else
-typedef unsigned char yytype_uint8;
+/* On compilers that do not define __PTRDIFF_MAX__ etc., make sure
+   <limits.h> and (if available) <stdint.h> are included
+   so that the code can choose integer types of a good width.  */
+
+#ifndef __PTRDIFF_MAX__
+# include <limits.h> /* INFRINGES ON USER NAME SPACE */
+# if defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
+#  include <stdint.h> /* INFRINGES ON USER NAME SPACE */
+#  define YY_STDINT_H
+# endif
 #endif
 
-#ifdef YYTYPE_INT8
-typedef YYTYPE_INT8 yytype_int8;
+/* Narrow types that promote to a signed type and that can represent a
+   signed or unsigned integer of at least N bits.  In tables they can
+   save space and decrease cache pressure.  Promoting to a signed type
+   helps avoid bugs in integer arithmetic.  */
+
+#ifdef __INT_LEAST8_MAX__
+typedef __INT_LEAST8_TYPE__ yytype_int8;
+#elif defined YY_STDINT_H
+typedef int_least8_t yytype_int8;
 #else
 typedef signed char yytype_int8;
 #endif
 
-#ifdef YYTYPE_UINT16
-typedef YYTYPE_UINT16 yytype_uint16;
+#ifdef __INT_LEAST16_MAX__
+typedef __INT_LEAST16_TYPE__ yytype_int16;
+#elif defined YY_STDINT_H
+typedef int_least16_t yytype_int16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef short yytype_int16;
 #endif
 
-#ifdef YYTYPE_INT16
-typedef YYTYPE_INT16 yytype_int16;
+#if defined __UINT_LEAST8_MAX__ && __UINT_LEAST8_MAX__ <= __INT_MAX__
+typedef __UINT_LEAST8_TYPE__ yytype_uint8;
+#elif (!defined __UINT_LEAST8_MAX__ && defined YY_STDINT_H \
+       && UINT_LEAST8_MAX <= INT_MAX)
+typedef uint_least8_t yytype_uint8;
+#elif !defined __UINT_LEAST8_MAX__ && UCHAR_MAX <= INT_MAX
+typedef unsigned char yytype_uint8;
 #else
-typedef short int yytype_int16;
+typedef short yytype_uint8;
+#endif
+
+#if defined __UINT_LEAST16_MAX__ && __UINT_LEAST16_MAX__ <= __INT_MAX__
+typedef __UINT_LEAST16_TYPE__ yytype_uint16;
+#elif (!defined __UINT_LEAST16_MAX__ && defined YY_STDINT_H \
+       && UINT_LEAST16_MAX <= INT_MAX)
+typedef uint_least16_t yytype_uint16;
+#elif !defined __UINT_LEAST16_MAX__ && USHRT_MAX <= INT_MAX
+typedef unsigned short yytype_uint16;
+#else
+typedef int yytype_uint16;
+#endif
+
+#ifndef YYPTRDIFF_T
+# if defined __PTRDIFF_TYPE__ && defined __PTRDIFF_MAX__
+#  define YYPTRDIFF_T __PTRDIFF_TYPE__
+#  define YYPTRDIFF_MAXIMUM __PTRDIFF_MAX__
+# elif defined PTRDIFF_MAX
+#  ifndef ptrdiff_t
+#   include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+#  endif
+#  define YYPTRDIFF_T ptrdiff_t
+#  define YYPTRDIFF_MAXIMUM PTRDIFF_MAX
+# else
+#  define YYPTRDIFF_T long
+#  define YYPTRDIFF_MAXIMUM LONG_MAX
+# endif
 #endif
 
 #ifndef YYSIZE_T
@@ -1052,15 +1113,27 @@ typedef short int yytype_int16;
 #  define YYSIZE_T __SIZE_TYPE__
 # elif defined size_t
 #  define YYSIZE_T size_t
-# elif ! defined YYSIZE_T
+# elif defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
-#define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
+#define YYSIZE_MAXIMUM                                  \
+  YY_CAST (YYPTRDIFF_T,                                 \
+           (YYPTRDIFF_MAXIMUM < YY_CAST (YYSIZE_T, -1)  \
+            ? YYPTRDIFF_MAXIMUM                         \
+            : YY_CAST (YYSIZE_T, -1)))
+
+#define YYSIZEOF(X) YY_CAST (YYPTRDIFF_T, sizeof (X))
+
+/* Stored state numbers (used for stacks). */
+typedef yytype_int16 yy_state_t;
+
+/* State numbers in computations.  */
+typedef int yy_state_fast_t;
 
 #ifndef YY_
 # if defined YYENABLE_NLS && YYENABLE_NLS
@@ -1074,30 +1147,19 @@ typedef short int yytype_int16;
 # endif
 #endif
 
-#ifndef YY_ATTRIBUTE
-# if (defined __GNUC__                                               \
-      && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
-     || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
-#  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
+#ifndef YY_ATTRIBUTE_PURE
+# if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
+#  define YY_ATTRIBUTE_PURE __attribute__ ((__pure__))
 # else
-#  define YY_ATTRIBUTE(Spec) /* empty */
+#  define YY_ATTRIBUTE_PURE
 # endif
 #endif
 
-#ifndef YY_ATTRIBUTE_PURE
-# define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE ((__pure__))
-#endif
-
 #ifndef YY_ATTRIBUTE_UNUSED
-# define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
-#endif
-
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
+# if defined __GNUC__ && 2 < __GNUC__ + (7 <= __GNUC_MINOR__)
+#  define YY_ATTRIBUTE_UNUSED __attribute__ ((__unused__))
 # else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
+#  define YY_ATTRIBUTE_UNUSED
 # endif
 #endif
 
@@ -1108,13 +1170,13 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
-    _Pragma ("GCC diagnostic push") \
-    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                            \
+    _Pragma ("GCC diagnostic push")                                     \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")              \
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
-# define YY_IGNORE_MAYBE_UNINITIALIZED_END \
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
 # define YY_INITIAL_VALUE(Value) Value
@@ -1127,6 +1189,20 @@ typedef short int yytype_int16;
 # define YY_INITIAL_VALUE(Value) /* Nothing. */
 #endif
 
+#if defined __cplusplus && defined __GNUC__ && ! defined __ICC && 6 <= __GNUC__
+# define YY_IGNORE_USELESS_CAST_BEGIN                          \
+    _Pragma ("GCC diagnostic push")                            \
+    _Pragma ("GCC diagnostic ignored \"-Wuseless-cast\"")
+# define YY_IGNORE_USELESS_CAST_END            \
+    _Pragma ("GCC diagnostic pop")
+#endif
+#ifndef YY_IGNORE_USELESS_CAST_BEGIN
+# define YY_IGNORE_USELESS_CAST_BEGIN
+# define YY_IGNORE_USELESS_CAST_END
+#endif
+
+
+#define YY_ASSERT(E) ((void) (0 && (E)))
 
 #if ! defined yyoverflow || YYERROR_VERBOSE
 
@@ -1203,17 +1279,17 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss_alloc;
+  yy_state_t yyss_alloc;
   YYSTYPE yyvs_alloc;
 };
 
 /* The size of the maximum gap between one aligned stack and the next.  */
-# define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
+# define YYSTACK_GAP_MAXIMUM (YYSIZEOF (union yyalloc) - 1)
 
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
+     ((N) * (YYSIZEOF (yy_state_t) + YYSIZEOF (YYSTYPE)) \
       + YYSTACK_GAP_MAXIMUM)
 
 # define YYCOPY_NEEDED 1
@@ -1226,11 +1302,11 @@ union yyalloc
 # define YYSTACK_RELOCATE(Stack_alloc, Stack)                           \
     do                                                                  \
       {                                                                 \
-        YYSIZE_T yynewbytes;                                            \
+        YYPTRDIFF_T yynewbytes;                                         \
         YYCOPY (&yyptr->Stack_alloc, Stack, yysize);                    \
         Stack = &yyptr->Stack_alloc;                                    \
-        yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
-        yyptr += yynewbytes / sizeof (*yyptr);                          \
+        yynewbytes = yystacksize * YYSIZEOF (*Stack) + YYSTACK_GAP_MAXIMUM; \
+        yyptr += yynewbytes / YYSIZEOF (*yyptr);                        \
       }                                                                 \
     while (0)
 
@@ -1242,12 +1318,12 @@ union yyalloc
 # ifndef YYCOPY
 #  if defined __GNUC__ && 1 < __GNUC__
 #   define YYCOPY(Dst, Src, Count) \
-      __builtin_memcpy (Dst, Src, (Count) * sizeof (*(Src)))
+      __builtin_memcpy (Dst, Src, YY_CAST (YYSIZE_T, (Count)) * sizeof (*(Src)))
 #  else
 #   define YYCOPY(Dst, Src, Count)              \
       do                                        \
         {                                       \
-          YYSIZE_T yyi;                         \
+          YYPTRDIFF_T yyi;                      \
           for (yyi = 0; yyi < (Count); yyi++)   \
             (Dst)[yyi] = (Src)[yyi];            \
         }                                       \
@@ -1270,17 +1346,18 @@ union yyalloc
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  1537
 
-/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
-   by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   552
 
+
+/* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
+   as returned by yylex, with out-of-bounds checking.  */
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  (0 <= (YYX) && (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
-   as returned by yylex, without out-of-bounds checking.  */
-static const yytype_uint16 yytranslate[] =
+   as returned by yylex.  */
+static const yytype_int16 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1342,7 +1419,7 @@ static const yytype_uint16 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint16 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
        0,   376,   376,   377,   380,   381,   384,   385,   386,   387,
      388,   389,   390,   391,   392,   393,   394,   395,   396,   397,
@@ -1539,7 +1616,7 @@ static const char *const yytname[] =
 # ifdef YYPRINT
 /* YYTOKNUM[NUM] -- (External) token number corresponding to the
    (internal) symbol number NUM (which must be that of a token).  */
-static const yytype_uint16 yytoknum[] =
+static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
@@ -1575,14 +1652,14 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -806
+#define YYPACT_NINF (-806)
 
-#define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-806)))
+#define yypact_value_is_default(Yyn) \
+  ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF -732
+#define YYTABLE_NINF (-732)
 
-#define yytable_value_is_error(Yytable_value) \
+#define yytable_value_is_error(Yyn) \
   0
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -1748,7 +1825,7 @@ static const yytype_int16 yypact[] =
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
      Performed when YYTABLE does not specify something else to do.  Zero
      means the default is an error.  */
-static const yytype_uint16 yydefact[] =
+static const yytype_int16 yydefact[] =
 {
        2,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     3,     4,     6,     8,     9,    20,    22,    19,
@@ -2347,7 +2424,7 @@ static const yytype_int16 yycheck[] =
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
-static const yytype_uint16 yystos[] =
+static const yytype_int16 yystos[] =
 {
        0,     7,   159,   160,   161,   162,   163,   164,   165,   166,
      167,   305,   306,   307,   326,   327,   328,   330,   331,   332,
@@ -2506,7 +2583,7 @@ static const yytype_uint16 yystos[] =
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-static const yytype_uint16 yyr1[] =
+static const yytype_int16 yyr1[] =
 {
        0,   304,   305,   305,   306,   306,   307,   307,   307,   307,
      307,   307,   307,   307,   307,   307,   307,   307,   307,   307,
@@ -2593,7 +2670,7 @@ static const yytype_uint16 yyr1[] =
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
-static const yytype_uint8 yyr2[] =
+static const yytype_int8 yyr2[] =
 {
        0,     2,     0,     1,     1,     2,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
@@ -2692,22 +2769,22 @@ static const yytype_uint8 yyr2[] =
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                                  \
-do                                                              \
-  if (yychar == YYEMPTY)                                        \
-    {                                                           \
-      yychar = (Token);                                         \
-      yylval = (Value);                                         \
-      YYPOPSTACK (yylen);                                       \
-      yystate = *yyssp;                                         \
-      goto yybackup;                                            \
-    }                                                           \
-  else                                                          \
-    {                                                           \
-      yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;                                                  \
-    }                                                           \
-while (0)
+#define YYBACKUP(Token, Value)                                    \
+  do                                                              \
+    if (yychar == YYEMPTY)                                        \
+      {                                                           \
+        yychar = (Token);                                         \
+        yylval = (Value);                                         \
+        YYPOPSTACK (yylen);                                       \
+        yystate = *yyssp;                                         \
+        goto yybackup;                                            \
+      }                                                           \
+    else                                                          \
+      {                                                           \
+        yyerror (YY_("syntax error: cannot back up")); \
+        YYERROR;                                                  \
+      }                                                           \
+  while (0)
 
 /* Error token number */
 #define YYTERROR        1
@@ -2747,37 +2824,39 @@ do {                                                                      \
 } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
 # endif
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   YYUSE (yytype);
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
-  YYFPRINTF (yyoutput, ")");
+  yy_symbol_value_print (yyo, yytype, yyvaluep);
+  YYFPRINTF (yyo, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -2786,7 +2865,7 @@ yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
 `------------------------------------------------------------------*/
 
 static void
-yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
+yy_stack_print (yy_state_t *yybottom, yy_state_t *yytop)
 {
   YYFPRINTF (stderr, "Stack now");
   for (; yybottom <= yytop; yybottom++)
@@ -2809,20 +2888,20 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, int yyrule)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
-  YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
+  YYFPRINTF (stderr, "Reducing stack by rule %d (line %d):\n",
              yyrule - 1, yylno);
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
-                       yystos[yyssp[yyi + 1 - yynrhs]],
-                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                       yystos[+yyssp[yyi + 1 - yynrhs]],
+                       &yyvsp[(yyi + 1) - (yynrhs)]
                                               );
       YYFPRINTF (stderr, "\n");
     }
@@ -2866,13 +2945,13 @@ int yydebug;
 
 # ifndef yystrlen
 #  if defined __GLIBC__ && defined _STRING_H
-#   define yystrlen strlen
+#   define yystrlen(S) (YY_CAST (YYPTRDIFF_T, strlen (S)))
 #  else
 /* Return the length of YYSTR.  */
-static YYSIZE_T
+static YYPTRDIFF_T
 yystrlen (const char *yystr)
 {
-  YYSIZE_T yylen;
+  YYPTRDIFF_T yylen;
   for (yylen = 0; yystr[yylen]; yylen++)
     continue;
   return yylen;
@@ -2908,12 +2987,12 @@ yystpcpy (char *yydest, const char *yysrc)
    backslash-backslash).  YYSTR is taken from yytname.  If YYRES is
    null, do not copy; instead, return the length of what the result
    would have been.  */
-static YYSIZE_T
+static YYPTRDIFF_T
 yytnamerr (char *yyres, const char *yystr)
 {
   if (*yystr == '"')
     {
-      YYSIZE_T yyn = 0;
+      YYPTRDIFF_T yyn = 0;
       char const *yyp = yystr;
 
       for (;;)
@@ -2926,7 +3005,10 @@ yytnamerr (char *yyres, const char *yystr)
           case '\\':
             if (*++yyp != '\\')
               goto do_not_strip_quotes;
-            /* Fall through.  */
+            else
+              goto append;
+
+          append:
           default:
             if (yyres)
               yyres[yyn] = *yyp;
@@ -2941,10 +3023,10 @@ yytnamerr (char *yyres, const char *yystr)
     do_not_strip_quotes: ;
     }
 
-  if (! yyres)
+  if (yyres)
+    return yystpcpy (yyres, yystr) - yyres;
+  else
     return yystrlen (yystr);
-
-  return yystpcpy (yyres, yystr) - yyres;
 }
 # endif
 
@@ -2957,19 +3039,19 @@ yytnamerr (char *yyres, const char *yystr)
    *YYMSG_ALLOC to the required number of bytes.  Return 2 if the
    required number of bytes is too large to store.  */
 static int
-yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
-                yytype_int16 *yyssp, int yytoken)
+yysyntax_error (YYPTRDIFF_T *yymsg_alloc, char **yymsg,
+                yy_state_t *yyssp, int yytoken)
 {
-  YYSIZE_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
-  YYSIZE_T yysize = yysize0;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
   const char *yyformat = YY_NULLPTR;
-  /* Arguments of yyformat. */
+  /* Arguments of yyformat: reported tokens (one for the "unexpected",
+     one per "expected"). */
   char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-  /* Number of reported tokens (one for the "unexpected", one per
-     "expected"). */
+  /* Actual size of YYARG. */
   int yycount = 0;
+  /* Cumulated lengths of YYARG.  */
+  YYPTRDIFF_T yysize = 0;
 
   /* There are many possibilities here to consider:
      - If this state is a consistent state with a default action, then
@@ -2996,7 +3078,9 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
   */
   if (yytoken != YYEMPTY)
     {
-      int yyn = yypact[*yyssp];
+      int yyn = yypact[+*yyssp];
+      YYPTRDIFF_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
+      yysize = yysize0;
       yyarg[yycount++] = yytname[yytoken];
       if (!yypact_value_is_default (yyn))
         {
@@ -3021,11 +3105,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                   }
                 yyarg[yycount++] = yytname[yyx];
                 {
-                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
-                  if (! (yysize <= yysize1
-                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                  YYPTRDIFF_T yysize1
+                    = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
+                  if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+                    yysize = yysize1;
+                  else
                     return 2;
-                  yysize = yysize1;
                 }
               }
         }
@@ -3037,6 +3122,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -3047,10 +3133,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
     }
 
   {
-    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
-    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+    /* Don't count the "%s"s in the final size, but reserve room for
+       the terminator.  */
+    YYPTRDIFF_T yysize1 = yysize + (yystrlen (yyformat) - 2 * yycount) + 1;
+    if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+      yysize = yysize1;
+    else
       return 2;
-    yysize = yysize1;
   }
 
   if (*yymsg_alloc < yysize)
@@ -3076,8 +3165,8 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
         }
       else
         {
-          yyp++;
-          yyformat++;
+          ++yyp;
+          ++yyformat;
         }
   }
   return 0;
@@ -3120,7 +3209,7 @@ int yynerrs;
 int
 yyparse (void)
 {
-    int yystate;
+    yy_state_fast_t yystate;
     /* Number of tokens to shift before error messages enabled.  */
     int yyerrstatus;
 
@@ -3132,16 +3221,16 @@ yyparse (void)
        to reallocate them elsewhere.  */
 
     /* The state stack.  */
-    yytype_int16 yyssa[YYINITDEPTH];
-    yytype_int16 *yyss;
-    yytype_int16 *yyssp;
+    yy_state_t yyssa[YYINITDEPTH];
+    yy_state_t *yyss;
+    yy_state_t *yyssp;
 
     /* The semantic value stack.  */
     YYSTYPE yyvsa[YYINITDEPTH];
     YYSTYPE *yyvs;
     YYSTYPE *yyvsp;
 
-    YYSIZE_T yystacksize;
+    YYPTRDIFF_T yystacksize;
 
   int yyn;
   int yyresult;
@@ -3155,7 +3244,7 @@ yyparse (void)
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
   char *yymsg = yymsgbuf;
-  YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
+  YYPTRDIFF_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
@@ -3176,46 +3265,54 @@ yyparse (void)
   yychar = YYEMPTY; /* Cause a token to be read.  */
   goto yysetstate;
 
+
 /*------------------------------------------------------------.
-| yynewstate -- Push a new state, which is found in yystate.  |
+| yynewstate -- push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
- yynewstate:
+yynewstate:
   /* In all cases, when you get here, the value and location stacks
      have just been pushed.  So pushing a state here evens the stacks.  */
   yyssp++;
 
- yysetstate:
-  *yyssp = yystate;
+
+/*--------------------------------------------------------------------.
+| yysetstate -- set current state (the top of the stack) to yystate.  |
+`--------------------------------------------------------------------*/
+yysetstate:
+  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+  YY_ASSERT (0 <= yystate && yystate < YYNSTATES);
+  YY_IGNORE_USELESS_CAST_BEGIN
+  *yyssp = YY_CAST (yy_state_t, yystate);
+  YY_IGNORE_USELESS_CAST_END
 
   if (yyss + yystacksize - 1 <= yyssp)
+#if !defined yyoverflow && !defined YYSTACK_RELOCATE
+    goto yyexhaustedlab;
+#else
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      YYPTRDIFF_T yysize = yyssp - yyss + 1;
 
-#ifdef yyoverflow
+# if defined yyoverflow
       {
         /* Give user a chance to reallocate the stack.  Use copies of
            these so that the &'s don't force the real ones into
            memory.  */
+        yy_state_t *yyss1 = yyss;
         YYSTYPE *yyvs1 = yyvs;
-        yytype_int16 *yyss1 = yyss;
 
         /* Each stack pointer address is followed by the size of the
            data in use in that stack, in bytes.  This used to be a
            conditional around just the two extra args, but that might
            be undefined if yyoverflow is a macro.  */
         yyoverflow (YY_("memory exhausted"),
-                    &yyss1, yysize * sizeof (*yyssp),
-                    &yyvs1, yysize * sizeof (*yyvsp),
+                    &yyss1, yysize * YYSIZEOF (*yyssp),
+                    &yyvs1, yysize * YYSIZEOF (*yyvsp),
                     &yystacksize);
-
         yyss = yyss1;
         yyvs = yyvs1;
       }
-#else /* no yyoverflow */
-# ifndef YYSTACK_RELOCATE
-      goto yyexhaustedlab;
-# else
+# else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
         goto yyexhaustedlab;
@@ -3224,42 +3321,43 @@ yyparse (void)
         yystacksize = YYMAXDEPTH;
 
       {
-        yytype_int16 *yyss1 = yyss;
+        yy_state_t *yyss1 = yyss;
         union yyalloc *yyptr =
-          (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
+          YY_CAST (union yyalloc *,
+                   YYSTACK_ALLOC (YY_CAST (YYSIZE_T, YYSTACK_BYTES (yystacksize))));
         if (! yyptr)
           goto yyexhaustedlab;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
-#  undef YYSTACK_RELOCATE
+# undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
       }
 # endif
-#endif /* no yyoverflow */
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-      YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+      YY_IGNORE_USELESS_CAST_BEGIN
+      YYDPRINTF ((stderr, "Stack size increased to %ld\n",
+                  YY_CAST (long, yystacksize)));
+      YY_IGNORE_USELESS_CAST_END
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
     }
-
-  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+#endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
 
   if (yystate == YYFINAL)
     YYACCEPT;
 
   goto yybackup;
 
+
 /*-----------.
 | yybackup.  |
 `-----------*/
 yybackup:
-
   /* Do appropriate processing given the current state.  Read a
      lookahead token if we need one and don't already have one.  */
 
@@ -3309,15 +3407,13 @@ yybackup:
 
   /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
-
-  /* Discard the shifted token.  */
-  yychar = YYEMPTY;
-
   yystate = yyn;
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
   goto yynewstate;
 
 
@@ -3332,7 +3428,7 @@ yydefault:
 
 
 /*-----------------------------.
-| yyreduce -- Do a reduction.  |
+| yyreduce -- do a reduction.  |
 `-----------------------------*/
 yyreduce:
   /* yyn is the number of a rule to reduce with.  */
@@ -3352,35 +3448,35 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 195:
-#line 611 "src/p.y" /* yacc.c:1646  */
-    {
+  case 195:
+#line 611 "src/p.y"
+                                                    {
                         mailset.events = Event_All;
                         addmail((yyvsp[-2].string), &mailset, &Run.maillist);
                   }
-#line 3362 "src/y.tab.c" /* yacc.c:1646  */
+#line 3458 "src/y.tab.c"
     break;
 
   case 196:
-#line 615 "src/p.y" /* yacc.c:1646  */
-    {
+#line 615 "src/p.y"
+                                                                            {
                         addmail((yyvsp[-5].string), &mailset, &Run.maillist);
                   }
-#line 3370 "src/y.tab.c" /* yacc.c:1646  */
+#line 3466 "src/y.tab.c"
     break;
 
   case 197:
-#line 618 "src/p.y" /* yacc.c:1646  */
-    {
+#line 618 "src/p.y"
+                                                                                {
                         mailset.events = ~mailset.events;
                         addmail((yyvsp[-6].string), &mailset, &Run.maillist);
                   }
-#line 3379 "src/y.tab.c" /* yacc.c:1646  */
+#line 3475 "src/y.tab.c"
     break;
 
   case 198:
-#line 624 "src/p.y" /* yacc.c:1646  */
-    {
+#line 624 "src/p.y"
+                                               {
                         if (! (Run.flags & Run_Daemon) || ihp.daemon) {
                                 ihp.daemon     = true;
                                 Run.flags      |= Run_Daemon;
@@ -3388,197 +3484,197 @@ yyreduce:
                                 Run.startdelay = (yyvsp[0].number);
                         }
                   }
-#line 3392 "src/y.tab.c" /* yacc.c:1646  */
+#line 3488 "src/y.tab.c"
     break;
 
   case 199:
-#line 634 "src/p.y" /* yacc.c:1646  */
-    {
+#line 634 "src/p.y"
+                                     {
                         Run.flags |= Run_Batch;
                   }
-#line 3400 "src/y.tab.c" /* yacc.c:1646  */
+#line 3496 "src/y.tab.c"
     break;
 
   case 200:
-#line 639 "src/p.y" /* yacc.c:1646  */
-    {
+#line 639 "src/p.y"
+                              {
                         (yyval.number) = 0;
                   }
-#line 3408 "src/y.tab.c" /* yacc.c:1646  */
+#line 3504 "src/y.tab.c"
     break;
 
   case 201:
-#line 642 "src/p.y" /* yacc.c:1646  */
-    {
+#line 642 "src/p.y"
+                                     {
                         (yyval.number) = (yyvsp[0].number);
                   }
-#line 3416 "src/y.tab.c" /* yacc.c:1646  */
+#line 3512 "src/y.tab.c"
     break;
 
   case 202:
-#line 647 "src/p.y" /* yacc.c:1646  */
-    {
+#line 647 "src/p.y"
+                           {
                         Run.flags |= Run_Foreground;
                   }
-#line 3424 "src/y.tab.c" /* yacc.c:1646  */
+#line 3520 "src/y.tab.c"
     break;
 
   case 203:
-#line 652 "src/p.y" /* yacc.c:1646  */
-    {
+#line 652 "src/p.y"
+                                     {
                         Run.onreboot = Onreboot_Start;
                   }
-#line 3432 "src/y.tab.c" /* yacc.c:1646  */
+#line 3528 "src/y.tab.c"
     break;
 
   case 204:
-#line 655 "src/p.y" /* yacc.c:1646  */
-    {
+#line 655 "src/p.y"
+                                       {
                         Run.onreboot = Onreboot_Nostart;
                   }
-#line 3440 "src/y.tab.c" /* yacc.c:1646  */
+#line 3536 "src/y.tab.c"
     break;
 
   case 205:
-#line 658 "src/p.y" /* yacc.c:1646  */
-    {
+#line 658 "src/p.y"
+                                         {
                         Run.onreboot = Onreboot_Laststate;
                   }
-#line 3448 "src/y.tab.c" /* yacc.c:1646  */
+#line 3544 "src/y.tab.c"
     break;
 
   case 206:
-#line 663 "src/p.y" /* yacc.c:1646  */
-    {
+#line 663 "src/p.y"
+                                               {
                         // Note: deprecated (replaced by "set limits" statement's "sendExpectBuffer" option)
                         Run.limits.sendExpectBuffer = (yyvsp[-1].number) * (yyvsp[0].number);
                   }
-#line 3457 "src/y.tab.c" /* yacc.c:1646  */
+#line 3553 "src/y.tab.c"
     break;
 
   case 210:
-#line 676 "src/p.y" /* yacc.c:1646  */
-    {
+#line 676 "src/p.y"
+                                                   {
                         Run.limits.sendExpectBuffer = (yyvsp[-1].number) * (yyvsp[0].number);
                   }
-#line 3465 "src/y.tab.c" /* yacc.c:1646  */
+#line 3561 "src/y.tab.c"
     break;
 
   case 211:
-#line 679 "src/p.y" /* yacc.c:1646  */
-    {
+#line 679 "src/p.y"
+                                                    {
                         Run.limits.fileContentBuffer = (yyvsp[-1].number) * (yyvsp[0].number);
                   }
-#line 3473 "src/y.tab.c" /* yacc.c:1646  */
+#line 3569 "src/y.tab.c"
     break;
 
   case 212:
-#line 682 "src/p.y" /* yacc.c:1646  */
-    {
+#line 682 "src/p.y"
+                                                    {
                         Run.limits.httpContentBuffer = (yyvsp[-1].number) * (yyvsp[0].number);
                   }
-#line 3481 "src/y.tab.c" /* yacc.c:1646  */
+#line 3577 "src/y.tab.c"
     break;
 
   case 213:
-#line 685 "src/p.y" /* yacc.c:1646  */
-    {
+#line 685 "src/p.y"
+                                                {
                         Run.limits.programOutput = (yyvsp[-1].number) * (yyvsp[0].number);
                   }
-#line 3489 "src/y.tab.c" /* yacc.c:1646  */
+#line 3585 "src/y.tab.c"
     break;
 
   case 214:
-#line 688 "src/p.y" /* yacc.c:1646  */
-    {
+#line 688 "src/p.y"
+                                                        {
                         Run.limits.networkTimeout = (yyvsp[-1].number);
                   }
-#line 3497 "src/y.tab.c" /* yacc.c:1646  */
+#line 3593 "src/y.tab.c"
     break;
 
   case 215:
-#line 691 "src/p.y" /* yacc.c:1646  */
-    {
+#line 691 "src/p.y"
+                                                   {
                         Run.limits.networkTimeout = (yyvsp[-1].number) * 1000;
                   }
-#line 3505 "src/y.tab.c" /* yacc.c:1646  */
+#line 3601 "src/y.tab.c"
     break;
 
   case 216:
-#line 694 "src/p.y" /* yacc.c:1646  */
-    {
+#line 694 "src/p.y"
+                                                        {
                         Run.limits.programTimeout = (yyvsp[-1].number);
                   }
-#line 3513 "src/y.tab.c" /* yacc.c:1646  */
+#line 3609 "src/y.tab.c"
     break;
 
   case 217:
-#line 697 "src/p.y" /* yacc.c:1646  */
-    {
+#line 697 "src/p.y"
+                                                   {
                         Run.limits.programTimeout = (yyvsp[-1].number) * 1000;
                   }
-#line 3521 "src/y.tab.c" /* yacc.c:1646  */
+#line 3617 "src/y.tab.c"
     break;
 
   case 218:
-#line 700 "src/p.y" /* yacc.c:1646  */
-    {
+#line 700 "src/p.y"
+                                                     {
                         Run.limits.stopTimeout = (yyvsp[-1].number);
                   }
-#line 3529 "src/y.tab.c" /* yacc.c:1646  */
+#line 3625 "src/y.tab.c"
     break;
 
   case 219:
-#line 703 "src/p.y" /* yacc.c:1646  */
-    {
+#line 703 "src/p.y"
+                                                {
                         Run.limits.stopTimeout = (yyvsp[-1].number) * 1000;
                   }
-#line 3537 "src/y.tab.c" /* yacc.c:1646  */
+#line 3633 "src/y.tab.c"
     break;
 
   case 220:
-#line 706 "src/p.y" /* yacc.c:1646  */
-    {
+#line 706 "src/p.y"
+                                                      {
                         Run.limits.startTimeout = (yyvsp[-1].number);
                   }
-#line 3545 "src/y.tab.c" /* yacc.c:1646  */
+#line 3641 "src/y.tab.c"
     break;
 
   case 221:
-#line 709 "src/p.y" /* yacc.c:1646  */
-    {
+#line 709 "src/p.y"
+                                                 {
                         Run.limits.startTimeout = (yyvsp[-1].number) * 1000;
                   }
-#line 3553 "src/y.tab.c" /* yacc.c:1646  */
+#line 3649 "src/y.tab.c"
     break;
 
   case 222:
-#line 712 "src/p.y" /* yacc.c:1646  */
-    {
+#line 712 "src/p.y"
+                                                        {
                         Run.limits.restartTimeout = (yyvsp[-1].number);
                   }
-#line 3561 "src/y.tab.c" /* yacc.c:1646  */
+#line 3657 "src/y.tab.c"
     break;
 
   case 223:
-#line 715 "src/p.y" /* yacc.c:1646  */
-    {
+#line 715 "src/p.y"
+                                                   {
                         Run.limits.restartTimeout = (yyvsp[-1].number) * 1000;
                   }
-#line 3569 "src/y.tab.c" /* yacc.c:1646  */
+#line 3665 "src/y.tab.c"
     break;
 
   case 224:
-#line 720 "src/p.y" /* yacc.c:1646  */
-    {
+#line 720 "src/p.y"
+                           {
                         Run.flags |= Run_FipsEnabled;
                   }
-#line 3577 "src/y.tab.c" /* yacc.c:1646  */
+#line 3673 "src/y.tab.c"
     break;
 
   case 225:
-#line 725 "src/p.y" /* yacc.c:1646  */
-    {
+#line 725 "src/p.y"
+                                     {
                         if (! Run.files.log || ihp.logfile) {
                                 ihp.logfile = true;
                                 setlogfile((yyvsp[0].string));
@@ -3586,232 +3682,232 @@ yyreduce:
                                 Run.flags |= Run_Log;
                         }
                   }
-#line 3590 "src/y.tab.c" /* yacc.c:1646  */
+#line 3686 "src/y.tab.c"
     break;
 
   case 226:
-#line 733 "src/p.y" /* yacc.c:1646  */
-    {
+#line 733 "src/p.y"
+                                     {
                         setsyslog(NULL);
                   }
-#line 3598 "src/y.tab.c" /* yacc.c:1646  */
+#line 3694 "src/y.tab.c"
     break;
 
   case 227:
-#line 736 "src/p.y" /* yacc.c:1646  */
-    {
+#line 736 "src/p.y"
+                                                     {
                         setsyslog((yyvsp[0].string)); FREE((yyvsp[0].string));
                   }
-#line 3606 "src/y.tab.c" /* yacc.c:1646  */
+#line 3702 "src/y.tab.c"
     break;
 
   case 228:
-#line 741 "src/p.y" /* yacc.c:1646  */
-    {
+#line 741 "src/p.y"
+                                              {
                         Run.eventlist_dir = (yyvsp[0].string);
                   }
-#line 3614 "src/y.tab.c" /* yacc.c:1646  */
+#line 3710 "src/y.tab.c"
     break;
 
   case 229:
-#line 744 "src/p.y" /* yacc.c:1646  */
-    {
+#line 744 "src/p.y"
+                                                          {
                         Run.eventlist_dir = (yyvsp[-2].string);
                         Run.eventlist_slots = (yyvsp[0].number);
                   }
-#line 3623 "src/y.tab.c" /* yacc.c:1646  */
+#line 3719 "src/y.tab.c"
     break;
 
   case 230:
-#line 748 "src/p.y" /* yacc.c:1646  */
-    {
+#line 748 "src/p.y"
+                                             {
                         Run.eventlist_dir = Str_dup(MYEVENTLISTBASE);
                         Run.eventlist_slots = (yyvsp[0].number);
                   }
-#line 3632 "src/y.tab.c" /* yacc.c:1646  */
+#line 3728 "src/y.tab.c"
     break;
 
   case 231:
-#line 754 "src/p.y" /* yacc.c:1646  */
-    {
+#line 754 "src/p.y"
+                                  {
                         Run.files.id = (yyvsp[0].string);
                   }
-#line 3640 "src/y.tab.c" /* yacc.c:1646  */
+#line 3736 "src/y.tab.c"
     break;
 
   case 232:
-#line 759 "src/p.y" /* yacc.c:1646  */
-    {
+#line 759 "src/p.y"
+                                     {
                         Run.files.state = (yyvsp[0].string);
                   }
-#line 3648 "src/y.tab.c" /* yacc.c:1646  */
+#line 3744 "src/y.tab.c"
     break;
 
   case 233:
-#line 764 "src/p.y" /* yacc.c:1646  */
-    {
+#line 764 "src/p.y"
+                                   {
                         if (! Run.files.pid || ihp.pidfile) {
                                 ihp.pidfile = true;
                                 setpidfile((yyvsp[0].string));
                         }
                   }
-#line 3659 "src/y.tab.c" /* yacc.c:1646  */
+#line 3755 "src/y.tab.c"
     break;
 
   case 237:
-#line 779 "src/p.y" /* yacc.c:1646  */
-    {
+#line 779 "src/p.y"
+                                          {
                         mmonitset.url = (yyvsp[-1].url);
                         addmmonit(&mmonitset);
                   }
-#line 3668 "src/y.tab.c" /* yacc.c:1646  */
+#line 3764 "src/y.tab.c"
     break;
 
   case 240:
-#line 789 "src/p.y" /* yacc.c:1646  */
-    {
+#line 789 "src/p.y"
+                                        {
                         mmonitset.timeout = (yyvsp[-1].number) * 1000; // net timeout is in milliseconds internally
                   }
-#line 3676 "src/y.tab.c" /* yacc.c:1646  */
+#line 3772 "src/y.tab.c"
     break;
 
   case 246:
-#line 799 "src/p.y" /* yacc.c:1646  */
-    {
+#line 799 "src/p.y"
+                                       {
                         Run.flags &= ~Run_MmonitCredentials;
                   }
-#line 3684 "src/y.tab.c" /* yacc.c:1646  */
+#line 3780 "src/y.tab.c"
     break;
 
   case 247:
-#line 804 "src/p.y" /* yacc.c:1646  */
-    {
+#line 804 "src/p.y"
+                                                     {
                         _setSSLOptions(&(Run.ssl));
                   }
-#line 3692 "src/y.tab.c" /* yacc.c:1646  */
+#line 3788 "src/y.tab.c"
     break;
 
   case 248:
-#line 809 "src/p.y" /* yacc.c:1646  */
-    {
+#line 809 "src/p.y"
+                           {
                         sslset.flags = SSL_Enabled;
                   }
-#line 3700 "src/y.tab.c" /* yacc.c:1646  */
+#line 3796 "src/y.tab.c"
     break;
 
   case 252:
-#line 819 "src/p.y" /* yacc.c:1646  */
-    {
+#line 819 "src/p.y"
+                                    {
                         sslset.flags = SSL_Enabled;
                         sslset.verify = true;
                   }
-#line 3709 "src/y.tab.c" /* yacc.c:1646  */
+#line 3805 "src/y.tab.c"
     break;
 
   case 253:
-#line 823 "src/p.y" /* yacc.c:1646  */
-    {
+#line 823 "src/p.y"
+                                     {
                         sslset.flags = SSL_Enabled;
                         sslset.verify = false;
                   }
-#line 3718 "src/y.tab.c" /* yacc.c:1646  */
+#line 3814 "src/y.tab.c"
     break;
 
   case 254:
-#line 827 "src/p.y" /* yacc.c:1646  */
-    {
+#line 827 "src/p.y"
+                                       {
                         sslset.flags = SSL_Enabled;
                         sslset.allowSelfSigned = true;
                   }
-#line 3727 "src/y.tab.c" /* yacc.c:1646  */
+#line 3823 "src/y.tab.c"
     break;
 
   case 255:
-#line 831 "src/p.y" /* yacc.c:1646  */
-    {
+#line 831 "src/p.y"
+                                           {
                         sslset.flags = SSL_Enabled;
                         sslset.allowSelfSigned = false;
                   }
-#line 3736 "src/y.tab.c" /* yacc.c:1646  */
+#line 3832 "src/y.tab.c"
     break;
 
   case 256:
-#line 835 "src/p.y" /* yacc.c:1646  */
-    {
+#line 835 "src/p.y"
+                                                {
                         sslset.flags = SSL_Enabled;
                   }
-#line 3744 "src/y.tab.c" /* yacc.c:1646  */
+#line 3840 "src/y.tab.c"
     break;
 
   case 257:
-#line 838 "src/p.y" /* yacc.c:1646  */
-    {
+#line 838 "src/p.y"
+                                    {
                         FREE(sslset.ciphers);
                         sslset.ciphers = (yyvsp[0].string);
                   }
-#line 3753 "src/y.tab.c" /* yacc.c:1646  */
+#line 3849 "src/y.tab.c"
     break;
 
   case 258:
-#line 842 "src/p.y" /* yacc.c:1646  */
-    {
+#line 842 "src/p.y"
+                                   {
                         _setPEM(&(sslset.pemfile), (yyvsp[0].string), "SSL server PEM file", true);
                   }
-#line 3761 "src/y.tab.c" /* yacc.c:1646  */
+#line 3857 "src/y.tab.c"
     break;
 
   case 259:
-#line 845 "src/p.y" /* yacc.c:1646  */
-    {
+#line 845 "src/p.y"
+                                    {
                         _setPEM(&(sslset.pemchain), (yyvsp[0].string), "SSL certificate chain PEM file", true);
                   }
-#line 3769 "src/y.tab.c" /* yacc.c:1646  */
+#line 3865 "src/y.tab.c"
     break;
 
   case 260:
-#line 848 "src/p.y" /* yacc.c:1646  */
-    {
+#line 848 "src/p.y"
+                                  {
                         _setPEM(&(sslset.pemkey), (yyvsp[0].string), "SSL server private key PEM file", true);
                   }
-#line 3777 "src/y.tab.c" /* yacc.c:1646  */
+#line 3873 "src/y.tab.c"
     break;
 
   case 261:
-#line 851 "src/p.y" /* yacc.c:1646  */
-    {
+#line 851 "src/p.y"
+                                         {
                         _setPEM(&(sslset.clientpemfile), (yyvsp[0].string), "SSL client PEM file", true);
                   }
-#line 3785 "src/y.tab.c" /* yacc.c:1646  */
+#line 3881 "src/y.tab.c"
     break;
 
   case 262:
-#line 854 "src/p.y" /* yacc.c:1646  */
-    {
+#line 854 "src/p.y"
+                                             {
                         _setPEM(&(sslset.CACertificateFile), (yyvsp[0].string), "SSL CA certificates file", true);
                   }
-#line 3793 "src/y.tab.c" /* yacc.c:1646  */
+#line 3889 "src/y.tab.c"
     break;
 
   case 263:
-#line 857 "src/p.y" /* yacc.c:1646  */
-    {
+#line 857 "src/p.y"
+                                             {
                         _setPEM(&(sslset.CACertificatePath), (yyvsp[0].string), "SSL CA certificates directory", false);
                   }
-#line 3801 "src/y.tab.c" /* yacc.c:1646  */
+#line 3897 "src/y.tab.c"
     break;
 
   case 264:
-#line 862 "src/p.y" /* yacc.c:1646  */
-    {
+#line 862 "src/p.y"
+                                                              {
                         sslset.flags = SSL_Enabled;
                         portset.target.net.ssl.certificate.minimumDays = (yyvsp[-1].number);
                   }
-#line 3810 "src/y.tab.c" /* yacc.c:1646  */
+#line 3906 "src/y.tab.c"
     break;
 
   case 267:
-#line 872 "src/p.y" /* yacc.c:1646  */
-    {
+#line 872 "src/p.y"
+                                                               {
                         sslset.flags = SSL_Enabled;
                         sslset.checksum = (yyvsp[0].string);
                         switch (cleanup_hash_string(sslset.checksum)) {
@@ -3825,156 +3921,156 @@ yyreduce:
                                         yyerror2("Unknown checksum type: [%s] is not MD5 nor SHA1", sslset.checksum);
                         }
                   }
-#line 3829 "src/y.tab.c" /* yacc.c:1646  */
+#line 3925 "src/y.tab.c"
     break;
 
   case 268:
-#line 886 "src/p.y" /* yacc.c:1646  */
-    {
+#line 886 "src/p.y"
+                                                                       {
                         sslset.flags = SSL_Enabled;
                         sslset.checksum = (yyvsp[0].string);
                         if (cleanup_hash_string(sslset.checksum) != 32)
                                 yyerror2("Unknown checksum type: [%s] is not MD5", sslset.checksum);
                         sslset.checksumType = Hash_Md5;
                   }
-#line 3841 "src/y.tab.c" /* yacc.c:1646  */
+#line 3937 "src/y.tab.c"
     break;
 
   case 269:
-#line 893 "src/p.y" /* yacc.c:1646  */
-    {
+#line 893 "src/p.y"
+                                                                        {
                         sslset.flags = SSL_Enabled;
                         sslset.checksum = (yyvsp[0].string);
                         if (cleanup_hash_string(sslset.checksum) != 40)
                                 yyerror2("Unknown checksum type: [%s] is not SHA1", sslset.checksum);
                         sslset.checksumType = Hash_Sha1;
                   }
-#line 3853 "src/y.tab.c" /* yacc.c:1646  */
+#line 3949 "src/y.tab.c"
     break;
 
   case 274:
-#line 910 "src/p.y" /* yacc.c:1646  */
-    {
+#line 910 "src/p.y"
+                        {
 #if defined OPENSSL_NO_SSL2 || ! defined HAVE_SSLV2 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support SSL version 2");
 #else
                         _setSSLVersion(SSL_V2);
 #endif
                   }
-#line 3865 "src/y.tab.c" /* yacc.c:1646  */
+#line 3961 "src/y.tab.c"
     break;
 
   case 275:
-#line 917 "src/p.y" /* yacc.c:1646  */
-    {
+#line 917 "src/p.y"
+                          {
                         _unsetSSLVersion(SSL_V2);
                   }
-#line 3873 "src/y.tab.c" /* yacc.c:1646  */
+#line 3969 "src/y.tab.c"
     break;
 
   case 276:
-#line 920 "src/p.y" /* yacc.c:1646  */
-    {
+#line 920 "src/p.y"
+                        {
 #if defined OPENSSL_NO_SSL3 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support SSL version 3");
 #else
                         _setSSLVersion(SSL_V3);
 #endif
                   }
-#line 3885 "src/y.tab.c" /* yacc.c:1646  */
+#line 3981 "src/y.tab.c"
     break;
 
   case 277:
-#line 927 "src/p.y" /* yacc.c:1646  */
-    {
+#line 927 "src/p.y"
+                          {
                         _unsetSSLVersion(SSL_V3);
                   }
-#line 3893 "src/y.tab.c" /* yacc.c:1646  */
+#line 3989 "src/y.tab.c"
     break;
 
   case 278:
-#line 930 "src/p.y" /* yacc.c:1646  */
-    {
+#line 930 "src/p.y"
+                        {
 #if defined OPENSSL_NO_TLS1_METHOD || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.0");
 #else
                         _setSSLVersion(SSL_TLSV1);
 #endif
                   }
-#line 3905 "src/y.tab.c" /* yacc.c:1646  */
+#line 4001 "src/y.tab.c"
     break;
 
   case 279:
-#line 937 "src/p.y" /* yacc.c:1646  */
-    {
+#line 937 "src/p.y"
+                          {
                         _unsetSSLVersion(SSL_TLSV1);
                   }
-#line 3913 "src/y.tab.c" /* yacc.c:1646  */
+#line 4009 "src/y.tab.c"
     break;
 
   case 280:
-#line 940 "src/p.y" /* yacc.c:1646  */
-    {
+#line 940 "src/p.y"
+                         {
 #if defined OPENSSL_NO_TLS1_1_METHOD || ! defined HAVE_TLSV1_1 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.1");
 #else
                         _setSSLVersion(SSL_TLSV11);
 #endif
                 }
-#line 3925 "src/y.tab.c" /* yacc.c:1646  */
+#line 4021 "src/y.tab.c"
     break;
 
   case 281:
-#line 947 "src/p.y" /* yacc.c:1646  */
-    {
+#line 947 "src/p.y"
+                           {
                         _unsetSSLVersion(SSL_TLSV11);
                   }
-#line 3933 "src/y.tab.c" /* yacc.c:1646  */
+#line 4029 "src/y.tab.c"
     break;
 
   case 282:
-#line 950 "src/p.y" /* yacc.c:1646  */
-    {
+#line 950 "src/p.y"
+                         {
 #if defined OPENSSL_NO_TLS1_2_METHOD || ! defined HAVE_TLSV1_2 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.2");
 #else
                         _setSSLVersion(SSL_TLSV12);
 #endif
                 }
-#line 3945 "src/y.tab.c" /* yacc.c:1646  */
+#line 4041 "src/y.tab.c"
     break;
 
   case 283:
-#line 957 "src/p.y" /* yacc.c:1646  */
-    {
+#line 957 "src/p.y"
+                           {
                         _unsetSSLVersion(SSL_TLSV12);
                   }
-#line 3953 "src/y.tab.c" /* yacc.c:1646  */
+#line 4049 "src/y.tab.c"
     break;
 
   case 284:
-#line 960 "src/p.y" /* yacc.c:1646  */
-    {
+#line 960 "src/p.y"
+                         {
 #if defined OPENSSL_NO_TLS1_3_METHOD || ! defined HAVE_TLSV1_3 || ! defined HAVE_OPENSSL
                         yyerror("Your SSL Library does not support TLS version 1.3");
 #else
                         _setSSLVersion(SSL_TLSV13);
 #endif
                 }
-#line 3965 "src/y.tab.c" /* yacc.c:1646  */
+#line 4061 "src/y.tab.c"
     break;
 
   case 285:
-#line 967 "src/p.y" /* yacc.c:1646  */
-    {
+#line 967 "src/p.y"
+                           {
                         _unsetSSLVersion(SSL_TLSV13);
                   }
-#line 3973 "src/y.tab.c" /* yacc.c:1646  */
+#line 4069 "src/y.tab.c"
     break;
 
   case 286:
-#line 970 "src/p.y" /* yacc.c:1646  */
-    {
+#line 970 "src/p.y"
+                       {
                         // Enable just TLS 1.2 and 1.3 by default
 #if ! defined OPENSSL_NO_TLS1_2_METHOD && defined HAVE_TLSV1_2 && defined HAVE_OPENSSL
                         _setSSLVersion(SSL_TLSV12);
@@ -3983,34 +4079,34 @@ yyreduce:
                         _setSSLVersion(SSL_TLSV13);
 #endif
                   }
-#line 3987 "src/y.tab.c" /* yacc.c:1646  */
+#line 4083 "src/y.tab.c"
     break;
 
   case 287:
-#line 981 "src/p.y" /* yacc.c:1646  */
-    { // Backward compatibility
+#line 981 "src/p.y"
+                                 { // Backward compatibility
                         sslset.flags = SSL_Enabled;
                         sslset.checksum = (yyvsp[0].string);
                         if (cleanup_hash_string(sslset.checksum) != 32)
                                 yyerror2("Unknown checksum type: [%s] is not MD5", sslset.checksum);
                         sslset.checksumType = Hash_Md5;
                   }
-#line 3999 "src/y.tab.c" /* yacc.c:1646  */
+#line 4095 "src/y.tab.c"
     break;
 
   case 288:
-#line 990 "src/p.y" /* yacc.c:1646  */
-    {
+#line 990 "src/p.y"
+                                                                    {
                         if (((yyvsp[-1].number)) > SMTP_TIMEOUT)
                                 Run.mailserver_timeout = (yyvsp[-1].number);
                         Run.mail_hostname = (yyvsp[0].string);
                   }
-#line 4009 "src/y.tab.c" /* yacc.c:1646  */
+#line 4105 "src/y.tab.c"
     break;
 
   case 289:
-#line 997 "src/p.y" /* yacc.c:1646  */
-    {
+#line 997 "src/p.y"
+                                                          {
                         if (mailset.from) {
                                 Run.MailFormat.from = mailset.from;
                         } else {
@@ -4023,12 +4119,12 @@ yyreduce:
                         Run.MailFormat.message = mailset.message ?  mailset.message : Str_dup(ALERT_MESSAGE);
                         reset_mailset();
                   }
-#line 4027 "src/y.tab.c" /* yacc.c:1646  */
+#line 4123 "src/y.tab.c"
     break;
 
   case 292:
-#line 1016 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1016 "src/p.y"
+                                           {
                         /* Restore the current text overridden by lookahead */
                         FREE(argyytext);
                         argyytext = Str_dup((yyvsp[-1].string));
@@ -4037,12 +4133,12 @@ yyreduce:
                         mailserverset.port = PORT_SMTP;
                         addmailserver(&mailserverset);
                   }
-#line 4041 "src/y.tab.c" /* yacc.c:1646  */
+#line 4137 "src/y.tab.c"
     break;
 
   case 293:
-#line 1025 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1025 "src/p.y"
+                                                       {
                         /* Restore the current text overridden by lookahead */
                         FREE(argyytext);
                         argyytext = Str_dup((yyvsp[-3].string));
@@ -4051,28 +4147,28 @@ yyreduce:
                         mailserverset.port = (yyvsp[-1].number);
                         addmailserver(&mailserverset);
                   }
-#line 4055 "src/y.tab.c" /* yacc.c:1646  */
+#line 4151 "src/y.tab.c"
     break;
 
   case 296:
-#line 1040 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1040 "src/p.y"
+                           {
                         mailserverset.username = (yyvsp[0].string);
                   }
-#line 4063 "src/y.tab.c" /* yacc.c:1646  */
+#line 4159 "src/y.tab.c"
     break;
 
   case 297:
-#line 1043 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1043 "src/p.y"
+                           {
                         mailserverset.password = (yyvsp[0].string);
                   }
-#line 4071 "src/y.tab.c" /* yacc.c:1646  */
+#line 4167 "src/y.tab.c"
     break;
 
   case 302:
-#line 1052 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1052 "src/p.y"
+                                      {
                         if (sslset.flags & SSL_Enabled) {
 #ifdef HAVE_OPENSSL
                                 if (sslset.pemfile) {
@@ -4097,134 +4193,134 @@ yyreduce:
 #endif
                         }
                   }
-#line 4101 "src/y.tab.c" /* yacc.c:1646  */
+#line 4197 "src/y.tab.c"
     break;
 
   case 314:
-#line 1095 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1095 "src/p.y"
+                               {
                         _setPEM(&(sslset.pemfile), (yyvsp[0].string), "SSL server PEM file", true);
                   }
-#line 4109 "src/y.tab.c" /* yacc.c:1646  */
+#line 4205 "src/y.tab.c"
     break;
 
   case 315:
-#line 1101 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1101 "src/p.y"
+                                     {
                         _setPEM(&(sslset.clientpemfile), (yyvsp[0].string), "SSL client PEM file", true);
                   }
-#line 4117 "src/y.tab.c" /* yacc.c:1646  */
+#line 4213 "src/y.tab.c"
     break;
 
   case 316:
-#line 1107 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1107 "src/p.y"
+                                         {
                         sslset.flags = SSL_Enabled;
                         sslset.allowSelfSigned = true;
                   }
-#line 4126 "src/y.tab.c" /* yacc.c:1646  */
+#line 4222 "src/y.tab.c"
     break;
 
   case 317:
-#line 1113 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1113 "src/p.y"
+                              {
                         Run.httpd.flags |= Httpd_Net;
                         Run.httpd.socket.net.port = (yyvsp[0].number);
                   }
-#line 4135 "src/y.tab.c" /* yacc.c:1646  */
+#line 4231 "src/y.tab.c"
     break;
 
   case 318:
-#line 1119 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1119 "src/p.y"
+                                                        {
                         Run.httpd.flags |= Httpd_Unix;
                         Run.httpd.socket.unix.path = (yyvsp[-1].string);
                   }
-#line 4144 "src/y.tab.c" /* yacc.c:1646  */
+#line 4240 "src/y.tab.c"
     break;
 
   case 321:
-#line 1129 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1129 "src/p.y"
+                               {
                         Run.httpd.flags |= Httpd_UnixUid;
                         Run.httpd.socket.unix.uid = get_uid((yyvsp[0].string), 0);
                         FREE((yyvsp[0].string));
                     }
-#line 4154 "src/y.tab.c" /* yacc.c:1646  */
+#line 4250 "src/y.tab.c"
     break;
 
   case 322:
-#line 1134 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1134 "src/p.y"
+                               {
                         Run.httpd.flags |= Httpd_UnixGid;
                         Run.httpd.socket.unix.gid = get_gid((yyvsp[0].string), 0);
                         FREE((yyvsp[0].string));
                     }
-#line 4164 "src/y.tab.c" /* yacc.c:1646  */
+#line 4260 "src/y.tab.c"
     break;
 
   case 323:
-#line 1139 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1139 "src/p.y"
+                               {
                         Run.httpd.flags |= Httpd_UnixUid;
                         Run.httpd.socket.unix.uid = get_uid(NULL, (yyvsp[0].number));
                     }
-#line 4173 "src/y.tab.c" /* yacc.c:1646  */
+#line 4269 "src/y.tab.c"
     break;
 
   case 324:
-#line 1143 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1143 "src/p.y"
+                               {
                         Run.httpd.flags |= Httpd_UnixGid;
                         Run.httpd.socket.unix.gid = get_gid(NULL, (yyvsp[0].number));
                     }
-#line 4182 "src/y.tab.c" /* yacc.c:1646  */
+#line 4278 "src/y.tab.c"
     break;
 
   case 325:
-#line 1147 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1147 "src/p.y"
+                                      {
                         Run.httpd.flags |= Httpd_UnixPermission;
                         Run.httpd.socket.unix.permission = check_perm((yyvsp[0].number));
                     }
-#line 4191 "src/y.tab.c" /* yacc.c:1646  */
+#line 4287 "src/y.tab.c"
     break;
 
   case 330:
-#line 1161 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1161 "src/p.y"
+                             {
                         Run.httpd.flags |= Httpd_Signature;
                   }
-#line 4199 "src/y.tab.c" /* yacc.c:1646  */
+#line 4295 "src/y.tab.c"
     break;
 
   case 331:
-#line 1164 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1164 "src/p.y"
+                             {
                         Run.httpd.flags &= ~Httpd_Signature;
                   }
-#line 4207 "src/y.tab.c" /* yacc.c:1646  */
+#line 4303 "src/y.tab.c"
     break;
 
   case 332:
-#line 1169 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1169 "src/p.y"
+                                 {
                         Run.httpd.socket.net.address = (yyvsp[0].string);
                   }
-#line 4215 "src/y.tab.c" /* yacc.c:1646  */
+#line 4311 "src/y.tab.c"
     break;
 
   case 333:
-#line 1174 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1174 "src/p.y"
+                                                 {
                         addcredentials((yyvsp[-3].string), (yyvsp[-1].string), Digest_Cleartext, (yyvsp[0].number));
                   }
-#line 4223 "src/y.tab.c" /* yacc.c:1646  */
+#line 4319 "src/y.tab.c"
     break;
 
   case 334:
-#line 1177 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1177 "src/p.y"
+                                           {
 #ifdef HAVE_LIBPAM
                         addpamauth((yyvsp[-1].string), (yyvsp[0].number));
 #else
@@ -4232,231 +4328,231 @@ yyreduce:
                         FREE((yyvsp[-1].string));
 #endif
                   }
-#line 4236 "src/y.tab.c" /* yacc.c:1646  */
+#line 4332 "src/y.tab.c"
     break;
 
   case 335:
-#line 1185 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1185 "src/p.y"
+                             {
                         addhtpasswdentry((yyvsp[0].string), NULL, Digest_Cleartext);
                         FREE((yyvsp[0].string));
                   }
-#line 4245 "src/y.tab.c" /* yacc.c:1646  */
+#line 4341 "src/y.tab.c"
     break;
 
   case 336:
-#line 1189 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1189 "src/p.y"
+                                       {
                         addhtpasswdentry((yyvsp[0].string), NULL, Digest_Cleartext);
                         FREE((yyvsp[0].string));
                   }
-#line 4254 "src/y.tab.c" /* yacc.c:1646  */
+#line 4350 "src/y.tab.c"
     break;
 
   case 337:
-#line 1193 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1193 "src/p.y"
+                                     {
                         addhtpasswdentry((yyvsp[0].string), NULL, Digest_Md5);
                         FREE((yyvsp[0].string));
                   }
-#line 4263 "src/y.tab.c" /* yacc.c:1646  */
+#line 4359 "src/y.tab.c"
     break;
 
   case 338:
-#line 1197 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1197 "src/p.y"
+                                   {
                         addhtpasswdentry((yyvsp[0].string), NULL, Digest_Crypt);
                         FREE((yyvsp[0].string));
                   }
-#line 4272 "src/y.tab.c" /* yacc.c:1646  */
+#line 4368 "src/y.tab.c"
     break;
 
   case 339:
-#line 1201 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1201 "src/p.y"
+                             {
                         htpasswd_file = (yyvsp[0].string);
                         digesttype = Digest_Cleartext;
                   }
-#line 4281 "src/y.tab.c" /* yacc.c:1646  */
+#line 4377 "src/y.tab.c"
     break;
 
   case 340:
-#line 1205 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1205 "src/p.y"
+                                {
                         FREE(htpasswd_file);
                   }
-#line 4289 "src/y.tab.c" /* yacc.c:1646  */
+#line 4385 "src/y.tab.c"
     break;
 
   case 341:
-#line 1208 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1208 "src/p.y"
+                                       {
                         htpasswd_file = (yyvsp[0].string);
                         digesttype = Digest_Cleartext;
                   }
-#line 4298 "src/y.tab.c" /* yacc.c:1646  */
+#line 4394 "src/y.tab.c"
     break;
 
   case 342:
-#line 1212 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1212 "src/p.y"
+                                {
                         FREE(htpasswd_file);
                   }
-#line 4306 "src/y.tab.c" /* yacc.c:1646  */
+#line 4402 "src/y.tab.c"
     break;
 
   case 343:
-#line 1215 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1215 "src/p.y"
+                                     {
                         htpasswd_file = (yyvsp[0].string);
                         digesttype = Digest_Md5;
                   }
-#line 4315 "src/y.tab.c" /* yacc.c:1646  */
+#line 4411 "src/y.tab.c"
     break;
 
   case 344:
-#line 1219 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1219 "src/p.y"
+                                {
                         FREE(htpasswd_file);
                   }
-#line 4323 "src/y.tab.c" /* yacc.c:1646  */
+#line 4419 "src/y.tab.c"
     break;
 
   case 345:
-#line 1222 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1222 "src/p.y"
+                                   {
                         htpasswd_file = (yyvsp[0].string);
                         digesttype = Digest_Crypt;
                   }
-#line 4332 "src/y.tab.c" /* yacc.c:1646  */
+#line 4428 "src/y.tab.c"
     break;
 
   case 346:
-#line 1226 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1226 "src/p.y"
+                                {
                         FREE(htpasswd_file);
                   }
-#line 4340 "src/y.tab.c" /* yacc.c:1646  */
+#line 4436 "src/y.tab.c"
     break;
 
   case 347:
-#line 1229 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1229 "src/p.y"
+                               {
                         if (! Engine_addAllow((yyvsp[0].string)))
                                 yywarning2("invalid allow option: %s", (yyvsp[0].string));
                         FREE((yyvsp[0].string));
                   }
-#line 4350 "src/y.tab.c" /* yacc.c:1646  */
+#line 4446 "src/y.tab.c"
     break;
 
   case 350:
-#line 1240 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1240 "src/p.y"
+                         {
                         addhtpasswdentry(htpasswd_file, (yyvsp[0].string), digesttype);
                         FREE((yyvsp[0].string));
                   }
-#line 4359 "src/y.tab.c" /* yacc.c:1646  */
+#line 4455 "src/y.tab.c"
     break;
 
   case 351:
-#line 1246 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1246 "src/p.y"
+                              {
                         (yyval.number) = false;
                   }
-#line 4367 "src/y.tab.c" /* yacc.c:1646  */
+#line 4463 "src/y.tab.c"
     break;
 
   case 352:
-#line 1249 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1249 "src/p.y"
+                           {
                         (yyval.number) = true;
                   }
-#line 4375 "src/y.tab.c" /* yacc.c:1646  */
+#line 4471 "src/y.tab.c"
     break;
 
   case 353:
-#line 1254 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1254 "src/p.y"
+                                                     {
                         createservice(Service_Process, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                   }
-#line 4383 "src/y.tab.c" /* yacc.c:1646  */
+#line 4479 "src/y.tab.c"
     break;
 
   case 354:
-#line 1257 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1257 "src/p.y"
+                                                     {
                         createservice(Service_Process, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                   }
-#line 4391 "src/y.tab.c" /* yacc.c:1646  */
+#line 4487 "src/y.tab.c"
     break;
 
   case 355:
-#line 1260 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1260 "src/p.y"
+                                                     {
                         createservice(Service_Process, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                         matchset.ignore = false;
                         matchset.match_path = NULL;
                         matchset.match_string = Str_dup((yyvsp[0].string));
                         addmatch(&matchset, Action_Ignored, 0);
                   }
-#line 4403 "src/y.tab.c" /* yacc.c:1646  */
+#line 4499 "src/y.tab.c"
     break;
 
   case 356:
-#line 1267 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1267 "src/p.y"
+                                                   {
                         createservice(Service_Process, (yyvsp[-2].string), (yyvsp[0].string), check_process);
                         matchset.ignore = false;
                         matchset.match_path = NULL;
                         matchset.match_string = Str_dup((yyvsp[0].string));
                         addmatch(&matchset, Action_Ignored, 0);
                   }
-#line 4415 "src/y.tab.c" /* yacc.c:1646  */
+#line 4511 "src/y.tab.c"
     break;
 
   case 357:
-#line 1276 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1276 "src/p.y"
+                                                     {
                         createservice(Service_File, (yyvsp[-2].string), (yyvsp[0].string), check_file);
                   }
-#line 4423 "src/y.tab.c" /* yacc.c:1646  */
+#line 4519 "src/y.tab.c"
     break;
 
   case 358:
-#line 1281 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1281 "src/p.y"
+                                                        {
                         createservice(Service_Filesystem, (yyvsp[-2].string), (yyvsp[0].string), check_filesystem);
                   }
-#line 4431 "src/y.tab.c" /* yacc.c:1646  */
+#line 4527 "src/y.tab.c"
     break;
 
   case 359:
-#line 1284 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1284 "src/p.y"
+                                                          {
                         createservice(Service_Filesystem, (yyvsp[-2].string), (yyvsp[0].string), check_filesystem);
                   }
-#line 4439 "src/y.tab.c" /* yacc.c:1646  */
+#line 4535 "src/y.tab.c"
     break;
 
   case 360:
-#line 1289 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1289 "src/p.y"
+                                                    {
                         createservice(Service_Directory, (yyvsp[-2].string), (yyvsp[0].string), check_directory);
                   }
-#line 4447 "src/y.tab.c" /* yacc.c:1646  */
+#line 4543 "src/y.tab.c"
     break;
 
   case 361:
-#line 1294 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1294 "src/p.y"
+                                                       {
                         createservice(Service_Host, (yyvsp[-2].string), (yyvsp[0].string), check_remote_host);
                   }
-#line 4455 "src/y.tab.c" /* yacc.c:1646  */
+#line 4551 "src/y.tab.c"
     break;
 
   case 362:
-#line 1299 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1299 "src/p.y"
+                                                      {
                         if (Link_isGetByAddressSupported()) {
                                 createservice(Service_Net, (yyvsp[-2].string), (yyvsp[0].string), check_net);
                                 current->inf.net->stats = Link_createForAddress((yyvsp[0].string));
@@ -4464,21 +4560,21 @@ yyreduce:
                                 yyerror("Network monitoring by IP address is not supported on this platform, please use 'check network <foo> with interface <bar>' instead");
                         }
                   }
-#line 4468 "src/y.tab.c" /* yacc.c:1646  */
+#line 4564 "src/y.tab.c"
     break;
 
   case 363:
-#line 1307 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1307 "src/p.y"
+                                                        {
                         createservice(Service_Net, (yyvsp[-2].string), (yyvsp[0].string), check_net);
                         current->inf.net->stats = Link_createForInterface((yyvsp[0].string));
                   }
-#line 4477 "src/y.tab.c" /* yacc.c:1646  */
+#line 4573 "src/y.tab.c"
     break;
 
   case 364:
-#line 1313 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1313 "src/p.y"
+                                          {
                         char *servicename = (yyvsp[0].string);
                         if (Str_sub(servicename, "$HOST")) {
                                 char hostname[STRLEN];
@@ -4491,648 +4587,648 @@ yyreduce:
                         }
                         Run.system = createservice(Service_System, servicename, NULL, check_system); // The name given in the 'check system' statement overrides system hostname
                   }
-#line 4495 "src/y.tab.c" /* yacc.c:1646  */
+#line 4591 "src/y.tab.c"
     break;
 
   case 365:
-#line 1328 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1328 "src/p.y"
+                                                     {
                         createservice(Service_Fifo, (yyvsp[-2].string), (yyvsp[0].string), check_fifo);
                   }
-#line 4503 "src/y.tab.c" /* yacc.c:1646  */
+#line 4599 "src/y.tab.c"
     break;
 
   case 366:
-#line 1333 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1333 "src/p.y"
+                                                                               {
                         createservice(Service_Program, (yyvsp[-3].string), NULL, check_program);
                         current->program->timeout = (yyvsp[0].number);
                         current->program->lastOutput = StringBuffer_create(64);
                         current->program->inprogressOutput = StringBuffer_create(64);
                  }
-#line 4514 "src/y.tab.c" /* yacc.c:1646  */
+#line 4610 "src/y.tab.c"
     break;
 
   case 367:
-#line 1339 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1339 "src/p.y"
+                                                                                              {
                         createservice(Service_Program, (yyvsp[-4].string), NULL, check_program);
                         current->program->timeout = (yyvsp[0].number);
                         current->program->lastOutput = StringBuffer_create(64);
                         current->program->inprogressOutput = StringBuffer_create(64);
                  }
-#line 4525 "src/y.tab.c" /* yacc.c:1646  */
+#line 4621 "src/y.tab.c"
     break;
 
   case 368:
-#line 1347 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1347 "src/p.y"
+                                                  {
                         addcommand(START, (yyvsp[0].number));
                   }
-#line 4533 "src/y.tab.c" /* yacc.c:1646  */
+#line 4629 "src/y.tab.c"
     break;
 
   case 369:
-#line 1350 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1350 "src/p.y"
+                                                                 {
                         addcommand(START, (yyvsp[0].number));
                   }
-#line 4541 "src/y.tab.c" /* yacc.c:1646  */
+#line 4637 "src/y.tab.c"
     break;
 
   case 370:
-#line 1355 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1355 "src/p.y"
+                                                {
                         addcommand(STOP, (yyvsp[0].number));
                   }
-#line 4549 "src/y.tab.c" /* yacc.c:1646  */
+#line 4645 "src/y.tab.c"
     break;
 
   case 371:
-#line 1358 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1358 "src/p.y"
+                                                               {
                         addcommand(STOP, (yyvsp[0].number));
                   }
-#line 4557 "src/y.tab.c" /* yacc.c:1646  */
+#line 4653 "src/y.tab.c"
     break;
 
   case 372:
-#line 1364 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1364 "src/p.y"
+                                                      {
                         addcommand(RESTART, (yyvsp[0].number));
                   }
-#line 4565 "src/y.tab.c" /* yacc.c:1646  */
+#line 4661 "src/y.tab.c"
     break;
 
   case 373:
-#line 1367 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1367 "src/p.y"
+                                                                     {
                         addcommand(RESTART, (yyvsp[0].number));
                   }
-#line 4573 "src/y.tab.c" /* yacc.c:1646  */
+#line 4669 "src/y.tab.c"
     break;
 
   case 378:
-#line 1380 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1380 "src/p.y"
+                         {
                         addargument((yyvsp[0].string));
                   }
-#line 4581 "src/y.tab.c" /* yacc.c:1646  */
+#line 4677 "src/y.tab.c"
     break;
 
   case 379:
-#line 1383 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1383 "src/p.y"
+                       {
                         addargument((yyvsp[0].string));
                   }
-#line 4589 "src/y.tab.c" /* yacc.c:1646  */
+#line 4685 "src/y.tab.c"
     break;
 
   case 380:
-#line 1388 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1388 "src/p.y"
+                             {
                         addeuid(get_uid((yyvsp[0].string), 0));
                         FREE((yyvsp[0].string));
                   }
-#line 4598 "src/y.tab.c" /* yacc.c:1646  */
+#line 4694 "src/y.tab.c"
     break;
 
   case 381:
-#line 1392 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1392 "src/p.y"
+                             {
                         addegid(get_gid((yyvsp[0].string), 0));
                         FREE((yyvsp[0].string));
                   }
-#line 4607 "src/y.tab.c" /* yacc.c:1646  */
+#line 4703 "src/y.tab.c"
     break;
 
   case 382:
-#line 1396 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1396 "src/p.y"
+                             {
                         addeuid(get_uid(NULL, (yyvsp[0].number)));
                   }
-#line 4615 "src/y.tab.c" /* yacc.c:1646  */
+#line 4711 "src/y.tab.c"
     break;
 
   case 383:
-#line 1399 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1399 "src/p.y"
+                             {
                         addegid(get_gid(NULL, (yyvsp[0].number)));
                   }
-#line 4623 "src/y.tab.c" /* yacc.c:1646  */
+#line 4719 "src/y.tab.c"
     break;
 
   case 384:
-#line 1404 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1404 "src/p.y"
+                                    {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 4631 "src/y.tab.c" /* yacc.c:1646  */
+#line 4727 "src/y.tab.c"
     break;
 
   case 385:
-#line 1407 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1407 "src/p.y"
+                                  {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 4639 "src/y.tab.c" /* yacc.c:1646  */
+#line 4735 "src/y.tab.c"
     break;
 
   case 386:
-#line 1412 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1412 "src/p.y"
+                                  {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 4647 "src/y.tab.c" /* yacc.c:1646  */
+#line 4743 "src/y.tab.c"
     break;
 
   case 387:
-#line 1417 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1417 "src/p.y"
+                                  {
                         (yyval.string) = NULL;
                   }
-#line 4655 "src/y.tab.c" /* yacc.c:1646  */
+#line 4751 "src/y.tab.c"
     break;
 
   case 388:
-#line 1420 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1420 "src/p.y"
+                                  {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 4663 "src/y.tab.c" /* yacc.c:1646  */
+#line 4759 "src/y.tab.c"
     break;
 
   case 389:
-#line 1425 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1425 "src/p.y"
+                                                                                    {
                         /* This is a workaround to support content match without having to create an URL object. 'urloption' creates the Request_T object we need minus the URL object, but with enough information to perform content test.
                            TODO: Parser is in need of refactoring */
                         portset.url_request = urlrequest;
                         addeventaction(&(portset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addport(&(current->portlist), &portset);
                   }
-#line 4675 "src/y.tab.c" /* yacc.c:1646  */
+#line 4771 "src/y.tab.c"
     break;
 
   case 403:
-#line 1451 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1451 "src/p.y"
+                                                                                           {
                         prepare_urlrequest((yyvsp[-5].url));
                         addeventaction(&(portset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addport(&(current->portlist), &portset);
                   }
-#line 4685 "src/y.tab.c" /* yacc.c:1646  */
+#line 4781 "src/y.tab.c"
     break;
 
   case 412:
-#line 1470 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1470 "src/p.y"
+                                                                                       {
                         addeventaction(&(portset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addport(&(current->socketlist), &portset);
                   }
-#line 4694 "src/y.tab.c" /* yacc.c:1646  */
+#line 4790 "src/y.tab.c"
     break;
 
   case 420:
-#line 1487 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1487 "src/p.y"
+                                                                                  {
                         icmpset.family = Socket_Ip;
                         icmpset.type = (yyvsp[-5].number);
                         addeventaction(&(icmpset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addicmp(&icmpset);
                   }
-#line 4705 "src/y.tab.c" /* yacc.c:1646  */
+#line 4801 "src/y.tab.c"
     break;
 
   case 421:
-#line 1493 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1493 "src/p.y"
+                                                                         {
                         icmpset.family = Socket_Ip;
                         addeventaction(&(icmpset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addicmp(&icmpset);
                  }
-#line 4715 "src/y.tab.c" /* yacc.c:1646  */
+#line 4811 "src/y.tab.c"
     break;
 
   case 422:
-#line 1498 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1498 "src/p.y"
+                                                                          {
                         icmpset.family = Socket_Ip4;
                         addeventaction(&(icmpset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addicmp(&icmpset);
                  }
-#line 4725 "src/y.tab.c" /* yacc.c:1646  */
+#line 4821 "src/y.tab.c"
     break;
 
   case 423:
-#line 1503 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1503 "src/p.y"
+                                                                          {
                         icmpset.family = Socket_Ip6;
                         addeventaction(&(icmpset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addicmp(&icmpset);
                  }
-#line 4735 "src/y.tab.c" /* yacc.c:1646  */
+#line 4831 "src/y.tab.c"
     break;
 
   case 430:
-#line 1520 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1520 "src/p.y"
+                              {
                         portset.hostname = Str_dup(current->type == Service_Host ? current->path : LOCALHOST);
                   }
-#line 4743 "src/y.tab.c" /* yacc.c:1646  */
+#line 4839 "src/y.tab.c"
     break;
 
   case 431:
-#line 1523 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1523 "src/p.y"
+                              {
                         portset.hostname = (yyvsp[0].string);
                   }
-#line 4751 "src/y.tab.c" /* yacc.c:1646  */
+#line 4847 "src/y.tab.c"
     break;
 
   case 432:
-#line 1528 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1528 "src/p.y"
+                              {
                         portset.target.net.port = (yyvsp[0].number);
                   }
-#line 4759 "src/y.tab.c" /* yacc.c:1646  */
+#line 4855 "src/y.tab.c"
     break;
 
   case 433:
-#line 1533 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1533 "src/p.y"
+                                  {
                         portset.family = Socket_Unix;
                         portset.target.unix.pathname = (yyvsp[0].string);
                   }
-#line 4768 "src/y.tab.c" /* yacc.c:1646  */
+#line 4864 "src/y.tab.c"
     break;
 
   case 434:
-#line 1539 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1539 "src/p.y"
+                       {
                         portset.family = Socket_Ip4;
                   }
-#line 4776 "src/y.tab.c" /* yacc.c:1646  */
+#line 4872 "src/y.tab.c"
     break;
 
   case 435:
-#line 1542 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1542 "src/p.y"
+                       {
                         portset.family = Socket_Ip6;
                   }
-#line 4784 "src/y.tab.c" /* yacc.c:1646  */
+#line 4880 "src/y.tab.c"
     break;
 
   case 436:
-#line 1547 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1547 "src/p.y"
+                           {
                         portset.type = Socket_Tcp;
                   }
-#line 4792 "src/y.tab.c" /* yacc.c:1646  */
+#line 4888 "src/y.tab.c"
     break;
 
   case 437:
-#line 1550 "src/p.y" /* yacc.c:1646  */
-    { // The typelist is kept for backward compatibility (replaced by ssloptionlist)
+#line 1550 "src/p.y"
+                                          { // The typelist is kept for backward compatibility (replaced by ssloptionlist)
                         portset.type = Socket_Tcp;
                         sslset.flags = SSL_Enabled;
                   }
-#line 4801 "src/y.tab.c" /* yacc.c:1646  */
+#line 4897 "src/y.tab.c"
     break;
 
   case 438:
-#line 1554 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1554 "src/p.y"
+                           {
                         portset.type = Socket_Udp;
                   }
-#line 4809 "src/y.tab.c" /* yacc.c:1646  */
+#line 4905 "src/y.tab.c"
     break;
 
   case 443:
-#line 1567 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1567 "src/p.y"
+                                 {
                         _parseOutgoingAddress((yyvsp[0].string), &(portset.outgoing));
                   }
-#line 4817 "src/y.tab.c" /* yacc.c:1646  */
+#line 4913 "src/y.tab.c"
     break;
 
   case 444:
-#line 1572 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1572 "src/p.y"
+                                                         {
                         portset.protocol = Protocol_get(Protocol_APACHESTATUS);
                   }
-#line 4825 "src/y.tab.c" /* yacc.c:1646  */
+#line 4921 "src/y.tab.c"
     break;
 
   case 445:
-#line 1575 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1575 "src/p.y"
+                                   {
                         portset.protocol = Protocol_get(Protocol_DEFAULT);
                   }
-#line 4833 "src/y.tab.c" /* yacc.c:1646  */
+#line 4929 "src/y.tab.c"
     break;
 
   case 446:
-#line 1578 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1578 "src/p.y"
+                               {
                         portset.protocol = Protocol_get(Protocol_DNS);
                   }
-#line 4841 "src/y.tab.c" /* yacc.c:1646  */
+#line 4937 "src/y.tab.c"
     break;
 
   case 447:
-#line 1581 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1581 "src/p.y"
+                                {
                         portset.protocol = Protocol_get(Protocol_DWP);
                   }
-#line 4849 "src/y.tab.c" /* yacc.c:1646  */
+#line 4945 "src/y.tab.c"
     break;
 
   case 448:
-#line 1584 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1584 "src/p.y"
+                                    {
                         portset.protocol = Protocol_get(Protocol_FAIL2BAN);
                 }
-#line 4857 "src/y.tab.c" /* yacc.c:1646  */
+#line 4953 "src/y.tab.c"
     break;
 
   case 449:
-#line 1587 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1587 "src/p.y"
+                               {
                         portset.protocol = Protocol_get(Protocol_FTP);
                   }
-#line 4865 "src/y.tab.c" /* yacc.c:1646  */
+#line 4961 "src/y.tab.c"
     break;
 
   case 450:
-#line 1590 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1590 "src/p.y"
+                                         {
                         portset.protocol = Protocol_get(Protocol_HTTP);
                   }
-#line 4873 "src/y.tab.c" /* yacc.c:1646  */
+#line 4969 "src/y.tab.c"
     break;
 
   case 451:
-#line 1593 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1593 "src/p.y"
+                                          {
                         sslset.flags = SSL_Enabled;
                         portset.type = Socket_Tcp;
                         portset.protocol = Protocol_get(Protocol_HTTP);
                  }
-#line 4883 "src/y.tab.c" /* yacc.c:1646  */
+#line 4979 "src/y.tab.c"
     break;
 
   case 452:
-#line 1598 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1598 "src/p.y"
+                                {
                         portset.protocol = Protocol_get(Protocol_IMAP);
                   }
-#line 4891 "src/y.tab.c" /* yacc.c:1646  */
+#line 4987 "src/y.tab.c"
     break;
 
   case 453:
-#line 1601 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1601 "src/p.y"
+                                 {
                         sslset.flags = SSL_Enabled;
                         portset.type = Socket_Tcp;
                         portset.protocol = Protocol_get(Protocol_IMAP);
                   }
-#line 4901 "src/y.tab.c" /* yacc.c:1646  */
+#line 4997 "src/y.tab.c"
     break;
 
   case 454:
-#line 1606 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1606 "src/p.y"
+                                  {
                         portset.protocol = Protocol_get(Protocol_CLAMAV);
                   }
-#line 4909 "src/y.tab.c" /* yacc.c:1646  */
+#line 5005 "src/y.tab.c"
     break;
 
   case 455:
-#line 1609 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1609 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_LDAP2);
                   }
-#line 4917 "src/y.tab.c" /* yacc.c:1646  */
+#line 5013 "src/y.tab.c"
     break;
 
   case 456:
-#line 1612 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1612 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_LDAP3);
                   }
-#line 4925 "src/y.tab.c" /* yacc.c:1646  */
+#line 5021 "src/y.tab.c"
     break;
 
   case 457:
-#line 1615 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1615 "src/p.y"
+                                    {
                         portset.protocol = Protocol_get(Protocol_MONGODB);
                   }
-#line 4933 "src/y.tab.c" /* yacc.c:1646  */
+#line 5029 "src/y.tab.c"
     break;
 
   case 458:
-#line 1618 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1618 "src/p.y"
+                                         {
                         portset.protocol = Protocol_get(Protocol_MQTT);
                   }
-#line 4941 "src/y.tab.c" /* yacc.c:1646  */
+#line 5037 "src/y.tab.c"
     break;
 
   case 459:
-#line 1621 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1621 "src/p.y"
+                                           {
                         portset.protocol = Protocol_get(Protocol_MYSQL);
                   }
-#line 4949 "src/y.tab.c" /* yacc.c:1646  */
+#line 5045 "src/y.tab.c"
     break;
 
   case 460:
-#line 1624 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1624 "src/p.y"
+                                            {
                         sslset.flags = SSL_StartTLS;
                         portset.protocol = Protocol_get(Protocol_MYSQL);
                   }
-#line 4958 "src/y.tab.c" /* yacc.c:1646  */
+#line 5054 "src/y.tab.c"
     break;
 
   case 461:
-#line 1628 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1628 "src/p.y"
+                                       {
                         portset.protocol = Protocol_get(Protocol_SIP);
                   }
-#line 4966 "src/y.tab.c" /* yacc.c:1646  */
+#line 5062 "src/y.tab.c"
     break;
 
   case 462:
-#line 1631 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1631 "src/p.y"
+                                {
                         portset.protocol = Protocol_get(Protocol_NNTP);
                   }
-#line 4974 "src/y.tab.c" /* yacc.c:1646  */
+#line 5070 "src/y.tab.c"
     break;
 
   case 463:
-#line 1634 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1634 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_NTP3);
                         portset.type = Socket_Udp;
                   }
-#line 4983 "src/y.tab.c" /* yacc.c:1646  */
+#line 5079 "src/y.tab.c"
     break;
 
   case 464:
-#line 1638 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1638 "src/p.y"
+                                         {
                         portset.protocol = Protocol_get(Protocol_POSTFIXPOLICY);
                   }
-#line 4991 "src/y.tab.c" /* yacc.c:1646  */
+#line 5087 "src/y.tab.c"
     break;
 
   case 465:
-#line 1641 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1641 "src/p.y"
+                               {
                         portset.protocol = Protocol_get(Protocol_POP);
                   }
-#line 4999 "src/y.tab.c" /* yacc.c:1646  */
+#line 5095 "src/y.tab.c"
     break;
 
   case 466:
-#line 1644 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1644 "src/p.y"
+                                {
                         sslset.flags = SSL_Enabled;
                         portset.type = Socket_Tcp;
                         portset.protocol = Protocol_get(Protocol_POP);
                   }
-#line 5009 "src/y.tab.c" /* yacc.c:1646  */
+#line 5105 "src/y.tab.c"
     break;
 
   case 467:
-#line 1649 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1649 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_SIEVE);
                   }
-#line 5017 "src/y.tab.c" /* yacc.c:1646  */
+#line 5113 "src/y.tab.c"
     break;
 
   case 468:
-#line 1652 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1652 "src/p.y"
+                                         {
                         portset.protocol = Protocol_get(Protocol_SMTP);
                   }
-#line 5025 "src/y.tab.c" /* yacc.c:1646  */
+#line 5121 "src/y.tab.c"
     break;
 
   case 469:
-#line 1655 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1655 "src/p.y"
+                                          {
                         sslset.flags = SSL_Enabled;
                         portset.type = Socket_Tcp;
                         portset.protocol = Protocol_get(Protocol_SMTP);
                  }
-#line 5035 "src/y.tab.c" /* yacc.c:1646  */
+#line 5131 "src/y.tab.c"
     break;
 
   case 470:
-#line 1660 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1660 "src/p.y"
+                                        {
                         portset.protocol = Protocol_get(Protocol_SPAMASSASSIN);
                   }
-#line 5043 "src/y.tab.c" /* yacc.c:1646  */
+#line 5139 "src/y.tab.c"
     break;
 
   case 471:
-#line 1663 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1663 "src/p.y"
+                                {
                         portset.protocol = Protocol_get(Protocol_SSH);
                   }
-#line 5051 "src/y.tab.c" /* yacc.c:1646  */
+#line 5147 "src/y.tab.c"
     break;
 
   case 472:
-#line 1666 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1666 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_RDATE);
                   }
-#line 5059 "src/y.tab.c" /* yacc.c:1646  */
+#line 5155 "src/y.tab.c"
     break;
 
   case 473:
-#line 1669 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1669 "src/p.y"
+                                  {
                         portset.protocol = Protocol_get(Protocol_REDIS);
                   }
-#line 5067 "src/y.tab.c" /* yacc.c:1646  */
+#line 5163 "src/y.tab.c"
     break;
 
   case 474:
-#line 1672 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1672 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_RSYNC);
                   }
-#line 5075 "src/y.tab.c" /* yacc.c:1646  */
+#line 5171 "src/y.tab.c"
     break;
 
   case 475:
-#line 1675 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1675 "src/p.y"
+                               {
                         portset.protocol = Protocol_get(Protocol_TNS);
                   }
-#line 5083 "src/y.tab.c" /* yacc.c:1646  */
+#line 5179 "src/y.tab.c"
     break;
 
   case 476:
-#line 1678 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1678 "src/p.y"
+                                 {
                         portset.protocol = Protocol_get(Protocol_PGSQL);
                   }
-#line 5091 "src/y.tab.c" /* yacc.c:1646  */
+#line 5187 "src/y.tab.c"
     break;
 
   case 477:
-#line 1681 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1681 "src/p.y"
+                                {
                         portset.protocol = Protocol_get(Protocol_LMTP);
                   }
-#line 5099 "src/y.tab.c" /* yacc.c:1646  */
+#line 5195 "src/y.tab.c"
     break;
 
   case 478:
-#line 1684 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1684 "src/p.y"
+                               {
                         portset.protocol = Protocol_get(Protocol_GPS);
                   }
-#line 5107 "src/y.tab.c" /* yacc.c:1646  */
+#line 5203 "src/y.tab.c"
     break;
 
   case 479:
-#line 1687 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1687 "src/p.y"
+                                             {
                         portset.protocol = Protocol_get(Protocol_RADIUS);
                   }
-#line 5115 "src/y.tab.c" /* yacc.c:1646  */
+#line 5211 "src/y.tab.c"
     break;
 
   case 480:
-#line 1690 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1690 "src/p.y"
+                                    {
                         portset.protocol = Protocol_get(Protocol_MEMCACHE);
                   }
-#line 5123 "src/y.tab.c" /* yacc.c:1646  */
+#line 5219 "src/y.tab.c"
     break;
 
   case 481:
-#line 1693 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1693 "src/p.y"
+                                                   {
                         portset.protocol = Protocol_get(Protocol_WEBSOCKET);
                   }
-#line 5131 "src/y.tab.c" /* yacc.c:1646  */
+#line 5227 "src/y.tab.c"
     break;
 
   case 482:
-#line 1698 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1698 "src/p.y"
+                              {
                         if (portset.protocol->check == check_default || portset.protocol->check == check_generic) {
                                 portset.protocol = Protocol_get(Protocol_GENERIC);
                                 addgeneric(&portset, (yyvsp[0].string), NULL);
@@ -5140,12 +5236,12 @@ yyreduce:
                                 yyerror("The SEND statement is not allowed in the %s protocol context", portset.protocol->name);
                         }
                   }
-#line 5144 "src/y.tab.c" /* yacc.c:1646  */
+#line 5240 "src/y.tab.c"
     break;
 
   case 483:
-#line 1706 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1706 "src/p.y"
+                                {
                         if (portset.protocol->check == check_default || portset.protocol->check == check_generic) {
                                 portset.protocol = Protocol_get(Protocol_GENERIC);
                                 addgeneric(&portset, NULL, (yyvsp[0].string));
@@ -5153,92 +5249,92 @@ yyreduce:
                                 yyerror("The EXPECT statement is not allowed in the %s protocol context", portset.protocol->name);
                         }
                   }
-#line 5157 "src/y.tab.c" /* yacc.c:1646  */
+#line 5253 "src/y.tab.c"
     break;
 
   case 486:
-#line 1720 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1720 "src/p.y"
+                                {
                         portset.parameters.websocket.origin = (yyvsp[0].string);
                   }
-#line 5165 "src/y.tab.c" /* yacc.c:1646  */
+#line 5261 "src/y.tab.c"
     break;
 
   case 487:
-#line 1723 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1723 "src/p.y"
+                               {
                         portset.parameters.websocket.request = (yyvsp[0].string);
                   }
-#line 5173 "src/y.tab.c" /* yacc.c:1646  */
+#line 5269 "src/y.tab.c"
     break;
 
   case 488:
-#line 1726 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1726 "src/p.y"
+                              {
                         portset.parameters.websocket.host = (yyvsp[0].string);
                   }
-#line 5181 "src/y.tab.c" /* yacc.c:1646  */
+#line 5277 "src/y.tab.c"
     break;
 
   case 489:
-#line 1729 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1729 "src/p.y"
+                                    {
                         portset.parameters.websocket.version = (yyvsp[0].number);
                   }
-#line 5189 "src/y.tab.c" /* yacc.c:1646  */
+#line 5285 "src/y.tab.c"
     break;
 
   case 492:
-#line 1738 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1738 "src/p.y"
+                           {
                         portset.parameters.smtp.username = (yyvsp[0].string);
                   }
-#line 5197 "src/y.tab.c" /* yacc.c:1646  */
+#line 5293 "src/y.tab.c"
     break;
 
   case 493:
-#line 1741 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1741 "src/p.y"
+                           {
                         portset.parameters.smtp.password = (yyvsp[0].string);
                   }
-#line 5205 "src/y.tab.c" /* yacc.c:1646  */
+#line 5301 "src/y.tab.c"
     break;
 
   case 496:
-#line 1750 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1750 "src/p.y"
+                           {
                         portset.parameters.mqtt.username = (yyvsp[0].string);
                   }
-#line 5213 "src/y.tab.c" /* yacc.c:1646  */
+#line 5309 "src/y.tab.c"
     break;
 
   case 497:
-#line 1753 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1753 "src/p.y"
+                           {
                         portset.parameters.mqtt.password = (yyvsp[0].string);
                   }
-#line 5221 "src/y.tab.c" /* yacc.c:1646  */
+#line 5317 "src/y.tab.c"
     break;
 
   case 500:
-#line 1762 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1762 "src/p.y"
+                           {
                         portset.parameters.mysql.username = (yyvsp[0].string);
                   }
-#line 5229 "src/y.tab.c" /* yacc.c:1646  */
+#line 5325 "src/y.tab.c"
     break;
 
   case 501:
-#line 1765 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1765 "src/p.y"
+                           {
                         portset.parameters.mysql.password = (yyvsp[0].string);
                   }
-#line 5237 "src/y.tab.c" /* yacc.c:1646  */
+#line 5333 "src/y.tab.c"
     break;
 
   case 502:
-#line 1768 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1768 "src/p.y"
+                                                          {
                         portset.parameters.mysql.rsaChecksum = (yyvsp[0].string);
                         switch (cleanup_hash_string(portset.parameters.mysql.rsaChecksum)) {
                                 case 32:
@@ -5251,90 +5347,90 @@ yyreduce:
                                         yyerror2("Unknown checksum type: [%s] is not MD5 nor SHA1", portset.parameters.mysql.rsaChecksum);
                         }
                   }
-#line 5255 "src/y.tab.c" /* yacc.c:1646  */
+#line 5351 "src/y.tab.c"
     break;
 
   case 503:
-#line 1781 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1781 "src/p.y"
+                                                                  {
                         portset.parameters.mysql.rsaChecksum = (yyvsp[0].string);
                         if (cleanup_hash_string(portset.parameters.mysql.rsaChecksum) != 32)
                                 yyerror2("Unknown checksum type: [%s] is not MD5", portset.parameters.mysql.rsaChecksum);
                         portset.parameters.mysql.rsaChecksumType = Hash_Md5;
                   }
-#line 5266 "src/y.tab.c" /* yacc.c:1646  */
+#line 5362 "src/y.tab.c"
     break;
 
   case 504:
-#line 1787 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1787 "src/p.y"
+                                                                   {
                         portset.parameters.mysql.rsaChecksum = (yyvsp[0].string);
                         if (cleanup_hash_string(portset.parameters.mysql.rsaChecksum) != 40)
                                 yyerror2("Unknown checksum type: [%s] is not SHA1", portset.parameters.mysql.rsaChecksum);
                         portset.parameters.mysql.rsaChecksumType = Hash_Sha1;
                   }
-#line 5277 "src/y.tab.c" /* yacc.c:1646  */
+#line 5373 "src/y.tab.c"
     break;
 
   case 505:
-#line 1796 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1796 "src/p.y"
+                                  {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 5285 "src/y.tab.c" /* yacc.c:1646  */
+#line 5381 "src/y.tab.c"
     break;
 
   case 506:
-#line 1799 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1799 "src/p.y"
+                                {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 5293 "src/y.tab.c" /* yacc.c:1646  */
+#line 5389 "src/y.tab.c"
     break;
 
   case 507:
-#line 1804 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1804 "src/p.y"
+                                    {
                         (yyval.number) = verifyMaxForward((yyvsp[0].number));
                   }
-#line 5301 "src/y.tab.c" /* yacc.c:1646  */
+#line 5397 "src/y.tab.c"
     break;
 
   case 510:
-#line 1813 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1813 "src/p.y"
+                         {
                         portset.parameters.sip.target = (yyvsp[0].string);
                   }
-#line 5309 "src/y.tab.c" /* yacc.c:1646  */
+#line 5405 "src/y.tab.c"
     break;
 
   case 511:
-#line 1816 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1816 "src/p.y"
+                             {
                         portset.parameters.sip.maxforward = (yyvsp[0].number);
                   }
-#line 5317 "src/y.tab.c" /* yacc.c:1646  */
+#line 5413 "src/y.tab.c"
     break;
 
   case 514:
-#line 1825 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1825 "src/p.y"
+                           {
                         portset.parameters.http.username = (yyvsp[0].string);
                   }
-#line 5325 "src/y.tab.c" /* yacc.c:1646  */
+#line 5421 "src/y.tab.c"
     break;
 
   case 515:
-#line 1828 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1828 "src/p.y"
+                           {
                         portset.parameters.http.password = (yyvsp[0].string);
                   }
-#line 5333 "src/y.tab.c" /* yacc.c:1646  */
+#line 5429 "src/y.tab.c"
     break;
 
   case 522:
-#line 1839 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1839 "src/p.y"
+                                         {
                         if ((yyvsp[0].number) < 0) {
                                 yyerror2("The status value must be greater or equal to 0");
                         }
@@ -5342,256 +5438,256 @@ yyreduce:
                         portset.parameters.http.status = (yyvsp[0].number);
                         portset.parameters.http.hasStatus = true;
                   }
-#line 5346 "src/y.tab.c" /* yacc.c:1646  */
+#line 5442 "src/y.tab.c"
     break;
 
   case 523:
-#line 1849 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1849 "src/p.y"
+                             {
                         portset.parameters.http.method = Http_Get;
                   }
-#line 5354 "src/y.tab.c" /* yacc.c:1646  */
+#line 5450 "src/y.tab.c"
     break;
 
   case 524:
-#line 1852 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1852 "src/p.y"
+                              {
                         portset.parameters.http.method = Http_Head;
                   }
-#line 5362 "src/y.tab.c" /* yacc.c:1646  */
+#line 5458 "src/y.tab.c"
     break;
 
   case 525:
-#line 1857 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1857 "src/p.y"
+                               {
                         portset.parameters.http.request = Util_urlEncode((yyvsp[0].string), false);
                         FREE((yyvsp[0].string));
                   }
-#line 5371 "src/y.tab.c" /* yacc.c:1646  */
+#line 5467 "src/y.tab.c"
     break;
 
   case 526:
-#line 1861 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1861 "src/p.y"
+                                 {
                         portset.parameters.http.request = Util_urlEncode((yyvsp[0].string), false);
                         FREE((yyvsp[0].string));
                   }
-#line 5380 "src/y.tab.c" /* yacc.c:1646  */
+#line 5476 "src/y.tab.c"
     break;
 
   case 527:
-#line 1867 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1867 "src/p.y"
+                                  {
                         portset.parameters.http.checksum = (yyvsp[0].string);
                   }
-#line 5388 "src/y.tab.c" /* yacc.c:1646  */
+#line 5484 "src/y.tab.c"
     break;
 
   case 528:
-#line 1872 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1872 "src/p.y"
+                                    {
                         addhttpheader(&portset, Str_cat("Host:%s", (yyvsp[0].string)));
                         FREE((yyvsp[0].string));
                   }
-#line 5397 "src/y.tab.c" /* yacc.c:1646  */
+#line 5493 "src/y.tab.c"
     break;
 
   case 530:
-#line 1879 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1879 "src/p.y"
+                                            {
                         addhttpheader(&portset, (yyvsp[0].string));
                  }
-#line 5405 "src/y.tab.c" /* yacc.c:1646  */
+#line 5501 "src/y.tab.c"
     break;
 
   case 531:
-#line 1884 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1884 "src/p.y"
+                                {
                         (yyval.string) = (yyvsp[0].string);
                   }
-#line 5413 "src/y.tab.c" /* yacc.c:1646  */
+#line 5509 "src/y.tab.c"
     break;
 
   case 534:
-#line 1893 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1893 "src/p.y"
+                         {
                         portset.parameters.radius.secret = (yyvsp[0].string);
                   }
-#line 5421 "src/y.tab.c" /* yacc.c:1646  */
+#line 5517 "src/y.tab.c"
     break;
 
   case 537:
-#line 1902 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1902 "src/p.y"
+                           {
                         portset.parameters.apachestatus.username = (yyvsp[0].string);
                   }
-#line 5429 "src/y.tab.c" /* yacc.c:1646  */
+#line 5525 "src/y.tab.c"
     break;
 
   case 538:
-#line 1905 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1905 "src/p.y"
+                           {
                         portset.parameters.apachestatus.password = (yyvsp[0].string);
                   }
-#line 5437 "src/y.tab.c" /* yacc.c:1646  */
+#line 5533 "src/y.tab.c"
     break;
 
   case 539:
-#line 1908 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1908 "src/p.y"
+                               {
                         portset.parameters.apachestatus.path = (yyvsp[0].string);
                   }
-#line 5445 "src/y.tab.c" /* yacc.c:1646  */
+#line 5541 "src/y.tab.c"
     break;
 
   case 540:
-#line 1911 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1911 "src/p.y"
+                                                   {
                         portset.parameters.apachestatus.loglimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.loglimit = (yyvsp[-1].number);
                   }
-#line 5454 "src/y.tab.c" /* yacc.c:1646  */
+#line 5550 "src/y.tab.c"
     break;
 
   case 541:
-#line 1915 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1915 "src/p.y"
+                                                     {
                         portset.parameters.apachestatus.closelimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.closelimit = (yyvsp[-1].number);
                   }
-#line 5463 "src/y.tab.c" /* yacc.c:1646  */
+#line 5559 "src/y.tab.c"
     break;
 
   case 542:
-#line 1919 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1919 "src/p.y"
+                                                   {
                         portset.parameters.apachestatus.dnslimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.dnslimit = (yyvsp[-1].number);
                   }
-#line 5472 "src/y.tab.c" /* yacc.c:1646  */
+#line 5568 "src/y.tab.c"
     break;
 
   case 543:
-#line 1923 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1923 "src/p.y"
+                                                         {
                         portset.parameters.apachestatus.keepalivelimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.keepalivelimit = (yyvsp[-1].number);
                   }
-#line 5481 "src/y.tab.c" /* yacc.c:1646  */
+#line 5577 "src/y.tab.c"
     break;
 
   case 544:
-#line 1927 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1927 "src/p.y"
+                                                     {
                         portset.parameters.apachestatus.replylimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.replylimit = (yyvsp[-1].number);
                   }
-#line 5490 "src/y.tab.c" /* yacc.c:1646  */
+#line 5586 "src/y.tab.c"
     break;
 
   case 545:
-#line 1931 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1931 "src/p.y"
+                                                       {
                         portset.parameters.apachestatus.requestlimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.requestlimit = (yyvsp[-1].number);
                   }
-#line 5499 "src/y.tab.c" /* yacc.c:1646  */
+#line 5595 "src/y.tab.c"
     break;
 
   case 546:
-#line 1935 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1935 "src/p.y"
+                                                     {
                         portset.parameters.apachestatus.startlimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.startlimit = (yyvsp[-1].number);
                   }
-#line 5508 "src/y.tab.c" /* yacc.c:1646  */
+#line 5604 "src/y.tab.c"
     break;
 
   case 547:
-#line 1939 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1939 "src/p.y"
+                                                    {
                         portset.parameters.apachestatus.waitlimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.waitlimit = (yyvsp[-1].number);
                   }
-#line 5517 "src/y.tab.c" /* yacc.c:1646  */
+#line 5613 "src/y.tab.c"
     break;
 
   case 548:
-#line 1943 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1943 "src/p.y"
+                                                        {
                         portset.parameters.apachestatus.gracefullimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.gracefullimit = (yyvsp[-1].number);
                   }
-#line 5526 "src/y.tab.c" /* yacc.c:1646  */
+#line 5622 "src/y.tab.c"
     break;
 
   case 549:
-#line 1947 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1947 "src/p.y"
+                                                       {
                         portset.parameters.apachestatus.cleanuplimitOP = (yyvsp[-2].number);
                         portset.parameters.apachestatus.cleanuplimit = (yyvsp[-1].number);
                   }
-#line 5535 "src/y.tab.c" /* yacc.c:1646  */
+#line 5631 "src/y.tab.c"
     break;
 
   case 550:
-#line 1953 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1953 "src/p.y"
+                                                           {
                         addeventaction(&(nonexistset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addnonexist(&nonexistset);
                   }
-#line 5544 "src/y.tab.c" /* yacc.c:1646  */
+#line 5640 "src/y.tab.c"
     break;
 
   case 551:
-#line 1957 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1957 "src/p.y"
+                                                       {
                         addeventaction(&(existset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addexist(&existset);
                   }
-#line 5553 "src/y.tab.c" /* yacc.c:1646  */
+#line 5649 "src/y.tab.c"
     break;
 
   case 552:
-#line 1964 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1964 "src/p.y"
+                                                    {
                         addeventaction(&(pidset).action, (yyvsp[0].number), Action_Ignored);
                         addpid(&pidset);
                   }
-#line 5562 "src/y.tab.c" /* yacc.c:1646  */
+#line 5658 "src/y.tab.c"
     break;
 
   case 553:
-#line 1970 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1970 "src/p.y"
+                                                     {
                         addeventaction(&(ppidset).action, (yyvsp[0].number), Action_Ignored);
                         addppid(&ppidset);
                   }
-#line 5571 "src/y.tab.c" /* yacc.c:1646  */
+#line 5667 "src/y.tab.c"
     break;
 
   case 554:
-#line 1976 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1976 "src/p.y"
+                                                                             {
                         uptimeset.operator = (yyvsp[-6].number);
                         uptimeset.uptime = ((unsigned long long)(yyvsp[-5].number) * (yyvsp[-4].number));
                         addeventaction(&(uptimeset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         adduptime(&uptimeset);
                   }
-#line 5582 "src/y.tab.c" /* yacc.c:1646  */
+#line 5678 "src/y.tab.c"
     break;
 
   case 555:
-#line 1984 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1984 "src/p.y"
+                               {
                         icmpset.count = (yyvsp[0].number);
                  }
-#line 5590 "src/y.tab.c" /* yacc.c:1646  */
+#line 5686 "src/y.tab.c"
     break;
 
   case 556:
-#line 1989 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1989 "src/p.y"
+                              {
                         icmpset.size = (yyvsp[0].number);
                         if (icmpset.size < 8) {
                                 yyerror2("The minimum ping size is 8 bytes");
@@ -5599,788 +5695,788 @@ yyreduce:
                                 yyerror2("The maximum ping size is 1492 bytes");
                         }
                  }
-#line 5603 "src/y.tab.c" /* yacc.c:1646  */
+#line 5699 "src/y.tab.c"
     break;
 
   case 557:
-#line 1999 "src/p.y" /* yacc.c:1646  */
-    {
+#line 1999 "src/p.y"
+                                        {
                         icmpset.timeout = (yyvsp[-1].number) * 1000; // timeout is in milliseconds internally
                     }
-#line 5611 "src/y.tab.c" /* yacc.c:1646  */
+#line 5707 "src/y.tab.c"
     break;
 
   case 558:
-#line 2004 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2004 "src/p.y"
+                                 {
                         _parseOutgoingAddress((yyvsp[0].string), &(icmpset.outgoing));
                   }
-#line 5619 "src/y.tab.c" /* yacc.c:1646  */
+#line 5715 "src/y.tab.c"
     break;
 
   case 559:
-#line 2009 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2009 "src/p.y"
+                              {
                         (yyval.number) = Run.limits.stopTimeout;
                   }
-#line 5627 "src/y.tab.c" /* yacc.c:1646  */
+#line 5723 "src/y.tab.c"
     break;
 
   case 560:
-#line 2012 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2012 "src/p.y"
+                                        {
                         (yyval.number) = (yyvsp[-1].number) * 1000; // milliseconds internally
                   }
-#line 5635 "src/y.tab.c" /* yacc.c:1646  */
+#line 5731 "src/y.tab.c"
     break;
 
   case 561:
-#line 2017 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2017 "src/p.y"
+                              {
                         (yyval.number) = Run.limits.startTimeout;
                   }
-#line 5643 "src/y.tab.c" /* yacc.c:1646  */
+#line 5739 "src/y.tab.c"
     break;
 
   case 562:
-#line 2020 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2020 "src/p.y"
+                                        {
                         (yyval.number) = (yyvsp[-1].number) * 1000; // milliseconds internally
                   }
-#line 5651 "src/y.tab.c" /* yacc.c:1646  */
+#line 5747 "src/y.tab.c"
     break;
 
   case 563:
-#line 2025 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2025 "src/p.y"
+                              {
                         (yyval.number) = Run.limits.restartTimeout;
                   }
-#line 5659 "src/y.tab.c" /* yacc.c:1646  */
+#line 5755 "src/y.tab.c"
     break;
 
   case 564:
-#line 2028 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2028 "src/p.y"
+                                        {
                         (yyval.number) = (yyvsp[-1].number) * 1000; // milliseconds internally
                   }
-#line 5667 "src/y.tab.c" /* yacc.c:1646  */
+#line 5763 "src/y.tab.c"
     break;
 
   case 565:
-#line 2033 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2033 "src/p.y"
+                              {
                         (yyval.number) = Run.limits.programTimeout;
                   }
-#line 5675 "src/y.tab.c" /* yacc.c:1646  */
+#line 5771 "src/y.tab.c"
     break;
 
   case 566:
-#line 2036 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2036 "src/p.y"
+                                        {
                         (yyval.number) = (yyvsp[-1].number) * 1000; // milliseconds internally
                   }
-#line 5683 "src/y.tab.c" /* yacc.c:1646  */
+#line 5779 "src/y.tab.c"
     break;
 
   case 567:
-#line 2041 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2041 "src/p.y"
+                              {
                         (yyval.number) = Run.limits.networkTimeout;
                   }
-#line 5691 "src/y.tab.c" /* yacc.c:1646  */
+#line 5787 "src/y.tab.c"
     break;
 
   case 568:
-#line 2044 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2044 "src/p.y"
+                                        {
                         (yyval.number) = (yyvsp[-1].number) * 1000; // net timeout is in milliseconds internally
                   }
-#line 5699 "src/y.tab.c" /* yacc.c:1646  */
+#line 5795 "src/y.tab.c"
     break;
 
   case 569:
-#line 2049 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2049 "src/p.y"
+                                          {
                         portset.timeout = (yyvsp[-1].number) * 1000; // timeout is in milliseconds internally
                     }
-#line 5707 "src/y.tab.c" /* yacc.c:1646  */
+#line 5803 "src/y.tab.c"
     break;
 
   case 570:
-#line 2054 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2054 "src/p.y"
+                               {
                         portset.retry = (yyvsp[0].number);
                   }
-#line 5715 "src/y.tab.c" /* yacc.c:1646  */
+#line 5811 "src/y.tab.c"
     break;
 
   case 571:
-#line 2059 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2059 "src/p.y"
+                                                              {
                         actionrateset.count = (yyvsp[-5].number);
                         actionrateset.cycle = (yyvsp[-3].number);
                         addeventaction(&(actionrateset).action, (yyvsp[0].number), Action_Alert);
                         addactionrate(&actionrateset);
                   }
-#line 5726 "src/y.tab.c" /* yacc.c:1646  */
+#line 5822 "src/y.tab.c"
     break;
 
   case 572:
-#line 2065 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2065 "src/p.y"
+                                                              {
                         actionrateset.count = (yyvsp[-5].number);
                         actionrateset.cycle = (yyvsp[-3].number);
                         addeventaction(&(actionrateset).action, Action_Unmonitor, Action_Alert);
                         addactionrate(&actionrateset);
                   }
-#line 5737 "src/y.tab.c" /* yacc.c:1646  */
+#line 5833 "src/y.tab.c"
     break;
 
   case 573:
-#line 2073 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2073 "src/p.y"
+                                             {
                         seturlrequest((yyvsp[-1].number), (yyvsp[0].string));
                         FREE((yyvsp[0].string));
                   }
-#line 5746 "src/y.tab.c" /* yacc.c:1646  */
+#line 5842 "src/y.tab.c"
     break;
 
   case 574:
-#line 2079 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_Equal; }
-#line 5752 "src/y.tab.c" /* yacc.c:1646  */
+#line 2079 "src/p.y"
+                           { (yyval.number) = Operator_Equal; }
+#line 5848 "src/y.tab.c"
     break;
 
   case 575:
-#line 2080 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_NotEqual; }
-#line 5758 "src/y.tab.c" /* yacc.c:1646  */
+#line 2080 "src/p.y"
+                           { (yyval.number) = Operator_NotEqual; }
+#line 5854 "src/y.tab.c"
     break;
 
   case 576:
-#line 2083 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2083 "src/p.y"
+                                                {
                         mailset.events = Event_All;
                         addmail((yyvsp[-2].string), &mailset, &current->maillist);
                   }
-#line 5767 "src/y.tab.c" /* yacc.c:1646  */
+#line 5863 "src/y.tab.c"
     break;
 
   case 577:
-#line 2087 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2087 "src/p.y"
+                                                                        {
                         addmail((yyvsp[-5].string), &mailset, &current->maillist);
                   }
-#line 5775 "src/y.tab.c" /* yacc.c:1646  */
+#line 5871 "src/y.tab.c"
     break;
 
   case 578:
-#line 2090 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2090 "src/p.y"
+                                                                            {
                         mailset.events = ~mailset.events;
                         addmail((yyvsp[-6].string), &mailset, &current->maillist);
                   }
-#line 5784 "src/y.tab.c" /* yacc.c:1646  */
+#line 5880 "src/y.tab.c"
     break;
 
   case 579:
-#line 2094 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2094 "src/p.y"
+                              {
                         addmail((yyvsp[0].string), &mailset, &current->maillist);
                   }
-#line 5792 "src/y.tab.c" /* yacc.c:1646  */
+#line 5888 "src/y.tab.c"
     break;
 
   case 580:
-#line 2099 "src/p.y" /* yacc.c:1646  */
-    { (yyval.string) = (yyvsp[0].string); }
-#line 5798 "src/y.tab.c" /* yacc.c:1646  */
+#line 2099 "src/p.y"
+                                 { (yyval.string) = (yyvsp[0].string); }
+#line 5894 "src/y.tab.c"
     break;
 
   case 581:
-#line 2102 "src/p.y" /* yacc.c:1646  */
-    { (yyval.string) = (yyvsp[0].string); }
-#line 5804 "src/y.tab.c" /* yacc.c:1646  */
+#line 2102 "src/p.y"
+                                   { (yyval.string) = (yyvsp[0].string); }
+#line 5900 "src/y.tab.c"
     break;
 
   case 584:
-#line 2109 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Action; }
-#line 5810 "src/y.tab.c" /* yacc.c:1646  */
+#line 2109 "src/p.y"
+                                  { mailset.events |= Event_Action; }
+#line 5906 "src/y.tab.c"
     break;
 
   case 585:
-#line 2110 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_ByteIn; }
-#line 5816 "src/y.tab.c" /* yacc.c:1646  */
+#line 2110 "src/p.y"
+                                  { mailset.events |= Event_ByteIn; }
+#line 5912 "src/y.tab.c"
     break;
 
   case 586:
-#line 2111 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_ByteOut; }
-#line 5822 "src/y.tab.c" /* yacc.c:1646  */
+#line 2111 "src/p.y"
+                                  { mailset.events |= Event_ByteOut; }
+#line 5918 "src/y.tab.c"
     break;
 
   case 587:
-#line 2112 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Checksum; }
-#line 5828 "src/y.tab.c" /* yacc.c:1646  */
+#line 2112 "src/p.y"
+                                  { mailset.events |= Event_Checksum; }
+#line 5924 "src/y.tab.c"
     break;
 
   case 588:
-#line 2113 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Connection; }
-#line 5834 "src/y.tab.c" /* yacc.c:1646  */
+#line 2113 "src/p.y"
+                                  { mailset.events |= Event_Connection; }
+#line 5930 "src/y.tab.c"
     break;
 
   case 589:
-#line 2114 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Content; }
-#line 5840 "src/y.tab.c" /* yacc.c:1646  */
+#line 2114 "src/p.y"
+                                  { mailset.events |= Event_Content; }
+#line 5936 "src/y.tab.c"
     break;
 
   case 590:
-#line 2115 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Data; }
-#line 5846 "src/y.tab.c" /* yacc.c:1646  */
+#line 2115 "src/p.y"
+                                  { mailset.events |= Event_Data; }
+#line 5942 "src/y.tab.c"
     break;
 
   case 591:
-#line 2116 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Exec; }
-#line 5852 "src/y.tab.c" /* yacc.c:1646  */
+#line 2116 "src/p.y"
+                                  { mailset.events |= Event_Exec; }
+#line 5948 "src/y.tab.c"
     break;
 
   case 592:
-#line 2117 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Exist; }
-#line 5858 "src/y.tab.c" /* yacc.c:1646  */
+#line 2117 "src/p.y"
+                                  { mailset.events |= Event_Exist; }
+#line 5954 "src/y.tab.c"
     break;
 
   case 593:
-#line 2118 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_FsFlag; }
-#line 5864 "src/y.tab.c" /* yacc.c:1646  */
+#line 2118 "src/p.y"
+                                  { mailset.events |= Event_FsFlag; }
+#line 5960 "src/y.tab.c"
     break;
 
   case 594:
-#line 2119 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Gid; }
-#line 5870 "src/y.tab.c" /* yacc.c:1646  */
+#line 2119 "src/p.y"
+                                  { mailset.events |= Event_Gid; }
+#line 5966 "src/y.tab.c"
     break;
 
   case 595:
-#line 2120 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Icmp; }
-#line 5876 "src/y.tab.c" /* yacc.c:1646  */
+#line 2120 "src/p.y"
+                                  { mailset.events |= Event_Icmp; }
+#line 5972 "src/y.tab.c"
     break;
 
   case 596:
-#line 2121 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Instance; }
-#line 5882 "src/y.tab.c" /* yacc.c:1646  */
+#line 2121 "src/p.y"
+                                  { mailset.events |= Event_Instance; }
+#line 5978 "src/y.tab.c"
     break;
 
   case 597:
-#line 2122 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Invalid; }
-#line 5888 "src/y.tab.c" /* yacc.c:1646  */
+#line 2122 "src/p.y"
+                                  { mailset.events |= Event_Invalid; }
+#line 5984 "src/y.tab.c"
     break;
 
   case 598:
-#line 2123 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Link; }
-#line 5894 "src/y.tab.c" /* yacc.c:1646  */
+#line 2123 "src/p.y"
+                                  { mailset.events |= Event_Link; }
+#line 5990 "src/y.tab.c"
     break;
 
   case 599:
-#line 2124 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_NonExist; }
-#line 5900 "src/y.tab.c" /* yacc.c:1646  */
+#line 2124 "src/p.y"
+                                  { mailset.events |= Event_NonExist; }
+#line 5996 "src/y.tab.c"
     break;
 
   case 600:
-#line 2125 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_PacketIn; }
-#line 5906 "src/y.tab.c" /* yacc.c:1646  */
+#line 2125 "src/p.y"
+                                  { mailset.events |= Event_PacketIn; }
+#line 6002 "src/y.tab.c"
     break;
 
   case 601:
-#line 2126 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_PacketOut; }
-#line 5912 "src/y.tab.c" /* yacc.c:1646  */
+#line 2126 "src/p.y"
+                                  { mailset.events |= Event_PacketOut; }
+#line 6008 "src/y.tab.c"
     break;
 
   case 602:
-#line 2127 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Permission; }
-#line 5918 "src/y.tab.c" /* yacc.c:1646  */
+#line 2127 "src/p.y"
+                                  { mailset.events |= Event_Permission; }
+#line 6014 "src/y.tab.c"
     break;
 
   case 603:
-#line 2128 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Pid; }
-#line 5924 "src/y.tab.c" /* yacc.c:1646  */
+#line 2128 "src/p.y"
+                                  { mailset.events |= Event_Pid; }
+#line 6020 "src/y.tab.c"
     break;
 
   case 604:
-#line 2129 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_PPid; }
-#line 5930 "src/y.tab.c" /* yacc.c:1646  */
+#line 2129 "src/p.y"
+                                  { mailset.events |= Event_PPid; }
+#line 6026 "src/y.tab.c"
     break;
 
   case 605:
-#line 2130 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Resource; }
-#line 5936 "src/y.tab.c" /* yacc.c:1646  */
+#line 2130 "src/p.y"
+                                  { mailset.events |= Event_Resource; }
+#line 6032 "src/y.tab.c"
     break;
 
   case 606:
-#line 2131 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Saturation; }
-#line 5942 "src/y.tab.c" /* yacc.c:1646  */
+#line 2131 "src/p.y"
+                                  { mailset.events |= Event_Saturation; }
+#line 6038 "src/y.tab.c"
     break;
 
   case 607:
-#line 2132 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Size; }
-#line 5948 "src/y.tab.c" /* yacc.c:1646  */
+#line 2132 "src/p.y"
+                                  { mailset.events |= Event_Size; }
+#line 6044 "src/y.tab.c"
     break;
 
   case 608:
-#line 2133 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Speed; }
-#line 5954 "src/y.tab.c" /* yacc.c:1646  */
+#line 2133 "src/p.y"
+                                  { mailset.events |= Event_Speed; }
+#line 6050 "src/y.tab.c"
     break;
 
   case 609:
-#line 2134 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Status; }
-#line 5960 "src/y.tab.c" /* yacc.c:1646  */
+#line 2134 "src/p.y"
+                                  { mailset.events |= Event_Status; }
+#line 6056 "src/y.tab.c"
     break;
 
   case 610:
-#line 2135 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Timeout; }
-#line 5966 "src/y.tab.c" /* yacc.c:1646  */
+#line 2135 "src/p.y"
+                                  { mailset.events |= Event_Timeout; }
+#line 6062 "src/y.tab.c"
     break;
 
   case 611:
-#line 2136 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Timestamp; }
-#line 5972 "src/y.tab.c" /* yacc.c:1646  */
+#line 2136 "src/p.y"
+                                  { mailset.events |= Event_Timestamp; }
+#line 6068 "src/y.tab.c"
     break;
 
   case 612:
-#line 2137 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Uid; }
-#line 5978 "src/y.tab.c" /* yacc.c:1646  */
+#line 2137 "src/p.y"
+                                  { mailset.events |= Event_Uid; }
+#line 6074 "src/y.tab.c"
     break;
 
   case 613:
-#line 2138 "src/p.y" /* yacc.c:1646  */
-    { mailset.events |= Event_Uptime; }
-#line 5984 "src/y.tab.c" /* yacc.c:1646  */
+#line 2138 "src/p.y"
+                                  { mailset.events |= Event_Uptime; }
+#line 6080 "src/y.tab.c"
     break;
 
   case 618:
-#line 2149 "src/p.y" /* yacc.c:1646  */
-    { mailset.from = (yyvsp[-1].address); }
-#line 5990 "src/y.tab.c" /* yacc.c:1646  */
+#line 2149 "src/p.y"
+                                         { mailset.from = (yyvsp[-1].address); }
+#line 6086 "src/y.tab.c"
     break;
 
   case 619:
-#line 2150 "src/p.y" /* yacc.c:1646  */
-    { mailset.replyto = (yyvsp[-1].address); }
-#line 5996 "src/y.tab.c" /* yacc.c:1646  */
+#line 2150 "src/p.y"
+                                            { mailset.replyto = (yyvsp[-1].address); }
+#line 6092 "src/y.tab.c"
     break;
 
   case 620:
-#line 2151 "src/p.y" /* yacc.c:1646  */
-    { mailset.subject = (yyvsp[0].string); }
-#line 6002 "src/y.tab.c" /* yacc.c:1646  */
+#line 2151 "src/p.y"
+                              { mailset.subject = (yyvsp[0].string); }
+#line 6098 "src/y.tab.c"
     break;
 
   case 621:
-#line 2152 "src/p.y" /* yacc.c:1646  */
-    { mailset.message = (yyvsp[0].string); }
-#line 6008 "src/y.tab.c" /* yacc.c:1646  */
+#line 2152 "src/p.y"
+                           { mailset.message = (yyvsp[0].string); }
+#line 6104 "src/y.tab.c"
     break;
 
   case 622:
-#line 2155 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2155 "src/p.y"
+                                     {
                         current->every.type = Every_SkipCycles;
                         current->every.spec.cycle.counter = current->every.spec.cycle.number = (yyvsp[-1].number);
                  }
-#line 6017 "src/y.tab.c" /* yacc.c:1646  */
+#line 6113 "src/y.tab.c"
     break;
 
   case 623:
-#line 2159 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2159 "src/p.y"
+                                 {
                         current->every.type = Every_Cron;
                         current->every.spec.cron = (yyvsp[0].string);
                  }
-#line 6026 "src/y.tab.c" /* yacc.c:1646  */
+#line 6122 "src/y.tab.c"
     break;
 
   case 624:
-#line 2163 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2163 "src/p.y"
+                                    {
                         current->every.type = Every_NotInCron;
                         current->every.spec.cron = (yyvsp[0].string);
                  }
-#line 6035 "src/y.tab.c" /* yacc.c:1646  */
+#line 6131 "src/y.tab.c"
     break;
 
   case 625:
-#line 2169 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2169 "src/p.y"
+                              {
                         current->mode = Monitor_Active;
                   }
-#line 6043 "src/y.tab.c" /* yacc.c:1646  */
+#line 6139 "src/y.tab.c"
     break;
 
   case 626:
-#line 2172 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2172 "src/p.y"
+                               {
                         current->mode = Monitor_Passive;
                   }
-#line 6051 "src/y.tab.c" /* yacc.c:1646  */
+#line 6147 "src/y.tab.c"
     break;
 
   case 627:
-#line 2175 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2175 "src/p.y"
+                              {
                         // Deprecated since monit 5.18
                         current->onreboot = Onreboot_Laststate;
                   }
-#line 6060 "src/y.tab.c" /* yacc.c:1646  */
+#line 6156 "src/y.tab.c"
     break;
 
   case 628:
-#line 2181 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2181 "src/p.y"
+                                 {
                         current->onreboot = Onreboot_Start;
                   }
-#line 6068 "src/y.tab.c" /* yacc.c:1646  */
+#line 6164 "src/y.tab.c"
     break;
 
   case 629:
-#line 2184 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2184 "src/p.y"
+                                   {
                         current->onreboot = Onreboot_Nostart;
                         current->monitor = Monitor_Not;
                   }
-#line 6077 "src/y.tab.c" /* yacc.c:1646  */
+#line 6173 "src/y.tab.c"
     break;
 
   case 630:
-#line 2188 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2188 "src/p.y"
+                                     {
                         current->onreboot = Onreboot_Laststate;
                   }
-#line 6085 "src/y.tab.c" /* yacc.c:1646  */
+#line 6181 "src/y.tab.c"
     break;
 
   case 631:
-#line 2193 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2193 "src/p.y"
+                                   {
                         addservicegroup((yyvsp[0].string));
                         FREE((yyvsp[0].string));
                   }
-#line 6094 "src/y.tab.c" /* yacc.c:1646  */
+#line 6190 "src/y.tab.c"
     break;
 
   case 635:
-#line 2207 "src/p.y" /* yacc.c:1646  */
-    { adddependant((yyvsp[0].string)); }
-#line 6100 "src/y.tab.c" /* yacc.c:1646  */
+#line 2207 "src/p.y"
+                              { adddependant((yyvsp[0].string)); }
+#line 6196 "src/y.tab.c"
     break;
 
   case 636:
-#line 2210 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2210 "src/p.y"
+                                                                        {
                         statusset.initialized = true;
                         statusset.operator = (yyvsp[-5].number);
                         statusset.return_value = (yyvsp[-4].number);
                         addeventaction(&(statusset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addstatus(&statusset);
                    }
-#line 6112 "src/y.tab.c" /* yacc.c:1646  */
+#line 6208 "src/y.tab.c"
     break;
 
   case 637:
-#line 2217 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2217 "src/p.y"
+                                                       {
                         statusset.initialized = false;
                         statusset.operator = Operator_Changed;
                         statusset.return_value = 0;
                         addeventaction(&(statusset).action, (yyvsp[0].number), Action_Ignored);
                         addstatus(&statusset);
                    }
-#line 6124 "src/y.tab.c" /* yacc.c:1646  */
+#line 6220 "src/y.tab.c"
     break;
 
   case 638:
-#line 2226 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2226 "src/p.y"
+                                                                     {
                         addeventaction(&(resourceset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addresource(&resourceset);
                    }
-#line 6133 "src/y.tab.c" /* yacc.c:1646  */
+#line 6229 "src/y.tab.c"
     break;
 
   case 648:
-#line 2245 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2245 "src/p.y"
+                                                                    {
                         addeventaction(&(resourceset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addresource(&resourceset);
                    }
-#line 6142 "src/y.tab.c" /* yacc.c:1646  */
+#line 6238 "src/y.tab.c"
     break;
 
   case 655:
-#line 2261 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2261 "src/p.y"
+                                             {
                         resourceset.resource_id = Resource_CpuPercent;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6152 "src/y.tab.c" /* yacc.c:1646  */
+#line 6248 "src/y.tab.c"
     break;
 
   case 656:
-#line 2266 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2266 "src/p.y"
+                                                  {
                         resourceset.resource_id = Resource_CpuPercentTotal;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6162 "src/y.tab.c" /* yacc.c:1646  */
+#line 6258 "src/y.tab.c"
     break;
 
   case 657:
-#line 2273 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2273 "src/p.y"
+                                                       {
                         resourceset.resource_id = (yyvsp[-3].number);
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6172 "src/y.tab.c" /* yacc.c:1646  */
+#line 6268 "src/y.tab.c"
     break;
 
   case 658:
-#line 2280 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2280 "src/p.y"
+                          {
                         if (systeminfo.statisticsAvailable & Statistics_CpuUser)
                                 (yyval.number) = Resource_CpuUser;
                         else
                                 yywarning2("The CPU user usage statistics is not available on this system\n");
                   }
-#line 6183 "src/y.tab.c" /* yacc.c:1646  */
+#line 6279 "src/y.tab.c"
     break;
 
   case 659:
-#line 2286 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2286 "src/p.y"
+                            {
                         if (systeminfo.statisticsAvailable & Statistics_CpuSystem)
                                 (yyval.number) = Resource_CpuSystem;
                         else
                                 yywarning2("The CPU system usage statistics is not available on this system\n");
                   }
-#line 6194 "src/y.tab.c" /* yacc.c:1646  */
+#line 6290 "src/y.tab.c"
     break;
 
   case 660:
-#line 2292 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2292 "src/p.y"
+                          {
                         if (systeminfo.statisticsAvailable & Statistics_CpuIOWait)
                                 (yyval.number) = Resource_CpuWait;
                         else
                                 yywarning2("The CPU I/O wait usage statistics is not available on this system\n");
                   }
-#line 6205 "src/y.tab.c" /* yacc.c:1646  */
+#line 6301 "src/y.tab.c"
     break;
 
   case 661:
-#line 2298 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2298 "src/p.y"
+                          {
                         if (systeminfo.statisticsAvailable & Statistics_CpuNice)
                                 (yyval.number) = Resource_CpuNice;
                         else
                                 yywarning2("The CPU nice usage statistics is not available on this system\n");
                   }
-#line 6216 "src/y.tab.c" /* yacc.c:1646  */
+#line 6312 "src/y.tab.c"
     break;
 
   case 662:
-#line 2304 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2304 "src/p.y"
+                             {
                         if (systeminfo.statisticsAvailable & Statistics_CpuHardIRQ)
                                 (yyval.number) = Resource_CpuHardIRQ;
                         else
                                 yywarning2("The CPU hardware IRQ usage statistics is not available on this system\n");
                   }
-#line 6227 "src/y.tab.c" /* yacc.c:1646  */
+#line 6323 "src/y.tab.c"
     break;
 
   case 663:
-#line 2310 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2310 "src/p.y"
+                             {
                         if (systeminfo.statisticsAvailable & Statistics_CpuSoftIRQ)
                                 (yyval.number) = Resource_CpuSoftIRQ;
                         else
                                 yywarning2("The CPU software IRQ usage statistics is not available on this system\n");
                   }
-#line 6238 "src/y.tab.c" /* yacc.c:1646  */
+#line 6334 "src/y.tab.c"
     break;
 
   case 664:
-#line 2316 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2316 "src/p.y"
+                           {
                         if (systeminfo.statisticsAvailable & Statistics_CpuSteal)
                                 (yyval.number) = Resource_CpuSteal;
                         else
                                 yywarning2("The CPU steal usage statistics is not available on this system\n");
                   }
-#line 6249 "src/y.tab.c" /* yacc.c:1646  */
+#line 6345 "src/y.tab.c"
     break;
 
   case 665:
-#line 2322 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2322 "src/p.y"
+                           {
                         if (systeminfo.statisticsAvailable & Statistics_CpuGuest)
                                 (yyval.number) = Resource_CpuGuest;
                         else
                                 yywarning2("The CPU guest usage statistics is not available on this system\n");
                   }
-#line 6260 "src/y.tab.c" /* yacc.c:1646  */
+#line 6356 "src/y.tab.c"
     break;
 
   case 666:
-#line 2328 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2328 "src/p.y"
+                               {
                         if (systeminfo.statisticsAvailable & Statistics_CpuGuestNice)
                                 (yyval.number) = Resource_CpuGuestNice;
                         else
                                 yywarning2("The CPU guest nice usage statistics is not available on this system\n");
                   }
-#line 6271 "src/y.tab.c" /* yacc.c:1646  */
+#line 6367 "src/y.tab.c"
     break;
 
   case 667:
-#line 2334 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2334 "src/p.y"
+                      {
                         (yyval.number) = Resource_CpuPercent;
                   }
-#line 6279 "src/y.tab.c" /* yacc.c:1646  */
+#line 6375 "src/y.tab.c"
     break;
 
   case 668:
-#line 2339 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2339 "src/p.y"
+                                             {
                         resourceset.resource_id = Resource_MemoryKbyte;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real) * (yyvsp[0].number);
                   }
-#line 6289 "src/y.tab.c" /* yacc.c:1646  */
+#line 6385 "src/y.tab.c"
     break;
 
   case 669:
-#line 2344 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2344 "src/p.y"
+                                                {
                         resourceset.resource_id = Resource_MemoryPercent;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6299 "src/y.tab.c" /* yacc.c:1646  */
+#line 6395 "src/y.tab.c"
     break;
 
   case 670:
-#line 2351 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2351 "src/p.y"
+                                             {
                         resourceset.resource_id = Resource_MemoryKbyte;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real) * (yyvsp[0].number);
                   }
-#line 6309 "src/y.tab.c" /* yacc.c:1646  */
+#line 6405 "src/y.tab.c"
     break;
 
   case 671:
-#line 2356 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2356 "src/p.y"
+                                                {
                         resourceset.resource_id = Resource_MemoryPercent;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6319 "src/y.tab.c" /* yacc.c:1646  */
+#line 6415 "src/y.tab.c"
     break;
 
   case 672:
-#line 2361 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2361 "src/p.y"
+                                                  {
                         resourceset.resource_id = Resource_MemoryKbyteTotal;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real) * (yyvsp[0].number);
                   }
-#line 6329 "src/y.tab.c" /* yacc.c:1646  */
+#line 6425 "src/y.tab.c"
     break;
 
   case 673:
-#line 2366 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2366 "src/p.y"
+                                                      {
                         resourceset.resource_id = Resource_MemoryPercentTotal;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6339 "src/y.tab.c" /* yacc.c:1646  */
+#line 6435 "src/y.tab.c"
     break;
 
   case 674:
-#line 2373 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2373 "src/p.y"
+                                           {
                         resourceset.resource_id = Resource_SwapKbyte;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real) * (yyvsp[0].number);
                   }
-#line 6349 "src/y.tab.c" /* yacc.c:1646  */
+#line 6445 "src/y.tab.c"
     break;
 
   case 675:
-#line 2378 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2378 "src/p.y"
+                                              {
                         resourceset.resource_id = Resource_SwapPercent;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].real);
                   }
-#line 6359 "src/y.tab.c" /* yacc.c:1646  */
+#line 6455 "src/y.tab.c"
     break;
 
   case 676:
-#line 2385 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2385 "src/p.y"
+                                          {
                         resourceset.resource_id = Resource_Threads;
                         resourceset.operator = (yyvsp[-1].number);
                         resourceset.limit = (yyvsp[0].number);
                   }
-#line 6369 "src/y.tab.c" /* yacc.c:1646  */
+#line 6465 "src/y.tab.c"
     break;
 
   case 677:
-#line 2392 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2392 "src/p.y"
+                                           {
                         resourceset.resource_id = Resource_Children;
                         resourceset.operator = (yyvsp[-1].number);
                         resourceset.limit = (yyvsp[0].number);
                   }
-#line 6379 "src/y.tab.c" /* yacc.c:1646  */
+#line 6475 "src/y.tab.c"
     break;
 
   case 678:
-#line 2399 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2399 "src/p.y"
+                                                                {
                         switch ((yyvsp[-3].number)) {
                                 case Resource_LoadAverage1m:
                                         resourceset.resource_id = (yyvsp[-2].number) > 1 ? Resource_LoadAveragePerCore1m : (yyvsp[-3].number);
@@ -6398,358 +6494,358 @@ yyreduce:
                         resourceset.operator = (yyvsp[-1].number);
                         resourceset.limit = (yyvsp[0].real);
                   }
-#line 6402 "src/y.tab.c" /* yacc.c:1646  */
+#line 6498 "src/y.tab.c"
     break;
 
   case 679:
-#line 2419 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Resource_LoadAverage1m; }
-#line 6408 "src/y.tab.c" /* yacc.c:1646  */
+#line 2419 "src/p.y"
+                            { (yyval.number) = Resource_LoadAverage1m; }
+#line 6504 "src/y.tab.c"
     break;
 
   case 680:
-#line 2420 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Resource_LoadAverage5m; }
-#line 6414 "src/y.tab.c" /* yacc.c:1646  */
+#line 2420 "src/p.y"
+                            { (yyval.number) = Resource_LoadAverage5m; }
+#line 6510 "src/y.tab.c"
     break;
 
   case 681:
-#line 2421 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Resource_LoadAverage15m; }
-#line 6420 "src/y.tab.c" /* yacc.c:1646  */
+#line 2421 "src/p.y"
+                            { (yyval.number) = Resource_LoadAverage15m; }
+#line 6516 "src/y.tab.c"
     break;
 
   case 682:
-#line 2424 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = 1; }
-#line 6426 "src/y.tab.c" /* yacc.c:1646  */
+#line 2424 "src/p.y"
+                              { (yyval.number) = 1; }
+#line 6522 "src/y.tab.c"
     break;
 
   case 683:
-#line 2425 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = systeminfo.cpu.count; }
-#line 6432 "src/y.tab.c" /* yacc.c:1646  */
+#line 2425 "src/p.y"
+                              { (yyval.number) = systeminfo.cpu.count; }
+#line 6528 "src/y.tab.c"
     break;
 
   case 684:
-#line 2429 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2429 "src/p.y"
+                                                       {
                         resourceset.resource_id = Resource_ReadBytes;
                         resourceset.operator = (yyvsp[-3].number);
                         resourceset.limit = (yyvsp[-2].real) * (yyvsp[-1].number);
                   }
-#line 6442 "src/y.tab.c" /* yacc.c:1646  */
+#line 6538 "src/y.tab.c"
     break;
 
   case 685:
-#line 2434 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2434 "src/p.y"
+                                                            {
                         resourceset.resource_id = Resource_ReadBytesPhysical;
                         resourceset.operator = (yyvsp[-3].number);
                         resourceset.limit = (yyvsp[-2].real) * (yyvsp[-1].number);
                   }
-#line 6452 "src/y.tab.c" /* yacc.c:1646  */
+#line 6548 "src/y.tab.c"
     break;
 
   case 686:
-#line 2439 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2439 "src/p.y"
+                                                      {
                         resourceset.resource_id = Resource_ReadOperations;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].number);
                   }
-#line 6462 "src/y.tab.c" /* yacc.c:1646  */
+#line 6558 "src/y.tab.c"
     break;
 
   case 687:
-#line 2446 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2446 "src/p.y"
+                                                        {
                         resourceset.resource_id = Resource_WriteBytes;
                         resourceset.operator = (yyvsp[-3].number);
                         resourceset.limit = (yyvsp[-2].real) * (yyvsp[-1].number);
                   }
-#line 6472 "src/y.tab.c" /* yacc.c:1646  */
+#line 6568 "src/y.tab.c"
     break;
 
   case 688:
-#line 2451 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2451 "src/p.y"
+                                                             {
                         resourceset.resource_id = Resource_WriteBytesPhysical;
                         resourceset.operator = (yyvsp[-3].number);
                         resourceset.limit = (yyvsp[-2].real) * (yyvsp[-1].number);
                   }
-#line 6482 "src/y.tab.c" /* yacc.c:1646  */
+#line 6578 "src/y.tab.c"
     break;
 
   case 689:
-#line 2456 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2456 "src/p.y"
+                                                       {
                         resourceset.resource_id = Resource_WriteOperations;
                         resourceset.operator = (yyvsp[-2].number);
                         resourceset.limit = (yyvsp[-1].number);
                   }
-#line 6492 "src/y.tab.c" /* yacc.c:1646  */
+#line 6588 "src/y.tab.c"
     break;
 
   case 690:
-#line 2463 "src/p.y" /* yacc.c:1646  */
-    { (yyval.real) = (yyvsp[0].real); }
-#line 6498 "src/y.tab.c" /* yacc.c:1646  */
+#line 2463 "src/p.y"
+                       { (yyval.real) = (yyvsp[0].real); }
+#line 6594 "src/y.tab.c"
     break;
 
   case 691:
-#line 2464 "src/p.y" /* yacc.c:1646  */
-    { (yyval.real) = (float) (yyvsp[0].number); }
-#line 6504 "src/y.tab.c" /* yacc.c:1646  */
+#line 2464 "src/p.y"
+                         { (yyval.real) = (float) (yyvsp[0].number); }
+#line 6600 "src/y.tab.c"
     break;
 
   case 692:
-#line 2467 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Timestamp_Default; }
-#line 6510 "src/y.tab.c" /* yacc.c:1646  */
+#line 2467 "src/p.y"
+                        { (yyval.number) = Timestamp_Default; }
+#line 6606 "src/y.tab.c"
     break;
 
   case 693:
-#line 2468 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Timestamp_Access; }
-#line 6516 "src/y.tab.c" /* yacc.c:1646  */
+#line 2468 "src/p.y"
+                        { (yyval.number) = Timestamp_Access; }
+#line 6612 "src/y.tab.c"
     break;
 
   case 694:
-#line 2469 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Timestamp_Change; }
-#line 6522 "src/y.tab.c" /* yacc.c:1646  */
+#line 2469 "src/p.y"
+                        { (yyval.number) = Timestamp_Change; }
+#line 6618 "src/y.tab.c"
     break;
 
   case 695:
-#line 2470 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Timestamp_Modification; }
-#line 6528 "src/y.tab.c" /* yacc.c:1646  */
+#line 2470 "src/p.y"
+                        { (yyval.number) = Timestamp_Modification; }
+#line 6624 "src/y.tab.c"
     break;
 
   case 696:
-#line 2473 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2473 "src/p.y"
+                                                                                    {
                         timestampset.type = (yyvsp[-7].number);
                         timestampset.operator = (yyvsp[-6].number);
                         timestampset.time = ((yyvsp[-5].number) * (yyvsp[-4].number));
                         addeventaction(&(timestampset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addtimestamp(&timestampset);
                   }
-#line 6540 "src/y.tab.c" /* yacc.c:1646  */
+#line 6636 "src/y.tab.c"
     break;
 
   case 697:
-#line 2480 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2480 "src/p.y"
+                                                              {
                         timestampset.type = (yyvsp[-3].number);
                         timestampset.test_changes = true;
                         addeventaction(&(timestampset).action, (yyvsp[0].number), Action_Ignored);
                         addtimestamp(&timestampset);
                   }
-#line 6551 "src/y.tab.c" /* yacc.c:1646  */
+#line 6647 "src/y.tab.c"
     break;
 
   case 698:
-#line 2488 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_Equal; }
-#line 6557 "src/y.tab.c" /* yacc.c:1646  */
+#line 2488 "src/p.y"
+                                 { (yyval.number) = Operator_Equal; }
+#line 6653 "src/y.tab.c"
     break;
 
   case 699:
-#line 2489 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_Greater; }
-#line 6563 "src/y.tab.c" /* yacc.c:1646  */
+#line 2489 "src/p.y"
+                                 { (yyval.number) = Operator_Greater; }
+#line 6659 "src/y.tab.c"
     break;
 
   case 700:
-#line 2490 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_GreaterOrEqual; }
-#line 6569 "src/y.tab.c" /* yacc.c:1646  */
+#line 2490 "src/p.y"
+                                 { (yyval.number) = Operator_GreaterOrEqual; }
+#line 6665 "src/y.tab.c"
     break;
 
   case 701:
-#line 2491 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_Less; }
-#line 6575 "src/y.tab.c" /* yacc.c:1646  */
+#line 2491 "src/p.y"
+                                 { (yyval.number) = Operator_Less; }
+#line 6671 "src/y.tab.c"
     break;
 
   case 702:
-#line 2492 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_LessOrEqual; }
-#line 6581 "src/y.tab.c" /* yacc.c:1646  */
+#line 2492 "src/p.y"
+                                 { (yyval.number) = Operator_LessOrEqual; }
+#line 6677 "src/y.tab.c"
     break;
 
   case 703:
-#line 2493 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_Equal; }
-#line 6587 "src/y.tab.c" /* yacc.c:1646  */
+#line 2493 "src/p.y"
+                                 { (yyval.number) = Operator_Equal; }
+#line 6683 "src/y.tab.c"
     break;
 
   case 704:
-#line 2494 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_NotEqual; }
-#line 6593 "src/y.tab.c" /* yacc.c:1646  */
+#line 2494 "src/p.y"
+                                 { (yyval.number) = Operator_NotEqual; }
+#line 6689 "src/y.tab.c"
     break;
 
   case 705:
-#line 2495 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Operator_Changed; }
-#line 6599 "src/y.tab.c" /* yacc.c:1646  */
+#line 2495 "src/p.y"
+                                 { (yyval.number) = Operator_Changed; }
+#line 6695 "src/y.tab.c"
     break;
 
   case 706:
-#line 2498 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Second; }
-#line 6605 "src/y.tab.c" /* yacc.c:1646  */
+#line 2498 "src/p.y"
+                              { (yyval.number) = Time_Second; }
+#line 6701 "src/y.tab.c"
     break;
 
   case 707:
-#line 2499 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Second; }
-#line 6611 "src/y.tab.c" /* yacc.c:1646  */
+#line 2499 "src/p.y"
+                              { (yyval.number) = Time_Second; }
+#line 6707 "src/y.tab.c"
     break;
 
   case 708:
-#line 2500 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Minute; }
-#line 6617 "src/y.tab.c" /* yacc.c:1646  */
+#line 2500 "src/p.y"
+                              { (yyval.number) = Time_Minute; }
+#line 6713 "src/y.tab.c"
     break;
 
   case 709:
-#line 2501 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Hour; }
-#line 6623 "src/y.tab.c" /* yacc.c:1646  */
+#line 2501 "src/p.y"
+                              { (yyval.number) = Time_Hour; }
+#line 6719 "src/y.tab.c"
     break;
 
   case 710:
-#line 2502 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Day; }
-#line 6629 "src/y.tab.c" /* yacc.c:1646  */
+#line 2502 "src/p.y"
+                              { (yyval.number) = Time_Day; }
+#line 6725 "src/y.tab.c"
     break;
 
   case 711:
-#line 2503 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Month; }
-#line 6635 "src/y.tab.c" /* yacc.c:1646  */
+#line 2503 "src/p.y"
+                              { (yyval.number) = Time_Month; }
+#line 6731 "src/y.tab.c"
     break;
 
   case 712:
-#line 2506 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Minute; }
-#line 6641 "src/y.tab.c" /* yacc.c:1646  */
+#line 2506 "src/p.y"
+                              { (yyval.number) = Time_Minute; }
+#line 6737 "src/y.tab.c"
     break;
 
   case 713:
-#line 2507 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Hour; }
-#line 6647 "src/y.tab.c" /* yacc.c:1646  */
+#line 2507 "src/p.y"
+                              { (yyval.number) = Time_Hour; }
+#line 6743 "src/y.tab.c"
     break;
 
   case 714:
-#line 2508 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Day; }
-#line 6653 "src/y.tab.c" /* yacc.c:1646  */
+#line 2508 "src/p.y"
+                              { (yyval.number) = Time_Day; }
+#line 6749 "src/y.tab.c"
     break;
 
   case 715:
-#line 2510 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Second; }
-#line 6659 "src/y.tab.c" /* yacc.c:1646  */
+#line 2510 "src/p.y"
+                              { (yyval.number) = Time_Second; }
+#line 6755 "src/y.tab.c"
     break;
 
   case 716:
-#line 2511 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Time_Second; }
-#line 6665 "src/y.tab.c" /* yacc.c:1646  */
+#line 2511 "src/p.y"
+                              { (yyval.number) = Time_Second; }
+#line 6761 "src/y.tab.c"
     break;
 
   case 717:
-#line 2513 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2513 "src/p.y"
+                              {
                         repeat = 0;
                   }
-#line 6673 "src/y.tab.c" /* yacc.c:1646  */
+#line 6769 "src/y.tab.c"
     break;
 
   case 718:
-#line 2516 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2516 "src/p.y"
+                                     {
                         repeat = 1;
                   }
-#line 6681 "src/y.tab.c" /* yacc.c:1646  */
+#line 6777 "src/y.tab.c"
     break;
 
   case 719:
-#line 2519 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2519 "src/p.y"
+                                            {
                         if ((yyvsp[-1].number) < 0) {
                                 yyerror2("The number of repeat cycles must be greater or equal to 0");
                         }
                         repeat = (yyvsp[-1].number);
                   }
-#line 6692 "src/y.tab.c" /* yacc.c:1646  */
+#line 6788 "src/y.tab.c"
     break;
 
   case 720:
-#line 2527 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2527 "src/p.y"
+                        {
                         (yyval.number) = Action_Alert;
                   }
-#line 6700 "src/y.tab.c" /* yacc.c:1646  */
+#line 6796 "src/y.tab.c"
     break;
 
   case 721:
-#line 2530 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2530 "src/p.y"
+                                           {
                         (yyval.number) = Action_Exec;
                   }
-#line 6708 "src/y.tab.c" /* yacc.c:1646  */
+#line 6804 "src/y.tab.c"
     break;
 
   case 722:
-#line 2534 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2534 "src/p.y"
+                  {
                         (yyval.number) = Action_Exec;
                   }
-#line 6716 "src/y.tab.c" /* yacc.c:1646  */
+#line 6812 "src/y.tab.c"
     break;
 
   case 723:
-#line 2537 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2537 "src/p.y"
+                          {
                         (yyval.number) = Action_Restart;
                   }
-#line 6724 "src/y.tab.c" /* yacc.c:1646  */
+#line 6820 "src/y.tab.c"
     break;
 
   case 724:
-#line 2540 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2540 "src/p.y"
+                        {
                         (yyval.number) = Action_Start;
                   }
-#line 6732 "src/y.tab.c" /* yacc.c:1646  */
+#line 6828 "src/y.tab.c"
     break;
 
   case 725:
-#line 2543 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2543 "src/p.y"
+                       {
                         (yyval.number) = Action_Stop;
                   }
-#line 6740 "src/y.tab.c" /* yacc.c:1646  */
+#line 6836 "src/y.tab.c"
     break;
 
   case 726:
-#line 2546 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2546 "src/p.y"
+                            {
                         (yyval.number) = Action_Unmonitor;
                   }
-#line 6748 "src/y.tab.c" /* yacc.c:1646  */
+#line 6844 "src/y.tab.c"
     break;
 
   case 727:
-#line 2551 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2551 "src/p.y"
+                         {
                         (yyval.number) = (yyvsp[0].number);
                         if ((yyvsp[0].number) == Action_Exec && command) {
                                 repeat1 = repeat;
@@ -6758,12 +6854,12 @@ yyreduce:
                                 command = NULL;
                         }
                   }
-#line 6762 "src/y.tab.c" /* yacc.c:1646  */
+#line 6858 "src/y.tab.c"
     break;
 
   case 728:
-#line 2562 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2562 "src/p.y"
+                         {
                         (yyval.number) = (yyvsp[0].number);
                         if ((yyvsp[0].number) == Action_Exec && command) {
                                 repeat2 = repeat;
@@ -6772,12 +6868,12 @@ yyreduce:
                                 command = NULL;
                         }
                   }
-#line 6776 "src/y.tab.c" /* yacc.c:1646  */
+#line 6872 "src/y.tab.c"
     break;
 
   case 729:
-#line 2573 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2573 "src/p.y"
+                               {
                         if ((yyvsp[-1].number) < 1 || (unsigned long)(yyvsp[-1].number) > BITMAP_MAX) {
                                 yyerror2("The number of cycles must be between 1 and %zu", BITMAP_MAX);
                         } else {
@@ -6785,12 +6881,12 @@ yyreduce:
                                 rate.cycles = (yyvsp[-1].number);
                         }
                   }
-#line 6789 "src/y.tab.c" /* yacc.c:1646  */
+#line 6885 "src/y.tab.c"
     break;
 
   case 730:
-#line 2583 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2583 "src/p.y"
+                                      {
                         if ((yyvsp[-1].number) < 1 || (unsigned long)(yyvsp[-1].number) > BITMAP_MAX) {
                                 yyerror2("The number of cycles must be between 1 and %zu", BITMAP_MAX);
                         } else if ((yyvsp[-2].number) < 1 || (yyvsp[-2].number) > (yyvsp[-1].number)) {
@@ -6800,359 +6896,359 @@ yyreduce:
                                 rate.cycles = (yyvsp[-1].number);
                         }
                   }
-#line 6804 "src/y.tab.c" /* yacc.c:1646  */
+#line 6900 "src/y.tab.c"
     break;
 
   case 732:
-#line 2596 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2596 "src/p.y"
+                              {
                         rate1.count = rate.count;
                         rate1.cycles = rate.cycles;
                         reset_rateset(&rate);
                   }
-#line 6814 "src/y.tab.c" /* yacc.c:1646  */
+#line 6910 "src/y.tab.c"
     break;
 
   case 733:
-#line 2601 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2601 "src/p.y"
+                               {
                         rate1.count = rate.count;
                         rate1.cycles = rate.cycles;
                         reset_rateset(&rate);
                 }
-#line 6824 "src/y.tab.c" /* yacc.c:1646  */
+#line 6920 "src/y.tab.c"
     break;
 
   case 735:
-#line 2609 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2609 "src/p.y"
+                              {
                         rate2.count = rate.count;
                         rate2.cycles = rate.cycles;
                         reset_rateset(&rate);
                   }
-#line 6834 "src/y.tab.c" /* yacc.c:1646  */
+#line 6930 "src/y.tab.c"
     break;
 
   case 736:
-#line 2614 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2614 "src/p.y"
+                               {
                         rate2.count = rate.count;
                         rate2.cycles = rate.cycles;
                         reset_rateset(&rate);
                 }
-#line 6844 "src/y.tab.c" /* yacc.c:1646  */
+#line 6940 "src/y.tab.c"
     break;
 
   case 737:
-#line 2621 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2621 "src/p.y"
+                              {
                         (yyval.number) = Action_Alert;
                   }
-#line 6852 "src/y.tab.c" /* yacc.c:1646  */
+#line 6948 "src/y.tab.c"
     break;
 
   case 738:
-#line 2624 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2624 "src/p.y"
+                                                       {
                         (yyval.number) = (yyvsp[0].number);
                   }
-#line 6860 "src/y.tab.c" /* yacc.c:1646  */
+#line 6956 "src/y.tab.c"
     break;
 
   case 739:
-#line 2627 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2627 "src/p.y"
+                                                    {
                         (yyval.number) = (yyvsp[0].number);
                   }
-#line 6868 "src/y.tab.c" /* yacc.c:1646  */
+#line 6964 "src/y.tab.c"
     break;
 
   case 740:
-#line 2630 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2630 "src/p.y"
+                                                       {
                         (yyval.number) = (yyvsp[0].number);
                   }
-#line 6876 "src/y.tab.c" /* yacc.c:1646  */
+#line 6972 "src/y.tab.c"
     break;
 
   case 741:
-#line 2635 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2635 "src/p.y"
+                                                                          {
                         addeventaction(&(checksumset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addchecksum(&checksumset);
                   }
-#line 6885 "src/y.tab.c" /* yacc.c:1646  */
+#line 6981 "src/y.tab.c"
     break;
 
   case 742:
-#line 2640 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2640 "src/p.y"
+                           {
                         snprintf(checksumset.hash, sizeof(checksumset.hash), "%s", (yyvsp[-4].string));
                         FREE((yyvsp[-4].string));
                         addeventaction(&(checksumset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addchecksum(&checksumset);
                   }
-#line 6896 "src/y.tab.c" /* yacc.c:1646  */
+#line 6992 "src/y.tab.c"
     break;
 
   case 743:
-#line 2646 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2646 "src/p.y"
+                                                                  {
                         checksumset.test_changes = true;
                         addeventaction(&(checksumset).action, (yyvsp[0].number), Action_Ignored);
                         addchecksum(&checksumset);
                   }
-#line 6906 "src/y.tab.c" /* yacc.c:1646  */
+#line 7002 "src/y.tab.c"
     break;
 
   case 744:
-#line 2652 "src/p.y" /* yacc.c:1646  */
-    { checksumset.type = Hash_Unknown; }
-#line 6912 "src/y.tab.c" /* yacc.c:1646  */
+#line 2652 "src/p.y"
+                              { checksumset.type = Hash_Unknown; }
+#line 7008 "src/y.tab.c"
     break;
 
   case 745:
-#line 2653 "src/p.y" /* yacc.c:1646  */
-    { checksumset.type = Hash_Md5; }
-#line 6918 "src/y.tab.c" /* yacc.c:1646  */
+#line 2653 "src/p.y"
+                              { checksumset.type = Hash_Md5; }
+#line 7014 "src/y.tab.c"
     break;
 
   case 746:
-#line 2654 "src/p.y" /* yacc.c:1646  */
-    { checksumset.type = Hash_Sha1; }
-#line 6924 "src/y.tab.c" /* yacc.c:1646  */
+#line 2654 "src/p.y"
+                              { checksumset.type = Hash_Sha1; }
+#line 7020 "src/y.tab.c"
     break;
 
   case 747:
-#line 2657 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2657 "src/p.y"
+                                                                       {
                         filesystemset.resource = Resource_Inode;
                         filesystemset.operator = (yyvsp[-5].number);
                         filesystemset.limit_absolute = (yyvsp[-4].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 6936 "src/y.tab.c" /* yacc.c:1646  */
+#line 7032 "src/y.tab.c"
     break;
 
   case 748:
-#line 2664 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2664 "src/p.y"
+                                                                              {
                         filesystemset.resource = Resource_Inode;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_percent = (yyvsp[-5].real);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 6948 "src/y.tab.c" /* yacc.c:1646  */
+#line 7044 "src/y.tab.c"
     break;
 
   case 749:
-#line 2671 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2671 "src/p.y"
+                                                                             {
                         filesystemset.resource = Resource_InodeFree;
                         filesystemset.operator = (yyvsp[-5].number);
                         filesystemset.limit_absolute = (yyvsp[-4].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 6960 "src/y.tab.c" /* yacc.c:1646  */
+#line 7056 "src/y.tab.c"
     break;
 
   case 750:
-#line 2678 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2678 "src/p.y"
+                                                                                    {
                         filesystemset.resource = Resource_InodeFree;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_percent = (yyvsp[-5].real);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 6972 "src/y.tab.c" /* yacc.c:1646  */
+#line 7068 "src/y.tab.c"
     break;
 
   case 751:
-#line 2687 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2687 "src/p.y"
+                                                                           {
                         filesystemset.resource = Resource_Space;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_absolute = (yyvsp[-5].real) * (yyvsp[-4].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 6984 "src/y.tab.c" /* yacc.c:1646  */
+#line 7080 "src/y.tab.c"
     break;
 
   case 752:
-#line 2694 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2694 "src/p.y"
+                                                                              {
                         filesystemset.resource = Resource_Space;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_percent = (yyvsp[-5].real);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 6996 "src/y.tab.c" /* yacc.c:1646  */
+#line 7092 "src/y.tab.c"
     break;
 
   case 753:
-#line 2701 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2701 "src/p.y"
+                                                                                 {
                         filesystemset.resource = Resource_SpaceFree;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_absolute = (yyvsp[-5].real) * (yyvsp[-4].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7008 "src/y.tab.c" /* yacc.c:1646  */
+#line 7104 "src/y.tab.c"
     break;
 
   case 754:
-#line 2708 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2708 "src/p.y"
+                                                                                    {
                         filesystemset.resource = Resource_SpaceFree;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_percent = (yyvsp[-5].real);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7020 "src/y.tab.c" /* yacc.c:1646  */
+#line 7116 "src/y.tab.c"
     break;
 
   case 755:
-#line 2717 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2717 "src/p.y"
+                                                                                      {
                         filesystemset.resource = Resource_ReadBytes;
                         filesystemset.operator = (yyvsp[-7].number);
                         filesystemset.limit_absolute = (yyvsp[-6].real) * (yyvsp[-5].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7032 "src/y.tab.c" /* yacc.c:1646  */
+#line 7128 "src/y.tab.c"
     break;
 
   case 756:
-#line 2724 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2724 "src/p.y"
+                                                                                {
                         filesystemset.resource = Resource_ReadOperations;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_absolute = (yyvsp[-5].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7044 "src/y.tab.c" /* yacc.c:1646  */
+#line 7140 "src/y.tab.c"
     break;
 
   case 757:
-#line 2733 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2733 "src/p.y"
+                                                                                       {
                         filesystemset.resource = Resource_WriteBytes;
                         filesystemset.operator = (yyvsp[-7].number);
                         filesystemset.limit_absolute = (yyvsp[-6].real) * (yyvsp[-5].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7056 "src/y.tab.c" /* yacc.c:1646  */
+#line 7152 "src/y.tab.c"
     break;
 
   case 758:
-#line 2740 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2740 "src/p.y"
+                                                                                 {
                         filesystemset.resource = Resource_WriteOperations;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_absolute = (yyvsp[-5].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7068 "src/y.tab.c" /* yacc.c:1646  */
+#line 7164 "src/y.tab.c"
     break;
 
   case 759:
-#line 2749 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2749 "src/p.y"
+                                                                                         {
                         filesystemset.resource = Resource_ServiceTime;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_absolute = (yyvsp[-5].number);
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7080 "src/y.tab.c" /* yacc.c:1646  */
+#line 7176 "src/y.tab.c"
     break;
 
   case 760:
-#line 2756 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2756 "src/p.y"
+                                                                                   {
                         filesystemset.resource = Resource_ServiceTime;
                         filesystemset.operator = (yyvsp[-6].number);
                         filesystemset.limit_absolute = (yyvsp[-5].real) * 1000;
                         addeventaction(&(filesystemset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addfilesystem(&filesystemset);
                   }
-#line 7092 "src/y.tab.c" /* yacc.c:1646  */
+#line 7188 "src/y.tab.c"
     break;
 
   case 761:
-#line 2765 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2765 "src/p.y"
+                                                       {
                         addeventaction(&(fsflagset).action, (yyvsp[0].number), Action_Ignored);
                         addfsflag(&fsflagset);
                   }
-#line 7101 "src/y.tab.c" /* yacc.c:1646  */
+#line 7197 "src/y.tab.c"
     break;
 
   case 762:
-#line 2771 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Unit_Byte; }
-#line 7107 "src/y.tab.c" /* yacc.c:1646  */
+#line 2771 "src/p.y"
+                               { (yyval.number) = Unit_Byte; }
+#line 7203 "src/y.tab.c"
     break;
 
   case 763:
-#line 2772 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Unit_Byte; }
-#line 7113 "src/y.tab.c" /* yacc.c:1646  */
+#line 2772 "src/p.y"
+                               { (yyval.number) = Unit_Byte; }
+#line 7209 "src/y.tab.c"
     break;
 
   case 764:
-#line 2773 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Unit_Kilobyte; }
-#line 7119 "src/y.tab.c" /* yacc.c:1646  */
+#line 2773 "src/p.y"
+                               { (yyval.number) = Unit_Kilobyte; }
+#line 7215 "src/y.tab.c"
     break;
 
   case 765:
-#line 2774 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Unit_Megabyte; }
-#line 7125 "src/y.tab.c" /* yacc.c:1646  */
+#line 2774 "src/p.y"
+                               { (yyval.number) = Unit_Megabyte; }
+#line 7221 "src/y.tab.c"
     break;
 
   case 766:
-#line 2775 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = Unit_Gigabyte; }
-#line 7131 "src/y.tab.c" /* yacc.c:1646  */
+#line 2775 "src/p.y"
+                               { (yyval.number) = Unit_Gigabyte; }
+#line 7227 "src/y.tab.c"
     break;
 
   case 767:
-#line 2778 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2778 "src/p.y"
+                                                                          {
                         permset.perm = check_perm((yyvsp[-4].number));
                         addeventaction(&(permset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addperm(&permset);
                   }
-#line 7141 "src/y.tab.c" /* yacc.c:1646  */
+#line 7237 "src/y.tab.c"
     break;
 
   case 768:
-#line 2783 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2783 "src/p.y"
+                                                                    {
                         permset.test_changes = true;
                         addeventaction(&(permset).action, (yyvsp[-1].number), Action_Ignored);
                         addperm(&permset);
                   }
-#line 7151 "src/y.tab.c" /* yacc.c:1646  */
+#line 7247 "src/y.tab.c"
     break;
 
   case 769:
-#line 2790 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2790 "src/p.y"
+                                                                 {
                         matchset.not = (yyvsp[-4].number) == Operator_Equal ? false : true;
                         matchset.ignore = false;
                         matchset.match_path = (yyvsp[-3].string);
@@ -7160,24 +7256,24 @@ yyreduce:
                         addmatchpath(&matchset, (yyvsp[0].number));
                         FREE((yyvsp[-3].string));
                   }
-#line 7164 "src/y.tab.c" /* yacc.c:1646  */
+#line 7260 "src/y.tab.c"
     break;
 
   case 770:
-#line 2798 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2798 "src/p.y"
+                                                                   {
                         matchset.not = (yyvsp[-4].number) == Operator_Equal ? false : true;
                         matchset.ignore = false;
                         matchset.match_path = NULL;
                         matchset.match_string = (yyvsp[-3].string);
                         addmatch(&matchset, (yyvsp[0].number), 0);
                   }
-#line 7176 "src/y.tab.c" /* yacc.c:1646  */
+#line 7272 "src/y.tab.c"
     break;
 
   case 771:
-#line 2805 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2805 "src/p.y"
+                                                  {
                         matchset.not = (yyvsp[-1].number) == Operator_Equal ? false : true;
                         matchset.ignore = true;
                         matchset.match_path = (yyvsp[0].string);
@@ -7185,270 +7281,270 @@ yyreduce:
                         addmatchpath(&matchset, Action_Ignored);
                         FREE((yyvsp[0].string));
                   }
-#line 7189 "src/y.tab.c" /* yacc.c:1646  */
+#line 7285 "src/y.tab.c"
     break;
 
   case 772:
-#line 2813 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2813 "src/p.y"
+                                                    {
                         matchset.not = (yyvsp[-1].number) == Operator_Equal ? false : true;
                         matchset.ignore = true;
                         matchset.match_path = NULL;
                         matchset.match_string = (yyvsp[0].string);
                         addmatch(&matchset, Action_Ignored, 0);
                   }
-#line 7201 "src/y.tab.c" /* yacc.c:1646  */
+#line 7297 "src/y.tab.c"
     break;
 
   case 773:
-#line 2821 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2821 "src/p.y"
+                                                                {
                         matchset.ignore = false;
                         matchset.match_path = (yyvsp[-3].string);
                         matchset.match_string = NULL;
                         addmatchpath(&matchset, (yyvsp[0].number));
                         FREE((yyvsp[-3].string));
                   }
-#line 7213 "src/y.tab.c" /* yacc.c:1646  */
+#line 7309 "src/y.tab.c"
     break;
 
   case 774:
-#line 2828 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2828 "src/p.y"
+                                                                  {
                         matchset.ignore = false;
                         matchset.match_path = NULL;
                         matchset.match_string = (yyvsp[-3].string);
                         addmatch(&matchset, (yyvsp[0].number), 0);
                   }
-#line 7224 "src/y.tab.c" /* yacc.c:1646  */
+#line 7320 "src/y.tab.c"
     break;
 
   case 775:
-#line 2834 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2834 "src/p.y"
+                                                 {
                         matchset.ignore = true;
                         matchset.match_path = (yyvsp[0].string);
                         matchset.match_string = NULL;
                         addmatchpath(&matchset, Action_Ignored);
                         FREE((yyvsp[0].string));
                   }
-#line 7236 "src/y.tab.c" /* yacc.c:1646  */
+#line 7332 "src/y.tab.c"
     break;
 
   case 776:
-#line 2841 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2841 "src/p.y"
+                                                   {
                         matchset.ignore = true;
                         matchset.match_path = NULL;
                         matchset.match_string = (yyvsp[0].string);
                         addmatch(&matchset, Action_Ignored, 0);
                   }
-#line 7247 "src/y.tab.c" /* yacc.c:1646  */
+#line 7343 "src/y.tab.c"
     break;
 
   case 777:
-#line 2849 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2849 "src/p.y"
+                              {
                         matchset.not = false;
                   }
-#line 7255 "src/y.tab.c" /* yacc.c:1646  */
+#line 7351 "src/y.tab.c"
     break;
 
   case 778:
-#line 2852 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2852 "src/p.y"
+                      {
                         matchset.not = true;
                   }
-#line 7263 "src/y.tab.c" /* yacc.c:1646  */
+#line 7359 "src/y.tab.c"
     break;
 
   case 779:
-#line 2858 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2858 "src/p.y"
+                                                                           {
                         sizeset.operator = (yyvsp[-6].number);
                         sizeset.size = ((unsigned long long)(yyvsp[-5].number) * (yyvsp[-4].number));
                         addeventaction(&(sizeset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addsize(&sizeset);
                   }
-#line 7274 "src/y.tab.c" /* yacc.c:1646  */
+#line 7370 "src/y.tab.c"
     break;
 
   case 780:
-#line 2864 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2864 "src/p.y"
+                                                     {
                         sizeset.test_changes = true;
                         addeventaction(&(sizeset).action, (yyvsp[0].number), Action_Ignored);
                         addsize(&sizeset);
                   }
-#line 7284 "src/y.tab.c" /* yacc.c:1646  */
+#line 7380 "src/y.tab.c"
     break;
 
   case 781:
-#line 2871 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2871 "src/p.y"
+                                                                   {
                         uidset.uid = get_uid((yyvsp[-4].string), 0);
                         addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         current->uid = adduid(&uidset);
                         FREE((yyvsp[-4].string));
                   }
-#line 7295 "src/y.tab.c" /* yacc.c:1646  */
+#line 7391 "src/y.tab.c"
     break;
 
   case 782:
-#line 2877 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2877 "src/p.y"
+                                                                   {
                     uidset.uid = get_uid(NULL, (yyvsp[-4].number));
                     addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
                     current->uid = adduid(&uidset);
                   }
-#line 7305 "src/y.tab.c" /* yacc.c:1646  */
+#line 7401 "src/y.tab.c"
     break;
 
   case 783:
-#line 2884 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2884 "src/p.y"
+                                                                    {
                         uidset.uid = get_uid((yyvsp[-4].string), 0);
                         addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         current->euid = adduid(&uidset);
                         FREE((yyvsp[-4].string));
                   }
-#line 7316 "src/y.tab.c" /* yacc.c:1646  */
+#line 7412 "src/y.tab.c"
     break;
 
   case 784:
-#line 2890 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2890 "src/p.y"
+                                                                    {
                         uidset.uid = get_uid(NULL, (yyvsp[-4].number));
                         addeventaction(&(uidset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         current->euid = adduid(&uidset);
                   }
-#line 7326 "src/y.tab.c" /* yacc.c:1646  */
+#line 7422 "src/y.tab.c"
     break;
 
   case 785:
-#line 2897 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2897 "src/p.y"
+                                                                                  {
                         addsecurityattribute((yyvsp[-4].string), (yyvsp[-1].number), (yyvsp[0].number));
                   }
-#line 7334 "src/y.tab.c" /* yacc.c:1646  */
+#line 7430 "src/y.tab.c"
     break;
 
   case 786:
-#line 2900 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2900 "src/p.y"
+                                                                                {
                         addsecurityattribute((yyvsp[-4].string), (yyvsp[-1].number), (yyvsp[0].number));
                   }
-#line 7342 "src/y.tab.c" /* yacc.c:1646  */
+#line 7438 "src/y.tab.c"
     break;
 
   case 787:
-#line 2905 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2905 "src/p.y"
+                                                                                       {
                         if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerSystem)
                                 addfiledescriptors((yyvsp[-5].number), false, (long long)(yyvsp[-4].number), -1., (yyvsp[-1].number), (yyvsp[0].number));
                         else
                                 yywarning("The per-system filedescriptors statistics is not available on this system\n");
                   }
-#line 7353 "src/y.tab.c" /* yacc.c:1646  */
+#line 7449 "src/y.tab.c"
     break;
 
   case 788:
-#line 2911 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2911 "src/p.y"
+                                                                                        {
                         if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerSystem)
                                 addfiledescriptors((yyvsp[-6].number), false, -1LL, (yyvsp[-5].real), (yyvsp[-1].number), (yyvsp[0].number));
                         else
                                 yywarning("The per-system filedescriptors statistics is not available on this system\n");
                   }
-#line 7364 "src/y.tab.c" /* yacc.c:1646  */
+#line 7460 "src/y.tab.c"
     break;
 
   case 789:
-#line 2919 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2919 "src/p.y"
+                                                                                        {
                         if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerProcess)
                                 addfiledescriptors((yyvsp[-5].number), false, (long long)(yyvsp[-4].number), -1., (yyvsp[-1].number), (yyvsp[0].number));
                         else
                                 yywarning("The per-process filedescriptors statistics is not available on this system\n");
                   }
-#line 7375 "src/y.tab.c" /* yacc.c:1646  */
+#line 7471 "src/y.tab.c"
     break;
 
   case 790:
-#line 2925 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2925 "src/p.y"
+                                                                                        {
                         if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerProcessMax)
                                 addfiledescriptors((yyvsp[-6].number), false, -1LL, (yyvsp[-5].real), (yyvsp[-1].number), (yyvsp[0].number));
                         else
                                 yywarning("The per-process filedescriptors maximum is not exposed on this system, so we cannot compute usage %%, please use the test with absolute value\n");
                   }
-#line 7386 "src/y.tab.c" /* yacc.c:1646  */
+#line 7482 "src/y.tab.c"
     break;
 
   case 791:
-#line 2933 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2933 "src/p.y"
+                                                                                                   {
                         if (systeminfo.statisticsAvailable & Statistics_FiledescriptorsPerProcess)
                                 addfiledescriptors((yyvsp[-5].number), true, (long long)(yyvsp[-4].number), -1., (yyvsp[-1].number), (yyvsp[0].number));
                         else
                                 yywarning("The per-process filedescriptors statistics is not available on this system\n");
                   }
-#line 7397 "src/y.tab.c" /* yacc.c:1646  */
+#line 7493 "src/y.tab.c"
     break;
 
   case 792:
-#line 2941 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2941 "src/p.y"
+                                                                   {
                         gidset.gid = get_gid((yyvsp[-4].string), 0);
                         addeventaction(&(gidset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         current->gid = addgid(&gidset);
                         FREE((yyvsp[-4].string));
                   }
-#line 7408 "src/y.tab.c" /* yacc.c:1646  */
+#line 7504 "src/y.tab.c"
     break;
 
   case 793:
-#line 2947 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2947 "src/p.y"
+                                                                   {
                         gidset.gid = get_gid(NULL, (yyvsp[-4].number));
                         addeventaction(&(gidset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         current->gid = addgid(&gidset);
                   }
-#line 7418 "src/y.tab.c" /* yacc.c:1646  */
+#line 7514 "src/y.tab.c"
     break;
 
   case 794:
-#line 2954 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2954 "src/p.y"
+                                                          {
                         addeventaction(&(linkstatusset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addlinkstatus(current, &linkstatusset);
                   }
-#line 7427 "src/y.tab.c" /* yacc.c:1646  */
+#line 7523 "src/y.tab.c"
     break;
 
   case 795:
-#line 2960 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2960 "src/p.y"
+                                                           {
                         addeventaction(&(linkspeedset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addlinkspeed(current, &linkspeedset);
                   }
-#line 7436 "src/y.tab.c" /* yacc.c:1646  */
+#line 7532 "src/y.tab.c"
     break;
 
   case 796:
-#line 2965 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2965 "src/p.y"
+                                                                                   {
                         linksaturationset.operator = (yyvsp[-6].number);
                         linksaturationset.limit = (unsigned long long)(yyvsp[-5].number);
                         addeventaction(&(linksaturationset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addlinksaturation(current, &linksaturationset);
                   }
-#line 7447 "src/y.tab.c" /* yacc.c:1646  */
+#line 7543 "src/y.tab.c"
     break;
 
   case 797:
-#line 2973 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2973 "src/p.y"
+                                                                                         {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = ((unsigned long long)(yyvsp[-6].number) * (yyvsp[-5].number));
                         bandwidthset.rangecount = 1;
@@ -7456,12 +7552,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->uploadbyteslist), &bandwidthset);
                   }
-#line 7460 "src/y.tab.c" /* yacc.c:1646  */
+#line 7556 "src/y.tab.c"
     break;
 
   case 798:
-#line 2981 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2981 "src/p.y"
+                                                                                             {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = ((unsigned long long)(yyvsp[-6].number) * (yyvsp[-5].number));
                         bandwidthset.rangecount = 1;
@@ -7469,12 +7565,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->uploadbyteslist), &bandwidthset);
                   }
-#line 7473 "src/y.tab.c" /* yacc.c:1646  */
+#line 7569 "src/y.tab.c"
     break;
 
   case 799:
-#line 2989 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2989 "src/p.y"
+                                                                                                    {
                         bandwidthset.operator = (yyvsp[-8].number);
                         bandwidthset.limit = ((unsigned long long)(yyvsp[-7].number) * (yyvsp[-6].number));
                         bandwidthset.rangecount = (yyvsp[-5].number);
@@ -7482,12 +7578,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->uploadbyteslist), &bandwidthset);
                   }
-#line 7486 "src/y.tab.c" /* yacc.c:1646  */
+#line 7582 "src/y.tab.c"
     break;
 
   case 800:
-#line 2997 "src/p.y" /* yacc.c:1646  */
-    {
+#line 2997 "src/p.y"
+                                                                                           {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = (unsigned long long)(yyvsp[-6].number);
                         bandwidthset.rangecount = 1;
@@ -7495,12 +7591,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->uploadpacketslist), &bandwidthset);
                   }
-#line 7499 "src/y.tab.c" /* yacc.c:1646  */
+#line 7595 "src/y.tab.c"
     break;
 
   case 801:
-#line 3005 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3005 "src/p.y"
+                                                                                               {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = (unsigned long long)(yyvsp[-6].number);
                         bandwidthset.rangecount = 1;
@@ -7508,12 +7604,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->uploadpacketslist), &bandwidthset);
                   }
-#line 7512 "src/y.tab.c" /* yacc.c:1646  */
+#line 7608 "src/y.tab.c"
     break;
 
   case 802:
-#line 3013 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3013 "src/p.y"
+                                                                                                      {
                         bandwidthset.operator = (yyvsp[-8].number);
                         bandwidthset.limit = (unsigned long long)(yyvsp[-7].number);
                         bandwidthset.rangecount = (yyvsp[-5].number);
@@ -7521,12 +7617,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->uploadpacketslist), &bandwidthset);
                   }
-#line 7525 "src/y.tab.c" /* yacc.c:1646  */
+#line 7621 "src/y.tab.c"
     break;
 
   case 803:
-#line 3023 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3023 "src/p.y"
+                                                                                           {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = ((unsigned long long)(yyvsp[-6].number) * (yyvsp[-5].number));
                         bandwidthset.rangecount = 1;
@@ -7534,12 +7630,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->downloadbyteslist), &bandwidthset);
                   }
-#line 7538 "src/y.tab.c" /* yacc.c:1646  */
+#line 7634 "src/y.tab.c"
     break;
 
   case 804:
-#line 3031 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3031 "src/p.y"
+                                                                                               {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = ((unsigned long long)(yyvsp[-6].number) * (yyvsp[-5].number));
                         bandwidthset.rangecount = 1;
@@ -7547,12 +7643,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->downloadbyteslist), &bandwidthset);
                   }
-#line 7551 "src/y.tab.c" /* yacc.c:1646  */
+#line 7647 "src/y.tab.c"
     break;
 
   case 805:
-#line 3039 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3039 "src/p.y"
+                                                                                                      {
                         bandwidthset.operator = (yyvsp[-8].number);
                         bandwidthset.limit = ((unsigned long long)(yyvsp[-7].number) * (yyvsp[-6].number));
                         bandwidthset.rangecount = (yyvsp[-5].number);
@@ -7560,12 +7656,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->downloadbyteslist), &bandwidthset);
                   }
-#line 7564 "src/y.tab.c" /* yacc.c:1646  */
+#line 7660 "src/y.tab.c"
     break;
 
   case 806:
-#line 3047 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3047 "src/p.y"
+                                                                                             {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = (unsigned long long)(yyvsp[-6].number);
                         bandwidthset.rangecount = 1;
@@ -7573,12 +7669,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->downloadpacketslist), &bandwidthset);
                   }
-#line 7577 "src/y.tab.c" /* yacc.c:1646  */
+#line 7673 "src/y.tab.c"
     break;
 
   case 807:
-#line 3055 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3055 "src/p.y"
+                                                                                                 {
                         bandwidthset.operator = (yyvsp[-7].number);
                         bandwidthset.limit = (unsigned long long)(yyvsp[-6].number);
                         bandwidthset.rangecount = 1;
@@ -7586,12 +7682,12 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->downloadpacketslist), &bandwidthset);
                   }
-#line 7590 "src/y.tab.c" /* yacc.c:1646  */
+#line 7686 "src/y.tab.c"
     break;
 
   case 808:
-#line 3063 "src/p.y" /* yacc.c:1646  */
-    {
+#line 3063 "src/p.y"
+                                                                                                        {
                         bandwidthset.operator = (yyvsp[-8].number);
                         bandwidthset.limit = (unsigned long long)(yyvsp[-7].number);
                         bandwidthset.rangecount = (yyvsp[-5].number);
@@ -7599,35 +7695,36 @@ yyreduce:
                         addeventaction(&(bandwidthset).action, (yyvsp[-1].number), (yyvsp[0].number));
                         addbandwidth(&(current->downloadpacketslist), &bandwidthset);
                   }
-#line 7603 "src/y.tab.c" /* yacc.c:1646  */
+#line 7699 "src/y.tab.c"
     break;
 
   case 809:
-#line 3073 "src/p.y" /* yacc.c:1646  */
-    { (yyval.number) = ICMP_ECHO; }
-#line 7609 "src/y.tab.c" /* yacc.c:1646  */
+#line 3073 "src/p.y"
+                                { (yyval.number) = ICMP_ECHO; }
+#line 7705 "src/y.tab.c"
     break;
 
   case 810:
-#line 3076 "src/p.y" /* yacc.c:1646  */
-    { mailset.reminder = 0; }
-#line 7615 "src/y.tab.c" /* yacc.c:1646  */
+#line 3076 "src/p.y"
+                                        { mailset.reminder = 0; }
+#line 7711 "src/y.tab.c"
     break;
 
   case 811:
-#line 3077 "src/p.y" /* yacc.c:1646  */
-    { mailset.reminder = (yyvsp[0].number); }
-#line 7621 "src/y.tab.c" /* yacc.c:1646  */
+#line 3077 "src/p.y"
+                                        { mailset.reminder = (yyvsp[0].number); }
+#line 7717 "src/y.tab.c"
     break;
 
   case 812:
-#line 3078 "src/p.y" /* yacc.c:1646  */
-    { mailset.reminder = (yyvsp[-1].number); }
-#line 7627 "src/y.tab.c" /* yacc.c:1646  */
+#line 3078 "src/p.y"
+                                        { mailset.reminder = (yyvsp[-1].number); }
+#line 7723 "src/y.tab.c"
     break;
 
 
-#line 7631 "src/y.tab.c" /* yacc.c:1646  */
+#line 7727 "src/y.tab.c"
+
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -7652,14 +7749,13 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-
-  yyn = yyr1[yyn];
-
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
-    yystate = yytable[yystate];
-  else
-    yystate = yydefgoto[yyn - YYNTOKENS];
+  {
+    const int yylhs = yyr1[yyn] - YYNTOKENS;
+    const int yyi = yypgoto[yylhs] + *yyssp;
+    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
+               ? yytable[yyi]
+               : yydefgoto[yylhs]);
+  }
 
   goto yynewstate;
 
@@ -7691,7 +7787,7 @@ yyerrlab:
           {
             if (yymsg != yymsgbuf)
               YYSTACK_FREE (yymsg);
-            yymsg = (char *) YYSTACK_ALLOC (yymsg_alloc);
+            yymsg = YY_CAST (char *, YYSTACK_ALLOC (YY_CAST (YYSIZE_T, yymsg_alloc)));
             if (!yymsg)
               {
                 yymsg = yymsgbuf;
@@ -7742,12 +7838,10 @@ yyerrlab:
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
 yyerrorlab:
-
-  /* Pacify compilers like GCC when the user code never invokes
-     YYERROR and the label yyerrorlab therefore never appears in user
-     code.  */
-  if (/*CONSTCOND*/ 0)
-     goto yyerrorlab;
+  /* Pacify compilers when the user code never invokes YYERROR and the
+     label yyerrorlab therefore never appears in user code.  */
+  if (0)
+    YYERROR;
 
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
@@ -7809,12 +7903,14 @@ yyacceptlab:
   yyresult = 0;
   goto yyreturn;
 
+
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
   goto yyreturn;
+
 
 #if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
@@ -7826,6 +7922,10 @@ yyexhaustedlab:
   /* Fall through.  */
 #endif
 
+
+/*-----------------------------------------------------.
+| yyreturn -- parsing is finished, return the result.  |
+`-----------------------------------------------------*/
 yyreturn:
   if (yychar != YYEMPTY)
     {
@@ -7842,7 +7942,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp);
+                  yystos[+*yyssp], yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -7855,7 +7955,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 3081 "src/p.y" /* yacc.c:1906  */
+#line 3081 "src/p.y"
 
 
 
